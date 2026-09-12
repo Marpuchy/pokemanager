@@ -90,7 +90,17 @@ Lo que de verdad se necesita compila limpio: `Game/`, `Structures/`, `Randomizer
 
 Identifica el juego **contando archivos en la carpeta `a/`**: 271 = X/Y, 299 = ORAS,
 311 = SM, 333 = USUM. Sin hash ni cabecera. Con un dump raro falla en silencio.
-Conviene reforzarlo.
+
+**Reforzado** en `Pokemanager.Model/Dump/DumpInspector.cs`. Además del conteo comprueba:
+- que los GARC de firma sean VER_4 con su número de entradas (personal 800, move 618, levelup 799,
+  evolution 799; medidas sobre un volcado real de X);
+- el título SMDH de `exefs/icon.bin`, que es lo único que **distingue X de Y** (el conteo no puede);
+- que `code.bin` no tenga pie BLZ, es decir, que esté descomprimido.
+
+Informa de todos los problemas a la vez.
+
+Índice de idioma de pk3DS en X/Y (se suma a gametext 072 / storytext 080): 0 kana, 1 kanji,
+2 inglés, 3 francés, 4 italiano, 5 alemán, 6 español, 7 coreano.
 
 ---
 
@@ -208,7 +218,7 @@ El objetivo no es tener un editor: es cerrar el circuito completo una vez.
 
 1. **[Hecho]** Fork de pk3DS. Desacoplar `pk3DS.Core` de WinForms (`IProgress<T>` en los 7 archivos de
    `CTR/`), target `net10.0`. Verificar que compila fuera de Windows.
-2. Envoltura headless: abrir la carpeta `romfs`, contar archivos en `a/`, construir el
+2. **[Hecho]** Envoltura headless (`GameDump.Open`): abrir la carpeta `romfs`, contar archivos en `a/`, construir el
    `GameConfig` y llamar a `Initialize(romfs, exefs, idioma)`.
 3. Capa de ediciones: modelo `{tabla, id, campo, valor}` y su aplicación sobre el modelo.
 4. Leer `a/2/1/8`, modificar los stats base de una especie y reempaquetar con
