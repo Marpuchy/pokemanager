@@ -62,23 +62,20 @@ Repo: https://github.com/kwsch/pk3DS · Último commit 27-feb-2026 ("Update to .
 `<UseWindowsForms>true</UseWindowsForms>`. **No es una librería portable.** Como la interfaz
 va a ser Avalonia (multiplataforma), desacoplarlo no es opcional.
 
-La contaminación está acotada a 7 archivos, todos en `CTR/`, y es solo por aceptar
-`RichTextBox`/`ProgressBar` como reporte de progreso:
+**Resuelto** (ver `docs/upstream-pk3ds.md`). La contaminación era de dos tipos:
 
-```
-pk3DS.Core/CTR/BLZ.cs
-pk3DS.Core/CTR/CRO.cs
-pk3DS.Core/CTR/CTR.cs
-pk3DS.Core/CTR/NCCH.cs
-pk3DS.Core/CTR/NCSD.cs
-pk3DS.Core/CTR/RomFS.cs
-pk3DS.Core/Properties/Resources.resx
-```
+1. **WinForms** — 6 archivos de `CTR/` aceptaban `RichTextBox`/`ProgressBar` como reporte de
+   progreso: `BLZ.cs`, `CRO.cs`, `CTR.cs`, `NCCH.cs`, `NCSD.cs`, `RomFS.cs`. Sustituidos por
+   `IProgress<string>` e `IProgress<ProgressState>`. `Properties/Resources.resx` solo nombra
+   `ResXFileRef` de WinForms y el SDK de .NET lo compila sin tocarlo.
+2. **`System.Drawing` y código nativo** — no aparecía en la investigación inicial. `System.Drawing`
+   solo funciona en Windows en .NET moderno. Afecta a `ImageUtil.cs`, `CTR/SMDH.cs`,
+   `CTR/Images/**` y `Structures/TypeChart.cs`; `CTR/ETC1.cs` además carga una `ETC1Lib.dll`
+   nativa de Windows. Son gráficos: **excluidos de la compilación**, no borrados. Nada de
+   `Game/`, `Structures/` ni `Randomizers/` depende de ellos.
 
-Sustituir esos parámetros por `IProgress<T>` y cambiar el target a `net10.0`. Trabajo de horas.
-
-Lo que sí está limpio y es lo que de verdad se necesita: `Game/`, `Structures/`,
-`Randomizers/`, `CTR/GARC.cs`, `CTR/LZSS.cs`, `CTR/mini.cs`.
+Lo que de verdad se necesita compila limpio: `Game/`, `Structures/`, `Randomizers/`,
+`CTR/GARC.cs`, `CTR/LZSS.cs`, `CTR/mini.cs`.
 
 ### Lo que ya trae hecho
 
@@ -209,7 +206,7 @@ Dos vías, y una es claramente mejor:
 
 El objetivo no es tener un editor: es cerrar el circuito completo una vez.
 
-1. Fork de pk3DS. Desacoplar `pk3DS.Core` de WinForms (`IProgress<T>` en los 7 archivos de
+1. **[Hecho]** Fork de pk3DS. Desacoplar `pk3DS.Core` de WinForms (`IProgress<T>` en los 7 archivos de
    `CTR/`), target `net10.0`. Verificar que compila fuera de Windows.
 2. Envoltura headless: abrir la carpeta `romfs`, contar archivos en `a/`, construir el
    `GameConfig` y llamar a `Initialize(romfs, exefs, idioma)`.

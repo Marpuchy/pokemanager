@@ -27,7 +27,9 @@ Se mantienen en commits propios, separados de los de importación, para que `git
    `ImageUtil.cs`, `CTR/ETC1.cs`, `CTR/SMDH.cs`, `CTR/Images/**`, `Structures/TypeChart.cs`.
    Dependen de `System.Drawing` (solo Windows en .NET moderno) o de la `ETC1Lib.dll` nativa
    de Windows. Son gráficos; nada de `Game/`, `Structures/` ni `Randomizers/` depende de ellos.
-4. **`InternalsVisibleTo Pokemanager.Tests`**, para leer `GARC.MemGARC.Data` en las pruebas.
+4. **`GARC.MemGARC.Data` pasa de `internal` a `public`** (`CTR/GARC.cs`, un solo token). Son los
+   bytes del GARC empaquetado: los necesita Model para escribir en la carpeta de mods del
+   emulador. En upstream solo eran accesibles desde dentro de la librería.
 
 `Properties/Resources.resx` no se ha tocado: sus entradas son `ResXFileRef` que el SDK de .NET
 compila sin WinForms, y las necesitan `Exheader` y la construcción de `.3ds` en `CTR.cs`.

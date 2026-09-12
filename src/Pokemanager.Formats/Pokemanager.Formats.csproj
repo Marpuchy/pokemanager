@@ -7,11 +7,6 @@
     <RootNamespace>pk3DS.Core</RootNamespace>
   </PropertyGroup>
 
-  <!-- Las pruebas leen GARC.MemGARC.Data (internal) sin modificar GARC.cs. -->
-  <ItemGroup>
-    <InternalsVisibleTo Include="Pokemanager.Tests" />
-  </ItemGroup>
-
   <!--
     Excluido de la compilación: depende de System.Drawing (solo Windows) o de la
     ETC1Lib.dll nativa. Son gráficos, fuera del alcance actual. Los archivos se
