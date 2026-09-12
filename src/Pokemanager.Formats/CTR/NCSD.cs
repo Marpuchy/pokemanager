@@ -157,17 +157,23 @@ public class NCSD
     {
         byte[] buffer = new byte[MEDIA_UNIT_SIZE * 10];
         string outputFile = Path.Combine(outputDirectory, "game.cxi");
-        int max = Convert.ToInt32(ncchSize);
+        // ncchSize is in media units, but each read copies 10 of them: loop over bytes, not units.
+        ulong remaining = ncchSize * MEDIA_UNIT_SIZE;
+        int max = (int)((remaining + (ulong)buffer.Length - 1) / (ulong)buffer.Length);
+        int step = 0;
         PB_Show?.Report(new ProgressState(0, max));
 
         using FileStream inputFileStream = new(NCSD_PATH, FileMode.Open, FileAccess.Read),
-            outputFileStream = new(outputFile, FileMode.Append, FileAccess.Write);
+            outputFileStream = new(outputFile, FileMode.Create, FileAccess.Write);
         inputFileStream.Seek(0x4000, SeekOrigin.Begin);
-        for (int i = 0; i < ncchSize; i++)
+        while (remaining > 0)
         {
-            inputFileStream.Read(buffer, 0, buffer.Length);
-            outputFileStream.Write(buffer, 0, buffer.Length);
-            PB_Show?.Report(new ProgressState(i + 1, max));
+            int read = inputFileStream.Read(buffer, 0, (int)Math.Min((ulong)buffer.Length, remaining));
+            if (read <= 0)
+                throw new EndOfStreamException("NCSD is shorter than the size declared for its CXI partition.");
+            outputFileStream.Write(buffer, 0, read);
+            remaining -= (ulong)read;
+            PB_Show?.Report(new ProgressState(++step, max));
         }
 
         return outputFile;
