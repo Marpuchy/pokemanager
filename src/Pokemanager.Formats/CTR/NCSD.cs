@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Windows.Forms;
 
 namespace pk3DS.Core.CTR;
 
@@ -134,7 +133,7 @@ public class NCSD
         return header;
     }
 
-    public void ExtractFilesFromNCSD(string NCSD_PATH, string outputDirectory, RichTextBox TB_Progress = null, ProgressBar PB_Show = null)
+    public void ExtractFilesFromNCSD(string NCSD_PATH, string outputDirectory, IProgress<string> TB_Progress = null, IProgress<ProgressState> PB_Show = null)
     {
         if (!Directory.Exists(outputDirectory))
             Directory.CreateDirectory(outputDirectory);
@@ -154,15 +153,12 @@ public class NCSD
         File.Delete(ncchPath);
     }
 
-    private static string ExtractCXIfromNCSD(string NCSD_PATH, string outputDirectory, uint ncchSize, ProgressBar PB_Show = null)
+    private static string ExtractCXIfromNCSD(string NCSD_PATH, string outputDirectory, uint ncchSize, IProgress<ProgressState> PB_Show = null)
     {
         byte[] buffer = new byte[MEDIA_UNIT_SIZE * 10];
         string outputFile = Path.Combine(outputDirectory, "game.cxi");
-        if (PB_Show.InvokeRequired)
-        {
-            PB_Show.Invoke((MethodInvoker)delegate { PB_Show.Minimum = 0; PB_Show.Step = 1; PB_Show.Value = 0; PB_Show.Maximum = Convert.ToInt32(ncchSize); });
-        }
-        else { PB_Show.Minimum = 0; PB_Show.Step = 1; PB_Show.Value = 0; PB_Show.Maximum = Convert.ToInt32(ncchSize); }
+        int max = Convert.ToInt32(ncchSize);
+        PB_Show?.Report(new ProgressState(0, max));
 
         using FileStream inputFileStream = new(NCSD_PATH, FileMode.Open, FileAccess.Read),
             outputFileStream = new(outputFile, FileMode.Append, FileAccess.Write);
@@ -171,11 +167,7 @@ public class NCSD
         {
             inputFileStream.Read(buffer, 0, buffer.Length);
             outputFileStream.Write(buffer, 0, buffer.Length);
-            if (PB_Show.InvokeRequired)
-            {
-                PB_Show.Invoke((MethodInvoker)PB_Show.PerformStep);
-            }
-            else { PB_Show.PerformStep(); }
+            PB_Show?.Report(new ProgressState(i + 1, max));
         }
 
         return outputFile;
@@ -191,26 +183,5 @@ public class NCSD
         return output;
     }
 
-    internal static void UpdateTB(RichTextBox RTB, string progress)
-    {
-        try
-        {
-            if (RTB.InvokeRequired)
-            {
-                RTB.Invoke((MethodInvoker)delegate
-                {
-                    RTB.AppendText(Environment.NewLine + progress);
-                    RTB.SelectionStart = RTB.Text.Length;
-                    RTB.ScrollToCaret();
-                });
-            }
-            else
-            {
-                RTB.SelectionStart = RTB.Text.Length;
-                RTB.ScrollToCaret();
-                RTB.AppendText(progress + Environment.NewLine);
-            }
-        }
-        catch { }
-    }
+    internal static void UpdateTB(IProgress<string> RTB, string progress) => RTB?.Report(progress);
 }

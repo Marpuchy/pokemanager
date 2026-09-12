@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>Pokemanager.Formats</AssemblyName>
+    <!-- Se conserva el namespace de pk3DS para no chocar con upstream al fusionar. -->
+    <RootNamespace>pk3DS.Core</RootNamespace>
+  </PropertyGroup>
+
+  <!--
+    Excluido de la compilación: depende de System.Drawing (solo Windows) o de la
+    ETC1Lib.dll nativa. Son gráficos, fuera del alcance actual. Los archivos se
+    mantienen para no generar conflictos con upstream.
+  -->
+  <ItemGroup>
+    <Compile Remove="ImageUtil.cs" />
+    <Compile Remove="CTR/ETC1.cs" />
+    <Compile Remove="CTR/SMDH.cs" />
+    <Compile Remove="CTR/Images/**" />
+    <Compile Remove="Structures/TypeChart.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+</Project>

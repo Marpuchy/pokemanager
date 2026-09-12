@@ -22,7 +22,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Windows.Forms;
 
 namespace pk3DS.Core.CTR;
 
@@ -44,30 +43,23 @@ public class BLZCoder
     private readonly bool arm9;
     private int new_len;
 
-    private readonly ProgressBar pBar1;
+    private readonly IProgress<ProgressState> pBar1;
+    private int pBarMax;
 
     private void InitProgress(int max)
     {
-        if (pBar1.InvokeRequired)
-        {
-            pBar1.Invoke((MethodInvoker)delegate { pBar1.Minimum = 0; pBar1.Step = 1; pBar1.Value = 0; pBar1.Maximum = max; });
-        }
-        else { pBar1.Minimum = 0; pBar1.Step = 1; pBar1.Value = 0; pBar1.Maximum = max; }
+        pBarMax = max;
+        pBar1?.Report(new ProgressState(0, max));
     }
 
     private void SetProgressPosition(int pos)
     {
-        if (pBar1.InvokeRequired)
-        {
-            pBar1.Invoke((MethodInvoker)delegate { pBar1.Value = pos; });
-        }
-        else { pBar1.Value = pos; }
+        pBar1?.Report(new ProgressState(pos, pBarMax));
     }
 
-    public BLZCoder(string[] args, ProgressBar pBar = null)
+    public BLZCoder(string[] args, IProgress<ProgressState> pBar = null)
     {
         int cmd, mode = 0;
-        if (pBar == null) pBar1 = new ProgressBar();
         pBar1 = pBar;
 
         // Title();

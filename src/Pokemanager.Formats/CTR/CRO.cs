@@ -3,35 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Windows.Forms;
 
 namespace pk3DS.Core.CTR;
 
 public class CRO(byte[] data)
 {
     // Utility
-    internal static void UpdateTB(RichTextBox RTB, string progress)
-    {
-        try
-        {
-            if (RTB.InvokeRequired)
-            {
-                RTB.Invoke((MethodInvoker)delegate
-                {
-                    RTB.AppendText(Environment.NewLine + progress);
-                    RTB.SelectionStart = RTB.Text.Length;
-                    RTB.ScrollToCaret();
-                });
-            }
-            else
-            {
-                RTB.SelectionStart = RTB.Text.Length;
-                RTB.ScrollToCaret();
-                RTB.AppendText(progress + Environment.NewLine);
-            }
-        }
-        catch { }
-    }
+    internal static void UpdateTB(IProgress<string> RTB, string progress) => RTB?.Report(progress);
 
     internal static int IndexOfBytes(byte[] array, byte[] pattern, int startIndex, int count)
     {
@@ -113,7 +91,7 @@ public class CRO(byte[] data)
         return results;
     }
 
-    public static bool E_HashCRR(string PATH_CRR, string PATH_CRO, bool saveCRO = true, bool saveCRR = true, RichTextBox TB_Progress = null, ProgressBar PB_Show = null)
+    public static bool E_HashCRR(string PATH_CRR, string PATH_CRO, bool saveCRO = true, bool saveCRR = true, IProgress<string> TB_Progress = null, IProgress<ProgressState> PB_Show = null)
     {
         // Get CRO files
         string[] CROFiles = Directory.GetFiles(PATH_CRO);
@@ -135,13 +113,7 @@ public class CRO(byte[] data)
         }
 
         // Initialize Update Display
-        TB_Progress ??= new RichTextBox();
-        PB_Show ??= new ProgressBar();
-        if (PB_Show.InvokeRequired)
-        {
-            PB_Show.Invoke((MethodInvoker)delegate { PB_Show.Minimum = 0; PB_Show.Step = 1; PB_Show.Value = 0; PB_Show.Maximum = CROFiles.Length; });
-        }
-        else { PB_Show.Minimum = 0; PB_Show.Step = 1; PB_Show.Value = 0; PB_Show.Maximum = CROFiles.Length; }
+        PB_Show?.Report(new ProgressState(0, CROFiles.Length));
         UpdateTB(TB_Progress, "");
         UpdateTB(TB_Progress, "Computing hashes for " + CROFiles.Length + " CRO files.");
 
@@ -155,11 +127,7 @@ public class CRO(byte[] data)
             if (saveCRO)
                 File.WriteAllBytes(CROFiles[i], data);
 
-            if (PB_Show.InvokeRequired)
-            {
-                PB_Show.Invoke((MethodInvoker)(() => PB_Show.PerformStep()));
-            }
-            else { PB_Show.PerformStep(); }
+            PB_Show?.Report(new ProgressState(i + 1, CROFiles.Length));
         }
         UpdateTB(TB_Progress, "Hashes computed, now sorting."); // Don't need to fiddle the ProgressBar because this should be quite quick.
         string[] hashCopy = (string[])hashes.Clone(); // Store an unsorted list for later.

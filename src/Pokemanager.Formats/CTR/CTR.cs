@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Windows.Forms;
 using pk3DS.Core.Properties;
 
 namespace pk3DS.Core.CTR;
@@ -16,11 +15,8 @@ public static class CTRUtil
     public static bool BuildROM(bool Card2, string LOGO_NAME,
         string EXEFS_PATH, string ROMFS_PATH, string EXHEADER_PATH,
         string SERIAL_TEXT, string SAVE_PATH,
-        bool trimmed = false, ProgressBar PB_Show = null, RichTextBox TB_Progress = null)
+        bool trimmed = false, IProgress<ProgressState> PB_Show = null, IProgress<string> TB_Progress = null)
     {
-        PB_Show ??= new ProgressBar();
-        TB_Progress ??= new RichTextBox();
-
         // Sanity check the input files.
         if (!
             ((File.Exists(EXEFS_PATH) || Directory.Exists(EXEFS_PATH))
@@ -43,10 +39,8 @@ public static class CTRUtil
     }
 
     // Sub methods that drive the operation
-    internal static NCCH SetNCCH(string EXEFS_PATH, string ROMFS_PATH, string EXHEADER_PATH, string TB_Serial, string LOGO_NAME, RichTextBox TB_Progress = null)
+    internal static NCCH SetNCCH(string EXEFS_PATH, string ROMFS_PATH, string EXHEADER_PATH, string TB_Serial, string LOGO_NAME, IProgress<string> TB_Progress = null)
     {
-        TB_Progress ??= new RichTextBox();
-
         UpdateTB(TB_Progress, "Creating NCCH...");
         UpdateTB(TB_Progress, "Adding Exheader...");
         var NCCH = new NCCH
@@ -117,9 +111,8 @@ public static class CTRUtil
         return NCCH;
     }
 
-    internal static NCSD SetNCSD(NCCH NCCH, bool Card2, RichTextBox TB_Progress = null)
+    internal static NCSD SetNCSD(NCCH NCCH, bool Card2, IProgress<string> TB_Progress = null)
     {
-        TB_Progress ??= new RichTextBox();
         UpdateTB(TB_Progress, "Building NCSD Header...");
         var NCSD = new NCSD
         {
@@ -197,10 +190,8 @@ public static class CTRUtil
     }
 
     internal static bool WriteROM(NCSD NCSD, string SAVE_PATH, bool trimmed = false,
-        ProgressBar PB_Show = null, RichTextBox TB_Progress = null)
+        IProgress<ProgressState> PB_Show = null, IProgress<string> TB_Progress = null)
     {
-        PB_Show ??= new ProgressBar();
-        TB_Progress ??= new RichTextBox();
         using (var OutFileStream = new FileStream(SAVE_PATH, FileMode.Create))
         {
             UpdateTB(TB_Progress, "Writing NCSD Header...");
@@ -237,13 +228,8 @@ public static class CTRUtil
                         {
                             uint BUFFER_SIZE;
                             ulong RomfsLen = NCSD.NCCH_Array[0].Header.RomfsSize * MEDIA_UNIT_SIZE;
-                            PB_Show.Invoke(() =>
-                            {
-                                PB_Show.Minimum = 0;
-                                PB_Show.Maximum = (int)(RomfsLen / 0x400000);
-                                PB_Show.Value = 0;
-                                PB_Show.Step = 1;
-                            });
+                            int steps = (int)(RomfsLen / 0x400000), step = 0;
+                            PB_Show?.Report(new ProgressState(0, steps));
                             for (ulong j = 0; j < RomfsLen; j += BUFFER_SIZE)
                             {
                                 BUFFER_SIZE = RomfsLen - j > 0x400000 ? 0x400000 : (uint)(RomfsLen - j);
@@ -252,7 +238,7 @@ public static class CTRUtil
                                 InFileStream.Read(buf, 0, (int)BUFFER_SIZE);
                                 aesctr.TransformBlock(buf, 0, (int)BUFFER_SIZE, outbuf, 0);
                                 OutFileStream.Write(outbuf, 0, (int)BUFFER_SIZE);
-                                PB_Show.Invoke(PB_Show.PerformStep);
+                                PB_Show?.Report(new ProgressState(++step, steps));
                             }
                         }
                         break;
@@ -340,28 +326,7 @@ public static class CTRUtil
         return !exh.IsSupported() || Card2;
     }
 
-    internal static void UpdateTB(RichTextBox RTB, string progress)
-    {
-        try
-        {
-            if (RTB.InvokeRequired)
-            {
-                RTB.Invoke((MethodInvoker)delegate
-                {
-                    RTB.AppendText(Environment.NewLine + progress);
-                    RTB.SelectionStart = RTB.Text.Length;
-                    RTB.ScrollToCaret();
-                });
-            }
-            else
-            {
-                RTB.SelectionStart = RTB.Text.Length;
-                RTB.ScrollToCaret();
-                RTB.AppendText(progress + Environment.NewLine);
-            }
-        }
-        catch { }
-    }
+    internal static void UpdateTB(IProgress<string> RTB, string progress) => RTB?.Report(progress);
 
     internal static ulong Align(ulong input, ulong alignsize)
     {
