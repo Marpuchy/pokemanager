@@ -31,6 +31,11 @@ Se mantienen en commits propios, separados de los de importación, para que `git
    bytes del GARC empaquetado: los necesita Model para escribir en la carpeta de mods del
    emulador. En upstream solo eran accesibles desde dentro de la librería.
 
+5. **Fallo corregido en `CTR/NCSD.cs` (`ExtractCXIfromNCSD`).** El bucle copiaba 10 unidades
+   de 0x200 bytes por vuelta durante `ncchSize` vueltas: generaba un `game.cxi` 10 veces mayor
+   (~17 GB con Pokémon X) relleno de basura tras el EOF. Ahora copia el tamaño exacto. Candidato
+   a enviarse como PR a upstream.
+
 `Properties/Resources.resx` no se ha tocado: sus entradas son `ResXFileRef` que el SDK de .NET
 compila sin WinForms, y las necesitan `Exheader` y la construcción de `.3ds` en `CTR.cs`.
 

@@ -27,6 +27,7 @@ repository's history. In summary:
   - Code depending on System.Drawing, the native ETC1Lib.dll or WinForms
     resources is excluded from compilation.
   - GARC.MemGARC.Data made public.
+  - Fixed NCSD.ExtractCXIfromNCSD writing 10x the CXI partition size.
 
 pk3DS itself builds on work by many contributors; see its repository for
 their credits.
