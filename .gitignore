@@ -1,0 +1,16 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+.idea/
+*.DotSettings.user
+TestResults/
+
+## Datos del usuario: nunca en el repo
+*.3ds
+*.cia
+*.cxi
+/romfs/
+/exefs/

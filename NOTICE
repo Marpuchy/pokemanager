@@ -1,0 +1,35 @@
+Pokemanager
+Copyright (C) 2026 Pokemanager contributors
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, version 3 of the License (see LICENSE.md).
+
+-------------------------------------------------------------------------------
+Third-party code
+-------------------------------------------------------------------------------
+
+src/Pokemanager.Formats/ is derived from pk3DS.Core, part of pk3DS:
+
+    pk3DS - ROM editor for 3DS Pokémon games
+    https://github.com/kwsch/pk3DS
+    Copyright (C) Kaphotics (kwsch) and pk3DS contributors
+    Licensed under the GNU General Public License v3.0
+
+    Imported from upstream commit 6daaca934ca2284a73ab743bf89c848c57cd9de1
+    (2026-02-27, "Update to .NET 10") using git subtree.
+
+Local modifications to that code are recorded as separate commits in this
+repository's history. In summary:
+  - Retargeted from net10.0-windows (WinForms) to plain net10.0.
+  - WinForms RichTextBox/ProgressBar progress reporting replaced with
+    IProgress<T> in CTR/.
+  - Code depending on System.Drawing, the native ETC1Lib.dll or WinForms
+    resources is excluded from compilation.
+
+pk3DS itself builds on work by many contributors; see its repository for
+their credits.
+
+Pokémon is a trademark of Nintendo, Game Freak and The Pokémon Company.
+This project is not affiliated with or endorsed by them, and contains no
+game data.
