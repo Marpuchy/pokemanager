@@ -78,9 +78,36 @@ preset `alex.rnqs` y el volcado real:
 - **Misma semilla → archivos idénticos byte a byte.** El log solo difiere en «Time elapsed».
 - El log está en secciones `--Título--` (15 con ese preset).
 
-Pendiente de la fase A: **comprobarlo dentro del juego**. Idea para la siguiente: importar
-semilla + «Settings String» desde un log de UPR, para reproducir un `.cxi` ya randomizado con el
-que haya una partida en curso.
+### Rediseño tras la primera prueba del usuario (2026-09-13) — manda sobre lo anterior de la fase A
+
+Lo que pidió el usuario y cómo quedó:
+
+| Petición | Implementación |
+|---|---|
+| La ROM randomizada es **un archivo nuevo** con nombre elegido, en la carpeta de la ROM base, que queda limpia | `RomBuilder` → `<carpeta base>/<nombre>.cxi` (+ `.cxi.log`). UPR solo escribe 3DS como NCCH (.cxi). **Ya no se instalan mods LayeredFS**: se aplicaban a cualquier ROM del juego. `ModInstaller.Uninstall` retira los que instaló la versión anterior (solo lo de su manifiesto). |
+| Opciones del randomizer **editables en la app** | Lanzador Java `describe-settings` / `write-settings` sobre `Settings` por reflexión (140 opciones, 22 enums, misc tweaks como bits). Round-trip sin cambios = `.rnqs` idéntico. `UprOptionCatalog` las traduce y agrupa. |
+| UPR y PKHeX **incluidos**, sin elegir rutas | `tools/upr/PokeRandoZX.jar` (4.6.1) se copia con la app; PKHeX.Core va por NuGet. Java sigue siendo del sistema (pendiente: `jlink` en el instalador). |
+| Rutas en una ventana **Ajustes de Pokemanager** | Emulador (por defecto el usado más recientemente según `config/qt-config.ini`), ROM base, herramientas, caché y copias. |
+| Al randomizar una partida empezada, **las habilidades de sus Pokémon deben cambiar** | `Pokemanager.Save.SaveUpdater` (PKHeX.Core). |
+
+**Verificado — por qué no cambiaban:** (1) el usuario juega en **Citra**, no en Azahar, y la versión anterior
+instaló el mod en `%APPDATA%\Azahar`; (2) aunque hubiera llegado, **en Gen 6 la partida guarda la habilidad
+(`Ability` + `AbilityNumber` 1/2/4) y las stats del equipo**; la ROM no las recalcula. `SaveUpdater` asigna la
+habilidad del mismo número en la nueva entrada de personal (especie + forma) y recalcula las stats del equipo
+con la fórmula de Gen 6 (la de las cajas la calcula el juego al sacarlos). Copia de seguridad en
+`%LOCALAPPDATA%\Pokemanager\copias-partida\<emulador>\<fecha>\main`, escritura atómica y verificación releyendo.
+Se niega a escribir si el emulador de esa partida está abierto.
+
+**Verificado con datos reales:**
+- La partida de Citra del usuario (entrenador Puchy) es de `pokemonXAlex.cxi` = preset `alex` + semilla
+  `70696688520378` (el «Settings String» del log coincide con `alex.rnqs`). Con esa semilla la app reproduce la
+  ROM y `SaveUpdater` concluye 0 cambios en sus 20 Pokémon. Con otra semilla: 20 cambios, checksums válidos.
+- La fórmula de stats reproduce **exactamente** las stats guardadas por el juego para los 6 del equipo.
+- `pack` genera un `.cxi` de 1,8 GB en ~30 s; extraído con pk3DS, los 23 archivos de UPR son idénticos.
+- `new Settings()` de UPR deja `selectedEXPCurve` nulo y `write()` falla: el lanzador usa `defaults()`.
+- Misc tweaks que UPR admite en X: `FASTEST_TEXT`, `NATIONAL_DEX_AT_START`, `BAN_LUCKY_EGG`, `RETAIN_ALT_FORMES`.
+
+Pendiente: **comprobarlo dentro del juego** (el usuario). Editor de partida completo (fase B).
 
 ---
 

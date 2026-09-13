@@ -207,7 +207,7 @@ public partial class EditorViewModel : ObservableObject
         if (r.Enabled && !r.IsReady) { SetStatus("Falta una semilla válida.", error: true); return; }
 
         string? savePath = r.UpdateSave ? Randomizer.SavePath : null;
-        if (savePath is not null && File.Exists(savePath) && EmulatorUserFolders.RunningEmulators() is { Count: > 0 } running)
+        if (savePath is not null && File.Exists(savePath) && EmulatorUserFolders.RunningEmulators(settings.EffectiveEmulatorName) is { Count: > 0 } running)
         {
             SetStatus($"Cierra {string.Join(", ", running)} antes de crear la ROM: si el emulador está abierto, al salir sobrescribiría la partida actualizada.", error: true);
             return;

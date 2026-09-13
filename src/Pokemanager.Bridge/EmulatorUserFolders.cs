@@ -56,11 +56,22 @@ public static class EmulatorUserFolders
             (titleId >> 32).ToString("x8"), (titleId & 0xFFFFFFFF).ToString("x8"), "data", "00000001", "main");
     }
 
-    /// <summary>Nombres de proceso de emuladores de 3DS abiertos (escribir la partida con ellos abiertos se perdería).</summary>
-    public static IReadOnlyList<string> RunningEmulators() =>
-        Process.GetProcesses()
+    /// <summary>
+    /// Procesos abiertos del emulador indicado («Citra», «Azahar»); con otro nombre, de cualquiera de los dos.
+    /// Escribir la partida con su emulador abierto no sirve: al salir la sobrescribe.
+    /// </summary>
+    public static IReadOnlyList<string> RunningEmulators(string? emulatorName = null)
+    {
+        string[] prefixes = emulatorName?.ToLowerInvariant() switch
+        {
+            "citra" => ["citra"],
+            "azahar" => ["azahar"],
+            _ => ["citra", "azahar"],
+        };
+        return Process.GetProcesses()
             .Select(p => { try { return p.ProcessName; } catch (InvalidOperationException) { return ""; } })
-            .Where(n => n.StartsWith("citra", StringComparison.OrdinalIgnoreCase) || n.StartsWith("azahar", StringComparison.OrdinalIgnoreCase))
+            .Where(n => prefixes.Any(prefix => n.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
+    }
 }
