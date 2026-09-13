@@ -676,6 +676,20 @@ public partial class EditorViewModel : ObservableObject
     [RelayCommand]
     private void NewProject() => main.ShowWelcome();
 
+    /// <summary>
+    /// Back to the ROM preview of this project (the start screen selects the last opened project). The project is saved
+    /// first so the preview shows what was edited; unwritten save edits must be written or reloaded before leaving.
+    /// </summary>
+    [RelayCommand]
+    private async Task ViewRom()
+    {
+        if (SaveEditor.IsDirty) { SetStatus(Strings.Save_UnwrittenChanges, error: true); return; }
+        if (IsDirty && !await SaveAsync())
+            return;
+        settings.TouchProject(ProjectPath);
+        main.ShowWelcome();
+    }
+
     public void SetStatus(string text, bool error = false)
     {
         Status = text;

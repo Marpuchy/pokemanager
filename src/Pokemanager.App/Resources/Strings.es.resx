@@ -1470,4 +1470,10 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Welcome_NoProjects" xml:space="preserve">
     <value>Aún no hay proyectos. Crea uno con «Nuevo proyecto…».</value>
   </data>
+  <data name="Editor_ViewRom" xml:space="preserve">
+    <value>◀ Ver ROM</value>
+  </data>
+  <data name="Editor_ViewRomTip" xml:space="preserve">
+    <value>Volver a la vista de la ROM con su equipo (antes guarda el proyecto)</value>
+  </data>
 </root>

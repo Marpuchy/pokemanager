@@ -14,8 +14,11 @@ namespace Pokemanager.App.ViewModels;
 /// <summary>A read-only stat row of a party Pokémon.</summary>
 public sealed record StatLine(string Label, int Base, int Iv, int Ev, int Value);
 
-/// <summary>A read-only move of a party Pokémon.</summary>
-public sealed record MoveLine(string Name, string PP);
+/// <summary>A read-only move of a party Pokémon, colored by its type.</summary>
+public sealed record MoveLine(string Name, string PP, string Type, Avalonia.Media.IBrush Background, Avalonia.Media.IBrush Foreground);
+
+/// <summary>A type label with its color.</summary>
+public sealed record TypeChip(string Name, Avalonia.Media.IBrush Background, Avalonia.Media.IBrush Foreground);
 
 /// <summary>A Pokémon of the party in the project preview. Nothing here can be edited.</summary>
 public sealed partial class PartyMemberViewModel : ObservableObject
@@ -45,6 +48,19 @@ public sealed partial class PartyMemberViewModel : ObservableObject
     public bool IsShiny => pk.IsShiny;
     public string ItemText => pk.HeldItem == 0 ? Strings.Preview_NoItem : names.ItemName(pk.HeldItem);
     public bool HasItem => pk.HeldItem != 0;
+
+    // ------------------------------------------------------------------ types (from the ROM being played)
+
+    private int[] TypeIds => doc.Personal(pk.Species, pk.Form)?.Types is { Length: >= 2 } t ? [t[0], t[1]] : [0, 0];
+
+    /// <summary>One color for single-type Pokémon, two (split diagonally) for dual types.</summary>
+    public Avalonia.Media.IBrush TypeBackground => pk.IsEgg ? TypeColors.Background(0) : TypeColors.Background(TypeIds[0], TypeIds[1]);
+
+    public Avalonia.Media.IBrush TypeForeground => TypeColors.Foreground(TypeIds);
+
+    public IReadOnlyList<TypeChip> TypeChips => TypeIds.Distinct()
+        .Select(t => new TypeChip(t < names.Types.Count ? names.Types[t] : $"#{t}", TypeColors.Background(t), TypeColors.Foreground(t)))
+        .ToList();
 
     // ------------------------------------------------------------------ detail
 
@@ -91,10 +107,19 @@ public sealed partial class PartyMemberViewModel : ObservableObject
                 (pk.Move3, pk.Move3_PP, pk.Move3_PPUps), (pk.Move4, pk.Move4_PP, pk.Move4_PPUps),
             ];
             return moves.Select(m => m.Move == 0
-                    ? new MoveLine("—", "")
-                    : new MoveLine(m.Move < names.Moves.Count ? names.Moves[m.Move] : $"#{m.Move}", string.Format(Strings.Pkm_PP, m.PP, doc.MaxPP(m.Move, m.Ups))))
+                    ? new MoveLine("—", "", "", Avalonia.Media.Brushes.Transparent, Avalonia.Media.Brushes.Gray)
+                    : MoveOf(m.Move, m.PP, m.Ups))
                 .ToList();
         }
+    }
+
+    /// <summary>A move with the type it has in the ROM (the randomizer may change it).</summary>
+    private MoveLine MoveOf(ushort move, int pp, int ups)
+    {
+        int type = move < doc.Rom.Moves.Length ? doc.Rom.Moves[move].Type : -1;
+        string name = move < names.Moves.Count ? names.Moves[move] : $"#{move}";
+        string typeName = type >= 0 && type < names.Types.Count ? names.Types[type] : "";
+        return new MoveLine(name, string.Format(Strings.Pkm_PP, pp, doc.MaxPP(move, ups)), typeName, TypeColors.Background(type), TypeColors.Foreground(type));
     }
 }
 

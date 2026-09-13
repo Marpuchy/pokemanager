@@ -55,6 +55,7 @@
         </StackPanel>
         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
           <ProgressBar IsIndeterminate="True" Width="80" IsVisible="{Binding IsBusy}" />
+          <Button Content="{x:Static r:Strings.Editor_ViewRom}" Command="{Binding ViewRomCommand}" ToolTip.Tip="{x:Static r:Strings.Editor_ViewRomTip}" />
           <Button Content="{x:Static r:Strings.Editor_Save}" Command="{Binding SaveCommand}" ToolTip.Tip="Ctrl+S" />
           <Button Content="{x:Static r:Strings.Editor_Play}" Command="{Binding PlayCommand}" ToolTip.Tip="{x:Static r:Strings.Editor_PlayTip}" />
           <Button Classes="accent" Content="{x:Static r:Strings.Editor_BuildRom}" Command="{Binding BuildRomCommand}"

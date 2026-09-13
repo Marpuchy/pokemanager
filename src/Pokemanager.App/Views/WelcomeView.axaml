@@ -42,27 +42,65 @@
                 </ItemsPanelTemplate>
               </ListBox.ItemsPanel>
               <ListBox.Styles>
+                <!-- The card itself carries the type colors: the item only frames it, thicker when selected -->
                 <Style Selector="ListBoxItem">
-                  <Setter Property="Margin" Value="2" />
-                  <Setter Property="Padding" Value="6,4" />
-                  <Setter Property="BorderBrush" Value="#D5DFE5" />
+                  <Setter Property="Margin" Value="3" />
+                  <Setter Property="Padding" Value="0" />
+                  <Setter Property="BorderThickness" Value="0" />
+                </Style>
+                <Style Selector="ListBoxItem /template/ ContentPresenter#PART_ContentPresenter, ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter, ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter, ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                  <Setter Property="Background" Value="Transparent" />
+                </Style>
+                <Style Selector="Border.member">
+                  <Setter Property="BorderBrush" Value="#80000000" />
                   <Setter Property="BorderThickness" Value="1" />
+                  <Setter Property="CornerRadius" Value="4" />
+                  <Setter Property="Padding" Value="6,4" />
+                </Style>
+                <Style Selector="ListBoxItem:pointerover Border.member">
+                  <Setter Property="BorderBrush" Value="#0078D7" />
+                </Style>
+                <Style Selector="ListBoxItem:selected Border.member">
+                  <Setter Property="BorderBrush" Value="#0078D7" />
+                  <Setter Property="BorderThickness" Value="3" />
+                  <Setter Property="Padding" Value="4,2" />
                 </Style>
               </ListBox.Styles>
               <ListBox.ItemTemplate>
                 <DataTemplate x:DataType="vm:PartyMemberViewModel">
-                  <Grid ColumnDefinitions="Auto,*">
-                    <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="80" Height="60" />
-                    <StackPanel Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center" Spacing="1">
-                      <TextBlock FontWeight="SemiBold" TextTrimming="CharacterEllipsis">
-                        <Run Text="{Binding Name}" />
-                        <Run Text="{Binding GenderText}" />
-                      </TextBlock>
-                      <TextBlock Text="{Binding SpeciesName}" IsVisible="{Binding HasNickname}" TextTrimming="CharacterEllipsis" />
-                      <TextBlock Text="{Binding LevelText}" />
-                      <TextBlock Classes="hint" Text="{Binding ItemText}" TextTrimming="CharacterEllipsis" />
-                    </StackPanel>
-                  </Grid>
+                  <Border Classes="member" Background="{Binding TypeBackground}" TextElement.Foreground="{Binding TypeForeground}">
+                    <Grid ColumnDefinitions="Auto,*">
+                      <Border Background="#40FFFFFF" CornerRadius="30" Width="68" Height="60">
+                        <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="80" Height="60" />
+                      </Border>
+                      <StackPanel Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center" Spacing="1">
+                        <TextBlock FontWeight="Bold" TextTrimming="CharacterEllipsis" Foreground="{Binding TypeForeground}">
+                          <Run Text="{Binding Name}" />
+                          <Run Text="{Binding GenderText}" />
+                        </TextBlock>
+                        <TextBlock Foreground="{Binding TypeForeground}" TextTrimming="CharacterEllipsis">
+                          <Run Text="{Binding LevelText}" />
+                          <Run Text="·" />
+                          <Run Text="{Binding SpeciesName}" />
+                        </TextBlock>
+                        <TextBlock Foreground="{Binding TypeForeground}" Text="{Binding ItemText}" TextTrimming="CharacterEllipsis" Opacity="0.9" />
+                        <ItemsControl ItemsSource="{Binding TypeChips}" Margin="0,2,0,0">
+                          <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                              <StackPanel Orientation="Horizontal" Spacing="3" />
+                            </ItemsPanelTemplate>
+                          </ItemsControl.ItemsPanel>
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:TypeChip">
+                              <Border Background="{Binding Background}" BorderBrush="#60000000" BorderThickness="1" CornerRadius="3" Padding="5,0">
+                                <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground}" FontSize="10" FontWeight="SemiBold" />
+                              </Border>
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                      </StackPanel>
+                    </Grid>
+                  </Border>
                 </DataTemplate>
               </ListBox.ItemTemplate>
             </ListBox>
@@ -73,18 +111,35 @@
         <!-- Selected Pokémon: stats, EVs, IVs, moves and ability -->
         <Border Classes="card" IsVisible="{Binding HasSelection}" VerticalAlignment="Top">
           <DockPanel>
-            <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,6">
-              <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Selected.Icon}" Width="80" Height="60" />
-              <StackPanel Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center">
-                <TextBlock FontSize="14" FontWeight="SemiBold">
+            <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,8">
+              <Border Grid.ColumnSpan="2" Background="{Binding Selected.TypeBackground}" CornerRadius="4" BorderBrush="#80000000" BorderThickness="1" />
+              <Border Margin="6,4" Background="#40FFFFFF" CornerRadius="30" Width="68" Height="60">
+                <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Selected.Icon}" Width="80" Height="60" />
+              </Border>
+              <StackPanel Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center" Spacing="2">
+                <TextBlock FontSize="14" FontWeight="Bold" Foreground="{Binding Selected.TypeForeground}">
                   <Run Text="{Binding Selected.Name}" />
                   <Run Text="{Binding Selected.GenderText}" />
                 </TextBlock>
-                <TextBlock Classes="hint">
+                <TextBlock Foreground="{Binding Selected.TypeForeground}">
                   <Run Text="{Binding Selected.SpeciesName}" />
                   <Run Text=" · " />
                   <Run Text="{Binding Selected.LevelText}" />
                 </TextBlock>
+                <ItemsControl ItemsSource="{Binding Selected.TypeChips}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <StackPanel Orientation="Horizontal" Spacing="3" />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:TypeChip">
+                      <Border Background="{Binding Background}" BorderBrush="#60000000" BorderThickness="1" CornerRadius="3" Padding="6,1">
+                        <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground}" FontSize="11" FontWeight="SemiBold" />
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
               </StackPanel>
               <Button Grid.Column="2" VerticalAlignment="Top" Content="{x:Static r:Strings.Preview_ManagePokemon}"
                       Command="{Binding ManagePokemonCommand}" ToolTip.Tip="{x:Static r:Strings.Preview_ManagePokemonTip}" />
@@ -122,10 +177,13 @@
                 <ItemsControl ItemsSource="{Binding Selected.Moves}">
                   <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:MoveLine">
-                      <Grid ColumnDefinitions="*,Auto" Margin="0,2">
-                        <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
-                        <TextBlock Grid.Column="1" Classes="hint" Text="{Binding PP}" />
-                      </Grid>
+                      <Border Background="{Binding Background}" CornerRadius="4" Padding="8,4" Margin="0,2" BorderBrush="#40000000" BorderThickness="1">
+                        <Grid ColumnDefinitions="*,Auto,Auto">
+                          <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                          <TextBlock Grid.Column="1" Text="{Binding Type}" Foreground="{Binding Foreground}" FontSize="10" Opacity="0.85" Margin="8,0" VerticalAlignment="Center" />
+                          <TextBlock Grid.Column="2" Text="{Binding PP}" Foreground="{Binding Foreground}" VerticalAlignment="Center" />
+                        </Grid>
+                      </Border>
                     </DataTemplate>
                   </ItemsControl.ItemTemplate>
                 </ItemsControl>

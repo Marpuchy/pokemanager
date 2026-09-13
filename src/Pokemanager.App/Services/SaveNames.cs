@@ -22,6 +22,9 @@ public sealed class SaveNames
     public IReadOnlyList<string> Items { get; }
 
     public IReadOnlyList<string> Abilities { get; }
+
+    /// <summary>Type names from the game text, in the game's type order.</summary>
+    public IReadOnlyList<string> Types { get; }
     public IReadOnlyList<string> Natures { get; }
 
     /// <summary>Index = ball ID.</summary>
@@ -37,6 +40,7 @@ public sealed class SaveNames
         Moves = [Strings.Pkm_None, .. game.Moves.Skip(1)];
         Items = [Strings.Pkm_None, .. game.Items.Skip(1).Select((name, i) => string.IsNullOrWhiteSpace(name) ? $"#{i + 1}" : name)];
         Abilities = game.Abilities;
+        Types = game.Types;
 
         var pkhex = GameInfo.GetStrings(PkhexLanguage(language));
         Natures = [.. pkhex.natures.Take(25)];

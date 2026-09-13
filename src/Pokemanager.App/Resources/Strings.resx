@@ -1470,4 +1470,10 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Welcome_NoProjects" xml:space="preserve">
     <value>No projects yet. Create one with "New project…".</value>
   </data>
+  <data name="Editor_ViewRom" xml:space="preserve">
+    <value>◀ View ROM</value>
+  </data>
+  <data name="Editor_ViewRomTip" xml:space="preserve">
+    <value>Back to the ROM preview with its team (saves the project first)</value>
+  </data>
 </root>
