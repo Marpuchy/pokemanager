@@ -68,6 +68,20 @@ sola app que junte ambas cosas**, no un editor exhaustivo de datos de la ROM:
 Partida de X en Azahar: `%APPDATA%\Azahar\sdmc\Nintendo 3DS\000…0\000…0\title\00040000\00055d00\data\00000001\main` (415 232 B).
 UPR ZX y PKHeX del usuario: `D:\citra\roms\`.
 
+**Fase A hecha** (`Pokemanager.Randomizer`, pestaña Randomizer). **Verificado** con UPR ZX 4.6.1,
+preset `alex.rnqs` y el volcado real:
+- `upr/PokemanagerUpr.java` se ejecuta con el lanzador de código fuente de Java (`java -cp jar X.java`).
+  Repite `CliRandomizer.performDirectRandomization` (Gen6RomHandler, `Settings.read`, `tweakForRom`,
+  bundle `com/dabomstew/pkrandom/newgui/Bundle`, `new Randomizer(settings, handler, bundle, true)`).
+- Salida `-d`: `<salida>/0004000000055D00/{romfs/…, code.bin}`, 24 archivos, ~27 MB, ~9 s. `code.bin`
+  sale **descomprimido**; se instala en `exefs/code.bin`. UPR también toca `.cro` del romfs.
+- **Misma semilla → archivos idénticos byte a byte.** El log solo difiere en «Time elapsed».
+- El log está en secciones `--Título--` (15 con ese preset).
+
+Pendiente de la fase A: **comprobarlo dentro del juego**. Idea para la siguiente: importar
+semilla + «Settings String» desde un log de UPR, para reproducir un `.cxi` ya randomizado con el
+que haya una partida en curso.
+
 ---
 
 ## 3. pk3DS — cómo reutilizarlo

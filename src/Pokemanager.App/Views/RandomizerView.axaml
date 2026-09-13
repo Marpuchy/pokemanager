@@ -56,7 +56,17 @@
     <!-- Log de UPR -->
     <DockPanel Grid.Column="1" Margin="8">
       <TextBlock DockPanel.Dock="Top" Classes="section" Margin="0,0,0,6" Text="Log de la randomización" />
-      <TextBox DockPanel.Dock="Top" Text="{Binding LogFilter}" Watermark="Buscar en el log (p. ej. un Pokémon, «Starters», un entrenador…)" />
+      <Grid DockPanel.Dock="Top" ColumnDefinitions="300,*">
+        <ComboBox ItemsSource="{Binding LogSections}" SelectedItem="{Binding SelectedLogSection}"
+                  HorizontalAlignment="Stretch" MaxDropDownHeight="420">
+          <ComboBox.ItemTemplate>
+            <DataTemplate x:DataType="x:String">
+              <TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis" />
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+        <TextBox Grid.Column="1" Margin="6,0,0,0" Text="{Binding LogFilter}" Watermark="Buscar (p. ej. un Pokémon o un entrenador)" />
+      </Grid>
       <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="0,4" Text="{Binding LogSummary}" />
       <Border BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
         <ListBox ItemsSource="{Binding VisibleLog}" FontFamily="Cascadia Mono, Consolas, Menlo, monospace" FontSize="12">

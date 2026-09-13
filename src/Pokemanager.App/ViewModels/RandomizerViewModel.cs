@@ -25,6 +25,14 @@ public partial class RandomizerViewModel : ObservableObject
     public ObservableCollection<string> PresetsNextToJar { get; } = [];
     public ObservableCollection<string> VisibleLog { get; } = [];
 
+    /// <summary>Secciones del log de UPR (líneas <c>--Título--</c>), con «Todo el log» al principio.</summary>
+    public ObservableCollection<string> LogSections { get; } = [];
+
+    private const string AllSections = "Todo el log";
+
+    [ObservableProperty]
+    public partial string? SelectedLogSection { get; set; }
+
     [ObservableProperty]
     public partial string ToolsStatus { get; set; } = "";
 
@@ -124,6 +132,10 @@ public partial class RandomizerViewModel : ObservableObject
 
     partial void OnLogFilterChanged(string value) => ApplyLogFilter();
 
+    partial void OnSelectedLogSectionChanged(string? value) => ApplyLogFilter();
+
+    private static bool IsSectionHeader(string line) => line.Length > 4 && line.StartsWith("--") && line.EndsWith("--");
+
     partial void OnSelectedPresetNextToJarChanged(string? value)
     {
         if (value is not null)
@@ -214,15 +226,34 @@ public partial class RandomizerViewModel : ObservableObject
         {
             logLines = [];
         }
+
+        string? keep = SelectedLogSection;
+        LogSections.Clear();
+        LogSections.Add(AllSections);
+        foreach (string header in logLines.Where(IsSectionHeader).Distinct())
+            LogSections.Add(header);
+        SelectedLogSection = keep is not null && LogSections.Contains(keep) ? keep : AllSections;
         ApplyLogFilter();
+    }
+
+    /// <summary>Líneas de la sección elegida (desde su cabecera hasta la siguiente), o todo el log.</summary>
+    private IEnumerable<string> SectionLines()
+    {
+        if (SelectedLogSection is null or AllSections)
+            return logLines;
+        int start = Array.IndexOf(logLines, SelectedLogSection);
+        if (start < 0)
+            return logLines;
+        return logLines.Skip(start).TakeWhile((line, i) => i == 0 || !IsSectionHeader(line));
     }
 
     private void ApplyLogFilter()
     {
         string filter = LogFilter.Trim();
+        var source = SectionLines().ToArray();
         var matches = filter.Length == 0
-            ? logLines
-            : logLines.Where(l => l.Contains(filter, StringComparison.CurrentCultureIgnoreCase)).ToArray();
+            ? source
+            : source.Where(l => l.Contains(filter, StringComparison.CurrentCultureIgnoreCase)).ToArray();
 
         VisibleLog.Clear();
         foreach (string line in matches.Take(MaxLogLines))
