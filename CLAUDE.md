@@ -141,6 +141,17 @@ build with seed 12345 asks first and changes 21 things in the save; restoring th
 70696688520378 and Magneton's ability goes back (141 → 26); `.pkdata` export/import round-trips Magneton atk 190.
 PKHeX legality reports randomized Pokémon as illegal (EncInvalid, AbilityUnexpected), as expected.
 
+**Bug found by the user and fixed:** choosing the hidden ability reverted at once. Each edit re-created the ability
+choices list; the ComboBox reset its selection when its `ItemsSource` changed and wrote index 0 back (ability 1).
+`PokemonEditorViewModel` keeps list instances while their contents are equal and ignores values pushed by controls while
+it refreshes after an edit. Reproduced and verified with real controls in the headless harness (tab/slot switches,
+write, reread). **Rule: never return a new collection from a property bound to `ItemsSource` next to a two-way
+`SelectedIndex` unless the contents changed.**
+
+Trainer tab extended like PKHeX's X/Y trainer editor (`SaveDocument`: Mega Evolution flag, Vivillon, boxes unlocked,
+PR Video phrases, start/Hall of Fame dates (seconds since 2000-01-01), records with PKHeX names, Maison streaks,
+O-Power points and unlock-all, Friend Safari, fashion, Super Training, Poké Puffs, map position with a warning).
+
 Pending: live dashboard (RPC).
 
 ---

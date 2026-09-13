@@ -135,6 +135,120 @@ public sealed class SaveDocument
         if (badges != sav.Badges) { sav.Badges = badges; MarkDirty(); }
     }
 
+    // ------------------------------------------------------------------ more trainer data (PKHeX's trainer editor)
+
+    public const int MaxSayingLength = 16;
+    public const int VivillonPatterns = 20;
+    private static readonly DateTime Epoch = new(2000, 1, 1);
+
+    /// <summary>The Mega Ring: Pokémon can Mega Evolve in battle.</summary>
+    public bool MegaEvolutionUnlocked
+    {
+        get => sav.Status.IsMegaEvolutionUnlocked;
+        set { if (sav.Status.IsMegaEvolutionUnlocked != value) { sav.Status.IsMegaEvolutionUnlocked = value; MarkDirty(); } }
+    }
+
+    /// <summary>Vivillon pattern of the player's region (0–19).</summary>
+    public int Vivillon
+    {
+        get => sav.Vivillon;
+        set { value = Math.Clamp(value, 0, VivillonPatterns - 1); if (sav.Vivillon != value) { sav.Vivillon = value; MarkDirty(); } }
+    }
+
+    public int BoxesUnlocked
+    {
+        get => sav.BoxesUnlocked;
+        set { value = Math.Clamp(value, 1, sav.BoxCount); if (sav.BoxesUnlocked != value) { sav.BoxesUnlocked = value; MarkDirty(); } }
+    }
+
+    /// <summary>PR Video phrases 1–5.</summary>
+    public string GetSaying(int index) => index switch
+    {
+        0 => sav.Status.Saying1, 1 => sav.Status.Saying2, 2 => sav.Status.Saying3, 3 => sav.Status.Saying4, _ => sav.Status.Saying5,
+    };
+
+    public void SetSaying(int index, string value)
+    {
+        if (value.Length > MaxSayingLength || GetSaying(index) == value)
+            return;
+        switch (index)
+        {
+            case 0: sav.Status.Saying1 = value; break;
+            case 1: sav.Status.Saying2 = value; break;
+            case 2: sav.Status.Saying3 = value; break;
+            case 3: sav.Status.Saying4 = value; break;
+            default: sav.Status.Saying5 = value; break;
+        }
+        MarkDirty();
+    }
+
+    /// <summary>When the adventure started.</summary>
+    public DateTime GameStarted
+    {
+        get => Epoch.AddSeconds(sav.GameTime.SecondsToStart);
+        set { uint s = ToSeconds(value); if (sav.GameTime.SecondsToStart != s) { sav.GameTime.SecondsToStart = s; MarkDirty(); } }
+    }
+
+    /// <summary>First entry into the Hall of Fame; null while the league has not been beaten.</summary>
+    public DateTime? HallOfFame
+    {
+        get => sav.GameTime.SecondsToFame == 0 ? null : Epoch.AddSeconds(sav.GameTime.SecondsToFame);
+        set { uint s = value is { } d ? ToSeconds(d) : 0; if (sav.GameTime.SecondsToFame != s) { sav.GameTime.SecondsToFame = s; MarkDirty(); } }
+    }
+
+    public DateTime? LastSaved => sav.Played.LastSavedDate;
+
+    private static uint ToSeconds(DateTime date) => (uint)Math.Clamp((date - Epoch).TotalSeconds, 0, uint.MaxValue);
+
+    /// <summary>Game records (steps, battles…): (id, PKHeX name) for the ones PKHeX knows.</summary>
+    public static IReadOnlyList<(int Id, string Name)> RecordNames { get; } =
+        RecordLists.RecordList_6.OrderBy(r => r.Key).Select(r => (r.Key, r.Value)).ToList();
+
+    public int GetRecord(int id) => sav.GetRecord(id);
+    public int GetRecordMax(int id) => sav.GetRecordMax(id);
+
+    public void SetRecord(int id, int value)
+    {
+        value = Math.Clamp(value, 0, sav.GetRecordMax(id));
+        if (sav.GetRecord(id) != value) { sav.SetRecord(id, value); MarkDirty(); }
+    }
+
+    /// <summary>Battle Maison styles in PKHeX order.</summary>
+    public static IReadOnlyList<BattleStyle6> MaisonStyles { get; } =
+        [BattleStyle6.Single, BattleStyle6.Double, BattleStyle6.Triple, BattleStyle6.Rotation, BattleStyle6.Multi];
+
+    public int GetMaison(BattleStyle6 style, bool current, bool super) => sav.Maison.GetMaisonStat(style, current, super);
+
+    public void SetMaison(BattleStyle6 style, bool current, bool super, int value)
+    {
+        ushort v = (ushort)Math.Clamp(value, 0, ushort.MaxValue);
+        if (sav.Maison.GetMaisonStat(style, current, super) != v) { sav.Maison.SetMaisonStat(style, current, super, v); MarkDirty(); }
+    }
+
+    public int OPowerPoints
+    {
+        get => sav.OPower.Points;
+        set { byte v = (byte)Math.Clamp(value, 0, 255); if (sav.OPower.Points != v) { sav.OPower.Points = v; MarkDirty(); } }
+    }
+
+    public void UnlockAllOPowers() { sav.OPower.UnlockAll(); MarkDirty(); }
+    public void UnlockAllFriendSafari() { sav.UnlockAllFriendSafariSlots(); MarkDirty(); }
+    public void UnlockAllFashion() { sav.Fashion.UnlockAllAccessories(); MarkDirty(); }
+    public void UnlockAllSuperTraining() { sav.SuperTrain.UnlockAllStages(dist: true); MarkDirty(); }
+    public void FillPokePuffs() { sav.Puff.MaxCheat(special: false); MarkDirty(); }
+    public int PokePuffCount => sav.Puff.PuffCount;
+
+    /// <summary>Where the player is: map number and coordinates. A wrong value can leave the player stuck.</summary>
+    public (int Map, float X, float Y, float Z, int Rotation) Position => (sav.Situation.M, sav.Situation.X, sav.Situation.Y, sav.Situation.Z, sav.Situation.R);
+
+    public void SetPosition(int map, float x, float y, float z, int rotation)
+    {
+        if (Position == (map, x, y, z, rotation))
+            return;
+        (sav.Situation.M, sav.Situation.X, sav.Situation.Y, sav.Situation.Z, sav.Situation.R) = (map, x, y, z, rotation);
+        MarkDirty();
+    }
+
     // ------------------------------------------------------------------ Pokémon
 
     public int BoxCount => sav.BoxCount;

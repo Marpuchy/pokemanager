@@ -124,21 +124,48 @@ public partial class PokemonEditorViewModel : ObservableObject
         MoveSlots = [new(this, 0), new(this, 1), new(this, 2), new(this, 3)];
     }
 
+    /// <summary>
+    /// True while the view is being refreshed after an edit. Controls push values back while they rebind (a combo box
+    /// whose item list changed resets its selection, for example); those are not user edits and are ignored.
+    /// </summary>
+    private bool refreshing;
+
     /// <summary>Applies a change to a copy, stores it in the document and refreshes everything shown.</summary>
     public void Edit(Action<PK6> change, string? except = null)
     {
+        if (refreshing)
+            return;
         var pk = Pokemon.Clone();
         change(pk);
         Slot = Document.Set(Slot, pk);
         Pokemon = Document.Get(Slot);
-        LegalityText = "";
-        foreach (string name in Notified)
-            if (name != except)
-                OnPropertyChanged(name);
-        foreach (var row in StatRows) row.Refresh();
-        foreach (var move in MoveSlots) move.Refresh();
+
+        refreshing = true;
+        try
+        {
+            LegalityText = "";
+            foreach (string name in Notified)
+                if (name != except)
+                    OnPropertyChanged(name);
+            foreach (var row in StatRows) row.Refresh();
+            foreach (var move in MoveSlots) move.Refresh();
+        }
+        finally
+        {
+            refreshing = false;
+        }
         owner.OnPokemonEdited(Slot);
     }
+
+    /// <summary>Keeps the same list instance while its contents do not change, so combo boxes keep their selection.</summary>
+    private static IReadOnlyList<string> Stable(ref IReadOnlyList<string>? cache, IReadOnlyList<string> fresh)
+    {
+        if (cache is null || !cache.SequenceEqual(fresh))
+            cache = fresh;
+        return cache;
+    }
+
+    private IReadOnlyList<string>? formChoices, abilityChoices, genderChoices;
 
     private static readonly string[] Notified =
     [
@@ -172,8 +199,8 @@ public partial class PokemonEditorViewModel : ObservableObject
 
     public bool HasForms => Document.FormCount(Pokemon.Species) > 1;
 
-    public IReadOnlyList<string> FormChoices => Enumerable.Range(0, Document.FormCount(Pokemon.Species))
-        .Select(f => string.Format(Strings.Pkm_Form, f)).ToList();
+    public IReadOnlyList<string> FormChoices => Stable(ref formChoices, Enumerable.Range(0, Document.FormCount(Pokemon.Species))
+        .Select(f => string.Format(Strings.Pkm_Form, f)).ToList());
 
     public int FormIndex
     {
@@ -230,12 +257,12 @@ public partial class PokemonEditorViewModel : ObservableObject
         get
         {
             int[] ids = Document.AbilityOptions(Pokemon.Species, Pokemon.Form);
-            return
+            return Stable(ref abilityChoices,
             [
                 string.Format(Strings.Pkm_Ability1, Names.AbilityName(ids[0])),
                 string.Format(Strings.Pkm_Ability2, Names.AbilityName(ids[1])),
                 string.Format(Strings.Pkm_AbilityHidden, Names.AbilityName(ids[2])),
-            ];
+            ]);
         }
     }
 
@@ -268,12 +295,12 @@ public partial class PokemonEditorViewModel : ObservableObject
 
     private int[] Genders => Document.GenderOptions(Pokemon.Species, Pokemon.Form);
 
-    public IReadOnlyList<string> GenderChoices => Genders.Select(g => g switch
+    public IReadOnlyList<string> GenderChoices => Stable(ref genderChoices, Genders.Select(g => g switch
     {
         0 => Strings.Pkm_Male,
         1 => Strings.Pkm_Female,
         _ => Strings.Pkm_Genderless,
-    }).ToList();
+    }).ToList());
 
     public int GenderIndex
     {

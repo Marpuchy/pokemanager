@@ -1218,4 +1218,142 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Trainer_Badge" xml:space="preserve">
     <value>Badge {0}</value>
   </data>
+  <data name="Trainer_TabGeneral" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="Trainer_TabRecords" xml:space="preserve">
+    <value>Records</value>
+  </data>
+  <data name="Trainer_TabMaison" xml:space="preserve">
+    <value>Battle Maison</value>
+  </data>
+  <data name="Trainer_TabUnlocks" xml:space="preserve">
+    <value>Unlocks</value>
+  </data>
+  <data name="Trainer_TabMap" xml:space="preserve">
+    <value>Map position</value>
+  </data>
+  <data name="Trainer_Profile" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="Trainer_Progress" xml:space="preserve">
+    <value>Progress</value>
+  </data>
+  <data name="Trainer_Time" xml:space="preserve">
+    <value>Time</value>
+  </data>
+  <data name="Trainer_Vivillon" xml:space="preserve">
+    <value>Vivillon pattern</value>
+  </data>
+  <data name="Trainer_MegaEvolution" xml:space="preserve">
+    <value>Mega Evolution unlocked (Mega Ring)</value>
+  </data>
+  <data name="Trainer_MegaEvolutionHint" xml:space="preserve">
+    <value>Your Pokémon can Mega Evolve in battle when they hold their Mega Stone.</value>
+  </data>
+  <data name="Trainer_BoxesUnlocked" xml:space="preserve">
+    <value>Boxes unlocked</value>
+  </data>
+  <data name="Trainer_UnlockBoxes" xml:space="preserve">
+    <value>Unlock all boxes</value>
+  </data>
+  <data name="Trainer_Started" xml:space="preserve">
+    <value>Adventure started</value>
+  </data>
+  <data name="Trainer_HallOfFame" xml:space="preserve">
+    <value>Hall of Fame</value>
+  </data>
+  <data name="Trainer_HallOfFameEntered" xml:space="preserve">
+    <value>Entered the Hall of Fame</value>
+  </data>
+  <data name="Trainer_LastSaved" xml:space="preserve">
+    <value>Last saved by the game: {0:g}</value>
+  </data>
+  <data name="Trainer_Sayings" xml:space="preserve">
+    <value>PR Video phrases</value>
+  </data>
+  <data name="Trainer_SayingsHint" xml:space="preserve">
+    <value>Up to 16 characters each.</value>
+  </data>
+  <data name="Trainer_Saying" xml:space="preserve">
+    <value>Phrase {0}</value>
+  </data>
+  <data name="Trainer_RecordsHint" xml:space="preserve">
+    <value>Game records such as steps taken or battles won. Names come from PKHeX (in English).</value>
+  </data>
+  <data name="Maison_Hint" xml:space="preserve">
+    <value>Battle Maison streaks per battle style: the current streak and the best one, in normal and super battles.</value>
+  </data>
+  <data name="Maison_Current" xml:space="preserve">
+    <value>Current streak</value>
+  </data>
+  <data name="Maison_Best" xml:space="preserve">
+    <value>Best streak</value>
+  </data>
+  <data name="Maison_SuperCurrent" xml:space="preserve">
+    <value>Super: current</value>
+  </data>
+  <data name="Maison_SuperBest" xml:space="preserve">
+    <value>Super: best</value>
+  </data>
+  <data name="Maison_Single" xml:space="preserve">
+    <value>Single</value>
+  </data>
+  <data name="Maison_Double" xml:space="preserve">
+    <value>Double</value>
+  </data>
+  <data name="Maison_Triple" xml:space="preserve">
+    <value>Triple</value>
+  </data>
+  <data name="Maison_Rotation" xml:space="preserve">
+    <value>Rotation</value>
+  </data>
+  <data name="Maison_Multi" xml:space="preserve">
+    <value>Multi</value>
+  </data>
+  <data name="Trainer_UnlocksHint" xml:space="preserve">
+    <value>The same shortcuts PKHeX offers. They are applied to the save in memory; press "Write to save" to keep them.</value>
+  </data>
+  <data name="Trainer_UnlockOPowers" xml:space="preserve">
+    <value>Unlock all O-Powers</value>
+  </data>
+  <data name="Trainer_OPowerPoints" xml:space="preserve">
+    <value>O-Power points</value>
+  </data>
+  <data name="Trainer_UnlockSafari" xml:space="preserve">
+    <value>Unlock all Friend Safari slots</value>
+  </data>
+  <data name="Trainer_UnlockSafariHint" xml:space="preserve">
+    <value>The third Pokémon of each Friend Safari.</value>
+  </data>
+  <data name="Trainer_UnlockFashion" xml:space="preserve">
+    <value>Unlock all fashion items</value>
+  </data>
+  <data name="Trainer_UnlockFashionHint" xml:space="preserve">
+    <value>Every clothing item and accessory for your trainer.</value>
+  </data>
+  <data name="Trainer_UnlockSuperTraining" xml:space="preserve">
+    <value>Unlock all Super Training stages</value>
+  </data>
+  <data name="Trainer_UnlockSuperTrainingHint" xml:space="preserve">
+    <value>Every regimen, including distribution ones.</value>
+  </data>
+  <data name="Trainer_FillPuffs" xml:space="preserve">
+    <value>Fill Poké Puffs</value>
+  </data>
+  <data name="Trainer_PuffCount" xml:space="preserve">
+    <value>Poké Puffs now: {0}</value>
+  </data>
+  <data name="Trainer_Unlocked" xml:space="preserve">
+    <value>Done: {0}. Write to save to keep it.</value>
+  </data>
+  <data name="Trainer_MapWarning" xml:space="preserve">
+    <value>Where you appear when loading the game. A wrong map or coordinates can leave you stuck inside a wall or out of bounds; change it only if you know the values (the save before writing stays in History).</value>
+  </data>
+  <data name="Trainer_MapId" xml:space="preserve">
+    <value>Map</value>
+  </data>
+  <data name="Trainer_Rotation" xml:space="preserve">
+    <value>Rotation</value>
+  </data>
 </root>

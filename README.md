@@ -44,7 +44,11 @@ dotnet run --project src/Pokemanager.App
 6. **Save file:** a PKHeX-style editor for the emulator save (close the emulator to write):
    - party and boxes: species, form, nickname, level, nature, ability, held item, gender, shiny, friendship, ball,
      original trainer, moves and PP Ups, IVs and EVs; create Pokémon in empty slots or release them;
-   - bag pockets, trainer data (name, money, Battle Points, play time, badges) and Pokédex seen/caught;
+   - bag pockets and Pokédex seen/caught;
+   - trainer, as in PKHeX: name, money, Battle Points, badges, Mega Evolution unlock, Vivillon pattern, boxes unlocked,
+     play time, adventure start and Hall of Fame dates, PR Video phrases, game records, Battle Maison streaks, map
+     position, and shortcuts to unlock all O-Powers, Friend Safari slots, fashion items and Super Training stages or
+     fill Poké Puffs;
    - stats, abilities, growth rates, gender ratios and PP come from **the ROM you play** (the randomized one);
    - "safe for the game" problems (out-of-range values, more than 510 EVs, duplicated moves…) block writing; PKHeX
      legality is only informative, since a randomized game always looks illegal to it;

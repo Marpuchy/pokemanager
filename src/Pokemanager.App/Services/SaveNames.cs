@@ -27,6 +27,9 @@ public sealed class SaveNames
     /// <summary>Index = ball ID.</summary>
     public IReadOnlyList<string> Balls { get; }
 
+    /// <summary>Vivillon patterns (the player's region pattern).</summary>
+    public IReadOnlyList<string> VivillonPatterns { get; }
+
     public SaveNames(GameNames game, GameLanguage language, int maxSpecies)
     {
         Species = game.Species;
@@ -38,6 +41,8 @@ public sealed class SaveNames
         var pkhex = GameInfo.GetStrings(PkhexLanguage(language));
         Natures = [.. pkhex.natures.Take(25)];
         Balls = [.. pkhex.balllist];
+        VivillonPatterns = [.. FormConverter.GetFormList((ushort)PKHeX.Core.Species.Vivillon, pkhex.types, pkhex.forms, GameInfo.GenderSymbolUnicode, EntityContext.Gen6)
+            .Take(Pokemanager.Save.SaveDocument.VivillonPatterns)];
     }
 
     public string SpeciesName(ushort species) => species == 0 ? Strings.Save_Empty : species < Species.Count ? Species[species] : $"#{species}";

@@ -306,48 +306,206 @@
 
         <!-- ================= Trainer ================= -->
         <TabItem Header="{x:Static r:Strings.Save_TabTrainer}">
-          <ScrollViewer DataContext="{Binding Trainer}" x:DataType="vm:SaveTrainerViewModel">
-            <StackPanel Margin="16" Width="520" HorizontalAlignment="Left">
-              <Grid ColumnDefinitions="160,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
-                <Grid.Styles>
-                  <Style Selector="Grid > :is(Control)">
-                    <Setter Property="Margin" Value="0,4" />
-                  </Style>
-                </Grid.Styles>
-                <TextBlock Grid.Row="0" Classes="row-label" Text="{x:Static r:Strings.Trainer_Name}" />
-                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Name}" MaxLength="12" />
-                <TextBlock Grid.Row="1" Classes="row-label" Text="{x:Static r:Strings.Pkm_Gender}" />
-                <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding Genders}" SelectedIndex="{Binding GenderIndex}" Width="200" />
-                <TextBlock Grid.Row="2" Classes="row-label" Text="{x:Static r:Strings.Trainer_IdLabel}" />
-                <TextBlock Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Text="{Binding IdText}" />
-                <TextBlock Grid.Row="3" Classes="row-label" Text="{x:Static r:Strings.Trainer_Money}" />
-                <NumericUpDown Grid.Row="3" Grid.Column="1" Value="{Binding Money}" Minimum="0" Maximum="9999999" Increment="1000" FormatString="0" ParsingNumberStyle="Integer" Width="200" HorizontalAlignment="Left" />
-                <TextBlock Grid.Row="4" Classes="row-label" Text="{x:Static r:Strings.Trainer_BP}" />
-                <NumericUpDown Grid.Row="4" Grid.Column="1" Value="{Binding BattlePoints}" Minimum="0" Maximum="9999" Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="200" HorizontalAlignment="Left" />
-                <TextBlock Grid.Row="5" Classes="row-label" Text="{x:Static r:Strings.Trainer_PlayTime}" />
-                <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" Spacing="4">
-                  <NumericUpDown Value="{Binding Hours}" Minimum="0" Maximum="999" Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="110" />
-                  <TextBlock VerticalAlignment="Center" Text=":" />
-                  <NumericUpDown Value="{Binding Minutes}" Minimum="0" Maximum="59" Increment="1" FormatString="00" ParsingNumberStyle="Integer" Width="100" />
-                  <TextBlock VerticalAlignment="Center" Text=":" />
-                  <NumericUpDown Value="{Binding Seconds}" Minimum="0" Maximum="59" Increment="1" FormatString="00" ParsingNumberStyle="Integer" Width="100" />
+          <TabControl DataContext="{Binding Trainer}" x:DataType="vm:SaveTrainerViewModel" TabStripPlacement="Left" Padding="0">
+            <!-- General -->
+            <TabItem Header="{x:Static r:Strings.Trainer_TabGeneral}">
+              <ScrollViewer>
+                <WrapPanel Margin="16,8">
+                  <StackPanel Width="520" Margin="0,0,32,0">
+                    <TextBlock Classes="section" Text="{x:Static r:Strings.Trainer_Profile}" />
+                    <Grid ColumnDefinitions="170,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+                      <Grid.Styles>
+                        <Style Selector="Grid > :is(Control)">
+                          <Setter Property="Margin" Value="0,4" />
+                        </Style>
+                      </Grid.Styles>
+                      <TextBlock Grid.Row="0" Classes="row-label" Text="{x:Static r:Strings.Trainer_Name}" />
+                      <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Name}" MaxLength="12" />
+                      <TextBlock Grid.Row="1" Classes="row-label" Text="{x:Static r:Strings.Pkm_Gender}" />
+                      <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding Genders}" SelectedIndex="{Binding GenderIndex}" Width="200" />
+                      <TextBlock Grid.Row="2" Classes="row-label" Text="{x:Static r:Strings.Trainer_IdLabel}" />
+                      <TextBlock Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Text="{Binding IdText}" />
+                      <TextBlock Grid.Row="3" Classes="row-label" Text="{x:Static r:Strings.Trainer_Money}" />
+                      <NumericUpDown Grid.Row="3" Grid.Column="1" Value="{Binding Money}" Minimum="0" Maximum="9999999" Increment="1000" FormatString="0" ParsingNumberStyle="Integer" Width="200" HorizontalAlignment="Left" />
+                      <TextBlock Grid.Row="4" Classes="row-label" Text="{x:Static r:Strings.Trainer_BP}" />
+                      <NumericUpDown Grid.Row="4" Grid.Column="1" Value="{Binding BattlePoints}" Minimum="0" Maximum="9999" Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="200" HorizontalAlignment="Left" />
+                      <TextBlock Grid.Row="5" Classes="row-label" Text="{x:Static r:Strings.Trainer_Vivillon}" />
+                      <ComboBox Grid.Row="5" Grid.Column="1" ItemsSource="{Binding VivillonPatterns}" SelectedIndex="{Binding VivillonIndex}" Width="200" MaxDropDownHeight="400" />
+                    </Grid>
+
+                    <TextBlock Classes="section" Text="{x:Static r:Strings.Trainer_Progress}" />
+                    <CheckBox IsChecked="{Binding MegaEvolution}" Content="{x:Static r:Strings.Trainer_MegaEvolution}" />
+                    <TextBlock Classes="hint" Margin="28,0,0,6" Text="{x:Static r:Strings.Trainer_MegaEvolutionHint}" />
+                    <TextBlock Margin="0,4,0,4" Text="{x:Static r:Strings.Trainer_Badges}" />
+                    <ItemsControl ItemsSource="{Binding Badges}">
+                      <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                          <UniformGrid Columns="4" />
+                        </ItemsPanelTemplate>
+                      </ItemsControl.ItemsPanel>
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:BadgeViewModel">
+                          <CheckBox IsChecked="{Binding IsChecked}" Content="{Binding Label}" />
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Grid ColumnDefinitions="170,*" Margin="0,8,0,0">
+                      <TextBlock Classes="row-label" Text="{x:Static r:Strings.Trainer_BoxesUnlocked}" />
+                      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="0,4">
+                        <NumericUpDown Value="{Binding BoxesUnlocked}" Minimum="1" Maximum="{Binding BoxCount}" Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="130" />
+                        <Button Content="{x:Static r:Strings.Trainer_UnlockBoxes}" Command="{Binding UnlockAllBoxesCommand}" />
+                      </StackPanel>
+                    </Grid>
+                  </StackPanel>
+
+                  <StackPanel Width="520">
+                    <TextBlock Classes="section" Text="{x:Static r:Strings.Trainer_Time}" />
+                    <Grid ColumnDefinitions="170,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+                      <Grid.Styles>
+                        <Style Selector="Grid > :is(Control)">
+                          <Setter Property="Margin" Value="0,4" />
+                        </Style>
+                      </Grid.Styles>
+                      <TextBlock Grid.Row="0" Classes="row-label" Text="{x:Static r:Strings.Trainer_PlayTime}" />
+                      <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                        <NumericUpDown Value="{Binding Hours}" Minimum="0" Maximum="999" Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="110" />
+                        <TextBlock VerticalAlignment="Center" Text=":" />
+                        <NumericUpDown Value="{Binding Minutes}" Minimum="0" Maximum="59" Increment="1" FormatString="00" ParsingNumberStyle="Integer" Width="100" />
+                        <TextBlock VerticalAlignment="Center" Text=":" />
+                        <NumericUpDown Value="{Binding Seconds}" Minimum="0" Maximum="59" Increment="1" FormatString="00" ParsingNumberStyle="Integer" Width="100" />
+                      </StackPanel>
+                      <TextBlock Grid.Row="1" Classes="row-label" Text="{x:Static r:Strings.Trainer_Started}" />
+                      <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                        <CalendarDatePicker SelectedDate="{Binding StartedDate}" Width="150" />
+                        <TimePicker SelectedTime="{Binding StartedTime}" ClockIdentifier="24HourClock" />
+                      </StackPanel>
+                      <TextBlock Grid.Row="2" Classes="row-label" Text="{x:Static r:Strings.Trainer_HallOfFame}" />
+                      <CheckBox Grid.Row="2" Grid.Column="1" IsChecked="{Binding HasHallOfFame}" Content="{x:Static r:Strings.Trainer_HallOfFameEntered}" />
+                      <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="6" IsVisible="{Binding HasHallOfFame}">
+                        <CalendarDatePicker SelectedDate="{Binding FameDate}" Width="150" />
+                        <TimePicker SelectedTime="{Binding FameTime}" ClockIdentifier="24HourClock" />
+                      </StackPanel>
+                      <TextBlock Grid.Row="4" Grid.Column="1" Classes="hint" Text="{Binding LastSavedText}" />
+                    </Grid>
+
+                    <TextBlock Classes="section" Text="{x:Static r:Strings.Trainer_Sayings}" />
+                    <TextBlock Classes="hint" Text="{x:Static r:Strings.Trainer_SayingsHint}" />
+                    <ItemsControl ItemsSource="{Binding Sayings}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:SayingViewModel">
+                          <Grid ColumnDefinitions="170,*" Margin="0,3">
+                            <TextBlock Classes="row-label" Text="{Binding Label}" />
+                            <TextBox Grid.Column="1" Text="{Binding Text}" MaxLength="16" />
+                          </Grid>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </StackPanel>
+                </WrapPanel>
+              </ScrollViewer>
+            </TabItem>
+
+            <!-- Records -->
+            <TabItem Header="{x:Static r:Strings.Trainer_TabRecords}">
+              <DockPanel Margin="16,8">
+                <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="0,0,0,8">
+                  <TextBlock Classes="hint" Text="{x:Static r:Strings.Trainer_RecordsHint}" />
+                  <TextBox Text="{Binding RecordFilter}" PlaceholderText="{x:Static r:Strings.Search_Watermark}" Width="300" HorizontalAlignment="Left" />
                 </StackPanel>
-              </Grid>
-              <TextBlock Classes="section" Text="{x:Static r:Strings.Trainer_Badges}" />
-              <ItemsControl ItemsSource="{Binding Badges}">
-                <ItemsControl.ItemsPanel>
-                  <ItemsPanelTemplate>
-                    <UniformGrid Columns="4" />
-                  </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                  <DataTemplate x:DataType="vm:BadgeViewModel">
-                    <CheckBox IsChecked="{Binding IsChecked}" Content="{Binding Label}" />
-                  </DataTemplate>
-                </ItemsControl.ItemTemplate>
-              </ItemsControl>
-            </StackPanel>
-          </ScrollViewer>
+                <ListBox ItemsSource="{Binding Records}" MaxWidth="720" HorizontalAlignment="Left">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:RecordRowViewModel">
+                      <Grid ColumnDefinitions="60,380,200">
+                        <TextBlock Classes="hint" VerticalAlignment="Center" Text="{Binding Number}" />
+                        <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                        <NumericUpDown Grid.Column="2" Value="{Binding Value}" Minimum="0" Maximum="{Binding Max}" Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
+                      </Grid>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+              </DockPanel>
+            </TabItem>
+
+            <!-- Battle Maison -->
+            <TabItem Header="{x:Static r:Strings.Trainer_TabMaison}">
+              <StackPanel Margin="16,8" Spacing="6">
+                <TextBlock Classes="hint" Text="{x:Static r:Strings.Maison_Hint}" />
+                <Grid ColumnDefinitions="140,150,150,150,150" Margin="0,8,0,0">
+                  <TextBlock Grid.Column="1" Classes="hint" Text="{x:Static r:Strings.Maison_Current}" />
+                  <TextBlock Grid.Column="2" Classes="hint" Text="{x:Static r:Strings.Maison_Best}" />
+                  <TextBlock Grid.Column="3" Classes="hint" Text="{x:Static r:Strings.Maison_SuperCurrent}" />
+                  <TextBlock Grid.Column="4" Classes="hint" Text="{x:Static r:Strings.Maison_SuperBest}" />
+                </Grid>
+                <ItemsControl ItemsSource="{Binding Maison}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:MaisonRowViewModel">
+                      <Grid ColumnDefinitions="140,150,150,150,150" Margin="0,3">
+                        <TextBlock Classes="row-label" Text="{Binding Style}" />
+                        <NumericUpDown Grid.Column="1" Margin="0,0,8,0" Value="{Binding Current}" Minimum="0" Maximum="65535" FormatString="0" ParsingNumberStyle="Integer" />
+                        <NumericUpDown Grid.Column="2" Margin="0,0,8,0" Value="{Binding Best}" Minimum="0" Maximum="65535" FormatString="0" ParsingNumberStyle="Integer" />
+                        <NumericUpDown Grid.Column="3" Margin="0,0,8,0" Value="{Binding SuperCurrent}" Minimum="0" Maximum="65535" FormatString="0" ParsingNumberStyle="Integer" />
+                        <NumericUpDown Grid.Column="4" Margin="0,0,8,0" Value="{Binding SuperBest}" Minimum="0" Maximum="65535" FormatString="0" ParsingNumberStyle="Integer" />
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </TabItem>
+
+            <!-- Unlocks -->
+            <TabItem Header="{x:Static r:Strings.Trainer_TabUnlocks}">
+              <StackPanel Margin="16,8" Spacing="10" MaxWidth="820" HorizontalAlignment="Left">
+                <TextBlock Classes="hint" Text="{x:Static r:Strings.Trainer_UnlocksHint}" />
+                <Grid ColumnDefinitions="280,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto">
+                  <Grid.Styles>
+                    <Style Selector="Grid > :is(Control)">
+                      <Setter Property="Margin" Value="0,5" />
+                    </Style>
+                  </Grid.Styles>
+                  <Button Grid.Row="0" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Trainer_UnlockOPowers}" Command="{Binding UnlockOPowersCommand}" />
+                  <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="12,5,0,5">
+                    <TextBlock VerticalAlignment="Center" Text="{x:Static r:Strings.Trainer_OPowerPoints}" />
+                    <NumericUpDown Value="{Binding OPowerPoints}" Minimum="0" Maximum="255" FormatString="0" ParsingNumberStyle="Integer" Width="130" />
+                  </StackPanel>
+                  <Button Grid.Row="1" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Trainer_UnlockSafari}" Command="{Binding UnlockFriendSafariCommand}" />
+                  <TextBlock Grid.Row="1" Grid.Column="1" Classes="hint" Margin="12,0,0,0" VerticalAlignment="Center" Text="{x:Static r:Strings.Trainer_UnlockSafariHint}" />
+                  <Button Grid.Row="2" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Trainer_UnlockFashion}" Command="{Binding UnlockFashionCommand}" />
+                  <TextBlock Grid.Row="2" Grid.Column="1" Classes="hint" Margin="12,0,0,0" VerticalAlignment="Center" Text="{x:Static r:Strings.Trainer_UnlockFashionHint}" />
+                  <Button Grid.Row="3" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Trainer_UnlockSuperTraining}" Command="{Binding UnlockSuperTrainingCommand}" />
+                  <TextBlock Grid.Row="3" Grid.Column="1" Classes="hint" Margin="12,0,0,0" VerticalAlignment="Center" Text="{x:Static r:Strings.Trainer_UnlockSuperTrainingHint}" />
+                  <Button Grid.Row="4" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Trainer_FillPuffs}" Command="{Binding FillPuffsCommand}" />
+                  <TextBlock Grid.Row="4" Grid.Column="1" Classes="hint" Margin="12,0,0,0" VerticalAlignment="Center" Text="{Binding PuffText}" />
+                  <Button Grid.Row="5" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Trainer_UnlockBoxes}" Command="{Binding UnlockAllBoxesCommand}" />
+                </Grid>
+              </StackPanel>
+            </TabItem>
+
+            <!-- Map position -->
+            <TabItem Header="{x:Static r:Strings.Trainer_TabMap}">
+              <StackPanel Margin="16,8" Spacing="6" MaxWidth="640" HorizontalAlignment="Left">
+                <Border Padding="10" CornerRadius="4" Background="#26E07B00" BorderBrush="#E07B00" BorderThickness="1">
+                  <TextBlock Text="{x:Static r:Strings.Trainer_MapWarning}" TextWrapping="Wrap" />
+                </Border>
+                <Grid ColumnDefinitions="170,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+                  <Grid.Styles>
+                    <Style Selector="Grid > :is(Control)">
+                      <Setter Property="Margin" Value="0,4" />
+                    </Style>
+                  </Grid.Styles>
+                  <TextBlock Grid.Row="0" Classes="row-label" Text="{x:Static r:Strings.Trainer_MapId}" />
+                  <NumericUpDown Grid.Row="0" Grid.Column="1" Value="{Binding Map}" Minimum="0" Maximum="65535" FormatString="0" ParsingNumberStyle="Integer" Width="180" HorizontalAlignment="Left" />
+                  <TextBlock Grid.Row="1" Classes="row-label" Text="X" />
+                  <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding X}" Minimum="-100000" Maximum="100000" Increment="18" FormatString="0.##" Width="180" HorizontalAlignment="Left" />
+                  <TextBlock Grid.Row="2" Classes="row-label" Text="Y" />
+                  <NumericUpDown Grid.Row="2" Grid.Column="1" Value="{Binding Y}" Minimum="-100000" Maximum="100000" Increment="18" FormatString="0.##" Width="180" HorizontalAlignment="Left" />
+                  <TextBlock Grid.Row="3" Classes="row-label" Text="Z" />
+                  <NumericUpDown Grid.Row="3" Grid.Column="1" Value="{Binding Z}" Minimum="-100000" Maximum="100000" Increment="18" FormatString="0.##" Width="180" HorizontalAlignment="Left" />
+                  <TextBlock Grid.Row="4" Classes="row-label" Text="{x:Static r:Strings.Trainer_Rotation}" />
+                  <NumericUpDown Grid.Row="4" Grid.Column="1" Value="{Binding Rotation}" Minimum="0" Maximum="65535" FormatString="0" ParsingNumberStyle="Integer" Width="180" HorizontalAlignment="Left" />
+                </Grid>
+              </StackPanel>
+            </TabItem>
+          </TabControl>
         </TabItem>
 
         <!-- ================= Pokédex ================= -->

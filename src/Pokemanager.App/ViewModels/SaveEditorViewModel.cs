@@ -170,7 +170,7 @@ public partial class SaveEditorViewModel : ObservableObject
             RebuildBoxSlots();
 
             Bag = new SaveBagViewModel(this, doc, names);
-            Trainer = new SaveTrainerViewModel(this, doc);
+            Trainer = new SaveTrainerViewModel(this, doc, names);
             Dex = new SaveDexViewModel(this, doc, names);
             RefreshSlots();
             RefreshProblems();
@@ -240,6 +240,8 @@ public partial class SaveEditorViewModel : ObservableObject
             SelectedSlot = slot;
         Touch();
     }
+
+    public void SetStatus(string text) => editor.SetStatus(text);
 
     public void Touch()
     {
@@ -372,69 +374,6 @@ public partial class SaveEditorViewModel : ObservableObject
         {
             editor.SetStatus(string.Format(Strings.Save_WriteFailed, ex.Message), error: true);
         }
-    }
-}
-
-/// <summary>Trainer data.</summary>
-public sealed class SaveTrainerViewModel(SaveEditorViewModel owner, SaveDocument doc) : ObservableObject
-{
-    public string Name
-    {
-        get => doc.TrainerName;
-        set { if (value.Length is > 0 and <= SaveDocument.MaxNameLength && value != doc.TrainerName) { doc.TrainerName = value; owner.Touch(); } }
-    }
-
-    public IReadOnlyList<string> Genders { get; } = [Strings.Pkm_Male, Strings.Pkm_Female];
-
-    public int GenderIndex
-    {
-        get => doc.TrainerGender;
-        set { if (value is 0 or 1) { doc.TrainerGender = value; owner.Touch(); } }
-    }
-
-    public string IdText => string.Format(Strings.Trainer_Ids, doc.TrainerId.ToString("00000"), doc.SecretId.ToString("00000"));
-
-    public decimal? Money
-    {
-        get => doc.Money;
-        set { if (value is { } v) { doc.Money = (uint)Math.Clamp(v, 0, SaveDocument.MaxMoney); owner.Touch(); } }
-    }
-
-    public decimal? BattlePoints
-    {
-        get => doc.BattlePoints;
-        set { if (value is { } v) { doc.BattlePoints = (int)v; owner.Touch(); } }
-    }
-
-    public decimal? Hours
-    {
-        get => doc.PlayedHours;
-        set { if (value is { } v) { doc.PlayedHours = (int)v; owner.Touch(); } }
-    }
-
-    public decimal? Minutes
-    {
-        get => doc.PlayedMinutes;
-        set { if (value is { } v) { doc.PlayedMinutes = (int)v; owner.Touch(); } }
-    }
-
-    public decimal? Seconds
-    {
-        get => doc.PlayedSeconds;
-        set { if (value is { } v) { doc.PlayedSeconds = (int)v; owner.Touch(); } }
-    }
-
-    public IReadOnlyList<BadgeViewModel> Badges { get; } = Enumerable.Range(0, 8).Select(i => new BadgeViewModel(owner, doc, i)).ToList();
-}
-
-public sealed class BadgeViewModel(SaveEditorViewModel owner, SaveDocument doc, int index) : ObservableObject
-{
-    public string Label => string.Format(Strings.Trainer_Badge, index + 1);
-
-    public bool IsChecked
-    {
-        get => doc.GetBadge(index);
-        set { doc.SetBadge(index, value); owner.Touch(); }
     }
 }
 

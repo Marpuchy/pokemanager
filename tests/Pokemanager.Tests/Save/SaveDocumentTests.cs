@@ -107,6 +107,44 @@ public sealed class SaveDocumentTests : IDisposable
     }
 
     [Fact]
+    public void TrainerExtras_RoundTrip()
+    {
+        var doc = Open();
+        var started = new DateTime(2026, 5, 26, 10, 30, 0);
+        doc.MegaEvolutionUnlocked = true;
+        doc.Vivillon = 99; // clamped to 19
+        doc.BoxesUnlocked = 20;
+        doc.SetSaying(0, "Hi there!");
+        doc.SetSaying(4, new string('x', 40)); // too long: ignored
+        doc.GameStarted = started;
+        doc.HallOfFame = started.AddDays(3);
+        doc.SetRecord(0, 12345);
+        doc.SetMaison(PKHeX.Core.BattleStyle6.Double, current: false, super: true, 49);
+        doc.OPowerPoints = 50;
+        doc.UnlockAllOPowers();
+        doc.FillPokePuffs();
+        doc.SetPosition(157, 100.5f, 0, -20, 0);
+
+        doc.Write(Path.Combine(dir, "backups"));
+        var reread = SaveDocument.Open(doc.SavePath, GameData.Load(romfs.RomFs));
+
+        Assert.True(reread.MegaEvolutionUnlocked);
+        Assert.Equal(19, reread.Vivillon);
+        Assert.Equal(20, reread.BoxesUnlocked);
+        Assert.Equal("Hi there!", reread.GetSaying(0));
+        Assert.NotEqual(40, reread.GetSaying(4).Length);
+        Assert.Equal(started, reread.GameStarted);
+        Assert.Equal(started.AddDays(3), reread.HallOfFame);
+        Assert.Equal(12345, reread.GetRecord(0));
+        Assert.Equal(49, reread.GetMaison(PKHeX.Core.BattleStyle6.Double, false, true));
+        Assert.Equal(0, reread.GetMaison(PKHeX.Core.BattleStyle6.Double, true, true));
+        Assert.Equal(50, reread.OPowerPoints);
+        Assert.True(reread.PokePuffCount > 0);
+        Assert.Equal((157, 100.5f, 0f, -20f, 0), reread.Position);
+        Assert.NotEmpty(SaveDocument.RecordNames);
+    }
+
+    [Fact]
     public void Write_RefusedWhenTheGameSavedMeanwhile()
     {
         var doc = Open();
