@@ -40,12 +40,43 @@ public partial class WelcomeViewModel : ObservableObject
     [ObservableProperty]
     public partial string? Error { get; set; }
 
+    public System.Collections.ObjectModel.ObservableCollection<RecentProjectItem> RecentProjects { get; } = [];
+
+    public bool HasRecentProjects => RecentProjects.Count > 0;
+
     public WelcomeViewModel(MainWindowViewModel main, IDialogs dialogs)
     {
         this.main = main;
         this.dialogs = dialogs;
         DumpDirectory = Environment.GetEnvironmentVariable("POKEMANAGER_DUMP") ?? "";
-        ProjectPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Pokemanager", "pokemon-x.json");
+        ProjectPath = SuggestProjectPath();
+        LoadRecentProjects();
+    }
+
+    private void LoadRecentProjects()
+    {
+        RecentProjects.Clear();
+        foreach (var r in main.Settings.ExistingRecentProjects())
+            RecentProjects.Add(new RecentProjectItem(this, r));
+        OnPropertyChanged(nameof(HasRecentProjects));
+    }
+
+    /// <summary>Documentos/Pokemanager/pokemon-x.json, o pokemon-x2.json… si ya existe.</summary>
+    private static string SuggestProjectPath()
+    {
+        string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Pokemanager");
+        string path = Path.Combine(dir, "pokemon-x.json");
+        for (int i = 2; File.Exists(path); i++)
+            path = Path.Combine(dir, $"pokemon-x{i}.json");
+        return path;
+    }
+
+    internal void Open(RecentProjectItem item) => Error = main.OpenProject(item.Path);
+
+    internal void Forget(RecentProjectItem item)
+    {
+        main.Settings.ForgetProject(item.Path);
+        LoadRecentProjects();
     }
 
     [RelayCommand]
@@ -87,7 +118,9 @@ public partial class WelcomeViewModel : ObservableObject
 
         try
         {
-            new Project { DumpDirectory = Path.GetFullPath(DumpDirectory), Language = Language.Value }.Save(ProjectPath);
+            string dump = Path.GetFullPath(DumpDirectory);
+            // La ROM base se fija al crear el proyecto: después pueden aparecer ROM randomizadas en la misma carpeta.
+            new Project { DumpDirectory = dump, RomFile = Project.FindBaseRom(dump), Language = Language.Value }.Save(ProjectPath);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {

@@ -67,6 +67,11 @@ public partial class RandomizerViewModel : ObservableObject
 
         SeedText = Settings.Seed > 0 ? Settings.Seed.ToString() : UprRunner.NewSeed().ToString();
         OutputName = Settings.OutputName ?? DefaultOutputName();
+
+        // Proyectos anteriores a LastBuiltRom: si la ROM con su nombre existe, es la última creada.
+        if (Settings.LastBuiltRom is null && BaseRom is { } baseRom && RomBuilder.ValidateName(OutputName) is null
+            && RomBuilder.OutputPath(baseRom, OutputName) is var previous && File.Exists(previous))
+            Settings.LastBuiltRom = previous;
         if (upr.TryGetCached(Project, Settings.Preset) is { } cached)
             LoadLog(cached.LogPath);
     }
@@ -109,9 +114,46 @@ public partial class RandomizerViewModel : ObservableObject
     public string? BaseRom => Project.ResolveRomFile();
     public string BaseRomText => BaseRom ?? "No se encuentra la ROM base (.3ds) en la carpeta del volcado. Cámbiala en Ajustes del proyecto.";
 
-    public string? OutputPath => BaseRom is { } rom && RomBuilder.ValidateName(OutputName) is null ? RomBuilder.OutputPath(rom, OutputName) : null;
-    public string? OutputError => RomBuilder.ValidateName(OutputName);
-    public bool OutputExists => OutputPath is { } p && File.Exists(p);
+    /// <summary>Hay una ROM creada antes por este proyecto que todavía existe.</summary>
+    public bool HasPreviousRom => Settings.LastBuiltRom is { } p && File.Exists(p);
+
+    public string PreviousRomText => HasPreviousRom ? $"Sustituir la ROM anterior: {Path.GetFileName(Settings.LastBuiltRom)}" : "";
+
+    public bool ReplacePrevious
+    {
+        get => Settings.ReplacePreviousRom;
+        set
+        {
+            if (Settings.ReplacePreviousRom == value)
+                return;
+            Settings.ReplacePreviousRom = value;
+            editor.MarkDirty();
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(CreateNew));
+            OnPropertyChanged(nameof(IsNameEditable));
+            OnPropertyChanged(nameof(OutputPath));
+            OnPropertyChanged(nameof(OutputError));
+            OnPropertyChanged(nameof(OutputExists));
+        }
+    }
+
+    public bool CreateNew
+    {
+        get => !ReplacePrevious;
+        set => ReplacePrevious = !value;
+    }
+
+    private bool Replacing => ReplacePrevious && HasPreviousRom;
+
+    public bool IsNameEditable => !Replacing;
+
+    /// <summary>Dónde se escribirá la ROM: la anterior (si se sustituye) o una nueva con el nombre indicado.</summary>
+    public string? OutputPath => Replacing
+        ? Settings.LastBuiltRom
+        : BaseRom is { } rom && RomBuilder.ValidateName(OutputName) is null ? RomBuilder.OutputPath(rom, OutputName) : null;
+
+    public string? OutputError => Replacing ? null : RomBuilder.ValidateName(OutputName);
+    public bool OutputExists => !Replacing && OutputPath is { } p && File.Exists(p);
 
     public string EmulatorName => settings.EffectiveEmulatorName;
 
@@ -141,6 +183,9 @@ public partial class RandomizerViewModel : ObservableObject
     }
 
     public bool HasSave => SavePath is { } p && File.Exists(p);
+
+    /// <summary>Ruta exacta de la partida que se modificará, para que siempre se vea cuál es.</summary>
+    public string SaveTargetText => SavePath is { } p ? $"Archivo: {p}" : "";
 
     public string? SaveWarning
     {
@@ -194,9 +239,15 @@ public partial class RandomizerViewModel : ObservableObject
         OnPropertyChanged(nameof(EmulatorName));
         OnPropertyChanged(nameof(SavePath));
         OnPropertyChanged(nameof(SaveText));
+        OnPropertyChanged(nameof(SaveTargetText));
         OnPropertyChanged(nameof(HasSave));
         OnPropertyChanged(nameof(SaveWarning));
         OnPropertyChanged(nameof(HasSaveWarning));
+        OnPropertyChanged(nameof(HasPreviousRom));
+        OnPropertyChanged(nameof(PreviousRomText));
+        OnPropertyChanged(nameof(IsNameEditable));
+        OnPropertyChanged(nameof(OutputPath));
+        OnPropertyChanged(nameof(OutputError));
         OnPropertyChanged(nameof(OutputExists));
     }
 
@@ -303,6 +354,9 @@ public partial class RandomizerViewModel : ObservableObject
             Enabled = true;
         await editor.BuildRomCommand.ExecuteAsync(null);
     }
+
+    [RelayCommand]
+    private async Task AdaptSaveNow() => await editor.AdaptSaveCommand.ExecuteAsync(null);
 
     // ------------------------------------------------------------------ resultados
 

@@ -7,6 +7,7 @@ using Pokemanager.Model.Build;
 using Pokemanager.Model.Dump;
 using Pokemanager.Model.Editing;
 using Pokemanager.Model.Edits;
+using Pokemanager.Model.Projects;
 using Pokemanager.Randomizer;
 using Pokemanager.Save;
 
@@ -88,6 +89,15 @@ public partial class EditorViewModel : ObservableObject
         Session = session;
         Names = new GameNames(dump, session.Original);
         LoadLists();
+
+        // Proyectos sin ROM base fijada: se fija ahora, antes de que una ROM creada pueda confundirse con ella.
+        if (session.Project.RomFile is null && Project.FindBaseRom(session.Project.DumpDirectory) is { } baseRom)
+        {
+            session.Project.RomFile = baseRom;
+            try { session.Project.Save(projectPath); }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { IsDirty = true; }
+        }
+
         Randomizer = new RandomizerViewModel(this, dialogs, upr, settings);
     }
 
@@ -203,13 +213,14 @@ public partial class EditorViewModel : ObservableObject
 
         if (upr.Tools is not { } tools) { SetStatus(upr.StatusText, error: true); return; }
         if (project.ResolveRomFile() is not { } baseRom) { SetStatus(Randomizer.BaseRomText, error: true); return; }
-        if (RomBuilder.ValidateName(r.OutputName) is { } nameError) { SetStatus(nameError, error: true); return; }
+        if (Randomizer.OutputError is { } nameError) { SetStatus(nameError, error: true); return; }
+        if (Randomizer.OutputPath is not { } output) { SetStatus("No se puede determinar dónde crear la ROM.", error: true); return; }
         if (r.Enabled && !r.IsReady) { SetStatus("Falta una semilla válida.", error: true); return; }
 
         string? savePath = r.UpdateSave ? Randomizer.SavePath : null;
-        if (savePath is not null && File.Exists(savePath) && EmulatorUserFolders.RunningEmulators(settings.EffectiveEmulatorName) is { Count: > 0 } running)
+        if (savePath is not null && File.Exists(savePath) && EmulatorBlocking() is { } blocking)
         {
-            SetStatus($"Cierra {string.Join(", ", running)} antes de crear la ROM: si el emulador está abierto, al salir sobrescribiría la partida actualizada.", error: true);
+            SetStatus(blocking, error: true);
             return;
         }
 
@@ -227,9 +238,14 @@ public partial class EditorViewModel : ObservableObject
 
             ReloadBaseIfNeeded(random is null ? null : Path.Combine(random.TitleDirectory, "romfs"));
 
-            string output = RomBuilder.OutputPath(baseRom, r.OutputName!);
             var built = await RomBuilder.BuildAsync(new UprRunner(tools), baseRom, random, ModBuilder.BuildEdits(Session),
                 output, r.Seed, upr.Cache.Root, progress);
+            r.LastBuiltRom = built.RomPath;
+            if (random is null && File.Exists(built.RomPath + ".log"))
+                File.Delete(built.RomPath + ".log"); // log de una randomización anterior que ya no corresponde
+
+            // No acumular: se conservan las últimas randomizaciones en caché y copias de seguridad.
+            upr.Cache.Prune(keep: 3, keepTitleDirectory: random?.TitleDirectory);
 
             // Los mods LayeredFS que instalaban versiones anteriores de la app se aplican a cualquier ROM del juego: fuera.
             int removedMods = 0;
@@ -238,11 +254,7 @@ public partial class EditorViewModel : ObservableObject
 
             SaveUpdateResult? saveResult = null;
             if (savePath is not null && File.Exists(savePath))
-            {
-                SetStatus("Adaptando la partida a la nueva ROM…");
-                string backups = Path.Combine(AppSettings.BackupRoot, settings.EffectiveEmulatorName);
-                saveResult = await Task.Run(() => SaveUpdater.Apply(savePath, Session.Current, backups));
-            }
+                saveResult = await ApplySaveUpdateAsync(savePath);
 
             r.InstalledSeed = random?.Seed;
             await SaveAsync();
@@ -263,6 +275,66 @@ public partial class EditorViewModel : ObservableObject
                                        or InvalidDataException or SaveUpdateException)
         {
             SetStatus($"No se pudo crear la ROM: {ex.Message}", error: true);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private string? EmulatorBlocking() =>
+        EmulatorUserFolders.RunningEmulators(settings.EffectiveEmulatorName) is { Count: > 0 } running
+            ? $"Cierra {string.Join(", ", running)} antes de modificar la partida: si el emulador está abierto, al salir la sobrescribiría."
+            : null;
+
+    private async Task<SaveUpdateResult> ApplySaveUpdateAsync(string savePath)
+    {
+        SetStatus($"Adaptando la partida ({savePath})…");
+        string backups = Path.Combine(AppSettings.BackupRoot, settings.EffectiveEmulatorName);
+        var result = await Task.Run(() => SaveUpdater.Apply(savePath, Session.Current, backups));
+        SaveUpdater.PruneBackups(backups, keep: 10);
+        return result;
+    }
+
+    private bool CanAdaptSave() => !IsBusy;
+
+    /// <summary>
+    /// Adapta la partida a la ROM ya creada, sin volver a crearla. Solo si la configuración actual es la de esa ROM
+    /// (misma semilla y la randomización en caché), para no adaptarla a algo distinto de lo que se juega.
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(CanAdaptSave))]
+    private async Task AdaptSave()
+    {
+        var r = Session.Project.Randomization;
+        if (Randomizer.SavePath is not { } savePath || !File.Exists(savePath)) { SetStatus(Randomizer.SaveText, error: true); return; }
+        if (r.LastBuiltRom is null || !File.Exists(r.LastBuiltRom)) { SetStatus("Primero crea la ROM: la partida se adapta a ella.", error: true); return; }
+        if (IsDirty || (r.Enabled && r.InstalledSeed != r.Seed) || Randomizer.Options.HasChanges)
+        {
+            SetStatus("Hay cambios desde la última ROM creada. Crea la ROM de nuevo (también adapta la partida).", error: true);
+            return;
+        }
+        if (EmulatorBlocking() is { } blocking) { SetStatus(blocking, error: true); return; }
+
+        UprResult? random = null;
+        if (r.Enabled && (random = upr.TryGetCached(Session.Project, r.Preset)) is null)
+        {
+            SetStatus("No está en caché la randomización de la ROM creada. Crea la ROM de nuevo.", error: true);
+            return;
+        }
+
+        IsBusy = true;
+        try
+        {
+            ReloadBaseIfNeeded(random is null ? null : Path.Combine(random.TitleDirectory, "romfs"));
+            var result = await ApplySaveUpdateAsync(savePath);
+            Randomizer.OnBuilt(null, result);
+            SetStatus(result.Changes.Count == 0
+                ? $"Partida revisada ({result.PokemonChecked} Pokémon): ya estaba adaptada a la ROM."
+                : $"Partida adaptada a {Path.GetFileName(r.LastBuiltRom)}: {result.Changes.Count} cambios, verificada. Copia: {result.BackupPath}");
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SaveUpdateException or InvalidDataException)
+        {
+            SetStatus($"No se pudo adaptar la partida: {ex.Message}", error: true);
         }
         finally
         {

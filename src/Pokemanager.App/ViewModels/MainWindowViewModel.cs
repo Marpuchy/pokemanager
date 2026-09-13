@@ -24,10 +24,8 @@ public partial class MainWindowViewModel : ObservableObject
         this.settings = settings;
         Upr = new UprService();
 
-        if (settings.LastProject is { } last && File.Exists(last) && TryOpen(last, out var editor, out _))
-            CurrentPage = editor!;
-        else
-            CurrentPage = new WelcomeViewModel(this, dialogs);
+        // Se empieza en la lista de proyectos: con varios, el usuario elige cuál abrir.
+        CurrentPage = new WelcomeViewModel(this, dialogs);
     }
 
     public string Title => CurrentPage is EditorViewModel e ? $"Pokemanager — {Path.GetFileName(e.ProjectPath)}" : "Pokemanager";
@@ -60,8 +58,7 @@ public partial class MainWindowViewModel : ObservableObject
             var session = EditorSession.Open(project, randomRomFs);
 
             editor = new EditorViewModel(this, dialogs, Upr, settings, path, dump, session);
-            settings.LastProject = path;
-            settings.Save();
+            settings.TouchProject(path);
             error = null;
             return true;
         }

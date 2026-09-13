@@ -34,16 +34,24 @@
             <TextBlock Classes="hint" Text="Mismas opciones y misma semilla dan siempre el mismo juego." />
 
             <TextBlock Classes="section" Text="ROM randomizada" />
-            <TextBlock Text="Nombre" />
-            <TextBox Text="{Binding OutputName}" />
+            <StackPanel IsVisible="{Binding HasPreviousRom}" Spacing="2">
+              <RadioButton GroupName="salida" IsChecked="{Binding ReplacePrevious}" Content="{Binding PreviousRomText}" />
+              <RadioButton GroupName="salida" IsChecked="{Binding CreateNew}" Content="Crear una ROM nueva (se conserva la anterior)" />
+            </StackPanel>
+            <TextBlock Text="Nombre" IsVisible="{Binding IsNameEditable}" />
+            <TextBox Text="{Binding OutputName}" IsVisible="{Binding IsNameEditable}" />
             <TextBlock Classes="error" Text="{Binding OutputError}" IsVisible="{Binding OutputError, Converter={x:Static ObjectConverters.IsNotNull}}" />
             <TextBlock Classes="hint" Text="{Binding OutputPath}" TextWrapping="Wrap" />
             <TextBlock Classes="hint" Foreground="#E07B00" IsVisible="{Binding OutputExists}" Text="Ya existe un archivo con ese nombre: se sustituirá." />
 
             <TextBlock Classes="section" Text="Tu partida" />
             <TextBlock Text="{Binding SaveText}" TextWrapping="Wrap" />
+            <TextBlock Classes="hint" Text="{Binding SaveTargetText}" TextWrapping="Wrap" />
             <CheckBox IsChecked="{Binding UpdateSave}" IsEnabled="{Binding HasSave}"
                       Content="Adaptar la partida a la nueva ROM (habilidades y stats)" />
+            <Button Content="Adaptar partida ahora a la ROM ya creada" Command="{Binding AdaptSaveNowCommand}"
+                    IsVisible="{Binding HasPreviousRom}" IsEnabled="{Binding HasSave}"
+                    ToolTip.Tip="Sin volver a crear la ROM. Solo si no has cambiado nada desde que la creaste." />
             <Border Padding="10" CornerRadius="4" Background="#26E07B00" BorderBrush="#E07B00" BorderThickness="1"
                     IsVisible="{Binding HasSaveWarning}">
               <TextBlock Text="{Binding SaveWarning}" TextWrapping="Wrap" />

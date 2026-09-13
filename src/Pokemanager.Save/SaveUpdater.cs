@@ -151,6 +151,18 @@ public static class SaveUpdater
         return index < rom.Personal.Length ? rom.Personal[index] : null;
     }
 
+    /// <summary>Borra las copias de seguridad de <paramref name="backupRoot"/> salvo las <paramref name="keep"/> más recientes.</summary>
+    public static void PruneBackups(string backupRoot, int keep)
+    {
+        if (!Directory.Exists(backupRoot))
+            return;
+        foreach (string dir in Directory.GetDirectories(backupRoot).OrderByDescending(Path.GetFileName, StringComparer.Ordinal).Skip(keep))
+        {
+            try { Directory.Delete(dir, recursive: true); }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
+        }
+    }
+
     /// <summary>AbilityNumber de PKHeX: 1 = primera, 2 = segunda, 4 = oculta.</summary>
     internal static int AbilityIndex(int abilityNumber) => abilityNumber switch { 2 => 1, 4 => 2, _ => 0 };
 

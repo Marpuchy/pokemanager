@@ -39,10 +39,16 @@ public partial class SettingsViewModel : ObservableObject
             options.Add(new EmulatorOption(custom, $"Personalizada — {custom}"));
         Emulators = options;
         SelectedEmulator = options.FirstOrDefault(o => string.Equals(o.Path, settings.EmulatorUserDirectory, StringComparison.OrdinalIgnoreCase)) ?? options[0];
+        initialized = true;
     }
+
+    // Mostrar la selección actual al abrir la ventana no es un cambio: solo se guarda lo que elige el usuario.
+    private readonly bool initialized;
 
     partial void OnSelectedEmulatorChanged(EmulatorOption? value)
     {
+        if (!initialized)
+            return;
         settings.EmulatorUserDirectory = value?.Path;
         settings.Save();
         OnPropertyChanged(nameof(EffectiveText));

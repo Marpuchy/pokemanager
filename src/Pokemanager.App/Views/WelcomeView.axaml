@@ -11,6 +11,26 @@
       </Grid>
       <TextBlock Classes="hint" Text="Randomizer y editor de partida para Pokémon X/Y. Tu ROM base nunca se modifica: las ROM randomizadas se crean como archivos nuevos a su lado." />
 
+      <StackPanel IsVisible="{Binding HasRecentProjects}" Spacing="4">
+        <TextBlock Classes="section" Text="Proyectos recientes" />
+        <ItemsControl ItemsSource="{Binding RecentProjects}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:RecentProjectItem">
+              <Grid ColumnDefinitions="*,Auto" Margin="0,2">
+                <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Command="{Binding OpenCommand}" Padding="10,6">
+                  <StackPanel>
+                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                    <TextBlock Classes="hint" Text="{Binding Details}" TextTrimming="CharacterEllipsis" />
+                  </StackPanel>
+                </Button>
+                <Button Grid.Column="1" Margin="6,0,0,0" Content="Quitar" VerticalAlignment="Center"
+                        Command="{Binding ForgetCommand}" ToolTip.Tip="Quitar de la lista (no borra el archivo)" />
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+
       <TextBlock Classes="section" Text="Nuevo proyecto" />
 
       <TextBlock Text="Carpeta del volcado (con el .3ds y sus carpetas romfs y exefs, con code.bin descomprimido)" />

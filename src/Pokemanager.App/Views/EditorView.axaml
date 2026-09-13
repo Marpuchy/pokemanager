@@ -58,7 +58,7 @@
                   ToolTip.Tip="Crea la ROM randomizada junto a la ROM base y adapta tu partida (Ctrl+B)" />
           <Button Content="Ajustes…" Command="{Binding OpenSettingsCommand}" />
           <Button Content="Abrir…" Command="{Binding OpenOtherProjectCommand}" />
-          <Button Content="Nuevo" Command="{Binding NewProjectCommand}" />
+          <Button Content="Proyectos" Command="{Binding NewProjectCommand}" ToolTip.Tip="Volver a la lista de proyectos" />
         </StackPanel>
       </Grid>
     </Border>

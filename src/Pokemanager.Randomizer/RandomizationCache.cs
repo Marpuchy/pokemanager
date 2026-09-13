@@ -41,6 +41,8 @@ public sealed class RandomizationCache(string root)
         if (TryGet(romFile, preset, seed, tools.JarPath) is { } cached)
         {
             progress?.Report($"Usando la randomización en caché de la semilla {seed}.");
+            // Se marca como usada ahora para que Prune la conserve.
+            File.SetLastWriteTimeUtc(Path.Combine(Root, Key(romFile, preset, seed, tools.JarPath), ".completo"), DateTime.UtcNow);
             return cached;
         }
 
@@ -56,6 +58,24 @@ public sealed class RandomizationCache(string root)
         var result = await runner.RandomizeAsync(presetFile, romFile, seed, Path.Combine(dir, "salida"), progress, cancellationToken);
         await File.WriteAllTextAsync(Path.Combine(dir, ".completo"), DateTime.UtcNow.ToString("O"), cancellationToken);
         return result;
+    }
+
+    /// <summary>Borra las randomizaciones en caché salvo las <paramref name="keep"/> más recientes y la indicada.</summary>
+    public void Prune(int keep, string? keepTitleDirectory = null)
+    {
+        if (!Directory.Exists(Root))
+            return;
+        var entries = Directory.GetDirectories(Root)
+            .Where(d => File.Exists(Path.Combine(d, ".completo")))
+            .OrderByDescending(d => File.GetLastWriteTimeUtc(Path.Combine(d, ".completo")))
+            .ToList();
+        foreach (string dir in entries.Skip(keep))
+        {
+            if (keepTitleDirectory is not null && keepTitleDirectory.StartsWith(dir, StringComparison.OrdinalIgnoreCase))
+                continue;
+            try { Directory.Delete(dir, recursive: true); }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { }
+        }
     }
 
     private static UprResult? FindResult(string output, long seed)

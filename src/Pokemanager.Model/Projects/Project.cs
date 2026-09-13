@@ -25,6 +25,12 @@ public sealed class RandomizationSettings
     /// <summary>Nombre (sin extensión) de la ROM randomizada, que se crea junto a la ROM base.</summary>
     public string? OutputName { get; set; }
 
+    /// <summary>Ruta de la última ROM creada por este proyecto.</summary>
+    public string? LastBuiltRom { get; set; }
+
+    /// <summary>Al crear la ROM, sustituir la anterior de este proyecto en lugar de crear otro archivo.</summary>
+    public bool ReplacePreviousRom { get; set; } = true;
+
     /// <summary>Al crear la ROM, adaptar la partida del emulador (habilidades y stats del equipo) a ella.</summary>
     public bool UpdateSave { get; set; } = true;
 
@@ -58,15 +64,29 @@ public sealed class Project
     public string RomFsPath => Path.Combine(DumpDirectory, "romfs");
     public string ExeFsPath => Path.Combine(DumpDirectory, "exefs");
 
-    /// <summary><see cref="RomFile"/> o el primer .3ds/.cci/.cxi de la carpeta del volcado.</summary>
+    /// <summary><see cref="RomFile"/> o, si no está fijada, la ROM original de la carpeta del volcado.</summary>
     public string? ResolveRomFile()
     {
         if (!string.IsNullOrWhiteSpace(RomFile))
             return File.Exists(RomFile) ? RomFile : null;
-        if (!Directory.Exists(DumpDirectory))
+        return FindBaseRom(DumpDirectory);
+    }
+
+    /// <summary>
+    /// ROM original de una carpeta: se prefieren .3ds/.cci a .cxi y se descartan las ROM randomizadas, que llevan su
+    /// log al lado (<c>&lt;rom&gt;.log</c>, como las crean Pokemanager y UPR ZX). Así una ROM creada en la misma carpeta
+    /// nunca se toma como base.
+    /// </summary>
+    public static string? FindBaseRom(string directory)
+    {
+        if (!Directory.Exists(directory))
             return null;
-        return Directory.EnumerateFiles(DumpDirectory)
-            .FirstOrDefault(f => Path.GetExtension(f).ToLowerInvariant() is ".3ds" or ".cci" or ".cxi");
+        return Directory.EnumerateFiles(directory)
+            .Where(f => Path.GetExtension(f).ToLowerInvariant() is ".3ds" or ".cci" or ".cxi")
+            .Where(f => !File.Exists(f + ".log"))
+            .OrderBy(f => Path.GetExtension(f).Equals(".cxi", StringComparison.OrdinalIgnoreCase) ? 1 : 0)
+            .ThenBy(f => f, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault();
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new()
