@@ -7,6 +7,9 @@ public sealed class AppSettings
 {
     public string? LastProject { get; set; }
 
+    /// <summary>PokeRandoZX.jar elegido por el usuario.</summary>
+    public string? UprJarPath { get; set; }
+
     private static string FilePath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Pokemanager", "settings.json");
 

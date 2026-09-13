@@ -6,7 +6,10 @@ namespace Pokemanager.App.Services;
 public interface IDialogs
 {
     Task<string?> PickFolderAsync(string title, string? startDirectory = null);
-    Task<string?> PickOpenFileAsync(string title);
+
+    /// <param name="patterns">Filtros como <c>*.rnqs</c>. Null: proyectos (<c>*.json</c>).</param>
+    Task<string?> PickOpenFileAsync(string title, IReadOnlyList<string>? patterns = null);
+
     Task<string?> PickSaveFileAsync(string title, string suggestedName);
 }
 
@@ -24,13 +27,14 @@ public sealed class Dialogs(TopLevel owner) : IDialogs
         return result.Count > 0 ? result[0].TryGetLocalPath() : null;
     }
 
-    public async Task<string?> PickOpenFileAsync(string title)
+    public async Task<string?> PickOpenFileAsync(string title, IReadOnlyList<string>? patterns = null)
     {
+        var type = patterns is null ? ProjectType : new FilePickerFileType(string.Join(", ", patterns)) { Patterns = patterns };
         var result = await owner.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
             Title = title,
             AllowMultiple = false,
-            FileTypeFilter = [ProjectType],
+            FileTypeFilter = [type],
         });
         return result.Count > 0 ? result[0].TryGetLocalPath() : null;
     }

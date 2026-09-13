@@ -11,6 +11,8 @@ public partial class MainWindowViewModel : ObservableObject
     private readonly IDialogs dialogs;
     private readonly AppSettings settings;
 
+    public UprService Upr { get; }
+
     [ObservableProperty]
     public partial ObservableObject CurrentPage { get; set; }
 
@@ -18,6 +20,7 @@ public partial class MainWindowViewModel : ObservableObject
     {
         this.dialogs = dialogs;
         this.settings = settings;
+        Upr = new UprService(settings);
 
         if (settings.LastProject is { } last && File.Exists(last) && TryOpen(last, out var editor, out _))
             CurrentPage = editor!;
@@ -47,8 +50,12 @@ public partial class MainWindowViewModel : ObservableObject
         {
             var project = Project.Load(path);
             var dump = GameDump.Open(project.RomFsPath, project.ExeFsPath, project.Language);
-            var session = EditorSession.Open(project);
-            editor = new EditorViewModel(this, dialogs, path, dump, session);
+
+            // Si la randomización del proyecto ya está en caché, el editor avanzado trabaja sobre ella.
+            string? randomRomFs = Upr.TryGetCached(project) is { } cached ? Path.Combine(cached.TitleDirectory, "romfs") : null;
+            var session = EditorSession.Open(project, randomRomFs);
+
+            editor = new EditorViewModel(this, dialogs, Upr, path, dump, session);
             settings.LastProject = path;
             settings.Save();
             error = null;

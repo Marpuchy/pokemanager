@@ -1,4 +1,5 @@
 using System.Text.Json.Nodes;
+using pk3DS.Core.CTR;
 using pk3DS.Core.Structures.PersonalInfo;
 using Pokemanager.Bridge;
 using Pokemanager.Model.Build;
@@ -9,112 +10,145 @@ using Pokemanager.Model.Projects;
 
 namespace Pokemanager.Tests.Editing;
 
-public class ModBuilderTests
+public sealed class ModBuilderTests : IDisposable
 {
-    private static (EditorSession Session, string ModDir) Setup(SyntheticRomFs romfs)
+    private readonly SyntheticRomFs romfs = new();
+    private readonly string modDir = Path.Combine(Path.GetTempPath(), "pokemanager-mod-" + Guid.NewGuid().ToString("N"));
+
+    public void Dispose()
     {
-        var session = EditorSession.Open(new Project { DumpDirectory = romfs.DumpDirectory });
-        return (session, Path.Combine(Path.GetTempPath(), "pokemanager-mod-" + Guid.NewGuid().ToString("N")));
+        romfs.Dispose();
+        if (Directory.Exists(modDir))
+            Directory.Delete(modDir, true);
+    }
+
+    private EditorSession NewSession(string? randomizedRomFs = null) =>
+        EditorSession.Open(new Project { DumpDirectory = romfs.DumpDirectory }, randomizedRomFs);
+
+    private InstallResult Install(EditorSession session, string? randomizedTitle = null) =>
+        ModInstaller.Install(modDir, romfs.DumpDirectory, randomizedTitle, ModBuilder.BuildEdits(session));
+
+    /// <summary>Simula la salida de UPR: &lt;TitleID&gt;/romfs con un personal distinto y un code.bin.</summary>
+    private string FakeRandomizerOutput(int bulbasaurHp)
+    {
+        string title = Path.Combine(romfs.Root, "upr", "0004000000055D00");
+        byte[][] personal = romfs.ReadGarc(romfs.RomFs, GameData.PersonalGarc);
+        personal[1] = (byte[])personal[1].Clone();
+        personal[1][0] = (byte)bulbasaurHp;
+        personal[^1] = personal[..^1].SelectMany(p => p).ToArray();
+        string path = Path.Combine(title, "romfs", "a", "2", "1", "8");
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        File.WriteAllBytes(path, GARC.PackGARC(personal, GARC.VER_4, 4).Data);
+        File.WriteAllBytes(Path.Combine(title, "romfs", "DllField.cro"), [1, 2, 3]);
+        File.WriteAllBytes(Path.Combine(title, "code.bin"), new byte[0x200]);
+        return title;
     }
 
     [Fact]
-    public void NoEdits_WritesNoGarc()
+    public void NoEdits_NoRandomizer_WritesNothing()
     {
-        using var romfs = new SyntheticRomFs();
-        var (session, modDir) = Setup(romfs);
-        try
-        {
-            var result = ModBuilder.Build(session, modDir);
+        var result = Install(NewSession());
 
-            Assert.Empty(result.Written);
-            Assert.False(Directory.Exists(Path.Combine(modDir, "romfs")));
-        }
-        finally { Directory.Delete(modDir, true); }
+        Assert.Empty(result.Written);
+        Assert.False(Directory.Exists(Path.Combine(modDir, "romfs")));
     }
 
     [Fact]
     public void PersonalEdit_UpdatesEntryAndConcatenatedTable_RestIdentical()
     {
-        using var romfs = new SyntheticRomFs();
-        var (session, modDir) = Setup(romfs);
-        try
+        var session = NewSession();
+        session.SetInt(GameTables.Personal, 1, "hp", 150);
+
+        var result = Install(session);
+
+        Assert.Equal(["romfs/a/2/1/8"], result.Written);
+        byte[][] original = romfs.ReadGarc(romfs.RomFs, GameData.PersonalGarc);
+        byte[][] built = romfs.ReadGarc(Path.Combine(modDir, "romfs"), GameData.PersonalGarc);
+
+        Assert.Equal(original.Length, built.Length);
+        Assert.Equal(150, new PersonalInfoXY(built[1]).HP);
+        Assert.Equal(150, built[^1][0x40 * 1]);
+        for (int i = 0; i < original.Length - 1; i++)
         {
-            session.SetInt(GameTables.Personal, 1, "hp", 150);
-
-            var result = ModBuilder.Build(session, modDir);
-
-            Assert.Equal(["romfs/a/2/1/8"], result.Written);
-            byte[][] original = romfs.ReadGarc(romfs.RomFs, GameData.PersonalGarc);
-            byte[][] built = romfs.ReadGarc(Path.Combine(modDir, "romfs"), GameData.PersonalGarc);
-
-            Assert.Equal(original.Length, built.Length);
-            Assert.Equal(150, new PersonalInfoXY(built[1]).HP);
-            Assert.Equal(150, built[^1][0x40 * 1]); // la copia concatenada también
-            for (int i = 0; i < original.Length - 1; i++)
-            {
-                if (i != 1)
-                    Assert.Equal(original[i], built[i]);
-            }
-            Assert.Equal(built[..^1].SelectMany(f => f).ToArray(), built[^1]);
+            if (i != 1)
+                Assert.Equal(original[i], built[i]);
         }
-        finally { Directory.Delete(modDir, true); }
+        Assert.Equal(built[..^1].SelectMany(f => f).ToArray(), built[^1]);
     }
 
     [Fact]
     public void MoveAndLearnsetEdits_AreWritten()
     {
-        using var romfs = new SyntheticRomFs();
-        var (session, modDir) = Setup(romfs);
-        try
-        {
-            session.SetInt(GameTables.Moves, 2, "power", 250);
-            session.Set(GameTables.Learnsets, 3, GameTables.LevelUp, JsonNode.Parse("[[1,3],[50,2]]")!);
+        var session = NewSession();
+        session.SetInt(GameTables.Moves, 2, "power", 250);
+        session.Set(GameTables.Learnsets, 3, GameTables.LevelUp, JsonNode.Parse("[[1,3],[50,2]]")!);
 
-            var result = ModBuilder.Build(session, modDir);
+        var result = Install(session);
 
-            Assert.Equal(2, result.Written.Count);
-            byte[][] moves = romfs.ReadGarc(Path.Combine(modDir, "romfs"), GameData.MoveGarc);
-            Assert.Equal(250, moves[2][0x03]);
-            Assert.Equal(36, moves[2].Length);
-            // El mod solo contiene los GARC editados: se lee el de learnsets directamente.
-            var learnset = new pk3DS.Core.Structures.Learnset6(romfs.ReadGarc(Path.Combine(modDir, "romfs"), GameData.LevelUpGarc)[3]);
-            Assert.Equal([3, 2], learnset.Moves);
-            Assert.Equal([1, 50], learnset.Levels);
-            Assert.False(File.Exists(Path.Combine(modDir, "romfs", "a", "2", "1", "8")));
-        }
-        finally { Directory.Delete(modDir, true); }
+        Assert.Equal(2, result.Written.Count);
+        byte[][] moves = romfs.ReadGarc(Path.Combine(modDir, "romfs"), GameData.MoveGarc);
+        Assert.Equal(250, moves[2][0x03]);
+        Assert.Equal(36, moves[2].Length);
+        var learnset = new pk3DS.Core.Structures.Learnset6(romfs.ReadGarc(Path.Combine(modDir, "romfs"), GameData.LevelUpGarc)[3]);
+        Assert.Equal([3, 2], learnset.Moves);
+        Assert.Equal([1, 50], learnset.Levels);
+        Assert.False(File.Exists(Path.Combine(modDir, "romfs", "a", "2", "1", "8")));
     }
 
     [Fact]
-    public void Rebuild_RemovesStaleOutput_KeepsForeignFiles()
+    public void RandomizedBase_IsTheOriginalForEditing()
     {
-        using var romfs = new SyntheticRomFs();
-        var (session, modDir) = Setup(romfs);
-        try
-        {
-            session.SetInt(GameTables.Moves, 0, "pp", 5);
-            ModBuilder.Build(session, modDir);
-            string foreign = Path.Combine(modDir, "romfs", "otro-mod.bin");
-            File.WriteAllText(foreign, "no es nuestro");
+        string title = FakeRandomizerOutput(bulbasaurHp: 99);
 
-            session.SetInt(GameTables.Moves, 0, "pp", 35); // vuelve al original: ya no hay ediciones
-            var result = ModBuilder.Build(session, modDir);
+        var session = NewSession(Path.Combine(title, "romfs"));
 
-            Assert.Equal(["romfs/a/2/1/2"], result.Removed);
-            Assert.False(File.Exists(Path.Combine(modDir, "romfs", "a", "2", "1", "2")));
-            Assert.True(File.Exists(foreign));
-        }
-        finally { Directory.Delete(modDir, true); }
+        Assert.Equal(99, session.GetOriginal(GameTables.Personal, 1, "hp").GetValue<int>());
+        Assert.Equal(30, session.GetInt(GameTables.Personal, 2, "hp")); // lo que el random no toca, del volcado
+        session.SetInt(GameTables.Personal, 1, "hp", 20); // el valor del volcado ya es una edición sobre el random
+        Assert.True(session.IsModified(GameTables.Personal, 1, "hp"));
+    }
+
+    [Fact]
+    public void Install_CopiesRandomizer_CodeToExefs_EditsOnTop()
+    {
+        string title = FakeRandomizerOutput(bulbasaurHp: 99);
+        var session = NewSession(Path.Combine(title, "romfs"));
+        session.SetInt(GameTables.Personal, 2, "atk", 200);
+
+        var result = Install(session, title);
+
+        Assert.Contains("romfs/DllField.cro", result.Written);
+        Assert.Contains("exefs/code.bin", result.Written);
+        Assert.True(File.Exists(Path.Combine(modDir, "exefs", "code.bin")));
+        byte[][] personal = romfs.ReadGarc(Path.Combine(modDir, "romfs"), GameData.PersonalGarc);
+        Assert.Equal(99, new PersonalInfoXY(personal[1]).HP);   // del random
+        Assert.Equal(200, new PersonalInfoXY(personal[2]).ATK); // de la edición
+        Assert.Single(result.Written, w => w == "romfs/a/2/1/8");
+    }
+
+    [Fact]
+    public void Reinstall_WithoutRandomizer_RemovesItsFiles_KeepsForeignFiles()
+    {
+        string title = FakeRandomizerOutput(bulbasaurHp: 99);
+        Install(NewSession(Path.Combine(title, "romfs")), title);
+        string foreign = Path.Combine(modDir, "romfs", "otro-mod.bin");
+        File.WriteAllText(foreign, "no es nuestro");
+
+        var result = Install(NewSession());
+
+        Assert.Equal(3, result.Removed.Count);
+        Assert.False(File.Exists(Path.Combine(modDir, "exefs", "code.bin")));
+        Assert.True(File.Exists(foreign));
     }
 
     [Fact]
     public void ModDirectoryInsideDump_IsRefused()
     {
-        using var romfs = new SyntheticRomFs();
-        var (session, _) = Setup(romfs);
+        var session = NewSession();
         session.SetInt(GameTables.Personal, 0, "hp", 1);
 
-        Assert.Throws<InvalidOperationException>(() => ModBuilder.Build(session, Path.Combine(romfs.RomFs, "mods")));
+        Assert.Throws<InvalidOperationException>(() =>
+            ModInstaller.Install(Path.Combine(romfs.RomFs, "mods"), romfs.DumpDirectory, null, ModBuilder.BuildEdits(session)));
     }
 
     [Fact]

@@ -17,7 +17,10 @@ public sealed class EditorSession
 {
     public Project Project { get; }
 
-    /// <summary>Datos tal como están en el volcado. No se modifican nunca.</summary>
+    /// <summary>Romfs base sobre el que se edita: la salida del randomizer (si la hay) encima del volcado.</summary>
+    public RomFsLayers Layers { get; }
+
+    /// <summary>Datos base (volcado o volcado randomizado), sin ediciones manuales. No se modifican nunca.</summary>
     public GameData Original { get; }
 
     /// <summary>Datos con las ediciones aplicadas.</summary>
@@ -25,18 +28,23 @@ public sealed class EditorSession
 
     public event EventHandler<EditKey>? Changed;
 
-    private EditorSession(Project project, GameData original, GameData current)
+    private EditorSession(Project project, RomFsLayers layers, GameData original, GameData current)
     {
         Project = project;
+        Layers = layers;
         Original = original;
         Current = current;
     }
 
-    /// <summary>Carga el romfs dos veces (original y actual) y aplica las ediciones del proyecto.</summary>
+    /// <summary>Carga la base dos veces (original y actual) y aplica las ediciones del proyecto.</summary>
+    /// <param name="randomizedRomFs">romfs generado por el randomizer, que se superpone al volcado. Null: sin randomización.</param>
     /// <exception cref="InvalidDataException">Alguna edición del proyecto no encaja en las tablas.</exception>
-    public static EditorSession Open(Project project)
+    public static EditorSession Open(Project project, string? randomizedRomFs = null)
     {
-        var session = new EditorSession(project, GameData.Load(project.RomFsPath), GameData.Load(project.RomFsPath));
+        var layers = randomizedRomFs is null
+            ? new RomFsLayers(project.RomFsPath)
+            : new RomFsLayers(randomizedRomFs, project.RomFsPath);
+        var session = new EditorSession(project, layers, GameData.Load(layers), GameData.Load(layers));
         var errors = new List<string>();
         foreach (var edit in project.Edits.All)
         {

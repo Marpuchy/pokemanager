@@ -1,0 +1,78 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Pokemanager.App.ViewModels"
+             x:Class="Pokemanager.App.Views.RandomizerView"
+             x:DataType="vm:RandomizerViewModel">
+  <Grid ColumnDefinitions="480,*">
+    <!-- Configuración -->
+    <ScrollViewer Margin="0,0,8,0">
+      <StackPanel Margin="16,8" Spacing="6">
+        <CheckBox IsChecked="{Binding Enabled}" FontSize="15" FontWeight="SemiBold"
+                  Content="Randomizar la ROM con Universal Pokémon Randomizer ZX" />
+        <TextBlock Classes="hint" Text="Desmárcalo para jugar con el juego original más tus ediciones avanzadas." />
+
+        <TextBlock Classes="section" Text="Herramientas" />
+        <TextBlock Text="{Binding ToolsStatus}" TextWrapping="Wrap" Classes.error="{Binding !ToolsReady}" />
+        <Button Content="Elegir PokeRandoZX.jar…" Command="{Binding BrowseJarCommand}" />
+
+        <TextBlock Classes="section" Text="ROM" />
+        <TextBlock Text="{Binding RomText, TargetNullValue='No se encuentra la ROM (.3ds) en la carpeta del volcado'}" TextWrapping="Wrap"
+                   Classes.error="{Binding !HasRom}" />
+        <Button Content="Elegir ROM…" Command="{Binding BrowseRomCommand}" />
+
+        <TextBlock Classes="section" Text="Preset" />
+        <TextBlock FontWeight="SemiBold" Text="{Binding PresetText}" Classes.error="{Binding !HasPreset}" />
+        <TextBlock Classes="hint" Text="El preset se guarda dentro del proyecto. Créalo o modifícalo en UPR ZX y vuelve a importarlo." />
+        <Grid ColumnDefinitions="*,Auto">
+          <ComboBox ItemsSource="{Binding PresetsNextToJar}" SelectedItem="{Binding SelectedPresetNextToJar}"
+                    PlaceholderText="Presets junto al jar" HorizontalAlignment="Stretch">
+            <ComboBox.ItemTemplate>
+              <DataTemplate x:DataType="x:String">
+                <TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis" />
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+          <Button Grid.Column="1" Margin="6,0,0,0" Content="Importar…" Command="{Binding ImportPresetFileCommand}" />
+        </Grid>
+
+        <TextBlock Classes="section" Text="Semilla" />
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBox Text="{Binding SeedText}" Watermark="Número de semilla" />
+          <Button Grid.Column="1" Margin="6,0,0,0" Content="Nueva semilla" Command="{Binding NewSeedCommand}" />
+        </Grid>
+        <TextBlock Classes="error" Text="{Binding SeedError}" IsVisible="{Binding SeedError, Converter={x:Static ObjectConverters.IsNotNull}}" />
+        <TextBlock Classes="hint" Text="La misma semilla con el mismo preset genera siempre el mismo juego: compártela para que otros jueguen tu misma partida." />
+
+        <Border Margin="0,10,0,0" Padding="10" CornerRadius="4" Background="#26E07B00" BorderBrush="#E07B00" BorderThickness="1"
+                IsVisible="{Binding HasSaveWarning}">
+          <TextBlock Text="{Binding SaveWarning}" TextWrapping="Wrap" />
+        </Border>
+
+        <Button Classes="accent" Margin="0,12,0,0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                Content="Randomizar e instalar en el emulador" Command="{Binding RandomizeAndInstallCommand}" />
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- Log de UPR -->
+    <DockPanel Grid.Column="1" Margin="8">
+      <TextBlock DockPanel.Dock="Top" Classes="section" Margin="0,0,0,6" Text="Log de la randomización" />
+      <TextBox DockPanel.Dock="Top" Text="{Binding LogFilter}" Watermark="Buscar en el log (p. ej. un Pokémon, «Starters», un entrenador…)" />
+      <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="0,4" Text="{Binding LogSummary}" />
+      <Border BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+        <ListBox ItemsSource="{Binding VisibleLog}" FontFamily="Cascadia Mono, Consolas, Menlo, monospace" FontSize="12">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="x:String">
+              <TextBlock Text="{Binding}" />
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+          <ListBox.Styles>
+            <Style Selector="ListBoxItem">
+              <Setter Property="Padding" Value="6,0" />
+              <Setter Property="MinHeight" Value="0" />
+            </Style>
+          </ListBox.Styles>
+        </ListBox>
+      </Border>
+    </DockPanel>
+  </Grid>
+</UserControl>

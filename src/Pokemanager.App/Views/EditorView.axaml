@@ -6,7 +6,7 @@
 
   <UserControl.KeyBindings>
     <KeyBinding Gesture="Ctrl+S" Command="{Binding SaveCommand}" />
-    <KeyBinding Gesture="Ctrl+B" Command="{Binding BuildModCommand}" />
+    <KeyBinding Gesture="Ctrl+B" Command="{Binding InstallCommand}" />
   </UserControl.KeyBindings>
 
   <UserControl.DataTemplates>
@@ -42,6 +42,8 @@
         <StackPanel Spacing="2">
           <TextBlock Text="{Binding GameText}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
           <TextBlock Classes="hint">
+            <Run Text="{Binding BaseText}" />
+            <Run Text=" · " />
             <Run Text="{Binding EditCountText}" />
             <Run Text=" · " />
             <Run Text="{Binding DirtyText}" />
@@ -50,8 +52,10 @@
           </TextBlock>
         </StackPanel>
         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+          <ProgressBar IsIndeterminate="True" Width="80" IsVisible="{Binding IsBusy}" />
           <Button Content="Guardar" Command="{Binding SaveCommand}" ToolTip.Tip="Ctrl+S" />
-          <Button Classes="accent" Content="Generar mod" Command="{Binding BuildModCommand}" ToolTip.Tip="Guarda y escribe el mod en la carpeta del emulador (Ctrl+B)" />
+          <Button Classes="accent" Content="Instalar en el emulador" Command="{Binding InstallCommand}"
+                  ToolTip.Tip="Guarda, randomiza si hace falta y escribe el mod en la carpeta del emulador (Ctrl+B)" />
           <Button Content="Emulador…" Command="{Binding ChangeEmulatorFolderCommand}" />
           <Button Content="Abrir…" Command="{Binding OpenOtherProjectCommand}" />
           <Button Content="Nuevo" Command="{Binding NewProjectCommand}" />
@@ -66,8 +70,21 @@
     </Border>
 
     <TabControl Padding="0">
-      <!-- ================= Pokémon ================= -->
-      <TabItem Header="Pokémon">
+      <!-- ================= Randomizer ================= -->
+      <TabItem Header="Randomizer">
+        <ContentControl Content="{Binding Randomizer}" />
+      </TabItem>
+
+      <!-- ================= Partida (fase B) ================= -->
+      <TabItem Header="Partida">
+        <StackPanel Margin="24" Spacing="8" MaxWidth="700" HorizontalAlignment="Left">
+          <TextBlock Classes="section" Text="Editor de partida — próximamente" />
+          <TextBlock Classes="hint" Text="Aquí podrás editar tu partida guardada (equipo y cajas, mochila, entrenador y Pokédex) con el emulador cerrado, con copia de seguridad automática y comprobación de que el juego la puede cargar." />
+        </StackPanel>
+      </TabItem>
+
+      <!-- ================= Avanzado: Pokémon ================= -->
+      <TabItem Header="Avanzado: Pokémon">
         <Grid ColumnDefinitions="300,*">
           <DockPanel Margin="8">
             <TextBox DockPanel.Dock="Top" Text="{Binding SpeciesFilter}" Watermark="Buscar por nombre o número" Margin="0,0,0,6" />
@@ -152,8 +169,8 @@
         </Grid>
       </TabItem>
 
-      <!-- ================= Movimientos ================= -->
-      <TabItem Header="Movimientos">
+      <!-- ================= Avanzado: Movimientos ================= -->
+      <TabItem Header="Avanzado: Movimientos">
         <Grid ColumnDefinitions="300,*">
           <DockPanel Margin="8">
             <TextBox DockPanel.Dock="Top" Text="{Binding MoveFilter}" Watermark="Buscar por nombre o número" Margin="0,0,0,6" />

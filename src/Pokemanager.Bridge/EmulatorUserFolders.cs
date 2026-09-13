@@ -33,4 +33,15 @@ public static class EmulatorUserFolders
     /// <summary><c>&lt;usuario&gt;/load/mods/&lt;TitleID&gt;</c>.</summary>
     public static string ModDirectory(string userDirectory, string titleIdHex) =>
         System.IO.Path.Combine(userDirectory, "load", "mods", titleIdHex);
+
+    /// <summary>
+    /// Archivo de guardado principal del juego en la SD emulada:
+    /// <c>sdmc/Nintendo 3DS/&lt;32 ceros&gt;/&lt;32 ceros&gt;/title/&lt;TID alto&gt;/&lt;TID bajo&gt;/data/00000001/main</c>.
+    /// </summary>
+    public static string SaveFile(string userDirectory, ulong titleId)
+    {
+        const string zeros = "00000000000000000000000000000000";
+        return System.IO.Path.Combine(userDirectory, "sdmc", "Nintendo 3DS", zeros, zeros, "title",
+            (titleId >> 32).ToString("x8"), (titleId & 0xFFFFFFFF).ToString("x8"), "data", "00000001", "main");
+    }
 }

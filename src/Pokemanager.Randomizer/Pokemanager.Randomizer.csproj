@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Pokemanager.Tests" />
+  </ItemGroup>
+
+  <!-- El lanzador Java se copia junto a los binarios y se ejecuta con el lanzador de código fuente de Java. -->
+  <ItemGroup>
+    <None Include="upr\PokemanagerUpr.java" CopyToOutputDirectory="PreserveNewest" LinkBase="upr" />
+  </ItemGroup>
+
+</Project>
