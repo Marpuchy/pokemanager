@@ -33,6 +33,11 @@ public partial class EditorViewModel : ObservableObject
     /// <summary>Pokémon icons from the dump.</summary>
     public PokemonSprites Sprites { get; }
 
+    /// <summary>Pokémon of the save to show when the view appears (opened from the project preview).</summary>
+    public SaveSlot? PendingSaveSlot { get; set; }
+
+    public void ShowSavePokemon(SaveSlot slot) => PendingSaveSlot = slot;
+
     [ObservableProperty]
     public partial EditorSession Session { get; private set; }
 

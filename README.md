@@ -26,6 +26,9 @@ The interface is in **English** by default; Spanish can be selected in **Setting
 dotnet run --project src/Pokemanager.App
 ```
 
+0. **Start screen:** your projects on the left. Selecting one shows, read only, its ROM and the team of its save
+   (sprite, name, level, held item); clicking a Pokémon shows its stats, IVs, EVs, moves and ability. **Manage** (on each
+   project, on the preview and on the Pokémon) opens the full editor described below.
 1. **New project:** dump folder and where to save the project `.json`. Game names (species, moves, items) are shown in
    the interface language; Pokémon sprites are read from your own dump.
    Projects you create or open appear under **Recent projects** on the start page.

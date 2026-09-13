@@ -1419,4 +1419,55 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Set_PickProgram" xml:space="preserve">
     <value>Choose the emulator program</value>
   </data>
+  <data name="Preview_Manage" xml:space="preserve">
+    <value>Manage</value>
+  </data>
+  <data name="Preview_ManageTip" xml:space="preserve">
+    <value>Open the full editor: randomizer, save file, history and advanced data</value>
+  </data>
+  <data name="Preview_ManagePokemon" xml:space="preserve">
+    <value>Manage this Pokémon</value>
+  </data>
+  <data name="Preview_ManagePokemonTip" xml:space="preserve">
+    <value>Open the save editor on this Pokémon</value>
+  </data>
+  <data name="Preview_Game" xml:space="preserve">
+    <value>Pokémon {0} · {1}</value>
+  </data>
+  <data name="Preview_Rom" xml:space="preserve">
+    <value>ROM: {0} (built {1:g})</value>
+  </data>
+  <data name="Preview_NoRom" xml:space="preserve">
+    <value>No ROM built yet</value>
+  </data>
+  <data name="Preview_Team" xml:space="preserve">
+    <value>Team</value>
+  </data>
+  <data name="Preview_Trainer" xml:space="preserve">
+    <value>{0} · badges {1} · ${2:N0} · {3} played · {4} save, {5:g}</value>
+  </data>
+  <data name="Preview_ClickHint" xml:space="preserve">
+    <value>Click a Pokémon to see its stats, EVs, IVs, moves and ability.</value>
+  </data>
+  <data name="Preview_Level" xml:space="preserve">
+    <value>Lv. {0}</value>
+  </data>
+  <data name="Preview_NoItem" xml:space="preserve">
+    <value>No item</value>
+  </data>
+  <data name="Preview_Hidden" xml:space="preserve">
+    <value>hidden</value>
+  </data>
+  <data name="Preview_Loading" xml:space="preserve">
+    <value>Loading the ROM and its save…</value>
+  </data>
+  <data name="Preview_SelectProject" xml:space="preserve">
+    <value>Select a ROM on the left to see its team.</value>
+  </data>
+  <data name="Welcome_NewProjectButton" xml:space="preserve">
+    <value>New project…</value>
+  </data>
+  <data name="Welcome_NoProjects" xml:space="preserve">
+    <value>No projects yet. Create one with "New project…".</value>
+  </data>
 </root>

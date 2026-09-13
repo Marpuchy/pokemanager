@@ -182,6 +182,15 @@ O-Power points and unlock-all, Friend Safari, fashion, Super Training, Poké Puf
   from `gamedirs` `D:/citra/roms` in ~25 ms. Can be chosen in Settings (`AppSettings.EmulatorExecutable`). Warns when the
   project has unbuilt changes; refuses with unwritten save edits or the emulator already open.
 
+### Project browser (2026-09-13)
+
+The start screen is now a browser: project list (each with Manage / ✕) and, for the selected one, a read-only preview
+(`ProjectPreviewViewModel`): ROM, seed, trainer summary and the party (sprite, name, level, item); a party member shows
+stats with base/IV/EV, moves with PP, ability (slot), nature, item, friendship, ball and OT. Loading runs off the UI thread
+through `Services/ProjectLoader` (project + dump + session + save, ~0.5 s); **Manage** reuses that load
+(`MainWindowViewModel.Manage(loaded, slot?)`), and "Manage this Pokémon" opens the editor on the Save file tab with that
+slot selected (`EditorViewModel.PendingSaveSlot`, handled in `EditorView` on `DataContextChanged`).
+
 Pending: live dashboard (RPC).
 
 ---

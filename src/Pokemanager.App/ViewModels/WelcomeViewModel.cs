@@ -29,6 +29,31 @@ public partial class WelcomeViewModel : ObservableObject
     [ObservableProperty]
     public partial string? Error { get; set; }
 
+    /// <summary>The project whose team is shown on the right.</summary>
+    [ObservableProperty]
+    public partial RecentProjectItem? SelectedProject { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasPreview))]
+    public partial ProjectPreviewViewModel? Preview { get; set; }
+
+    public bool HasPreview => Preview is not null && !ShowNewProject;
+
+    [ObservableProperty]
+    public partial bool IsLoadingPreview { get; set; }
+
+    [ObservableProperty]
+    public partial string? PreviewError { get; set; }
+
+    /// <summary>The right side shows the new project form instead of a preview.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasPreview), nameof(ShowPreviewArea))]
+    public partial bool ShowNewProject { get; set; }
+
+    public bool ShowPreviewArea => !ShowNewProject;
+
+    private int previewVersion;
+
     public WelcomeViewModel(MainWindowViewModel main, IDialogs dialogs)
     {
         this.main = main;
@@ -36,6 +61,9 @@ public partial class WelcomeViewModel : ObservableObject
         DumpDirectory = Environment.GetEnvironmentVariable("POKEMANAGER_DUMP") ?? "";
         ProjectPath = SuggestProjectPath();
         LoadRecentProjects();
+        ShowNewProject = RecentProjects.Count == 0;
+        SelectedProject = RecentProjects.FirstOrDefault(p => string.Equals(p.Path, main.Settings.LastProject, StringComparison.OrdinalIgnoreCase))
+                          ?? RecentProjects.FirstOrDefault();
     }
 
     private void LoadRecentProjects()
@@ -44,6 +72,55 @@ public partial class WelcomeViewModel : ObservableObject
         foreach (var r in main.Settings.ExistingRecentProjects())
             RecentProjects.Add(new RecentProjectItem(this, r));
         OnPropertyChanged(nameof(HasRecentProjects));
+    }
+
+    partial void OnSelectedProjectChanged(RecentProjectItem? value)
+    {
+        if (value is not null)
+        {
+            ShowNewProject = false;
+            _ = LoadPreviewAsync(value);
+        }
+    }
+
+    /// <summary>Loads the project and its save in the background; only the latest selection is shown.</summary>
+    public async Task LoadPreviewAsync(RecentProjectItem item)
+    {
+        int version = ++previewVersion;
+        Preview = null;
+        PreviewError = null;
+        IsLoadingPreview = true;
+        try
+        {
+            var preview = await Task.Run(() => new ProjectPreviewViewModel(main, ProjectLoader.Load(item.Path, main.Upr)));
+            if (version == previewVersion)
+                Preview = preview;
+        }
+        catch (ProjectLoadException ex)
+        {
+            if (version == previewVersion)
+                PreviewError = ex.Message;
+        }
+        finally
+        {
+            if (version == previewVersion)
+                IsLoadingPreview = false;
+        }
+    }
+
+    internal void Manage(RecentProjectItem item)
+    {
+        if (Preview is { } preview && string.Equals(preview.Loaded.Path, item.Path, StringComparison.OrdinalIgnoreCase))
+            main.Manage(preview.Loaded);
+        else
+            Error = main.OpenProject(item.Path);
+    }
+
+    [RelayCommand]
+    private void NewProject()
+    {
+        SelectedProject = null;
+        ShowNewProject = true;
     }
 
     /// <summary>Documents/Pokemanager/pokemon-x.json, or pokemon-x2.json… if it already exists.</summary>
@@ -56,12 +133,18 @@ public partial class WelcomeViewModel : ObservableObject
         return path;
     }
 
-    internal void Open(RecentProjectItem item) => Error = main.OpenProject(item.Path);
 
     internal void Forget(RecentProjectItem item)
     {
         main.Settings.ForgetProject(item.Path);
+        bool wasSelected = SelectedProject == item;
         LoadRecentProjects();
+        if (wasSelected)
+        {
+            Preview = null;
+            SelectedProject = RecentProjects.FirstOrDefault();
+            ShowNewProject = RecentProjects.Count == 0;
+        }
     }
 
     [RelayCommand]

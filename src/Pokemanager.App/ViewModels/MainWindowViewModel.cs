@@ -33,44 +33,29 @@ public partial class MainWindowViewModel : ObservableObject
 
     partial void OnCurrentPageChanged(ObservableObject value) => OnPropertyChanged(nameof(Title));
 
-    /// <summary>Opens a saved project. Returns the error to show, or null when it opened.</summary>
+    /// <summary>Opens a saved project in the editor. Returns the error to show, or null when it opened.</summary>
     public string? OpenProject(string path)
     {
-        if (!TryOpen(path, out var editor, out string? error))
-            return error;
-        CurrentPage = editor!;
-        return null;
+        try
+        {
+            Manage(ProjectLoader.Load(path, Upr));
+            return null;
+        }
+        catch (ProjectLoadException ex)
+        {
+            return ex.Message;
+        }
+    }
+
+    /// <summary>Opens an already loaded project in the editor, optionally on a Pokémon of the save.</summary>
+    public void Manage(LoadedProject loaded, Pokemanager.Save.SaveSlot? saveSlot = null)
+    {
+        var editor = new EditorViewModel(this, dialogs, Upr, settings, loaded.Path, loaded.Dump, loaded.Session);
+        if (saveSlot is { } slot)
+            editor.ShowSavePokemon(slot);
+        settings.TouchProject(loaded.Path);
+        CurrentPage = editor;
     }
 
     public void ShowWelcome() => CurrentPage = new WelcomeViewModel(this, dialogs);
-
-    private bool TryOpen(string path, out EditorViewModel? editor, out string? error)
-    {
-        editor = null;
-        try
-        {
-            var project = Project.Load(path);
-            var dump = GameDump.Open(project.RomFsPath, project.ExeFsPath, GameTextLanguage.Current);
-
-            // If the project's randomization is cached, the advanced editor works on top of it.
-            string? randomRomFs = Upr.TryGetCached(project, project.Randomization.Preset) is { } cached
-                ? Path.Combine(cached.TitleDirectory, "romfs")
-                : null;
-            var session = EditorSession.Open(project, randomRomFs);
-
-            editor = new EditorViewModel(this, dialogs, Upr, settings, path, dump, session);
-            settings.TouchProject(path);
-            error = null;
-            return true;
-        }
-        catch (InvalidDumpException ex)
-        {
-            error = ex.Message;
-        }
-        catch (Exception ex) when (ex is IOException or InvalidDataException or System.Text.Json.JsonException or UnauthorizedAccessException)
-        {
-            error = string.Format(Strings.Main_OpenFailed, path, ex.Message);
-        }
-        return false;
-    }
 }

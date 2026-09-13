@@ -1419,4 +1419,55 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Set_PickProgram" xml:space="preserve">
     <value>Elige el programa del emulador</value>
   </data>
+  <data name="Preview_Manage" xml:space="preserve">
+    <value>Gestionar</value>
+  </data>
+  <data name="Preview_ManageTip" xml:space="preserve">
+    <value>Abrir el editor completo: randomizer, partida, historial y datos avanzados</value>
+  </data>
+  <data name="Preview_ManagePokemon" xml:space="preserve">
+    <value>Gestionar este Pokémon</value>
+  </data>
+  <data name="Preview_ManagePokemonTip" xml:space="preserve">
+    <value>Abrir el editor de partida en este Pokémon</value>
+  </data>
+  <data name="Preview_Game" xml:space="preserve">
+    <value>Pokémon {0} · {1}</value>
+  </data>
+  <data name="Preview_Rom" xml:space="preserve">
+    <value>ROM: {0} (creada {1:g})</value>
+  </data>
+  <data name="Preview_NoRom" xml:space="preserve">
+    <value>Aún no se ha creado la ROM</value>
+  </data>
+  <data name="Preview_Team" xml:space="preserve">
+    <value>Equipo</value>
+  </data>
+  <data name="Preview_Trainer" xml:space="preserve">
+    <value>{0} · medallas {1} · {2:N0} $ · {3} jugadas · partida de {4}, {5:g}</value>
+  </data>
+  <data name="Preview_ClickHint" xml:space="preserve">
+    <value>Haz clic en un Pokémon para ver sus stats, EV, IV, movimientos y habilidad.</value>
+  </data>
+  <data name="Preview_Level" xml:space="preserve">
+    <value>Nv. {0}</value>
+  </data>
+  <data name="Preview_NoItem" xml:space="preserve">
+    <value>Sin objeto</value>
+  </data>
+  <data name="Preview_Hidden" xml:space="preserve">
+    <value>oculta</value>
+  </data>
+  <data name="Preview_Loading" xml:space="preserve">
+    <value>Cargando la ROM y su partida…</value>
+  </data>
+  <data name="Preview_SelectProject" xml:space="preserve">
+    <value>Selecciona una ROM a la izquierda para ver su equipo.</value>
+  </data>
+  <data name="Welcome_NewProjectButton" xml:space="preserve">
+    <value>Nuevo proyecto…</value>
+  </data>
+  <data name="Welcome_NoProjects" xml:space="preserve">
+    <value>Aún no hay proyectos. Crea uno con «Nuevo proyecto…».</value>
+  </data>
 </root>
