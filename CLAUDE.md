@@ -49,6 +49,25 @@ permite que la capa de ediciones sobreviva a cambios del randomizador y se lea e
 **Licencia: pk3DS es GPL-3.0.** Construir sobre él obliga a publicar este proyecto bajo
 GPL-3 con el código fuente disponible. Decisión asumida.
 
+### Reorientación del producto (2026-09-13) — manda sobre lo anterior
+
+El usuario hoy juega así: **Universal Pokémon Randomizer ZX** (`PokeRandoZX.jar` 4.6.1, presets
+`.rnqs` por grupo de amigos) genera la ROM, y **PKHeX** retoca la partida. Lo que quiere es **una
+sola app que junte ambas cosas**, no un editor exhaustivo de datos de la ROM:
+
+| Decisión | Elección |
+|---|---|
+| Motor de randomización | **UPR ZX por debajo**, no randomizador propio. Se invoca con Java (JDK 25 instalado) mediante un lanzador propio que llama a `Randomizer.randomize(archivo, log, semilla)`, porque el CLI de UPR (`cli -s -i -o -d -u -l`) **no permite fijar la semilla**. Salida LayeredFS (`-d`) directa a la carpeta de mods. |
+| Semilla | Reproducible y cambiable desde la app. Avisar si hay partida en curso: los Pokémon ya capturados conservan especie, pero stats base/habilidades/learnsets salen de la ROM y cambian. |
+| Editor de partida | **PKHeX.Core** (NuGet, GPL-3) sobre el archivo `main` del emulador, **con el emulador cerrado** y copia de seguridad automática antes de escribir. En vivo (RPC) queda para después. |
+| Qué se edita de la partida | Pokémon de equipo y cajas, mochila, datos del entrenador, Pokédex. |
+| Validación | Dos niveles: **«seguro para el juego»** (IDs existentes, rangos, checksums) bloquea al guardar; **legalidad de PKHeX** solo avisa, porque compara con el juego original y marcaría como ilegal lo que el random hace válido. |
+| Editor manual de la ROM ya hecho | Se mantiene como pestaña **avanzada**, aplicado encima del resultado randomizado. |
+| Orden | **Fase A: randomizer** → Fase B: editor de partida → después, tablero en vivo. |
+
+Partida de X en Azahar: `%APPDATA%\Azahar\sdmc\Nintendo 3DS\000…0\000…0\title\00040000\00055d00\data\00000001\main` (415 232 B).
+UPR ZX y PKHeX del usuario: `D:\citra\roms\`.
+
 ---
 
 ## 3. pk3DS — cómo reutilizarlo
