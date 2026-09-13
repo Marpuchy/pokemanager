@@ -33,4 +33,70 @@
   <data name="Save_VerifyAbility" xml:space="preserve">
     <value>Verificación fallida: la especie {0} no quedó con la habilidad {1}.</value>
   </data>
+  <data name="Check_Species" xml:space="preserve">
+    <value>La especie {0} no existe en este juego.</value>
+  </data>
+  <data name="Check_Form" xml:space="preserve">
+    <value>La forma {0} no existe para esta especie.</value>
+  </data>
+  <data name="Check_Level" xml:space="preserve">
+    <value>El nivel {0} está fuera de rango (1–100).</value>
+  </data>
+  <data name="Check_NoMoves" xml:space="preserve">
+    <value>No tiene ningún movimiento.</value>
+  </data>
+  <data name="Check_Move" xml:space="preserve">
+    <value>El movimiento {0} no existe.</value>
+  </data>
+  <data name="Check_DuplicateMoves" xml:space="preserve">
+    <value>Tiene el mismo movimiento repetido.</value>
+  </data>
+  <data name="Check_PPUps" xml:space="preserve">
+    <value>Los Más PP deben estar entre 0 y 3.</value>
+  </data>
+  <data name="Check_Ability" xml:space="preserve">
+    <value>La habilidad {0} no es válida.</value>
+  </data>
+  <data name="Check_Item" xml:space="preserve">
+    <value>El objeto equipado {0} no existe.</value>
+  </data>
+  <data name="Check_Nature" xml:space="preserve">
+    <value>La naturaleza no es válida.</value>
+  </data>
+  <data name="Check_Ball" xml:space="preserve">
+    <value>La Poké Ball {0} no existe.</value>
+  </data>
+  <data name="Check_Gender" xml:space="preserve">
+    <value>Esta especie no puede tener ese sexo.</value>
+  </data>
+  <data name="Check_IVs" xml:space="preserve">
+    <value>Los IV deben estar entre 0 y 31.</value>
+  </data>
+  <data name="Check_EVs" xml:space="preserve">
+    <value>Cada EV debe estar entre 0 y 252.</value>
+  </data>
+  <data name="Check_EvTotal" xml:space="preserve">
+    <value>Los EV suman {0}; el máximo es {1}.</value>
+  </data>
+  <data name="Check_Nickname" xml:space="preserve">
+    <value>El mote debe tener entre 1 y 12 caracteres.</value>
+  </data>
+  <data name="Check_OriginalTrainer" xml:space="preserve">
+    <value>El nombre del entrenador original debe tener entre 1 y 12 caracteres.</value>
+  </data>
+  <data name="Check_TrainerName" xml:space="preserve">
+    <value>El nombre del entrenador debe tener entre 1 y 12 caracteres.</value>
+  </data>
+  <data name="Check_PartyEmpty" xml:space="preserve">
+    <value>El equipo necesita al menos un Pokémon que no sea un huevo.</value>
+  </data>
+  <data name="Check_BagItem" xml:space="preserve">
+    <value>El objeto {0} no puede ir en el bolsillo {1}.</value>
+  </data>
+  <data name="Check_BagCount" xml:space="preserve">
+    <value>Objeto {0}: la cantidad {1} está fuera de rango (1–{2}).</value>
+  </data>
+  <data name="Check_Blocked" xml:space="preserve">
+    <value>No se ha escrito la partida: hay {0} problema(s) que romperían el juego. El primero: {1}</value>
+  </data>
 </root>

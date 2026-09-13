@@ -98,23 +98,9 @@ public static class SaveUpdater
         if (!write || changes.Count == 0)
             return new SaveUpdateResult(savePath, null, checkedCount, changes);
 
-        byte[] original = File.ReadAllBytes(savePath);
         byte[] updated = sav.Write().ToArray();
         Verify(updated, rom);
-
-        string backupDir = Path.Combine(backupRoot!, DateTime.Now.ToString("yyyyMMdd-HHmmss"));
-        Directory.CreateDirectory(backupDir);
-        string backup = Path.Combine(backupDir, Path.GetFileName(savePath));
-        File.WriteAllBytes(backup, original);
-
-        string tmp = savePath + ".pokemanager.tmp";
-        File.WriteAllBytes(tmp, updated);
-        File.Move(tmp, savePath, overwrite: true);
-
-        // Final check on what actually ended up on disk.
-        if (!File.ReadAllBytes(savePath).AsSpan().SequenceEqual(updated))
-            throw new SaveUpdateException(string.Format(Strings.Save_WrittenMismatch, backup));
-
+        string backup = SaveWriter.Write(savePath, updated, backupRoot!);
         return new SaveUpdateResult(savePath, backup, checkedCount, changes);
     }
 
@@ -181,7 +167,8 @@ public static class SaveUpdater
     /// </summary>
     internal static int[] CalculateStats(PKM pk, pk3DS.Core.Structures.PersonalInfo.PersonalInfoXY personal)
     {
-        int level = pk.CurrentLevel;
+        // The level comes from EXP with the ROM's growth rate, which the randomizer may have changed.
+        int level = Experience.GetLevel(pk.EXP, (byte)personal.EXPGrowth);
         int[] baseStats = [personal.HP, personal.ATK, personal.DEF, personal.SPE, personal.SPA, personal.SPD];
         int[] ivs = [pk.IV_HP, pk.IV_ATK, pk.IV_DEF, pk.IV_SPE, pk.IV_SPA, pk.IV_SPD];
         int[] evs = [pk.EV_HP, pk.EV_ATK, pk.EV_DEF, pk.EV_SPE, pk.EV_SPA, pk.EV_SPD];
@@ -211,8 +198,6 @@ public static class SaveUpdater
     {
         var reread = (SaveUtil.GetSaveFile(updated) ?? (updated.Length == SizeXY ? new SAV6XY(updated) : null)) as SAV6XY
                      ?? throw new SaveUpdateException(Strings.Save_CannotReread);
-        if (!reread.ChecksumsValid)
-            throw new SaveUpdateException(Strings.Save_ModifiedBadChecksums);
 
         foreach (var pk in reread.PartyData.Concat(reread.BoxData).Where(p => p.Species != 0))
         {

@@ -87,4 +87,10 @@
   <data name="Mod_InsideDump" xml:space="preserve">
     <value>La carpeta del mod ({0}) no puede estar dentro del volcado ni contenerlo: el volcado es de solo lectura.</value>
   </data>
+  <data name="Data_NotDataFile" xml:space="preserve">
+    <value>No es un archivo de datos de Pokémon de Pokemanager: {0}</value>
+  </data>
+  <data name="Data_NewerFormat" xml:space="preserve">
+    <value>El archivo de datos usa el formato {0}; esta versión solo entiende hasta el {1}.</value>
+  </data>
 </root>

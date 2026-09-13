@@ -33,4 +33,70 @@
   <data name="Save_VerifyAbility" xml:space="preserve">
     <value>Verification failed: species {0} did not get ability {1}.</value>
   </data>
+  <data name="Check_Species" xml:space="preserve">
+    <value>Species {0} does not exist in this game.</value>
+  </data>
+  <data name="Check_Form" xml:space="preserve">
+    <value>Form {0} does not exist for this species.</value>
+  </data>
+  <data name="Check_Level" xml:space="preserve">
+    <value>Level {0} is out of range (1–100).</value>
+  </data>
+  <data name="Check_NoMoves" xml:space="preserve">
+    <value>It has no moves.</value>
+  </data>
+  <data name="Check_Move" xml:space="preserve">
+    <value>Move {0} does not exist.</value>
+  </data>
+  <data name="Check_DuplicateMoves" xml:space="preserve">
+    <value>The same move appears twice.</value>
+  </data>
+  <data name="Check_PPUps" xml:space="preserve">
+    <value>PP Ups must be between 0 and 3.</value>
+  </data>
+  <data name="Check_Ability" xml:space="preserve">
+    <value>Ability {0} is not valid.</value>
+  </data>
+  <data name="Check_Item" xml:space="preserve">
+    <value>Held item {0} does not exist.</value>
+  </data>
+  <data name="Check_Nature" xml:space="preserve">
+    <value>The nature is not valid.</value>
+  </data>
+  <data name="Check_Ball" xml:space="preserve">
+    <value>Ball {0} does not exist.</value>
+  </data>
+  <data name="Check_Gender" xml:space="preserve">
+    <value>This species cannot have that gender.</value>
+  </data>
+  <data name="Check_IVs" xml:space="preserve">
+    <value>IVs must be between 0 and 31.</value>
+  </data>
+  <data name="Check_EVs" xml:space="preserve">
+    <value>Each EV must be between 0 and 252.</value>
+  </data>
+  <data name="Check_EvTotal" xml:space="preserve">
+    <value>EVs add up to {0}; the maximum is {1}.</value>
+  </data>
+  <data name="Check_Nickname" xml:space="preserve">
+    <value>The nickname must have 1 to 12 characters.</value>
+  </data>
+  <data name="Check_OriginalTrainer" xml:space="preserve">
+    <value>The original trainer name must have 1 to 12 characters.</value>
+  </data>
+  <data name="Check_TrainerName" xml:space="preserve">
+    <value>The trainer name must have 1 to 12 characters.</value>
+  </data>
+  <data name="Check_PartyEmpty" xml:space="preserve">
+    <value>The party needs at least one Pokémon that is not an egg.</value>
+  </data>
+  <data name="Check_BagItem" xml:space="preserve">
+    <value>Item {0} cannot go in the {1} pocket.</value>
+  </data>
+  <data name="Check_BagCount" xml:space="preserve">
+    <value>Item {0}: amount {1} is out of range (1–{2}).</value>
+  </data>
+  <data name="Check_Blocked" xml:space="preserve">
+    <value>The save was not written: {0} problem(s) would break the game. First: {1}</value>
+  </data>
 </root>

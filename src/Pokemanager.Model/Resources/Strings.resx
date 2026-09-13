@@ -87,4 +87,10 @@
   <data name="Mod_InsideDump" xml:space="preserve">
     <value>The mod folder ({0}) cannot be inside the dump or contain it: the dump is read-only.</value>
   </data>
+  <data name="Data_NotDataFile" xml:space="preserve">
+    <value>Not a Pokemanager Pokémon data file: {0}</value>
+  </data>
+  <data name="Data_NewerFormat" xml:space="preserve">
+    <value>The data file uses format {0}; this version only understands up to {1}.</value>
+  </data>
 </root>

@@ -92,6 +92,13 @@ public sealed class EditorSession
 
     public bool IsModified(string table, int id) => Project.Edits.Any(table, id);
 
+    /// <summary>Undoes every edit of the project.</summary>
+    public void RevertAll()
+    {
+        foreach (var edit in Project.Edits.All.ToList())
+            Set(edit.Table, edit.Id, edit.Field, GameTables.Get(edit.Table).Get(Original, edit.Id, edit.Field));
+    }
+
     /// <summary>Undoes every edit of an entry.</summary>
     public void Revert(string table, int id)
     {

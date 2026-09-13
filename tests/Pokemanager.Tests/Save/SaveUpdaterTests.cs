@@ -36,7 +36,7 @@ public sealed class SaveUpdaterTests : IDisposable
             AbilityNumber = abilityNumber,
             Ability = ability,
             Nature = Nature.Adamant, // +Atk −SpA
-            CurrentLevel = level,
+            EXP = Experience.GetEXP(level, 0), // synthetic ROM: growth rate 0 (Medium Fast)
             IV_HP = 31, IV_ATK = 31, IV_DEF = 31, IV_SPA = 31, IV_SPD = 31, IV_SPE = 31,
             EV_ATK = 252,
             OriginalTrainerName = "Test",
