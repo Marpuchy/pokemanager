@@ -24,6 +24,82 @@
           </Grid>
         </Border>
 
+        <!-- Locke: badges from the save (click an earned one to spin its roulette) and lives -->
+        <Border DockPanel.Dock="Top" Classes="card" Margin="0,0,0,8" Classes.gameover="{Binding IsGameOver}">
+          <Border.Styles>
+            <Style Selector="Border.card.gameover">
+              <Setter Property="Background" Value="#FDECEC" />
+              <Setter Property="BorderBrush" Value="#D13438" />
+            </Style>
+            <Style Selector="Button.badge">
+              <Setter Property="Width" Value="42" />
+              <Setter Property="Height" Value="42" />
+              <Setter Property="Padding" Value="0" />
+              <Setter Property="CornerRadius" Value="21" />
+              <Setter Property="BorderThickness" Value="2" />
+              <Setter Property="BorderBrush" Value="#80FFFFFF" />
+              <Setter Property="HorizontalContentAlignment" Value="Center" />
+              <Setter Property="VerticalContentAlignment" Value="Center" />
+            </Style>
+            <Style Selector="Button.badge:disabled">
+              <Setter Property="Opacity" Value="1" />
+            </Style>
+            <Style Selector="Button.badge:disabled /template/ ContentPresenter#PART_ContentPresenter">
+              <Setter Property="Background" Value="{Binding $parent[Button].Background}" />
+              <Setter Property="BorderBrush" Value="{Binding $parent[Button].BorderBrush}" />
+            </Style>
+            <Style Selector="Button.badge:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+              <Setter Property="Background" Value="{Binding $parent[Button].Background}" />
+              <Setter Property="BorderBrush" Value="#1C3A70" />
+            </Style>
+            <Style Selector="Button.badge:pressed /template/ ContentPresenter#PART_ContentPresenter">
+              <Setter Property="Background" Value="{Binding $parent[Button].Background}" />
+              <Setter Property="BorderBrush" Value="#0B1E40" />
+            </Style>
+            <Style Selector="Button.badge.pending">
+              <Setter Property="BorderBrush" Value="#E07B00" />
+            </Style>
+          </Border.Styles>
+          <WrapPanel>
+            <StackPanel Spacing="4" Margin="0,0,24,0">
+              <TextBlock Classes="card-title" Text="{Binding BadgesText}" />
+              <ItemsControl ItemsSource="{Binding Badges}">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <WrapPanel />
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:BadgeItemViewModel">
+                    <Panel Margin="0,0,6,0" ToolTip.Tip="{Binding Tooltip}">
+                      <Button Classes="badge" Classes.pending="{Binding IsPending}" Background="{Binding Background}"
+                              Command="{Binding SpinCommand}" IsEnabled="{Binding CanSpin}">
+                        <TextBlock Text="{Binding Number}" FontSize="15" FontWeight="Bold" Foreground="{Binding Foreground}" />
+                      </Button>
+                      <Border IsVisible="{Binding HasMark}" Width="17" Height="17" CornerRadius="9" Background="White"
+                              BorderBrush="#9A9A9A" BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" IsHitTestVisible="False">
+                        <TextBlock Text="{Binding Mark}" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{Binding MarkBrush}" />
+                      </Border>
+                    </Panel>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+
+            <StackPanel Spacing="4" IsVisible="{Binding TracksLives}">
+              <TextBlock Classes="card-title" Text="{Binding LivesText}" />
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <TextBlock Text="{Binding Hearts}" FontSize="26" Foreground="#D13438" VerticalAlignment="Center" />
+                <Button Content="−" Width="26" Padding="0" HorizontalContentAlignment="Center" VerticalAlignment="Center"
+                        Command="{Binding LoseLifeCommand}" ToolTip.Tip="{x:Static r:Strings.Locke_LoseLife}" />
+                <Button Content="+" Width="26" Padding="0" HorizontalContentAlignment="Center" VerticalAlignment="Center"
+                        Command="{Binding GainLifeCommand}" ToolTip.Tip="{x:Static r:Strings.Locke_GainLife}" />
+                <TextBlock Text="{x:Static r:Strings.Locke_GameOver}" IsVisible="{Binding IsGameOver}" FontWeight="Bold" Foreground="#D13438" VerticalAlignment="Center" Margin="6,0,0,0" />
+              </StackPanel>
+            </StackPanel>
+          </WrapPanel>
+        </Border>
+
         <!-- No save -->
         <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="4" Text="{Binding SaveMessage}" IsVisible="{Binding !HasSave}" TextWrapping="Wrap" />
 

@@ -191,6 +191,22 @@ through `Services/ProjectLoader` (project + dump + session + save, ~0.5 s); **Ma
 (`MainWindowViewModel.Manage(loaded, slot?)`), and "Manage this Pokémon" opens the editor on the Save file tab with that
 slot selected (`EditorViewModel.PendingSaveSlot`, handled in `EditorView` on `DataContextChanged`).
 
+### Locke: badges, lives and the badge roulette (2026-09-14)
+
+- `Model/Projects/LockeSettings` (in the project JSON, defaults for old files): `MaxLives`/`LivesLost`, weighted
+  `Prizes` (Item, Money, Life, Nothing) and `Spins` (one per badge; `Claimed = false` while an item/money prize is not in
+  the save yet). Editor tab **Locke** (`LockeViewModel`); "Allow again" = `ForgetSpin`.
+- Preview: badges from `SaveDocument.GetBadge` (Kalos order Bug, Cliff, Rumble, Plant, Voltage, Fairy, Psychic, Iceberg;
+  gym types 6, 5, 1, 11, 12, 17, 13, 14 for the colors), hearts with −/+.
+- `RouletteWindow` + `Controls/WheelControl`: the winner is rolled **before** the animation (`RequestAnimationFrame`,
+  4.2 s ease-out) and recorded when it stops; closing mid-spin records it at once, so closing never gives a re-roll.
+  `Services/LockeRewards.Claim` puts items (`SaveDocument.GiveItem`, right pouch, stacks, capped) or money into the save
+  with the save editor's safety: emulator closed, BeforeSaveEdit history version, backup, verification.
+- Verified headless on a copy of the user's save (1 badge): Rare Candy 754 → 757, money pending then claimed
+  52 860 → 62 860, extra life 3/5 → 4/5.
+- `POKEMANAGER_DATA` moves `AppSettings.DataRoot` (cache + save backups). **Harnesses that write a save must set it**: a
+  harness run had put a backup of a test copy into the real `save-backups` folder (removed; nothing was pruned).
+
 Pending: live dashboard (RPC).
 
 ---

@@ -22,6 +22,9 @@ public interface IDialogs
 
     /// <summary>Opens the randomization log (spoilers) in its own window.</summary>
     void ShowLog(RandomizerViewModel randomizer);
+
+    /// <summary>Shows the badge roulette until it is closed.</summary>
+    Task ShowRouletteAsync(RouletteViewModel roulette);
 }
 
 public sealed class Dialogs(Window owner) : IDialogs
@@ -71,4 +74,7 @@ public sealed class Dialogs(Window owner) : IDialogs
 
     public void ShowLog(RandomizerViewModel randomizer) =>
         new LogWindow { DataContext = randomizer }.Show(owner);
+
+    public Task ShowRouletteAsync(RouletteViewModel roulette) =>
+        new RouletteWindow { DataContext = roulette }.ShowDialog(owner);
 }

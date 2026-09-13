@@ -1,0 +1,34 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Pokemanager.App.ViewModels"
+        xmlns:r="using:Pokemanager.App.Resources"
+        xmlns:c="using:Pokemanager.App.Controls"
+        x:Class="Pokemanager.App.Views.RouletteWindow"
+        x:DataType="vm:RouletteViewModel"
+        Title="{Binding Title}"
+        Width="560" Height="680" CanResize="False"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="16">
+    <StackPanel DockPanel.Dock="Top" Spacing="2" Margin="0,0,0,8">
+      <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center" />
+      <TextBlock Classes="hint" Text="{x:Static r:Strings.Locke_RouletteHint}" HorizontalAlignment="Center" TextAlignment="Center" />
+    </StackPanel>
+
+    <StackPanel DockPanel.Dock="Bottom" Spacing="8" Margin="0,10,0,0">
+      <TextBlock Text="{Binding ResultText}" FontSize="14" FontWeight="SemiBold" HorizontalAlignment="Center" TextAlignment="Center"
+                 TextWrapping="Wrap" Classes.error="{Binding ResultIsError}" />
+      <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+        <Button Classes="accent" Padding="24,8" Content="{x:Static r:Strings.Locke_Spin}" Command="{Binding SpinCommand}" />
+        <Button Classes="accent" Padding="24,8" Content="{x:Static r:Strings.Locke_Claim}" Command="{Binding ClaimCommand}" />
+        <Button Padding="16,8" Content="{x:Static r:Strings.Locke_Close}" Click="OnClose" />
+      </StackPanel>
+    </StackPanel>
+
+    <Grid>
+      <c:WheelControl x:Name="Wheel" Segments="{Binding Segments}" Width="460" Height="460" />
+      <!-- Pointer at the top -->
+      <Path Data="M 0,0 L 28,0 L 14,30 Z" Fill="#202020" Stroke="White" StrokeThickness="2"
+            HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,-6,0,0" />
+    </Grid>
+  </DockPanel>
+</Window>

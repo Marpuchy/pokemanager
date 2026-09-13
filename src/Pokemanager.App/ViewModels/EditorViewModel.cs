@@ -28,6 +28,7 @@ public partial class EditorViewModel : ObservableObject
     public RandomizerViewModel Randomizer { get; }
     public HistoryViewModel History { get; }
     public SaveEditorViewModel SaveEditor { get; }
+    public LockeViewModel Locke { get; }
     public IDialogs Dialogs => dialogs;
 
     /// <summary>Pokémon icons from the dump.</summary>
@@ -114,6 +115,7 @@ public partial class EditorViewModel : ObservableObject
         Randomizer = new RandomizerViewModel(this, dialogs, upr, settings);
         History = new HistoryViewModel(this, dialogs, projectPath);
         SaveEditor = new SaveEditorViewModel(this, settings);
+        Locke = new LockeViewModel(this);
 
         // Projects built before the history existed: keep what is being played as the first version, so there is
         // something to go back to before the next build.

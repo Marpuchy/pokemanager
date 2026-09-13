@@ -63,6 +63,9 @@ public sealed class Project
 
     public RandomizationSettings Randomization { get; set; } = new();
 
+    /// <summary>Nuzlocke rules: lives and the badge roulette.</summary>
+    public LockeSettings Locke { get; set; } = new();
+
     public EditSet Edits { get; } = new();
 
     public string RomFsPath => Path.Combine(DumpDirectory, "romfs");
@@ -104,7 +107,7 @@ public sealed class Project
     public void Save(string path)
     {
         var file = new ProjectFile(CurrentFormat, DumpDirectory, RomFile, Language, EmulatorUserDirectory, Randomization,
-            Edits.All.Select(e => new EditEntry(e.Table, e.Id, e.Field, e.Value)).ToList());
+            Edits.All.Select(e => new EditEntry(e.Table, e.Id, e.Field, e.Value)).ToList(), Locke);
 
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
         string tmp = path + ".tmp";
@@ -126,6 +129,7 @@ public sealed class Project
             Language = file.Language,
             EmulatorUserDirectory = file.EmulatorUserDirectory,
             Randomization = file.Randomization ?? new RandomizationSettings(), // format 1 did not have it
+            Locke = file.Locke ?? new LockeSettings(), // added later in format 2
         };
         foreach (var e in file.Edits ?? [])
             project.Edits.Set(e.Table, e.Id, e.Field, e.Value);
@@ -139,7 +143,8 @@ public sealed class Project
         GameLanguage Language,
         string? EmulatorUserDirectory,
         RandomizationSettings? Randomization,
-        List<EditEntry>? Edits);
+        List<EditEntry>? Edits,
+        LockeSettings? Locke = null);
 
     private sealed record EditEntry(string Table, int Id, string Field, JsonNode Value);
 }

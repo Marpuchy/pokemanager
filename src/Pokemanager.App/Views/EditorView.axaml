@@ -89,6 +89,11 @@
         <ContentControl Content="{Binding History}" />
       </TabItem>
 
+      <!-- ================= Locke ================= -->
+      <TabItem Header="{x:Static r:Strings.Tab_Locke}">
+        <ContentControl Content="{Binding Locke}" />
+      </TabItem>
+
       <!-- ================= Advanced: Pokémon ================= -->
       <TabItem Header="{x:Static r:Strings.Tab_AdvancedPokemon}">
         <DockPanel>

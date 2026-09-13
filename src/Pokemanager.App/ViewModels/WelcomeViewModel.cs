@@ -92,7 +92,7 @@ public partial class WelcomeViewModel : ObservableObject
         IsLoadingPreview = true;
         try
         {
-            var preview = await Task.Run(() => new ProjectPreviewViewModel(main, ProjectLoader.Load(item.Path, main.Upr)));
+            var preview = await Task.Run(() => new ProjectPreviewViewModel(main, ProjectLoader.Load(item.Path, main.Upr), () => LoadPreviewAsync(item)));
             if (version == previewVersion)
                 Preview = preview;
         }

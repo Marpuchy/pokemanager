@@ -1,0 +1,89 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Pokemanager.App.ViewModels"
+             xmlns:r="using:Pokemanager.App.Resources"
+             xmlns:c="using:Pokemanager.App.Controls"
+             x:Class="Pokemanager.App.Views.LockeView"
+             x:DataType="vm:LockeViewModel">
+  <ScrollViewer>
+    <c:AdaptiveColumnsPanel Margin="14,10" MinColumnWidth="420" MaxColumns="2" Spacing="12">
+      <!-- Lives and spins -->
+      <StackPanel Spacing="12">
+        <Border Classes="card">
+          <StackPanel Spacing="6">
+            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Locke_LivesTitle}" />
+            <TextBlock Classes="hint" Text="{x:Static r:Strings.Locke_LivesHint}" />
+            <Grid ColumnDefinitions="170,*" RowDefinitions="Auto,Auto">
+              <TextBlock Classes="field-label" Text="{x:Static r:Strings.Locke_MaxLives}" />
+              <NumericUpDown Grid.Column="1" Value="{Binding MaxLives}" Minimum="0" Maximum="99" FormatString="0" ParsingNumberStyle="Integer" Width="130" HorizontalAlignment="Left" Margin="0,3" />
+              <TextBlock Grid.Row="1" Classes="field-label" Text="{x:Static r:Strings.Locke_LivesLost}" />
+              <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding LivesLost}" Minimum="0" Maximum="99" FormatString="0" ParsingNumberStyle="Integer" Width="130" HorizontalAlignment="Left" Margin="0,3" />
+            </Grid>
+            <TextBlock Text="{Binding LivesText}" FontSize="16" Foreground="#D13438" />
+          </StackPanel>
+        </Border>
+
+        <Border Classes="card">
+          <StackPanel Spacing="6">
+            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Locke_SpinsTitle}" />
+            <TextBlock Classes="hint" Text="{x:Static r:Strings.Locke_SpinsEmpty}" IsVisible="{Binding !HasSpins}" />
+            <ItemsControl ItemsSource="{Binding Spins}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:SpinRowViewModel">
+                  <Grid ColumnDefinitions="130,*,Auto" Margin="0,2">
+                    <TextBlock Text="{Binding Badge}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                      <TextBlock Text="{Binding PrizeText}" />
+                      <TextBlock Classes="hint" FontSize="11">
+                        <Run Text="{Binding StateText}" />
+                        <Run Text=" · " />
+                        <Run Text="{Binding When}" />
+                      </TextBlock>
+                    </StackPanel>
+                    <Button Grid.Column="2" Content="{x:Static r:Strings.Locke_AllowAgain}" Command="{Binding ForgetCommand}"
+                            ToolTip.Tip="{x:Static r:Strings.Locke_AllowAgainTip}" VerticalAlignment="Center" />
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+
+      <!-- Prizes -->
+      <Border Classes="card">
+        <StackPanel Spacing="6">
+          <TextBlock Classes="card-title" Text="{x:Static r:Strings.Locke_PrizesTitle}" />
+          <TextBlock Classes="hint" Text="{x:Static r:Strings.Locke_PrizesHint}" />
+          <Grid ColumnDefinitions="110,*,120,100,56,Auto" Margin="0,4,0,0">
+            <TextBlock Classes="hint" Text="{x:Static r:Strings.Locke_ColKind}" />
+            <TextBlock Grid.Column="1" Classes="hint" Text="{x:Static r:Strings.Locke_ColPrize}" />
+            <TextBlock Grid.Column="2" Classes="hint" Text="{x:Static r:Strings.Locke_ColAmount}" />
+            <TextBlock Grid.Column="3" Classes="hint" Text="{x:Static r:Strings.Locke_ColWeight}" />
+            <TextBlock Grid.Column="4" Classes="hint" Text="{x:Static r:Strings.Locke_ColChance}" />
+          </Grid>
+          <ItemsControl ItemsSource="{Binding Prizes}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:PrizeRowViewModel">
+                <Grid ColumnDefinitions="110,*,120,100,56,Auto" Margin="0,2">
+                  <ComboBox ItemsSource="{x:Static vm:PrizeRowViewModel.KindNames}" SelectedIndex="{Binding KindIndex}" HorizontalAlignment="Stretch" Margin="0,0,4,0" />
+                  <ComboBox Grid.Column="1" ItemsSource="{Binding ItemNames}" SelectedIndex="{Binding ItemIndex}" IsVisible="{Binding IsItem}"
+                            HorizontalAlignment="Stretch" MaxDropDownHeight="400" Margin="0,0,4,0" />
+                  <NumericUpDown Grid.Column="2" Value="{Binding Amount}" Minimum="1" Maximum="9999999" FormatString="0" ParsingNumberStyle="Integer"
+                                 IsVisible="{Binding HasAmount}" Margin="0,0,4,0" />
+                  <NumericUpDown Grid.Column="3" Value="{Binding Weight}" Minimum="0" Maximum="100" FormatString="0" ParsingNumberStyle="Integer" Margin="0,0,4,0" />
+                  <TextBlock Grid.Column="4" Text="{Binding ChanceText}" VerticalAlignment="Center" />
+                  <Button Grid.Column="5" Content="✕" Padding="6,2" Command="{Binding RemoveCommand}" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,6,0,0">
+            <Button Content="{x:Static r:Strings.Locke_AddPrize}" Command="{Binding AddPrizeCommand}" />
+            <Button Content="{x:Static r:Strings.Locke_ResetPrizes}" Command="{Binding ResetPrizesCommand}" />
+          </StackPanel>
+        </StackPanel>
+      </Border>
+    </c:AdaptiveColumnsPanel>
+  </ScrollViewer>
+</UserControl>

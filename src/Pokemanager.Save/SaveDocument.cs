@@ -605,6 +605,39 @@ public sealed class SaveDocument
         MarkDirty();
     }
 
+    /// <summary>
+    /// Adds <paramref name="count"/> of an item to the pocket that holds it, on top of what is already there and without
+    /// passing the pocket's maximum. Returns how many were actually added (0 if no pocket takes it or it is full).
+    /// </summary>
+    public int GiveItem(int item, int count)
+    {
+        if (item <= 0 || count <= 0)
+            return 0;
+        var pouch = bag.Pouches.FirstOrDefault(p => p.CanContain((ushort)item));
+        if (pouch is null)
+            return 0;
+
+        int added;
+        var existing = pouch.Items.FirstOrDefault(i => i.Index == item);
+        if (existing is not null)
+        {
+            added = Math.Min(count, pouch.MaxCount - existing.Count);
+            existing.Count += Math.Max(0, added);
+        }
+        else
+        {
+            var free = pouch.Items.FirstOrDefault(i => i.Index == 0);
+            if (free is null)
+                return 0;
+            added = Math.Min(count, pouch.MaxCount);
+            free.Index = item;
+            free.Count = added;
+        }
+        if (added > 0)
+            MarkDirty();
+        return Math.Max(0, added);
+    }
+
     // ------------------------------------------------------------------ Pokédex
 
     public bool GetSeen(ushort species) => sav.GetSeen(species);

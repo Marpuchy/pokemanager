@@ -7,6 +7,7 @@ using Pokemanager.App.Resources;
 using Pokemanager.App.Services;
 using Pokemanager.Bridge;
 using Pokemanager.Model.Dump;
+using Pokemanager.Model.Projects;
 using Pokemanager.Save;
 
 namespace Pokemanager.App.ViewModels;
@@ -123,12 +124,49 @@ public sealed partial class PartyMemberViewModel : ObservableObject
     }
 }
 
+/// <summary>A gym badge in the preview: earned or not (from the save), and its roulette.</summary>
+public sealed partial class BadgeItemViewModel(ProjectPreviewViewModel owner, int index, string name, int type, bool earned, LockeSpin? spin,
+    IReadOnlyList<string> itemNames) : ObservableObject
+{
+    public int Index { get; } = index;
+    public string Name { get; } = name;
+    public string Number => (Index + 1).ToString();
+    public bool Earned { get; } = earned;
+
+    public Avalonia.Media.IBrush Background => Earned ? TypeColors.Background(type) : new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#DADADA"));
+    public Avalonia.Media.IBrush Foreground => Earned ? TypeColors.Foreground(type) : new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#8A8A8A"));
+
+    /// <summary>✓ prize given · ! prize won but not in the save yet · empty otherwise.</summary>
+    public string Mark => spin is null ? "" : spin.Claimed ? "✓" : "!";
+    public bool HasMark => spin is not null;
+    public Avalonia.Media.IBrush MarkBrush => new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse(IsPending ? "#E07B00" : "#2E8B57"));
+    public bool IsPending => spin is { Claimed: false };
+
+    public bool CanSpin => Earned && (spin is null || !spin.Claimed);
+
+    public string Tooltip => !Earned
+        ? string.Format(Strings.Locke_BadgeNotEarned, Name)
+        : spin is null
+            ? string.Format(Strings.Locke_BadgeSpin, Name)
+            : spin.Claimed
+                ? string.Format(Strings.Locke_BadgeDone, Name, LockeRewards.Describe(spin.Prize, itemNames))
+                : string.Format(Strings.Locke_BadgePending, Name, LockeRewards.Describe(spin.Prize, itemNames));
+
+    [RelayCommand]
+    private Task Spin() => owner.SpinBadgeAsync(this);
+
+    internal LockePrize? PendingPrize => spin is { Claimed: false } s ? s.Prize : null;
+}
+
 /// <summary>
-/// Right side of the project list: what the ROM is and the team of its save, read only. "Manage" opens the editor.
+/// Right side of the project list: what the ROM is, the badges and lives of the run and the team of its save, read only.
+/// "Manage" opens the editor.
 /// </summary>
 public sealed partial class ProjectPreviewViewModel : ObservableObject
 {
     private readonly MainWindowViewModel main;
+    private readonly Func<Task> reload;
+    private readonly IReadOnlyList<string> itemNames;
 
     public LoadedProject Loaded { get; }
 
@@ -146,6 +184,10 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
 
     public ObservableCollection<PartyMemberViewModel> Party { get; } = [];
 
+    public ObservableCollection<BadgeItemViewModel> Badges { get; } = [];
+
+    public string BadgesText => string.Format(Strings.Locke_BadgesCount, Badges.Count(b => b.Earned), LockeSettings.BadgeCount);
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasSelection))]
     public partial PartyMemberViewModel? Selected { get; set; }
@@ -153,12 +195,15 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
     public bool HasSelection => Selected is not null;
 
     /// <summary>Loads everything but the bitmaps, so it can run off the UI thread.</summary>
-    public ProjectPreviewViewModel(MainWindowViewModel main, LoadedProject loaded)
+    public ProjectPreviewViewModel(MainWindowViewModel main, LoadedProject loaded, Func<Task> reload)
     {
         this.main = main;
+        this.reload = reload;
         Loaded = loaded;
         var project = loaded.Project;
         var r = project.Randomization;
+        var gameNames = new GameNames(loaded.Dump, loaded.Session.Original);
+        itemNames = gameNames.Items;
 
         GameText = string.Format(Strings.Preview_Game, loaded.Dump.Title, project.Edits.Count == 1
             ? Strings.Editor_EditCountOne
@@ -172,36 +217,91 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
 
         var settings = main.Settings;
         string? savePath = settings.EffectiveEmulatorDirectory is { } dir ? EmulatorUserFolders.SaveFile(dir, loaded.Dump.Title.TitleId()) : null;
+        SaveDocument? doc = null;
         if (savePath is null)
         {
             SaveMessage = Strings.Rnd_NoEmulator;
-            return;
         }
-        if (!File.Exists(savePath))
+        else if (!File.Exists(savePath))
         {
             SaveMessage = string.Format(Strings.Rnd_NoSave, loaded.Dump.Title, settings.EffectiveEmulatorName);
-            return;
+        }
+        else
+        {
+            try
+            {
+                doc = SaveDocument.Open(savePath, loaded.Session.Current);
+                var names = new SaveNames(gameNames, GameTextLanguage.Current, doc.MaxSpecies);
+                Sprites = PokemonSprites.Load(project, loaded.Session.Original);
+                TrainerText = string.Format(Strings.Preview_Trainer, doc.TrainerName, Enumerable.Range(0, 8).Count(doc.GetBadge), doc.Money,
+                    $"{doc.PlayedHours}:{doc.PlayedMinutes:00}", settings.EffectiveEmulatorName, File.GetLastWriteTime(savePath));
+                for (int i = 0; i < doc.PartyCount; i++)
+                    Party.Add(new PartyMemberViewModel(doc, names, Sprites, new SaveSlot(null, i)));
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SaveUpdateException)
+            {
+                SaveMessage = string.Format(Strings.Rnd_SaveUnreadable, settings.EffectiveEmulatorName, ex.Message);
+                doc = null;
+            }
         }
 
-        try
-        {
-            var doc = SaveDocument.Open(savePath, loaded.Session.Current);
-            var gameNames = new GameNames(loaded.Dump, loaded.Session.Original);
-            var names = new SaveNames(gameNames, GameTextLanguage.Current, doc.MaxSpecies);
-            Sprites = PokemonSprites.Load(project, loaded.Session.Original);
-            int badges = Enumerable.Range(0, 8).Count(doc.GetBadge);
-            TrainerText = string.Format(Strings.Preview_Trainer, doc.TrainerName, badges, doc.Money,
-                $"{doc.PlayedHours}:{doc.PlayedMinutes:00}", settings.EffectiveEmulatorName, File.GetLastWriteTime(savePath));
-            for (int i = 0; i < doc.PartyCount; i++)
-                Party.Add(new PartyMemberViewModel(doc, names, Sprites, new SaveSlot(null, i)));
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SaveUpdateException)
-        {
-            SaveMessage = string.Format(Strings.Rnd_SaveUnreadable, settings.EffectiveEmulatorName, ex.Message);
-        }
+        var badges = LockeRewards.Badges;
+        for (int i = 0; i < LockeSettings.BadgeCount; i++)
+            Badges.Add(new BadgeItemViewModel(this, i, badges[i].Name, badges[i].Type, doc?.GetBadge(i) ?? false, project.Locke.SpinOf(i), itemNames));
     }
 
     public PokemonSprites Sprites { get; } = PokemonSprites.Empty;
+
+    // ------------------------------------------------------------------ lives
+
+    public bool TracksLives => Loaded.Project.Locke.MaxLives > 0;
+
+    /// <summary>A full heart per life left, an empty one per life lost.</summary>
+    public string Hearts => new string('♥', Loaded.Project.Locke.LivesLeft) + new string('♡', Math.Min(Loaded.Project.Locke.LivesLost, Loaded.Project.Locke.MaxLives));
+
+    public string LivesText => string.Format(Strings.Locke_Lives, Loaded.Project.Locke.LivesLeft, Loaded.Project.Locke.MaxLives);
+
+    public bool IsGameOver => TracksLives && Loaded.Project.Locke.LivesLeft == 0;
+
+    [RelayCommand]
+    private void LoseLife() => ChangeLives(+1);
+
+    [RelayCommand]
+    private void GainLife() => ChangeLives(-1);
+
+    private void ChangeLives(int lostDelta)
+    {
+        var locke = Loaded.Project.Locke;
+        int lost = Math.Clamp(locke.LivesLost + lostDelta, 0, locke.MaxLives);
+        if (lost == locke.LivesLost)
+            return;
+        locke.LivesLost = lost;
+        try
+        {
+            Loaded.Project.Save(Loaded.Path);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            // The count stays in memory; it is saved with the next change.
+        }
+        OnPropertyChanged(nameof(Hearts));
+        OnPropertyChanged(nameof(LivesText));
+        OnPropertyChanged(nameof(IsGameOver));
+    }
+
+    // ------------------------------------------------------------------ roulette
+
+    internal async Task SpinBadgeAsync(BadgeItemViewModel badge)
+    {
+        if (!badge.CanSpin)
+            return;
+        var roulette = new RouletteViewModel(badge.Name, Loaded.Project.Locke, itemNames, badge.PendingPrize,
+            prize => LockeRewards.RecordWin(Loaded, badge.Index, prize),
+            prize => LockeRewards.Claim(Loaded, main.Settings, badge.Index, prize, itemNames));
+        await main.Dialogs.ShowRouletteAsync(roulette);
+        if (roulette.Changed)
+            await reload();
+    }
 
     [RelayCommand]
     private void Manage() => main.Manage(Loaded);

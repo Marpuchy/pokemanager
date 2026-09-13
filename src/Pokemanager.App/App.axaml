@@ -21,6 +21,9 @@
     <DataTemplate DataType="vm:HistoryViewModel">
       <views:HistoryView />
     </DataTemplate>
+    <DataTemplate DataType="vm:LockeViewModel">
+      <views:LockeView />
+    </DataTemplate>
   </Application.DataTemplates>
 
   <Application.Styles>

@@ -29,6 +29,10 @@ dotnet run --project src/Pokemanager.App
 0. **Start screen:** your projects on the left. Selecting one shows, read only, its ROM and the team of its save
    (sprite, name, level, held item); clicking a Pokémon shows its stats, IVs, EVs, moves and ability. **Manage** (on each
    project, on the preview and on the Pokémon) opens the full editor described below.
+   For Nuzlocke-style runs the preview also shows the **8 gym badges** read from the save and the **lives** left
+   (− / + to lose or recover one). Clicking an earned badge spins its **roulette** once: items and money go straight into
+   the save (emulator closed; a history version and a backup are made first), an extra life adds to the count. A prize won
+   while the emulator was open stays pending on the badge (!) until it is claimed.
 1. **New project:** dump folder and where to save the project `.json`. Game names (species, moves, items) are shown in
    the interface language; Pokémon sprites are read from your own dump.
    Projects you create or open appear under **Recent projects** on the start page.
@@ -61,7 +65,9 @@ dotnet run --project src/Pokemanager.App
    edits — the configuration that rebuilds the ROM plus a copy of the save. **Restore** puts a version back, rebuilds the
    ROM and adapts your current save (or puts that version's save back). Building with a different seed or options while a
    save exists asks first. Stored next to the project in `<project>.history/`.
-8. **Advanced:** manual Pokémon and move edits on top of the randomization; they are included in the built ROM.
+8. **Locke:** number of lives and lives lost, the roulette prizes (item, money, extra life or nothing; the weight sets
+   each chance and slice size) and the badges already spun, with **Allow again** to spin a badge once more.
+9. **Advanced:** manual Pokémon and move edits on top of the randomization; they are included in the built ROM.
    **Export/Import Pokémon data** saves them as a `.pkdata` file — the counterpart of a `.rnqs` for base stats, types,
    abilities, learnsets and moves — either your changes only or every value.
 

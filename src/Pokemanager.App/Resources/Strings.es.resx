@@ -1476,4 +1476,181 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Editor_ViewRomTip" xml:space="preserve">
     <value>Volver a la vista de la ROM con su equipo (antes guarda el proyecto)</value>
   </data>
+  <data name="Tab_Locke" xml:space="preserve">
+    <value>Locke</value>
+  </data>
+  <data name="Badge_1" xml:space="preserve">
+    <value>Medalla Insecto</value>
+  </data>
+  <data name="Badge_2" xml:space="preserve">
+    <value>Medalla Muro</value>
+  </data>
+  <data name="Badge_3" xml:space="preserve">
+    <value>Medalla Lucha</value>
+  </data>
+  <data name="Badge_4" xml:space="preserve">
+    <value>Medalla Planta</value>
+  </data>
+  <data name="Badge_5" xml:space="preserve">
+    <value>Medalla Voltio</value>
+  </data>
+  <data name="Badge_6" xml:space="preserve">
+    <value>Medalla Hada</value>
+  </data>
+  <data name="Badge_7" xml:space="preserve">
+    <value>Medalla Psique</value>
+  </data>
+  <data name="Badge_8" xml:space="preserve">
+    <value>Medalla Iceberg</value>
+  </data>
+  <data name="Locke_PrizeItem" xml:space="preserve">
+    <value>{0} ×{1}</value>
+  </data>
+  <data name="Locke_PrizeMoney" xml:space="preserve">
+    <value>{0:N0} $</value>
+  </data>
+  <data name="Locke_PrizeLife" xml:space="preserve">
+    <value>+1 vida</value>
+  </data>
+  <data name="Locke_PrizeNothing" xml:space="preserve">
+    <value>Nada, más suerte la próxima vez</value>
+  </data>
+  <data name="Locke_BagFull" xml:space="preserve">
+    <value>No cabe {0} en la mochila. Haz sitio en el juego y vuelve a reclamarlo.</value>
+  </data>
+  <data name="Locke_HistoryNote" xml:space="preserve">
+    <value>Ruleta de medallas: {0}</value>
+  </data>
+  <data name="Locke_ClaimedSave" xml:space="preserve">
+    <value>{0} añadido a la partida. Carga la partida en el emulador para verlo.</value>
+  </data>
+  <data name="Locke_ClaimedLife" xml:space="preserve">
+    <value>¡Has ganado una vida extra!</value>
+  </data>
+  <data name="Locke_ClaimedNothing" xml:space="preserve">
+    <value>Esta vez no toca nada.</value>
+  </data>
+  <data name="Locke_RouletteTitle" xml:space="preserve">
+    <value>Ruleta · {0}</value>
+  </data>
+  <data name="Locke_RouletteHint" xml:space="preserve">
+    <value>Una tirada por medalla. Los objetos y el dinero se añaden a la partida (cierra antes el emulador).</value>
+  </data>
+  <data name="Locke_Spin" xml:space="preserve">
+    <value>¡Girar!</value>
+  </data>
+  <data name="Locke_Claim" xml:space="preserve">
+    <value>Añadir a la partida</value>
+  </data>
+  <data name="Locke_Close" xml:space="preserve">
+    <value>Cerrar</value>
+  </data>
+  <data name="Locke_YouWon" xml:space="preserve">
+    <value>Has ganado: {0}</value>
+  </data>
+  <data name="Locke_Pending" xml:space="preserve">
+    <value>Premio pendiente de añadir a la partida: {0}</value>
+  </data>
+  <data name="Locke_BadgeNotEarned" xml:space="preserve">
+    <value>{0}: aún no conseguida</value>
+  </data>
+  <data name="Locke_BadgeSpin" xml:space="preserve">
+    <value>{0}: haz clic para girar la ruleta</value>
+  </data>
+  <data name="Locke_BadgeDone" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="Locke_BadgePending" xml:space="preserve">
+    <value>{0}: {1} (aún no añadido a la partida, haz clic para reclamarlo)</value>
+  </data>
+  <data name="Locke_BadgesCount" xml:space="preserve">
+    <value>Medallas {0}/{1}</value>
+  </data>
+  <data name="Locke_Lives" xml:space="preserve">
+    <value>{0}/{1} vidas</value>
+  </data>
+  <data name="Locke_NoLives" xml:space="preserve">
+    <value>No se cuentan vidas (0 vidas)</value>
+  </data>
+  <data name="Locke_LivesTitle" xml:space="preserve">
+    <value>Vidas</value>
+  </data>
+  <data name="Locke_LivesHint" xml:space="preserve">
+    <value>Vidas de la partida, se muestran en la vista del proyecto. Pon 0 para no contarlas.</value>
+  </data>
+  <data name="Locke_MaxLives" xml:space="preserve">
+    <value>Vidas</value>
+  </data>
+  <data name="Locke_LivesLost" xml:space="preserve">
+    <value>Vidas perdidas</value>
+  </data>
+  <data name="Locke_SpinsTitle" xml:space="preserve">
+    <value>Tiradas de la ruleta</value>
+  </data>
+  <data name="Locke_SpinsEmpty" xml:space="preserve">
+    <value>Aún no se ha girado la ruleta de ninguna medalla.</value>
+  </data>
+  <data name="Locke_AllowAgain" xml:space="preserve">
+    <value>Permitir otra vez</value>
+  </data>
+  <data name="Locke_AllowAgainTip" xml:space="preserve">
+    <value>Olvida esta tirada para que la medalla pueda volver a girar (lo ya añadido sigue en la partida)</value>
+  </data>
+  <data name="Locke_StateClaimed" xml:space="preserve">
+    <value>Hecho</value>
+  </data>
+  <data name="Locke_StatePending" xml:space="preserve">
+    <value>Pendiente</value>
+  </data>
+  <data name="Locke_PrizesTitle" xml:space="preserve">
+    <value>Premios de la ruleta</value>
+  </data>
+  <data name="Locke_PrizesHint" xml:space="preserve">
+    <value>El peso decide la probabilidad de cada premio y el tamaño de su porción en la ruleta.</value>
+  </data>
+  <data name="Locke_ColKind" xml:space="preserve">
+    <value>Tipo</value>
+  </data>
+  <data name="Locke_ColPrize" xml:space="preserve">
+    <value>Objeto</value>
+  </data>
+  <data name="Locke_ColAmount" xml:space="preserve">
+    <value>Cantidad</value>
+  </data>
+  <data name="Locke_ColWeight" xml:space="preserve">
+    <value>Peso</value>
+  </data>
+  <data name="Locke_ColChance" xml:space="preserve">
+    <value>Prob.</value>
+  </data>
+  <data name="Locke_KindItem" xml:space="preserve">
+    <value>Objeto</value>
+  </data>
+  <data name="Locke_KindMoney" xml:space="preserve">
+    <value>Dinero</value>
+  </data>
+  <data name="Locke_KindLife" xml:space="preserve">
+    <value>Vida extra</value>
+  </data>
+  <data name="Locke_KindNothing" xml:space="preserve">
+    <value>Nada</value>
+  </data>
+  <data name="Locke_AddPrize" xml:space="preserve">
+    <value>Añadir premio</value>
+  </data>
+  <data name="Locke_ResetPrizes" xml:space="preserve">
+    <value>Premios por defecto</value>
+  </data>
+  <data name="Locke_LoseLife" xml:space="preserve">
+    <value>Perder una vida</value>
+  </data>
+  <data name="Locke_GainLife" xml:space="preserve">
+    <value>Recuperar una vida</value>
+  </data>
+  <data name="Locke_GameOver" xml:space="preserve">
+    <value>Fin de la partida</value>
+  </data>
+  <data name="Locke_Title" xml:space="preserve">
+    <value>Locke</value>
+  </data>
 </root>

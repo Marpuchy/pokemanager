@@ -145,6 +145,27 @@ public sealed class SaveDocumentTests : IDisposable
     }
 
     [Fact]
+    public void GiveItem_AddsToTheRightPocket_StacksAndCaps()
+    {
+        var doc = Open();
+        const int rareCandy = 50, masterBall = 1;
+
+        Assert.Equal(3, doc.GiveItem(rareCandy, 3));
+        Assert.Equal(2, doc.GiveItem(rareCandy, 2));
+        Assert.Equal(1, doc.GiveItem(masterBall, 1));
+        var medicine = doc.Pouches.First(p => p.Type == InventoryType.Medicine);
+        Assert.Equal(5, medicine.Items.Single(i => i.Index == rareCandy).Count);
+        Assert.Equal(medicine.MaxCount - 5, doc.GiveItem(rareCandy, 5000));
+        Assert.Equal(0, doc.GiveItem(rareCandy, 1));
+        Assert.Contains(doc.Pouches.First(p => p.Type == InventoryType.Items).Items, i => i.Index == masterBall);
+        Assert.Equal(0, doc.GiveItem(0, 1));
+
+        doc.Write(Path.Combine(dir, "backups"));
+        var reread = SaveDocument.Open(doc.SavePath, GameData.Load(romfs.RomFs));
+        Assert.Equal(medicine.MaxCount, reread.Pouches.First(p => p.Type == InventoryType.Medicine).Items.Single(i => i.Index == rareCandy).Count);
+    }
+
+    [Fact]
     public void Write_RefusedWhenTheGameSavedMeanwhile()
     {
         var doc = Open();

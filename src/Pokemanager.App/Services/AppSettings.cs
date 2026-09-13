@@ -81,7 +81,10 @@ public sealed class AppSettings
             : EmulatorUserFolders.Detect().FirstOrDefault(e => string.Equals(e.Path, dir, StringComparison.OrdinalIgnoreCase))?.Name
               ?? Path.GetFileName(dir.TrimEnd(Path.DirectorySeparatorChar));
 
-    public static string DataRoot => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Pokemanager");
+    /// <summary>Caches and save backups. <c>POKEMANAGER_DATA</c> moves it (tests and harnesses must not use the real one).</summary>
+    public static string DataRoot => Environment.GetEnvironmentVariable("POKEMANAGER_DATA") is { Length: > 0 } custom
+        ? custom
+        : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Pokemanager");
 
     /// <summary>Save backups made before modifying a save.</summary>
     public static string BackupRoot => Path.Combine(DataRoot, "save-backups");

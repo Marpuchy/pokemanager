@@ -1476,4 +1476,181 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Editor_ViewRomTip" xml:space="preserve">
     <value>Back to the ROM preview with its team (saves the project first)</value>
   </data>
+  <data name="Tab_Locke" xml:space="preserve">
+    <value>Locke</value>
+  </data>
+  <data name="Badge_1" xml:space="preserve">
+    <value>Bug Badge</value>
+  </data>
+  <data name="Badge_2" xml:space="preserve">
+    <value>Cliff Badge</value>
+  </data>
+  <data name="Badge_3" xml:space="preserve">
+    <value>Rumble Badge</value>
+  </data>
+  <data name="Badge_4" xml:space="preserve">
+    <value>Plant Badge</value>
+  </data>
+  <data name="Badge_5" xml:space="preserve">
+    <value>Voltage Badge</value>
+  </data>
+  <data name="Badge_6" xml:space="preserve">
+    <value>Fairy Badge</value>
+  </data>
+  <data name="Badge_7" xml:space="preserve">
+    <value>Psychic Badge</value>
+  </data>
+  <data name="Badge_8" xml:space="preserve">
+    <value>Iceberg Badge</value>
+  </data>
+  <data name="Locke_PrizeItem" xml:space="preserve">
+    <value>{0} ×{1}</value>
+  </data>
+  <data name="Locke_PrizeMoney" xml:space="preserve">
+    <value>${0:N0}</value>
+  </data>
+  <data name="Locke_PrizeLife" xml:space="preserve">
+    <value>+1 life</value>
+  </data>
+  <data name="Locke_PrizeNothing" xml:space="preserve">
+    <value>Nothing, better luck next time</value>
+  </data>
+  <data name="Locke_BagFull" xml:space="preserve">
+    <value>There is no room in the bag for {0}. Make room in the game and claim it again.</value>
+  </data>
+  <data name="Locke_HistoryNote" xml:space="preserve">
+    <value>Badge roulette: {0}</value>
+  </data>
+  <data name="Locke_ClaimedSave" xml:space="preserve">
+    <value>{0} added to the save. Load the game in the emulator to see it.</value>
+  </data>
+  <data name="Locke_ClaimedLife" xml:space="preserve">
+    <value>You won an extra life!</value>
+  </data>
+  <data name="Locke_ClaimedNothing" xml:space="preserve">
+    <value>Nothing this time.</value>
+  </data>
+  <data name="Locke_RouletteTitle" xml:space="preserve">
+    <value>Roulette · {0}</value>
+  </data>
+  <data name="Locke_RouletteHint" xml:space="preserve">
+    <value>Spin once for this badge. Items and money go straight into the save (close the emulator first).</value>
+  </data>
+  <data name="Locke_Spin" xml:space="preserve">
+    <value>Spin!</value>
+  </data>
+  <data name="Locke_Claim" xml:space="preserve">
+    <value>Add to the save</value>
+  </data>
+  <data name="Locke_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Locke_YouWon" xml:space="preserve">
+    <value>You won: {0}</value>
+  </data>
+  <data name="Locke_Pending" xml:space="preserve">
+    <value>Prize waiting to be added to the save: {0}</value>
+  </data>
+  <data name="Locke_BadgeNotEarned" xml:space="preserve">
+    <value>{0}: not earned yet</value>
+  </data>
+  <data name="Locke_BadgeSpin" xml:space="preserve">
+    <value>{0}: click to spin the roulette</value>
+  </data>
+  <data name="Locke_BadgeDone" xml:space="preserve">
+    <value>{0}: {1}</value>
+  </data>
+  <data name="Locke_BadgePending" xml:space="preserve">
+    <value>{0}: {1} (not added to the save yet, click to claim)</value>
+  </data>
+  <data name="Locke_BadgesCount" xml:space="preserve">
+    <value>Badges {0}/{1}</value>
+  </data>
+  <data name="Locke_Lives" xml:space="preserve">
+    <value>{0}/{1} lives</value>
+  </data>
+  <data name="Locke_NoLives" xml:space="preserve">
+    <value>Lives are not tracked (0 lives)</value>
+  </data>
+  <data name="Locke_LivesTitle" xml:space="preserve">
+    <value>Lives</value>
+  </data>
+  <data name="Locke_LivesHint" xml:space="preserve">
+    <value>Lives of the run, shown in the project preview. Set 0 to not track lives.</value>
+  </data>
+  <data name="Locke_MaxLives" xml:space="preserve">
+    <value>Lives</value>
+  </data>
+  <data name="Locke_LivesLost" xml:space="preserve">
+    <value>Lives lost</value>
+  </data>
+  <data name="Locke_SpinsTitle" xml:space="preserve">
+    <value>Badge roulette spins</value>
+  </data>
+  <data name="Locke_SpinsEmpty" xml:space="preserve">
+    <value>No badge has been spun yet.</value>
+  </data>
+  <data name="Locke_AllowAgain" xml:space="preserve">
+    <value>Allow again</value>
+  </data>
+  <data name="Locke_AllowAgainTip" xml:space="preserve">
+    <value>Forget this spin so the badge can spin the roulette again (what was already added stays in the save)</value>
+  </data>
+  <data name="Locke_StateClaimed" xml:space="preserve">
+    <value>Done</value>
+  </data>
+  <data name="Locke_StatePending" xml:space="preserve">
+    <value>Pending</value>
+  </data>
+  <data name="Locke_PrizesTitle" xml:space="preserve">
+    <value>Roulette prizes</value>
+  </data>
+  <data name="Locke_PrizesHint" xml:space="preserve">
+    <value>The weight sets how likely each prize is and the size of its slice on the wheel.</value>
+  </data>
+  <data name="Locke_ColKind" xml:space="preserve">
+    <value>Kind</value>
+  </data>
+  <data name="Locke_ColPrize" xml:space="preserve">
+    <value>Item</value>
+  </data>
+  <data name="Locke_ColAmount" xml:space="preserve">
+    <value>Amount</value>
+  </data>
+  <data name="Locke_ColWeight" xml:space="preserve">
+    <value>Weight</value>
+  </data>
+  <data name="Locke_ColChance" xml:space="preserve">
+    <value>Chance</value>
+  </data>
+  <data name="Locke_KindItem" xml:space="preserve">
+    <value>Item</value>
+  </data>
+  <data name="Locke_KindMoney" xml:space="preserve">
+    <value>Money</value>
+  </data>
+  <data name="Locke_KindLife" xml:space="preserve">
+    <value>Extra life</value>
+  </data>
+  <data name="Locke_KindNothing" xml:space="preserve">
+    <value>Nothing</value>
+  </data>
+  <data name="Locke_AddPrize" xml:space="preserve">
+    <value>Add prize</value>
+  </data>
+  <data name="Locke_ResetPrizes" xml:space="preserve">
+    <value>Default prizes</value>
+  </data>
+  <data name="Locke_LoseLife" xml:space="preserve">
+    <value>Lose a life</value>
+  </data>
+  <data name="Locke_GainLife" xml:space="preserve">
+    <value>Recover a life</value>
+  </data>
+  <data name="Locke_GameOver" xml:space="preserve">
+    <value>Game over</value>
+  </data>
+  <data name="Locke_Title" xml:space="preserve">
+    <value>Locke</value>
+  </data>
 </root>
