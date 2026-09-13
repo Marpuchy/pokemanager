@@ -8,15 +8,15 @@ La aplicación no modifica nunca el volcado del juego: todo lo que genera va a l
 mods del emulador y se puede regenerar a partir de `volcado + proyecto`. El repositorio no
 contiene datos del juego; cada usuario aporta su propio volcado descifrado.
 
-> Estado: **fase A (randomizer) hecha**. Fase B (editor de partida con PKHeX.Core) pendiente.
+> Estado: **randomizer completo** (opciones editables, ROM nueva, partida adaptada). Editor de partida
+> completo (fase B) pendiente.
 
 ## Requisitos
 
-- SDK de .NET 10.
+- SDK de .NET 10 y Java 11 o superior.
 - Volcado descifrado de Pokémon X o Y: el `.3ds` y sus carpetas `romfs` y `exefs` extraídas
   (`code.bin` descomprimido), todo en la misma carpeta.
-- Para randomizar: [Universal Pokémon Randomizer ZX](https://github.com/Ajarmar/universal-pokemon-randomizer-zx)
-  (`PokeRandoZX.jar`) y Java 11 o superior.
+- Universal Pokémon Randomizer ZX y PKHeX.Core **vienen incluidos** (ver [tools/LEEME.md](tools/LEEME.md)).
 
 ## Uso
 
@@ -24,18 +24,20 @@ contiene datos del juego; cada usuario aporta su propio volcado descifrado.
 dotnet run --project src/Pokemanager.App
 ```
 
-1. **Nuevo proyecto:** carpeta del volcado, idioma, carpeta de usuario del emulador (se detecta
-   sola) y dónde guardar el proyecto `.json`.
-2. **Randomizer:** marca «Randomizar», elige un preset `.rnqs` de UPR ZX (se guarda dentro del
-   proyecto) y una semilla. **Randomizar e instalar** ejecuta UPR ZX y escribe el resultado en
-   `<emulador>/load/mods/<TitleID>`. La misma semilla con el mismo preset da siempre el mismo juego.
-   El log de UPR se consulta por secciones (iniciales, entrenadores, salvajes…) con búsqueda.
-3. **Avanzado:** retoques manuales de Pokémon (stats, tipos, habilidades, learnsets…) y movimientos,
-   aplicados **encima** del random. En naranja, lo que difiere de la base.
-4. **Instalar en el emulador** (Ctrl+B) vuelve a instalar random + retoques. Reinicia el juego.
+1. **Nuevo proyecto:** carpeta del volcado, idioma y dónde guardar el proyecto `.json`.
+2. **Ajustes…:** emulador (por defecto, el que usaste por última vez), ROM base y herramientas.
+3. **Randomizer → Opciones:** todas las opciones de UPR ZX en español, agrupadas como en UPR. Se puede
+   importar/exportar un `.rnqs`.
+4. **Randomizer → Generar:** semilla y nombre de la ROM. **Randomizar y crear ROM**:
+   - crea `<carpeta de la ROM base>/<nombre>.cxi` (y su log); la ROM base no se toca;
+   - si hay partida y está marcado, la **adapta a la nueva ROM**: cada Pokémon recibe la habilidad que le
+     toca y el equipo recalcula sus stats, con copia de seguridad previa y verificación. El emulador de esa
+     partida tiene que estar cerrado.
+5. Abre el `.cxi` en el emulador.
+6. **Avanzado:** retoques manuales de Pokémon y movimientos encima del random; se incluyen en la ROM creada.
 
-> El mod de `load/mods/<TitleID>` se aplica a **cualquier** ROM de ese juego que abras en el
-> emulador, incluidos `.cxi` ya randomizados con UPR por separado.
+Mismas opciones + misma semilla = mismo juego: se puede reproducir una ROM hecha antes con UPR ZX usando
+su preset y la semilla de su log.
 
 ## Deriva de pk3DS
 
