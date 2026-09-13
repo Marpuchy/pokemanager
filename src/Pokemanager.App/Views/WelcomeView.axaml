@@ -1,0 +1,61 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Pokemanager.App.ViewModels"
+             xmlns:bridge="using:Pokemanager.Bridge"
+             x:Class="Pokemanager.App.Views.WelcomeView"
+             x:DataType="vm:WelcomeViewModel">
+  <ScrollViewer>
+    <StackPanel MaxWidth="720" Margin="32" Spacing="6" HorizontalAlignment="Center">
+      <TextBlock Text="Pokemanager" FontSize="28" FontWeight="SemiBold" />
+      <TextBlock Classes="hint" Text="Editor de Pokémon X/Y. El volcado nunca se modifica: los cambios se guardan en un proyecto y se generan como mod en la carpeta del emulador." />
+
+      <TextBlock Classes="section" Text="Nuevo proyecto" />
+
+      <TextBlock Text="Carpeta del volcado (debe contener romfs y exefs, con code.bin descomprimido)" />
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBox Text="{Binding DumpDirectory}" Watermark="G:\pokemanager-dump" />
+        <Button Grid.Column="1" Margin="6,0,0,0" Content="Examinar…" Command="{Binding BrowseDumpCommand}" />
+      </Grid>
+
+      <TextBlock Margin="0,8,0,0" Text="Idioma de los textos del juego" />
+      <ComboBox ItemsSource="{x:Static vm:WelcomeViewModel.Languages}" SelectedItem="{Binding Language}" MinWidth="220">
+        <ComboBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:LanguageOption">
+            <TextBlock Text="{Binding Name}" />
+          </DataTemplate>
+        </ComboBox.ItemTemplate>
+      </ComboBox>
+
+      <TextBlock Margin="0,8,0,0" Text="Carpeta de usuario del emulador (donde se generará load/mods)" />
+      <ComboBox ItemsSource="{Binding DetectedEmulators}" SelectedItem="{Binding SelectedDetectedEmulator}"
+                PlaceholderText="Detectadas en este equipo" MinWidth="320">
+        <ComboBox.ItemTemplate>
+          <DataTemplate x:DataType="bridge:EmulatorUserFolder">
+            <TextBlock>
+              <Run Text="{Binding Name}" FontWeight="SemiBold" />
+              <Run Text=" — " />
+              <Run Text="{Binding Path}" />
+            </TextBlock>
+          </DataTemplate>
+        </ComboBox.ItemTemplate>
+      </ComboBox>
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBox Text="{Binding EmulatorDirectory}" Watermark="%APPDATA%\Azahar" />
+        <Button Grid.Column="1" Margin="6,0,0,0" Content="Examinar…" Command="{Binding BrowseEmulatorCommand}" />
+      </Grid>
+
+      <TextBlock Margin="0,8,0,0" Text="Archivo del proyecto" />
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBox Text="{Binding ProjectPath}" />
+        <Button Grid.Column="1" Margin="6,0,0,0" Content="Examinar…" Command="{Binding BrowseProjectCommand}" />
+      </Grid>
+
+      <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,16,0,0">
+        <Button Classes="accent" Content="Crear proyecto" Command="{Binding CreateCommand}" />
+        <Button Content="Abrir proyecto existente…" Command="{Binding OpenExistingCommand}" />
+      </StackPanel>
+
+      <TextBlock Classes="error" Margin="0,12,0,0" Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

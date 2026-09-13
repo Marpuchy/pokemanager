@@ -133,8 +133,11 @@ Fuente: `pk3DS.Core/Game/GARCReference.cs`. Regla: el número `NNN` → ruta `a/
 ### Formatos
 
 - Contenedor GARC **versión `0x0400`** (`GARC.VER_4`) en X/Y y ORAS. Gen 7 usa `0x0600`.
-- `PersonalInfoXY`: **`0x40` bytes** por entrada. El **último** archivo del GARC no es un
-  Pokémon: es la tabla de índices de formas.
+- `PersonalInfoXY`: **`0x40` bytes** por entrada. `a/2/1/8` tiene 800 archivos: 799 entradas
+  (especies 0–721 y formas alternativas desde 722) y, como **último** archivo, la
+  **concatenación de las 799 entradas** (verificado con el volcado real; pk3DS construye
+  `PersonalTable` desde él). Al modificar una entrada hay que actualizar también esa copia.
+- Archivos de `a/2/1/2` (move) de 36 bytes, aunque `Move6` solo interpreta 0x22.
 - `Learnset6`: pares `int16` (movimiento, nivel) con terminador.
 - En X/Y cada movimiento es un archivo suelto del GARC. En ORAS y Gen 7 van empaquetados
   en un contenedor "mini" `WD` — ese código **no** se comparte entre generaciones.
@@ -220,13 +223,16 @@ El objetivo no es tener un editor: es cerrar el circuito completo una vez.
    `CTR/`), target `net10.0`. Verificar que compila fuera de Windows.
 2. **[Hecho]** Envoltura headless (`GameDump.Open`): abrir la carpeta `romfs`, contar archivos en `a/`, construir el
    `GameConfig` y llamar a `Initialize(romfs, exefs, idioma)`.
-3. Capa de ediciones: modelo `{tabla, id, campo, valor}` y su aplicación sobre el modelo.
-4. Leer `a/2/1/8`, modificar los stats base de una especie y reempaquetar con
+3. **[Hecho]** Capa de ediciones (`Model/Edits`, `EditorSession`, proyecto JSON en `Model/Projects`): modelo `{tabla, id, campo, valor}` y su aplicación sobre el modelo.
+4. **[Hecho]** (`Model/Build/ModBuilder`, también move y learnsets) Leer `a/2/1/8`, modificar los stats base de una especie y reempaquetar con
    `GARC.PackGARC(byte[][], GARC.VER_4, padding)`.
-5. **Escribir el resultado en `<user>/load/mods/0004000000055D00/romfs/a/2/1/8`** — no encima
+5. **[Hecho]** **Escribir el resultado en `<user>/load/mods/0004000000055D00/romfs/a/2/1/8`** — no encima
    del romfs original. Este paso define la arquitectura de toda la aplicación.
 6. Arrancar Azahar y comprobar el cambio dentro del juego.
-7. Interfaz mínima en Avalonia: lista de especies, formulario de stats, botón Construir.
+7. **[Hecho, ampliado]** Interfaz en Avalonia 12 (`Pokemanager.App`): Pokémon (datos + learnset),
+   movimientos, Guardar y Generar mod. Verificada con capturas headless sobre el volcado real.
+
+**Pendiente del hito 1: el paso 6**, comprobar el cambio dentro del juego en Azahar.
 
 ### Estructura de solución propuesta
 

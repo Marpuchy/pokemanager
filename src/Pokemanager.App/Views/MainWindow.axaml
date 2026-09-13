@@ -1,0 +1,10 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Pokemanager.App.ViewModels"
+        x:Class="Pokemanager.App.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="{Binding Title}"
+        Width="1280" Height="820" MinWidth="960" MinHeight="600"
+        WindowStartupLocation="CenterScreen">
+  <ContentControl Content="{Binding CurrentPage}" />
+</Window>

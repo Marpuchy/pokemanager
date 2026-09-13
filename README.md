@@ -7,7 +7,21 @@ La aplicación no modifica nunca el volcado del juego: todo lo que genera va a l
 mods del emulador y se puede regenerar a partir de `volcado + proyecto`. El repositorio no
 contiene datos del juego; cada usuario aporta su propio volcado descifrado.
 
-> Estado: hito 1, pasos 1 y 2. Capa de formatos portable y apertura/validación del volcado.
+> Estado: hito 1 casi completo. Editor gráfico de Pokémon (stats, tipos, habilidades, crianza,
+> learnsets) y movimientos, con proyecto de ediciones y generación del mod. Falta comprobarlo en el juego.
+
+## Uso
+
+```
+dotnet run --project src/Pokemanager.App
+```
+
+1. **Nuevo proyecto:** carpeta del volcado (con `romfs` y `exefs`), idioma, carpeta de usuario del
+   emulador (se detecta sola) y dónde guardar el proyecto `.json`.
+2. Edita. Los campos que difieren del juego original salen en naranja, y la lista marca con ●
+   las entradas modificadas. Pasa el ratón por un campo para ver su valor original.
+3. **Guardar** (Ctrl+S) escribe el proyecto. **Generar mod** (Ctrl+B) guarda y escribe los GARC
+   modificados en `<emulador>/load/mods/<TitleID>/romfs`. Reinicia el juego en el emulador.
 
 ## Deriva de pk3DS
 
@@ -27,9 +41,9 @@ GPL-3.0, heredada de pk3DS. Ver [LICENSE.md](LICENSE.md).
 
 ```
 src/Pokemanager.Formats   pk3DS.Core sin WinForms: GARC, LZ11, BLZ, estructuras Gen 6
-src/Pokemanager.Model     modelo del juego: abrir y validar el volcado (Dump/); ediciones y randomización, pendiente
-src/Pokemanager.Bridge    puente con el emulador (vacío)
-src/Pokemanager.App       interfaz (vacío)
+src/Pokemanager.Model     volcado (Dump/), datos (Data/), ediciones (Edits/, Editing/), proyecto, construcción del mod (Build/)
+src/Pokemanager.Bridge    emulador: carpeta de usuario y de mods
+src/Pokemanager.App       interfaz Avalonia
 tests/Pokemanager.Tests   pruebas (xUnit)
 ```
 

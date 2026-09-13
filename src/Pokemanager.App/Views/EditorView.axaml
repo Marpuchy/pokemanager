@@ -1,0 +1,185 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Pokemanager.App.ViewModels"
+             x:Class="Pokemanager.App.Views.EditorView"
+             x:DataType="vm:EditorViewModel">
+
+  <UserControl.KeyBindings>
+    <KeyBinding Gesture="Ctrl+S" Command="{Binding SaveCommand}" />
+    <KeyBinding Gesture="Ctrl+B" Command="{Binding BuildModCommand}" />
+  </UserControl.KeyBindings>
+
+  <UserControl.DataTemplates>
+    <!-- Campo numérico: etiqueta (naranja si difiere del original) + NumericUpDown -->
+    <DataTemplate DataType="vm:IntFieldViewModel">
+      <Grid ColumnDefinitions="190,150" Margin="0,2" ToolTip.Tip="{Binding OriginalTip}">
+        <TextBlock Classes="field-label" Classes.modified="{Binding IsModified}" Text="{Binding Label}" />
+        <NumericUpDown Grid.Column="1" Value="{Binding Value}" Minimum="{Binding Min}" Maximum="{Binding Max}"
+                       Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
+      </Grid>
+    </DataTemplate>
+    <!-- Campo de lista: etiqueta + ComboBox con los nombres del juego -->
+    <DataTemplate DataType="vm:ChoiceFieldViewModel">
+      <Grid ColumnDefinitions="190,240" Margin="0,2" ToolTip.Tip="{Binding OriginalTip}">
+        <TextBlock Classes="field-label" Classes.modified="{Binding IsModified}" Text="{Binding Label}" />
+        <ComboBox Grid.Column="1" ItemsSource="{Binding Options}" SelectedIndex="{Binding SelectedIndex}"
+                  HorizontalAlignment="Stretch" MaxDropDownHeight="360" />
+      </Grid>
+    </DataTemplate>
+    <DataTemplate DataType="vm:ListEntryViewModel">
+      <Grid ColumnDefinitions="48,*,Auto">
+        <TextBlock Classes="hint" Text="{Binding Number}" VerticalAlignment="Center" />
+        <TextBlock Grid.Column="1" Text="{Binding Name}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+        <TextBlock Grid.Column="2" Classes="dot" Text="●" IsVisible="{Binding IsModified}" ToolTip.Tip="Modificado" />
+      </Grid>
+    </DataTemplate>
+  </UserControl.DataTemplates>
+
+  <DockPanel>
+    <!-- Barra superior -->
+    <Border DockPanel.Dock="Top" Padding="12,8" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Spacing="2">
+          <TextBlock Text="{Binding GameText}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+          <TextBlock Classes="hint">
+            <Run Text="{Binding EditCountText}" />
+            <Run Text=" · " />
+            <Run Text="{Binding DirtyText}" />
+            <Run Text=" · Mod: " />
+            <Run Text="{Binding EmulatorText}" />
+          </TextBlock>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+          <Button Content="Guardar" Command="{Binding SaveCommand}" ToolTip.Tip="Ctrl+S" />
+          <Button Classes="accent" Content="Generar mod" Command="{Binding BuildModCommand}" ToolTip.Tip="Guarda y escribe el mod en la carpeta del emulador (Ctrl+B)" />
+          <Button Content="Emulador…" Command="{Binding ChangeEmulatorFolderCommand}" />
+          <Button Content="Abrir…" Command="{Binding OpenOtherProjectCommand}" />
+          <Button Content="Nuevo" Command="{Binding NewProjectCommand}" />
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!-- Barra de estado -->
+    <Border DockPanel.Dock="Bottom" Padding="12,6" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            IsVisible="{Binding Status, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+      <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Classes.error="{Binding StatusIsError}" />
+    </Border>
+
+    <TabControl Padding="0">
+      <!-- ================= Pokémon ================= -->
+      <TabItem Header="Pokémon">
+        <Grid ColumnDefinitions="300,*">
+          <DockPanel Margin="8">
+            <TextBox DockPanel.Dock="Top" Text="{Binding SpeciesFilter}" Watermark="Buscar por nombre o número" Margin="0,0,0,6" />
+            <ListBox ItemsSource="{Binding Species}" SelectedItem="{Binding SelectedSpecies}" />
+          </DockPanel>
+
+          <ContentControl Grid.Column="1" Content="{Binding SpeciesDetail}">
+            <ContentControl.ContentTemplate>
+              <DataTemplate x:DataType="vm:SpeciesDetailViewModel">
+                <DockPanel Margin="8,8,12,8">
+                  <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="0,0,0,4">
+                    <TextBlock Text="{Binding Title}" FontSize="22" FontWeight="SemiBold" />
+                    <Button Grid.Column="1" Content="Deshacer cambios" Command="{Binding RevertCommand}" IsEnabled="{Binding IsModified}" />
+                  </Grid>
+                  <TabControl>
+                    <TabItem Header="Datos">
+                      <ScrollViewer>
+                        <WrapPanel Orientation="Horizontal">
+                          <StackPanel Margin="0,0,32,0" Width="360">
+                            <TextBlock Classes="section" Text="Estadísticas base" />
+                            <ItemsControl ItemsSource="{Binding Stats}" />
+                            <TextBlock Margin="0,4,0,0">
+                              <Run Text="Total: " />
+                              <Run Text="{Binding BaseStatTotal}" FontWeight="SemiBold" />
+                            </TextBlock>
+                            <TextBlock Classes="section" Text="EV que otorga" />
+                            <ItemsControl ItemsSource="{Binding EvYield}" />
+                            <TextBlock Classes="section" Text="Otros" />
+                            <ItemsControl ItemsSource="{Binding Other}" />
+                          </StackPanel>
+                          <StackPanel Width="450">
+                            <TextBlock Classes="section" Text="Tipos" />
+                            <ItemsControl ItemsSource="{Binding Types}" />
+                            <TextBlock Classes="section" Text="Habilidades" />
+                            <ItemsControl ItemsSource="{Binding Abilities}" />
+                            <TextBlock Classes="section" Text="Crianza y experiencia" />
+                            <ItemsControl ItemsSource="{Binding Breeding}" />
+                            <TextBlock Classes="hint" Margin="0,2,0,0" Text="Género: 0 = solo macho · 254 = solo hembra · 255 = sin género · resto = proporción de hembras sobre 254." />
+                            <TextBlock Classes="section" Text="Objetos equipados en estado salvaje" />
+                            <ItemsControl ItemsSource="{Binding Items}" />
+                          </StackPanel>
+                        </WrapPanel>
+                      </ScrollViewer>
+                    </TabItem>
+
+                    <TabItem>
+                      <TabItem.Header>
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                          <TextBlock Text="Movimientos por nivel" />
+                          <TextBlock Classes="dot" Text="●" IsVisible="{Binding IsLearnsetModified}" />
+                        </StackPanel>
+                      </TabItem.Header>
+                      <DockPanel>
+                        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="6" Margin="0,8">
+                          <Button Content="Añadir movimiento" Command="{Binding AddMoveCommand}" />
+                          <Button Content="Ordenar por nivel" Command="{Binding SortLearnsetCommand}" />
+                          <TextBlock Classes="hint" VerticalAlignment="Center" Text="El juego lo guarda ordenado por nivel." />
+                        </StackPanel>
+                        <ScrollViewer>
+                          <ItemsControl ItemsSource="{Binding Learnset}">
+                            <ItemsControl.ItemTemplate>
+                              <DataTemplate x:DataType="vm:LearnsetRowViewModel">
+                                <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,2">
+                                  <TextBlock Classes="field-label" Text="Nivel" />
+                                  <NumericUpDown Value="{Binding Level}" Minimum="1" Maximum="100" Increment="1"
+                                                 FormatString="0" ParsingNumberStyle="Integer" Width="130" />
+                                  <ComboBox ItemsSource="{Binding MoveNames}" SelectedIndex="{Binding SelectedMove}"
+                                            Width="260" MaxDropDownHeight="360" />
+                                  <Button Content="Quitar" Command="{Binding RemoveCommand}" />
+                                </StackPanel>
+                              </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                          </ItemsControl>
+                        </ScrollViewer>
+                      </DockPanel>
+                    </TabItem>
+                  </TabControl>
+                </DockPanel>
+              </DataTemplate>
+            </ContentControl.ContentTemplate>
+          </ContentControl>
+        </Grid>
+      </TabItem>
+
+      <!-- ================= Movimientos ================= -->
+      <TabItem Header="Movimientos">
+        <Grid ColumnDefinitions="300,*">
+          <DockPanel Margin="8">
+            <TextBox DockPanel.Dock="Top" Text="{Binding MoveFilter}" Watermark="Buscar por nombre o número" Margin="0,0,0,6" />
+            <ListBox ItemsSource="{Binding Moves}" SelectedItem="{Binding SelectedMove}" />
+          </DockPanel>
+
+          <ContentControl Grid.Column="1" Content="{Binding MoveDetail}">
+            <ContentControl.ContentTemplate>
+              <DataTemplate x:DataType="vm:MoveDetailViewModel">
+                <ScrollViewer Margin="8,8,12,8">
+                  <StackPanel>
+                    <Grid ColumnDefinitions="*,Auto">
+                      <TextBlock Text="{Binding Title}" FontSize="22" FontWeight="SemiBold" />
+                      <Button Grid.Column="1" Content="Deshacer cambios" Command="{Binding RevertCommand}" IsEnabled="{Binding IsModified}" />
+                    </Grid>
+                    <TextBlock Classes="section" Text="Principal" />
+                    <ItemsControl ItemsSource="{Binding Main}" />
+                    <TextBlock Classes="section" Text="Detalles" />
+                    <ItemsControl ItemsSource="{Binding Details}" />
+                  </StackPanel>
+                </ScrollViewer>
+              </DataTemplate>
+            </ContentControl.ContentTemplate>
+          </ContentControl>
+        </Grid>
+      </TabItem>
+    </TabControl>
+  </DockPanel>
+</UserControl>

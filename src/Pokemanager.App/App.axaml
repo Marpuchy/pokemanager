@@ -1,0 +1,47 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Pokemanager.App.ViewModels"
+             xmlns:views="using:Pokemanager.App.Views"
+             x:Class="Pokemanager.App.App"
+             RequestedThemeVariant="Default">
+
+  <Application.DataTemplates>
+    <DataTemplate DataType="vm:WelcomeViewModel">
+      <views:WelcomeView />
+    </DataTemplate>
+    <DataTemplate DataType="vm:EditorViewModel">
+      <views:EditorView />
+    </DataTemplate>
+  </Application.DataTemplates>
+
+  <Application.Styles>
+    <FluentTheme />
+
+    <!-- Campo con valor distinto del original del volcado -->
+    <Style Selector="TextBlock.field-label.modified">
+      <Setter Property="Foreground" Value="#E07B00" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TextBlock.field-label">
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Margin" Value="0,0,8,0" />
+    </Style>
+    <Style Selector="TextBlock.section">
+      <Setter Property="FontSize" Value="15" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Margin" Value="0,12,0,6" />
+    </Style>
+    <Style Selector="TextBlock.dot">
+      <Setter Property="Foreground" Value="#E07B00" />
+      <Setter Property="FontWeight" Value="Bold" />
+    </Style>
+    <Style Selector="TextBlock.error">
+      <Setter Property="Foreground" Value="#D13438" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <Style Selector="TextBlock.hint">
+      <Setter Property="Opacity" Value="0.65" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+  </Application.Styles>
+</Application>
