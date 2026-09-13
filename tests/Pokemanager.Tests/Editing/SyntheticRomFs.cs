@@ -24,6 +24,9 @@ internal sealed class SyntheticRomFs : IDisposable
             for (int b = 0; b < 6; b++)
                 entry[b] = (byte)(10 * (i + 1) + b); // stats: 10,11,12... por especie
             entry[0x06] = 1; entry[0x07] = 2;          // tipos
+            entry[0x18] = (byte)(100 + i * 3);         // habilidades 1, 2 y oculta: 100+3i, 101+3i, 102+3i
+            entry[0x19] = (byte)(101 + i * 3);
+            entry[0x1A] = (byte)(102 + i * 3);
             return entry;
         }).ToArray();
         Write(GameData.PersonalGarc, [.. personal, personal.SelectMany(p => p).ToArray()]);

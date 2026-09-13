@@ -10,9 +10,13 @@
     <InternalsVisibleTo Include="Pokemanager.Tests" />
   </ItemGroup>
 
-  <!-- El lanzador Java se copia junto a los binarios y se ejecuta con el lanzador de código fuente de Java. -->
+  <!-- Lanzador Java y herramientas incluidas (tools/upr/PokeRandoZX.jar): viajan con cualquier proyecto que use este. -->
   <ItemGroup>
     <None Include="upr\PokemanagerUpr.java" CopyToOutputDirectory="PreserveNewest" LinkBase="upr" />
+    <None Include="..\..\tools\**\*" CopyToOutputDirectory="PreserveNewest" LinkBase="tools" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Pokemanager.Model\Pokemanager.Model.csproj" />
   </ItemGroup>
 
 </Project>

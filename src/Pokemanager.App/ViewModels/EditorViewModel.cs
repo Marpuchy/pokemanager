@@ -8,6 +8,7 @@ using Pokemanager.Model.Dump;
 using Pokemanager.Model.Editing;
 using Pokemanager.Model.Edits;
 using Pokemanager.Randomizer;
+using Pokemanager.Save;
 
 namespace Pokemanager.App.ViewModels;
 
@@ -16,6 +17,7 @@ public partial class EditorViewModel : ObservableObject
     private readonly MainWindowViewModel main;
     private readonly IDialogs dialogs;
     private readonly UprService upr;
+    private readonly AppSettings settings;
     private List<ListEntryViewModel> allSpecies = [];
     private List<ListEntryViewModel> allMoves = [];
 
@@ -61,35 +63,36 @@ public partial class EditorViewModel : ObservableObject
     public partial bool StatusIsError { get; set; }
 
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(InstallCommand))]
+    [NotifyCanExecuteChangedFor(nameof(BuildRomCommand))]
     public partial bool IsBusy { get; set; }
 
     public string GameText => $"Pokémon {Dump.Title} · {Dump.Title.TitleIdHex()} · {Session.Project.DumpDirectory}";
-    public string EditCountText => Session.Project.Edits.Count == 1 ? "1 edición manual" : $"{Session.Project.Edits.Count} ediciones manuales";
+    public string EditCountText => Session.Project.Edits.Count == 1 ? "1 retoque avanzado" : $"{Session.Project.Edits.Count} retoques avanzados";
     public string DirtyText => IsDirty ? "sin guardar" : "guardado";
-    public string EmulatorText => Session.Project.EmulatorUserDirectory is { } dir
-        ? EmulatorUserFolders.ModDirectory(dir, Dump.Title.TitleIdHex())
-        : "Sin carpeta de emulador";
+    public string EmulatorText => $"Emulador: {settings.EffectiveEmulatorName}";
 
-    /// <summary>Texto de qué base usa el editor avanzado: el volcado o el random de una semilla.</summary>
+    /// <summary>Qué base usa el editor avanzado: el juego original o el random de una semilla.</summary>
     public string BaseText => Session.Layers.Roots.Count > 1
         ? $"Base: randomización con semilla {Session.Project.Randomization.Seed}"
         : "Base: juego original";
 
-    public EditorViewModel(MainWindowViewModel main, IDialogs dialogs, UprService upr, string projectPath, GameDump dump, EditorSession session)
+    public EditorViewModel(MainWindowViewModel main, IDialogs dialogs, UprService upr, AppSettings settings,
+        string projectPath, GameDump dump, EditorSession session)
     {
         this.main = main;
         this.dialogs = dialogs;
         this.upr = upr;
+        this.settings = settings;
         ProjectPath = projectPath;
         Dump = dump;
         Session = session;
         Names = new GameNames(dump, session.Original);
         LoadLists();
-        Randomizer = new RandomizerViewModel(this, dialogs, upr);
+        Randomizer = new RandomizerViewModel(this, dialogs, upr, settings);
     }
 
-    /// <summary>Rellena las listas del editor avanzado a partir de la sesión actual.</summary>
+    // ------------------------------------------------------------------ editor avanzado
+
     private void LoadLists()
     {
         string[] personalTables = [GameTables.Personal, GameTables.Learnsets];
@@ -161,87 +164,105 @@ public partial class EditorViewModel : ObservableObject
             target.Add(entry);
     }
 
+    // ------------------------------------------------------------------ guardar
+
     [RelayCommand]
-    private void Save()
+    private async Task Save() => await SaveAsync();
+
+    /// <summary>Escribe las opciones del randomizer al preset y guarda el proyecto. Devuelve false si falló.</summary>
+    private async Task<bool> SaveAsync()
     {
         try
         {
+            await Randomizer.CommitOptionsAsync();
             Session.Project.Save(ProjectPath);
             IsDirty = false;
             SetStatus($"Proyecto guardado en {ProjectPath}");
+            return true;
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or UprException)
         {
             SetStatus($"No se pudo guardar: {ex.Message}", error: true);
+            return false;
         }
     }
 
-    private bool CanInstall() => !IsBusy;
+    // ------------------------------------------------------------------ crear la ROM
+
+    private bool CanBuild() => !IsBusy;
 
     /// <summary>
-    /// Guarda, randomiza si hace falta (o usa la caché), recarga la base del editor si ha cambiado y
-    /// escribe en el emulador la salida del randomizer con las ediciones manuales encima.
+    /// Crea la ROM (.cxi) junto a la ROM base con el random y los retoques, retira mods antiguos de la app en el
+    /// emulador y, si se ha pedido, adapta la partida a la nueva ROM.
     /// </summary>
-    [RelayCommand(CanExecute = nameof(CanInstall))]
-    private async Task Install()
+    [RelayCommand(CanExecute = nameof(CanBuild))]
+    private async Task BuildRom()
     {
-        if (Session.Project.EmulatorUserDirectory is null && !await ChooseEmulatorFolder())
+        var project = Session.Project;
+        var r = project.Randomization;
+
+        if (upr.Tools is not { } tools) { SetStatus(upr.StatusText, error: true); return; }
+        if (project.ResolveRomFile() is not { } baseRom) { SetStatus(Randomizer.BaseRomText, error: true); return; }
+        if (RomBuilder.ValidateName(r.OutputName) is { } nameError) { SetStatus(nameError, error: true); return; }
+        if (r.Enabled && !r.IsReady) { SetStatus("Falta una semilla válida.", error: true); return; }
+
+        string? savePath = r.UpdateSave ? Randomizer.SavePath : null;
+        if (savePath is not null && File.Exists(savePath) && EmulatorUserFolders.RunningEmulators() is { Count: > 0 } running)
+        {
+            SetStatus($"Cierra {string.Join(", ", running)} antes de crear la ROM: si el emulador está abierto, al salir sobrescribiría la partida actualizada.", error: true);
             return;
+        }
 
         IsBusy = true;
         try
         {
-            Save();
-            if (StatusIsError)
+            if (!await SaveAsync())
                 return;
 
-            UprResult? random = null;
-            var settings = Session.Project.Randomization;
-            if (settings.Enabled)
-            {
-                if (!settings.IsReady)
-                {
-                    SetStatus("Para randomizar hace falta importar un preset y tener una semilla.", error: true);
-                    return;
-                }
-                if (upr.Tools is not { } tools)
-                {
-                    SetStatus($"No se puede ejecutar UPR ZX: {upr.StatusText}.", error: true);
-                    return;
-                }
-                if (Session.Project.ResolveRomFile() is not { } rom)
-                {
-                    SetStatus("No se encuentra la ROM (.3ds) para randomizar. Elígela en la pestaña Randomizer.", error: true);
-                    return;
-                }
+            var progress = new Progress<string>(line => SetStatus(line));
 
-                var progress = new Progress<string>(line => SetStatus(line));
-                random = await upr.Cache.GetOrCreateAsync(new UprRunner(tools), tools, rom, settings.Preset!, settings.Seed, progress);
-            }
+            UprResult? random = null;
+            if (r.Enabled)
+                random = await upr.Cache.GetOrCreateAsync(new UprRunner(tools), tools, baseRom, r.Preset!, r.Seed, progress);
 
             ReloadBaseIfNeeded(random is null ? null : Path.Combine(random.TitleDirectory, "romfs"));
 
-            string modDir = EmulatorUserFolders.ModDirectory(Session.Project.EmulatorUserDirectory!, Dump.Title.TitleIdHex());
-            var result = await Task.Run(() => ModInstaller.Install(modDir, Session.Project.DumpDirectory, random?.TitleDirectory, ModBuilder.BuildEdits(Session)));
+            string output = RomBuilder.OutputPath(baseRom, r.OutputName!);
+            var built = await RomBuilder.BuildAsync(new UprRunner(tools), baseRom, random, ModBuilder.BuildEdits(Session),
+                output, r.Seed, upr.Cache.Root, progress);
 
-            settings.InstalledSeed = random?.Seed;
-            Save();
-            Randomizer.OnInstalled(random);
+            // Los mods LayeredFS que instalaban versiones anteriores de la app se aplican a cualquier ROM del juego: fuera.
+            int removedMods = 0;
+            foreach (var emulator in EmulatorUserFolders.Detect())
+                removedMods += await Task.Run(() => ModInstaller.Uninstall(EmulatorUserFolders.ModDirectory(emulator.Path, Dump.Title.TitleIdHex())).Count);
 
-            string what = random is null
-                ? $"{result.Written.Count} archivo(s) de ediciones manuales"
-                : $"randomización (semilla {random.Seed}) + {Session.Project.Edits.Count} edición(es) manual(es), {result.Written.Count} archivos";
-            string removed = result.Removed.Count == 0 ? "" : $" · {result.Removed.Count} archivo(s) antiguo(s) eliminado(s)";
-            string warnings = random is { Warnings.Count: > 0 } ? " Avisos de UPR: " + string.Join(" ", random.Warnings) : "";
-            SetStatus($"Instalado en {result.ModDirectory}: {what}{removed}. Reinicia el juego en el emulador.{warnings}");
+            SaveUpdateResult? saveResult = null;
+            if (savePath is not null && File.Exists(savePath))
+            {
+                SetStatus("Adaptando la partida a la nueva ROM…");
+                string backups = Path.Combine(AppSettings.BackupRoot, settings.EffectiveEmulatorName);
+                saveResult = await Task.Run(() => SaveUpdater.Apply(savePath, Session.Current, backups));
+            }
+
+            r.InstalledSeed = random?.Seed;
+            await SaveAsync();
+            Randomizer.OnBuilt(random, saveResult);
+
+            string what = random is null ? "sin randomizar" : $"semilla {random.Seed}";
+            string mods = removedMods > 0 ? $" Se retiraron {removedMods} archivo(s) de un mod anterior de la carpeta de mods." : "";
+            string save = saveResult is null ? "" : saveResult.Changes.Count == 0
+                ? " Partida revisada: no hacía falta cambiar nada."
+                : $" Partida actualizada ({saveResult.Changes.Count} cambios) y verificada.";
+            SetStatus($"ROM creada ({what}): {built.RomPath}.{save}{mods} Ábrela en {settings.EffectiveEmulatorName}.");
         }
         catch (UprException ex)
         {
             SetStatus($"{ex.Message} {LastLines(ex.Output, 3)}", error: true);
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException or InvalidDataException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException
+                                       or InvalidDataException or SaveUpdateException)
         {
-            SetStatus($"No se pudo instalar: {ex.Message}", error: true);
+            SetStatus($"No se pudo crear la ROM: {ex.Message}", error: true);
         }
         finally
         {
@@ -266,18 +287,15 @@ public partial class EditorViewModel : ObservableObject
     private static string LastLines(string text, int count) =>
         string.Join(" ", text.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).TakeLast(count));
 
-    [RelayCommand]
-    private async Task ChangeEmulatorFolder() => await ChooseEmulatorFolder();
+    // ------------------------------------------------------------------ otros
 
-    private async Task<bool> ChooseEmulatorFolder()
+    [RelayCommand]
+    private async Task OpenSettings()
     {
-        string? start = Session.Project.EmulatorUserDirectory ?? EmulatorUserFolders.Detect().FirstOrDefault()?.Path;
-        if (await dialogs.PickFolderAsync("Carpeta de usuario del emulador (contiene load)", start) is not { } path)
-            return false;
-        Session.Project.EmulatorUserDirectory = path;
-        MarkDirty();
+        await dialogs.ShowSettingsAsync(new SettingsViewModel(settings, upr, dialogs, Session.Project, Dump.Title));
         OnPropertyChanged(nameof(EmulatorText));
-        return true;
+        Randomizer.RefreshSave();
+        MarkDirty(); // la ROM base del proyecto puede haber cambiado
     }
 
     [RelayCommand]

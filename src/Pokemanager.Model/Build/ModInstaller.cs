@@ -73,6 +73,38 @@ public static class ModInstaller
         return new InstallResult(modDirectory, written, removed);
     }
 
+    /// <summary>
+    /// Quita de <paramref name="modDirectory"/> lo que instaló la aplicación (según su manifiesto) y nada más.
+    /// Borra las carpetas que queden vacías. Devuelve los archivos eliminados.
+    /// </summary>
+    public static IReadOnlyList<string> Uninstall(string modDirectory)
+    {
+        modDirectory = Path.GetFullPath(modDirectory);
+        if (!File.Exists(Path.Combine(modDirectory, ManifestName)))
+            return [];
+
+        var removed = new List<string>();
+        foreach (string relative in ReadManifest(modDirectory))
+        {
+            string path = Target(modDirectory, relative);
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+                removed.Add(relative);
+            }
+        }
+        File.Delete(Path.Combine(modDirectory, ManifestName));
+
+        foreach (string dir in Directory.EnumerateDirectories(modDirectory, "*", SearchOption.AllDirectories).OrderByDescending(d => d.Length))
+        {
+            if (!Directory.EnumerateFileSystemEntries(dir).Any())
+                Directory.Delete(dir);
+        }
+        if (!Directory.EnumerateFileSystemEntries(modDirectory).Any())
+            Directory.Delete(modDirectory);
+        return removed;
+    }
+
     private static void Copy(string source, string modDirectory, string relative, List<string> written)
     {
         string target = Target(modDirectory, relative);

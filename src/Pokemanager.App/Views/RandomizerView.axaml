@@ -3,86 +3,143 @@
              xmlns:vm="using:Pokemanager.App.ViewModels"
              x:Class="Pokemanager.App.Views.RandomizerView"
              x:DataType="vm:RandomizerViewModel">
-  <Grid ColumnDefinitions="480,*">
-    <!-- Configuración -->
-    <ScrollViewer Margin="0,0,8,0">
-      <StackPanel Margin="16,8" Spacing="6">
-        <CheckBox IsChecked="{Binding Enabled}" FontSize="15" FontWeight="SemiBold"
-                  Content="Randomizar la ROM con Universal Pokémon Randomizer ZX" />
-        <TextBlock Classes="hint" Text="Desmárcalo para jugar con el juego original más tus ediciones avanzadas." />
+  <TabControl x:Name="Tabs" Padding="0">
 
-        <TextBlock Classes="section" Text="Herramientas" />
-        <TextBlock Text="{Binding ToolsStatus}" TextWrapping="Wrap" Classes.error="{Binding !ToolsReady}" />
-        <Button Content="Elegir PokeRandoZX.jar…" Command="{Binding BrowseJarCommand}" />
+    <!-- ======================= Generar ======================= -->
+    <TabItem Header="Generar">
+      <Grid ColumnDefinitions="500,*">
+        <ScrollViewer Margin="0,0,8,0">
+          <StackPanel Margin="16,8" Spacing="6">
+            <CheckBox IsChecked="{Binding Enabled}" FontSize="15" FontWeight="SemiBold" Content="Randomizar la ROM" />
+            <TextBlock Text="{Binding ToolsStatus}" TextWrapping="Wrap" Classes="hint" Classes.error="{Binding !ToolsReady}" />
 
-        <TextBlock Classes="section" Text="ROM" />
-        <TextBlock Text="{Binding RomText, TargetNullValue='No se encuentra la ROM (.3ds) en la carpeta del volcado'}" TextWrapping="Wrap"
-                   Classes.error="{Binding !HasRom}" />
-        <Button Content="Elegir ROM…" Command="{Binding BrowseRomCommand}" />
+            <TextBlock Classes="section" Text="ROM base" />
+            <TextBlock Text="{Binding BaseRomText}" TextWrapping="Wrap" />
+            <TextBlock Classes="hint" Text="Nunca se modifica. Cámbiala en Ajustes." />
 
-        <TextBlock Classes="section" Text="Preset" />
-        <TextBlock FontWeight="SemiBold" Text="{Binding PresetText}" Classes.error="{Binding !HasPreset}" />
-        <TextBlock Classes="hint" Text="El preset se guarda dentro del proyecto. Créalo o modifícalo en UPR ZX y vuelve a importarlo." />
-        <Grid ColumnDefinitions="*,Auto">
-          <ComboBox ItemsSource="{Binding PresetsNextToJar}" SelectedItem="{Binding SelectedPresetNextToJar}"
-                    PlaceholderText="Presets junto al jar" HorizontalAlignment="Stretch">
-            <ComboBox.ItemTemplate>
-              <DataTemplate x:DataType="x:String">
-                <TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis" />
-              </DataTemplate>
-            </ComboBox.ItemTemplate>
-          </ComboBox>
-          <Button Grid.Column="1" Margin="6,0,0,0" Content="Importar…" Command="{Binding ImportPresetFileCommand}" />
-        </Grid>
+            <TextBlock Classes="section" Text="Opciones y semilla" />
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="{Binding PresetText}" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+              <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                <Button Content="Importar .rnqs…" Command="{Binding ImportPresetCommand}" />
+                <Button Content="Exportar…" Command="{Binding ExportPresetCommand}" />
+              </StackPanel>
+            </Grid>
+            <TextBlock Classes="hint" Text="Edita las opciones en la pestaña «Opciones»." />
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBox Text="{Binding SeedText}" Watermark="Semilla" />
+              <Button Grid.Column="1" Margin="6,0,0,0" Content="Nueva semilla" Command="{Binding NewSeedCommand}" />
+            </Grid>
+            <TextBlock Classes="error" Text="{Binding SeedError}" IsVisible="{Binding SeedError, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            <TextBlock Classes="hint" Text="Mismas opciones y misma semilla dan siempre el mismo juego." />
 
-        <TextBlock Classes="section" Text="Semilla" />
-        <Grid ColumnDefinitions="*,Auto">
-          <TextBox Text="{Binding SeedText}" Watermark="Número de semilla" />
-          <Button Grid.Column="1" Margin="6,0,0,0" Content="Nueva semilla" Command="{Binding NewSeedCommand}" />
-        </Grid>
-        <TextBlock Classes="error" Text="{Binding SeedError}" IsVisible="{Binding SeedError, Converter={x:Static ObjectConverters.IsNotNull}}" />
-        <TextBlock Classes="hint" Text="La misma semilla con el mismo preset genera siempre el mismo juego: compártela para que otros jueguen tu misma partida." />
+            <TextBlock Classes="section" Text="ROM randomizada" />
+            <TextBlock Text="Nombre" />
+            <TextBox Text="{Binding OutputName}" />
+            <TextBlock Classes="error" Text="{Binding OutputError}" IsVisible="{Binding OutputError, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            <TextBlock Classes="hint" Text="{Binding OutputPath}" TextWrapping="Wrap" />
+            <TextBlock Classes="hint" Foreground="#E07B00" IsVisible="{Binding OutputExists}" Text="Ya existe un archivo con ese nombre: se sustituirá." />
 
-        <Border Margin="0,10,0,0" Padding="10" CornerRadius="4" Background="#26E07B00" BorderBrush="#E07B00" BorderThickness="1"
-                IsVisible="{Binding HasSaveWarning}">
-          <TextBlock Text="{Binding SaveWarning}" TextWrapping="Wrap" />
-        </Border>
+            <TextBlock Classes="section" Text="Tu partida" />
+            <TextBlock Text="{Binding SaveText}" TextWrapping="Wrap" />
+            <CheckBox IsChecked="{Binding UpdateSave}" IsEnabled="{Binding HasSave}"
+                      Content="Adaptar la partida a la nueva ROM (habilidades y stats)" />
+            <Border Padding="10" CornerRadius="4" Background="#26E07B00" BorderBrush="#E07B00" BorderThickness="1"
+                    IsVisible="{Binding HasSaveWarning}">
+              <TextBlock Text="{Binding SaveWarning}" TextWrapping="Wrap" />
+            </Border>
 
-        <Button Classes="accent" Margin="0,12,0,0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                Content="Randomizar e instalar en el emulador" Command="{Binding RandomizeAndInstallCommand}" />
-      </StackPanel>
-    </ScrollViewer>
+            <Button Classes="accent" Margin="0,12,0,0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                    Content="Randomizar y crear ROM" Command="{Binding RandomizeAndBuildCommand}" />
 
-    <!-- Log de UPR -->
-    <DockPanel Grid.Column="1" Margin="8">
-      <TextBlock DockPanel.Dock="Top" Classes="section" Margin="0,0,0,6" Text="Log de la randomización" />
-      <Grid DockPanel.Dock="Top" ColumnDefinitions="300,*">
-        <ComboBox ItemsSource="{Binding LogSections}" SelectedItem="{Binding SelectedLogSection}"
-                  HorizontalAlignment="Stretch" MaxDropDownHeight="420">
-          <ComboBox.ItemTemplate>
-            <DataTemplate x:DataType="x:String">
-              <TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis" />
-            </DataTemplate>
-          </ComboBox.ItemTemplate>
-        </ComboBox>
-        <TextBox Grid.Column="1" Margin="6,0,0,0" Text="{Binding LogFilter}" Watermark="Buscar (p. ej. un Pokémon o un entrenador)" />
+            <TextBlock Classes="section" Text="Cambios en tu partida" IsVisible="{Binding SaveChangesSummary, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+            <TextBlock Text="{Binding SaveChangesSummary}" TextWrapping="Wrap" />
+            <ItemsControl ItemsSource="{Binding SaveChanges}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:SaveChangeLine">
+                  <TextBlock TextWrapping="Wrap" FontSize="12">
+                    <Run Text="{Binding Location}" Foreground="Gray" />
+                    <Run Text=" · " />
+                    <Run Text="{Binding Pokemon}" FontWeight="SemiBold" />
+                    <Run Text=": " />
+                    <Run Text="{Binding Description}" />
+                  </TextBlock>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </ScrollViewer>
+
+        <!-- Log de UPR -->
+        <DockPanel Grid.Column="1" Margin="8">
+          <TextBlock DockPanel.Dock="Top" Classes="section" Margin="0,0,0,6" Text="Log de la randomización" />
+          <Grid DockPanel.Dock="Top" ColumnDefinitions="300,*">
+            <ComboBox ItemsSource="{Binding LogSections}" SelectedItem="{Binding SelectedLogSection}"
+                      HorizontalAlignment="Stretch" MaxDropDownHeight="420">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                  <TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <TextBox Grid.Column="1" Margin="6,0,0,0" Text="{Binding LogFilter}" Watermark="Buscar (p. ej. un Pokémon o un entrenador)" />
+          </Grid>
+          <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="0,4" Text="{Binding LogSummary}" />
+          <Border BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+            <ListBox ItemsSource="{Binding VisibleLog}" FontFamily="Cascadia Mono, Consolas, Menlo, monospace" FontSize="12">
+              <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                  <TextBlock Text="{Binding}" />
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+              <ListBox.Styles>
+                <Style Selector="ListBoxItem">
+                  <Setter Property="Padding" Value="6,0" />
+                  <Setter Property="MinHeight" Value="0" />
+                </Style>
+              </ListBox.Styles>
+            </ListBox>
+          </Border>
+        </DockPanel>
       </Grid>
-      <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="0,4" Text="{Binding LogSummary}" />
-      <Border BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
-        <ListBox ItemsSource="{Binding VisibleLog}" FontFamily="Cascadia Mono, Consolas, Menlo, monospace" FontSize="12">
+    </TabItem>
+
+    <!-- ======================= Opciones ======================= -->
+    <TabItem Header="Opciones">
+      <Grid ColumnDefinitions="280,*" DataContext="{Binding Options}" x:DataType="vm:UprOptionsViewModel">
+        <TextBlock Grid.ColumnSpan="2" Margin="16" Text="{Binding LoadStatus}" TextWrapping="Wrap" IsVisible="{Binding !IsLoaded}" />
+
+        <ListBox Margin="8" ItemsSource="{Binding Groups}" SelectedItem="{Binding SelectedGroup}" IsVisible="{Binding IsLoaded}">
           <ListBox.ItemTemplate>
-            <DataTemplate x:DataType="x:String">
-              <TextBlock Text="{Binding}" />
+            <DataTemplate x:DataType="vm:UprOptionGroupViewModel">
+              <TextBlock Text="{Binding Name}" TextWrapping="Wrap" />
             </DataTemplate>
           </ListBox.ItemTemplate>
-          <ListBox.Styles>
-            <Style Selector="ListBoxItem">
-              <Setter Property="Padding" Value="6,0" />
-              <Setter Property="MinHeight" Value="0" />
-            </Style>
-          </ListBox.Styles>
         </ListBox>
-      </Border>
-    </DockPanel>
-  </Grid>
+
+        <ScrollViewer Grid.Column="1" IsVisible="{Binding IsLoaded}">
+          <StackPanel Margin="12,8,16,8">
+            <TextBlock Classes="section" Text="{Binding SelectedGroup.Name}" Margin="0,0,0,8" />
+            <ItemsControl ItemsSource="{Binding SelectedGroup.Items}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:UprOptionViewModel">
+                  <Grid ColumnDefinitions="360,*" Margin="0,3" IsEnabled="{Binding IsEnabled}" ToolTip.Tip="{Binding Hint}">
+                    <CheckBox Grid.ColumnSpan="2" IsVisible="{Binding IsBool}" IsChecked="{Binding BoolValue}">
+                      <TextBlock Text="{Binding Label}" TextWrapping="Wrap" />
+                    </CheckBox>
+                    <TextBlock IsVisible="{Binding !IsBool}" Text="{Binding Label}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,8,0" />
+                    <ComboBox Grid.Column="1" IsVisible="{Binding IsChoice}" ItemsSource="{Binding ChoiceLabels}"
+                              SelectedIndex="{Binding ChoiceIndex}" MinWidth="280" />
+                    <NumericUpDown Grid.Column="1" IsVisible="{Binding IsInt}" Value="{Binding IntValue}" Minimum="{Binding Min}"
+                                   Maximum="{Binding Max}" Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="150"
+                                   HorizontalAlignment="Left" />
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </ScrollViewer>
+      </Grid>
+    </TabItem>
+  </TabControl>
 </UserControl>

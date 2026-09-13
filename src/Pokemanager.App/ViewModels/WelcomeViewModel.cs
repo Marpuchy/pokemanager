@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Pokemanager.App.Services;
-using Pokemanager.Bridge;
 using Pokemanager.Model.Dump;
 using Pokemanager.Model.Projects;
 
@@ -27,17 +26,12 @@ public partial class WelcomeViewModel : ObservableObject
         new(GameLanguage.Korean, "한국어"),
     ];
 
-    public IReadOnlyList<EmulatorUserFolder> DetectedEmulators { get; } = EmulatorUserFolders.Detect();
-
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CreateCommand))]
     public partial string DumpDirectory { get; set; }
 
     [ObservableProperty]
     public partial LanguageOption Language { get; set; } = Languages[0];
-
-    [ObservableProperty]
-    public partial string EmulatorDirectory { get; set; }
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CreateCommand))]
@@ -51,34 +45,14 @@ public partial class WelcomeViewModel : ObservableObject
         this.main = main;
         this.dialogs = dialogs;
         DumpDirectory = Environment.GetEnvironmentVariable("POKEMANAGER_DUMP") ?? "";
-        EmulatorDirectory = DetectedEmulators.FirstOrDefault()?.Path ?? "";
         ProjectPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Pokemanager", "pokemon-x.json");
-    }
-
-    partial void OnEmulatorDirectoryChanged(string value) => OnPropertyChanged(nameof(SelectedDetectedEmulator));
-
-    public EmulatorUserFolder? SelectedDetectedEmulator
-    {
-        get => DetectedEmulators.FirstOrDefault(e => e.Path == EmulatorDirectory);
-        set
-        {
-            if (value is not null)
-                EmulatorDirectory = value.Path;
-        }
     }
 
     [RelayCommand]
     private async Task BrowseDump()
     {
-        if (await dialogs.PickFolderAsync("Carpeta del volcado (con romfs y exefs)", DumpDirectory) is { } path)
+        if (await dialogs.PickFolderAsync("Carpeta del volcado (con el .3ds, romfs y exefs)", DumpDirectory) is { } path)
             DumpDirectory = path;
-    }
-
-    [RelayCommand]
-    private async Task BrowseEmulator()
-    {
-        if (await dialogs.PickFolderAsync("Carpeta de usuario del emulador (contiene load)", EmulatorDirectory) is { } path)
-            EmulatorDirectory = path;
     }
 
     [RelayCommand]
@@ -87,6 +61,10 @@ public partial class WelcomeViewModel : ObservableObject
         if (await dialogs.PickSaveFileAsync("Guardar proyecto como", Path.GetFileName(ProjectPath)) is { } path)
             ProjectPath = path;
     }
+
+    [RelayCommand]
+    private async Task OpenSettings() =>
+        await dialogs.ShowSettingsAsync(new SettingsViewModel(main.Settings, main.Upr, dialogs, null, GameTitle.X));
 
     private bool CanCreate() => !string.IsNullOrWhiteSpace(DumpDirectory) && !string.IsNullOrWhiteSpace(ProjectPath);
 
@@ -109,13 +87,7 @@ public partial class WelcomeViewModel : ObservableObject
 
         try
         {
-            var project = new Project
-            {
-                DumpDirectory = Path.GetFullPath(DumpDirectory),
-                Language = Language.Value,
-                EmulatorUserDirectory = string.IsNullOrWhiteSpace(EmulatorDirectory) ? null : Path.GetFullPath(EmulatorDirectory),
-            };
-            project.Save(ProjectPath);
+            new Project { DumpDirectory = Path.GetFullPath(DumpDirectory), Language = Language.Value }.Save(ProjectPath);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {

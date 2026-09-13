@@ -6,13 +6,17 @@ namespace Pokemanager.Randomizer;
 /// <summary>Java y el jar de Universal Pokémon Randomizer ZX listos para usar.</summary>
 public sealed record UprTools(string JavaPath, int JavaMajorVersion, string JarPath);
 
-/// <summary>Localiza Java (11 o superior, por el lanzador de código fuente) y el jar de UPR ZX.</summary>
+/// <summary>Localiza Java (11 o superior, por el lanzador de código fuente) y el UPR ZX incluido con la app.</summary>
 public static partial class UprLocator
 {
     public const int MinimumJava = 11;
 
-    /// <summary>Nombre habitual del jar de UPR ZX.</summary>
-    public const string JarName = "PokeRandoZX.jar";
+    /// <summary>UPR ZX incluido con la aplicación: <c>&lt;app&gt;/tools/upr/PokeRandoZX.jar</c>.</summary>
+    public static string BundledJar => Path.Combine(AppContext.BaseDirectory, "tools", "upr", "PokeRandoZX.jar");
+
+    /// <summary>Java utilizable y el jar incluido, o null si falta alguno.</summary>
+    public static UprTools? Find() =>
+        FindJava() is { } java && File.Exists(BundledJar) ? new UprTools(java.Path, java.Major, BundledJar) : null;
 
     /// <summary>
     /// Busca un Java utilizable: <c>JAVA_HOME</c>, los JDK instalados y el <c>java</c> del PATH.
@@ -28,14 +32,12 @@ public static partial class UprLocator
 
         if (OperatingSystem.IsWindows())
         {
-            foreach (string root in new[] { Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles) })
+            string programFiles = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+            foreach (string vendor in new[] { "Java", "Eclipse Adoptium", "Microsoft", "Zulu", "BellSoft" })
             {
-                foreach (string vendor in new[] { "Java", "Eclipse Adoptium", "Microsoft", "Zulu", "BellSoft" })
-                {
-                    string dir = Path.Combine(root, vendor);
-                    if (Directory.Exists(dir))
-                        candidates.AddRange(Directory.GetDirectories(dir).Select(d => Path.Combine(d, "bin", exe)));
-                }
+                string dir = Path.Combine(programFiles, vendor);
+                if (Directory.Exists(dir))
+                    candidates.AddRange(Directory.GetDirectories(dir).Select(d => Path.Combine(d, "bin", exe)));
             }
         }
 
@@ -50,31 +52,6 @@ public static partial class UprLocator
             .OrderByDescending(j => j.Major)
             .Select(j => ((string Path, int Major)?)j)
             .FirstOrDefault();
-    }
-
-    /// <summary>Busca el jar en las carpetas indicadas (sin recursión profunda: la carpeta y un nivel).</summary>
-    public static string? FindJar(IEnumerable<string> folders)
-    {
-        foreach (string folder in folders.Where(Directory.Exists))
-        {
-            try
-            {
-                string direct = Path.Combine(folder, JarName);
-                if (File.Exists(direct))
-                    return direct;
-                foreach (string sub in Directory.EnumerateDirectories(folder))
-                {
-                    string nested = Path.Combine(sub, JarName);
-                    if (File.Exists(nested))
-                        return nested;
-                }
-            }
-            catch (Exception ex) when (ex is UnauthorizedAccessException or IOException)
-            {
-                // Carpeta sin permisos: se sigue con la siguiente.
-            }
-        }
-        return null;
     }
 
     internal static int ReadJavaMajor(string javaPath)

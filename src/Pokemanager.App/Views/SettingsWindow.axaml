@@ -1,0 +1,51 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Pokemanager.App.ViewModels"
+        x:Class="Pokemanager.App.Views.SettingsWindow"
+        x:DataType="vm:SettingsViewModel"
+        Title="Ajustes de Pokemanager"
+        Width="760" Height="620" MinWidth="560" MinHeight="420"
+        WindowStartupLocation="CenterOwner">
+  <ScrollViewer>
+    <StackPanel Margin="20" Spacing="6">
+      <TextBlock Text="Ajustes de Pokemanager" FontSize="22" FontWeight="SemiBold" />
+
+      <TextBlock Classes="section" Text="Emulador" />
+      <TextBlock Classes="hint" Text="Dónde está tu partida. Por defecto se usa el emulador que abriste por última vez." />
+      <Grid ColumnDefinitions="*,Auto">
+        <ComboBox ItemsSource="{Binding Emulators}" SelectedItem="{Binding SelectedEmulator}" HorizontalAlignment="Stretch">
+          <ComboBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:EmulatorOption">
+              <TextBlock Text="{Binding Label}" TextTrimming="CharacterEllipsis" />
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+        <Button Grid.Column="1" Margin="6,0,0,0" Content="Otra carpeta…" Command="{Binding BrowseEmulatorCommand}" />
+      </Grid>
+      <TextBlock Text="{Binding EffectiveText}" TextWrapping="Wrap" />
+      <TextBlock Classes="hint" Text="{Binding SaveText}" />
+
+      <StackPanel IsVisible="{Binding HasProject}" Spacing="6">
+        <TextBlock Classes="section" Text="Proyecto actual" />
+        <TextBlock Text="ROM base (nunca se modifica; la randomizada se crea a su lado)" />
+        <Grid ColumnDefinitions="*,Auto">
+          <TextBlock Text="{Binding BaseRomText}" TextWrapping="Wrap" VerticalAlignment="Center" />
+          <Button Grid.Column="1" Margin="6,0,0,0" Content="Cambiar…" Command="{Binding BrowseBaseRomCommand}" />
+        </Grid>
+      </StackPanel>
+
+      <TextBlock Classes="section" Text="Herramientas incluidas" />
+      <TextBlock Text="{Binding UprText}" TextWrapping="Wrap" />
+      <TextBlock Text="{Binding PkhexText}" TextWrapping="Wrap" />
+      <TextBlock Text="{Binding JavaText}" TextWrapping="Wrap" />
+
+      <TextBlock Classes="section" Text="Datos de la aplicación" />
+      <TextBlock Classes="hint" Text="{Binding CacheText}" />
+      <TextBlock Classes="hint" Text="{Binding BackupText}" />
+      <StackPanel Orientation="Horizontal" Spacing="6">
+        <Button Content="Vaciar caché" Command="{Binding ClearCacheCommand}" />
+        <Button Content="Abrir copias de seguridad" Command="{Binding OpenBackupsCommand}" />
+      </StackPanel>
+    </StackPanel>
+  </ScrollViewer>
+</Window>

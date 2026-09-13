@@ -5,6 +5,7 @@
     <Project Path="src/Pokemanager.Formats/Pokemanager.Formats.csproj" />
     <Project Path="src/Pokemanager.Model/Pokemanager.Model.csproj" />
     <Project Path="src/Pokemanager.Randomizer/Pokemanager.Randomizer.csproj" />
+    <Project Path="src/Pokemanager.Save/Pokemanager.Save.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Pokemanager.Tests/Pokemanager.Tests.csproj" />

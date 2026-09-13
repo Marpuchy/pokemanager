@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Pokemanager.Model.Data;
 using Pokemanager.Model.Editing;
 using Pokemanager.Model.Projects;
@@ -13,6 +14,9 @@ public class UprLocatorTests
     [InlineData("openjdk version \"17.0.12\" 2024-07-16", 17)]
     [InlineData("basura", 0)]
     public void ParseJavaMajor(string output, int expected) => Assert.Equal(expected, UprLocator.ParseJavaMajor(output));
+
+    [Fact]
+    public void BundledJar_IsCopiedWithTheApp() => Assert.True(File.Exists(UprLocator.BundledJar), UprLocator.BundledJar);
 
     [Fact]
     public void CacheKey_ChangesWithSeedAndPreset()
@@ -31,26 +35,79 @@ public class UprLocatorTests
             File.Delete(jar);
         }
     }
+
+    [Theory]
+    [InlineData("Mi random", null)]
+    [InlineData("", "Pon un nombre")]
+    [InlineData("a/b", "caracteres no válidos")]
+    public void ValidateOutputName(string name, string? error)
+    {
+        string? result = RomBuilder.ValidateName(name);
+        if (error is null)
+            Assert.Null(result);
+        else
+            Assert.Contains(error, result);
+    }
+
+    [Fact]
+    public void OutputRom_GoesNextToBaseRom()
+    {
+        string baseRom = Path.Combine(Path.GetTempPath(), "juegos", "Pokemon X.3ds");
+        Assert.Equal(Path.Combine(Path.GetTempPath(), "juegos", "Partida nico.cxi"), RomBuilder.OutputPath(baseRom, "Partida nico"));
+    }
+
+    [Fact]
+    public void Catalog_CoversEveryVisibleOptionOfTheBundledUpr()
+    {
+        // Lista medida sobre UPR ZX 4.6.1; si se actualiza el jar y aparecen opciones nuevas, que no pasen desapercibidas.
+        Assert.All(UprOptionCatalog.Options.Values, o => Assert.Contains(o.Group, UprOptionCatalog.Groups));
+    }
 }
 
 /// <summary>
-/// UPR ZX real. Requiere <c>POKEMANAGER_UPR_JAR</c> (PokeRandoZX.jar), <c>POKEMANAGER_UPR_PRESET</c> (.rnqs),
-/// <c>POKEMANAGER_DUMP</c> (con el .3ds dentro) y Java 11+. Se omite si falta algo.
+/// UPR ZX incluido, contra datos reales. Requiere Java 11+ y, para randomizar, <c>POKEMANAGER_DUMP</c> (con el .3ds dentro)
+/// y <c>POKEMANAGER_UPR_PRESET</c>. Se omite si falta algo.
 /// </summary>
 public class UprRealTests
 {
-    private static (UprTools Tools, string Preset, string Rom, string DumpDir) Require()
+    private static UprTools RequireTools()
     {
-        string? jar = Environment.GetEnvironmentVariable("POKEMANAGER_UPR_JAR");
+        var tools = UprLocator.Find();
+        Assert.SkipWhen(tools is null, "No hay Java 11+ o falta el jar incluido.");
+        return tools!;
+    }
+
+    private static (UprTools Tools, byte[] Preset, string Rom, string DumpDir) Require()
+    {
+        var tools = RequireTools();
         string? preset = Environment.GetEnvironmentVariable("POKEMANAGER_UPR_PRESET");
         string? dump = Environment.GetEnvironmentVariable("POKEMANAGER_DUMP");
-        Assert.SkipWhen(string.IsNullOrWhiteSpace(jar) || string.IsNullOrWhiteSpace(preset) || string.IsNullOrWhiteSpace(dump),
-            "Faltan POKEMANAGER_UPR_JAR, POKEMANAGER_UPR_PRESET o POKEMANAGER_DUMP.");
+        Assert.SkipWhen(string.IsNullOrWhiteSpace(preset) || string.IsNullOrWhiteSpace(dump), "Faltan POKEMANAGER_UPR_PRESET o POKEMANAGER_DUMP.");
         string? rom = new Project { DumpDirectory = dump! }.ResolveRomFile();
         Assert.SkipWhen(rom is null, "No hay .3ds en la carpeta del volcado.");
-        var java = UprLocator.FindJava();
-        Assert.SkipWhen(java is null, "No hay Java 11+.");
-        return (new UprTools(java!.Value.Path, java.Value.Major, jar!), preset!, rom!, dump!);
+        return (tools, File.ReadAllBytes(preset!), rom!, dump!);
+    }
+
+    [Fact]
+    public async Task Settings_RoundTripWithoutChanges_IsIdentical_AndChangesApply()
+    {
+        var tools = RequireTools();
+        var runner = new UprRunner(tools);
+        var ct = TestContext.Current.CancellationToken;
+
+        byte[] defaults = await runner.WriteSettingsAsync(null, [], ct);
+        var described = await runner.DescribeSettingsAsync(defaults, cancellationToken: ct);
+        Assert.True(described.Options.Count > 100);
+
+        // Reescribir todas las opciones con sus mismos valores no cambia el preset.
+        var same = described.Options.Select(o => new KeyValuePair<string, string>(o.Name,
+            o.Type == "enum" ? o.Value.GetString()! : o.Value.ValueKind == JsonValueKind.True ? "true" : o.Value.ValueKind == JsonValueKind.False ? "false" : o.Value.GetRawText()));
+        Assert.Equal(defaults, await runner.WriteSettingsAsync(defaults, same, ct));
+
+        byte[] changed = await runner.WriteSettingsAsync(defaults, [new("AbilitiesMod", "RANDOMIZE"), new("tweak:FASTEST_TEXT", "true")], ct);
+        var after = await runner.DescribeSettingsAsync(changed, cancellationToken: ct);
+        Assert.Equal("RANDOMIZE", after.Options.Single(o => o.Name == "AbilitiesMod").Value.GetString());
+        Assert.True(after.Tweaks.Single(t => t.Name == "FASTEST_TEXT").Value);
     }
 
     [Fact]
@@ -58,11 +115,14 @@ public class UprRealTests
     {
         var (tools, preset, rom, dumpDir) = Require();
         string root = Directory.CreateTempSubdirectory("pokemanager-upr-").FullName;
+        var ct = TestContext.Current.CancellationToken;
         try
         {
+            string presetFile = Path.Combine(root, "preset.rnqs");
+            await File.WriteAllBytesAsync(presetFile, preset, ct);
             var runner = new UprRunner(tools);
-            var first = await runner.RunAsync(preset, rom, 12345, Path.Combine(root, "a"), cancellationToken: TestContext.Current.CancellationToken);
-            var second = await runner.RunAsync(preset, rom, 12345, Path.Combine(root, "b"), cancellationToken: TestContext.Current.CancellationToken);
+            var first = await runner.RandomizeAsync(presetFile, rom, 12345, Path.Combine(root, "a"), cancellationToken: ct);
+            var second = await runner.RandomizeAsync(presetFile, rom, 12345, Path.Combine(root, "b"), cancellationToken: ct);
 
             Assert.Equal("0004000000055D00", Path.GetFileName(first.TitleDirectory));
             Assert.True(File.Exists(Path.Combine(first.TitleDirectory, "code.bin")));

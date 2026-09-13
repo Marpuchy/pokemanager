@@ -1,5 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using Pokemanager.App.ViewModels;
+using Pokemanager.App.Views;
 
 namespace Pokemanager.App.Services;
 
@@ -10,10 +12,12 @@ public interface IDialogs
     /// <param name="patterns">Filtros como <c>*.rnqs</c>. Null: proyectos (<c>*.json</c>).</param>
     Task<string?> PickOpenFileAsync(string title, IReadOnlyList<string>? patterns = null);
 
-    Task<string?> PickSaveFileAsync(string title, string suggestedName);
+    Task<string?> PickSaveFileAsync(string title, string suggestedName, string extension = "json");
+
+    Task ShowSettingsAsync(SettingsViewModel viewModel);
 }
 
-public sealed class Dialogs(TopLevel owner) : IDialogs
+public sealed class Dialogs(Window owner) : IDialogs
 {
     private static readonly FilePickerFileType ProjectType = new("Proyecto de Pokemanager") { Patterns = ["*.json"] };
 
@@ -39,15 +43,19 @@ public sealed class Dialogs(TopLevel owner) : IDialogs
         return result.Count > 0 ? result[0].TryGetLocalPath() : null;
     }
 
-    public async Task<string?> PickSaveFileAsync(string title, string suggestedName)
+    public async Task<string?> PickSaveFileAsync(string title, string suggestedName, string extension = "json")
     {
+        var type = extension == "json" ? ProjectType : new FilePickerFileType("*." + extension) { Patterns = ["*." + extension] };
         var result = await owner.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
             Title = title,
             SuggestedFileName = suggestedName,
-            DefaultExtension = "json",
-            FileTypeChoices = [ProjectType],
+            DefaultExtension = extension,
+            FileTypeChoices = [type],
         });
         return result?.TryGetLocalPath();
     }
+
+    public Task ShowSettingsAsync(SettingsViewModel viewModel) =>
+        new SettingsWindow { DataContext = viewModel }.ShowDialog(owner);
 }

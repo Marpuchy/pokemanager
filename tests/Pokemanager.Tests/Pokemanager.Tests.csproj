@@ -21,6 +21,7 @@
     <ProjectReference Include="..\..\src\Pokemanager.Model\Pokemanager.Model.csproj" />
     <ProjectReference Include="..\..\src\Pokemanager.Bridge\Pokemanager.Bridge.csproj" />
     <ProjectReference Include="..\..\src\Pokemanager.Randomizer\Pokemanager.Randomizer.csproj" />
+    <ProjectReference Include="..\..\src\Pokemanager.Save\Pokemanager.Save.csproj" />
   </ItemGroup>
 
 </Project>

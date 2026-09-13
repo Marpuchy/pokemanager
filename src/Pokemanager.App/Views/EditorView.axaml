@@ -6,7 +6,7 @@
 
   <UserControl.KeyBindings>
     <KeyBinding Gesture="Ctrl+S" Command="{Binding SaveCommand}" />
-    <KeyBinding Gesture="Ctrl+B" Command="{Binding InstallCommand}" />
+    <KeyBinding Gesture="Ctrl+B" Command="{Binding BuildRomCommand}" />
   </UserControl.KeyBindings>
 
   <UserControl.DataTemplates>
@@ -47,16 +47,16 @@
             <Run Text="{Binding EditCountText}" />
             <Run Text=" · " />
             <Run Text="{Binding DirtyText}" />
-            <Run Text=" · Mod: " />
+            <Run Text=" · " />
             <Run Text="{Binding EmulatorText}" />
           </TextBlock>
         </StackPanel>
         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
           <ProgressBar IsIndeterminate="True" Width="80" IsVisible="{Binding IsBusy}" />
           <Button Content="Guardar" Command="{Binding SaveCommand}" ToolTip.Tip="Ctrl+S" />
-          <Button Classes="accent" Content="Instalar en el emulador" Command="{Binding InstallCommand}"
-                  ToolTip.Tip="Guarda, randomiza si hace falta y escribe el mod en la carpeta del emulador (Ctrl+B)" />
-          <Button Content="Emulador…" Command="{Binding ChangeEmulatorFolderCommand}" />
+          <Button Classes="accent" Content="Crear ROM" Command="{Binding BuildRomCommand}"
+                  ToolTip.Tip="Crea la ROM randomizada junto a la ROM base y adapta tu partida (Ctrl+B)" />
+          <Button Content="Ajustes…" Command="{Binding OpenSettingsCommand}" />
           <Button Content="Abrir…" Command="{Binding OpenOtherProjectCommand}" />
           <Button Content="Nuevo" Command="{Binding NewProjectCommand}" />
         </StackPanel>

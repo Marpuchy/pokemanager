@@ -19,10 +19,17 @@ public sealed class RandomizationSettings
 
     public long Seed { get; set; }
 
-    /// <summary>Semilla de la última instalación en el emulador, para avisar si se cambia con partida en curso.</summary>
+    /// <summary>Semilla de la última ROM creada, para avisar si se cambia con partida en curso.</summary>
     public long? InstalledSeed { get; set; }
 
-    public bool IsReady => Enabled && Preset is { Length: > 0 } && Seed > 0;
+    /// <summary>Nombre (sin extensión) de la ROM randomizada, que se crea junto a la ROM base.</summary>
+    public string? OutputName { get; set; }
+
+    /// <summary>Al crear la ROM, adaptar la partida del emulador (habilidades y stats del equipo) a ella.</summary>
+    public bool UpdateSave { get; set; } = true;
+
+    /// <summary>Hay semilla. El preset puede faltar: entonces se usan los ajustes por defecto de UPR ZX.</summary>
+    public bool IsReady => Enabled && Seed > 0;
 }
 
 /// <summary>

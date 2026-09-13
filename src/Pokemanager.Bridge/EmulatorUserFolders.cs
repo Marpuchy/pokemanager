@@ -1,14 +1,18 @@
+using System.Diagnostics;
+
 namespace Pokemanager.Bridge;
 
 /// <summary>Carpeta de usuario de un emulador de 3DS encontrada en esta máquina.</summary>
-public sealed record EmulatorUserFolder(string Name, string Path);
+/// <param name="LastUsed">Última vez que el emulador guardó su configuración: indica cuál se usa de verdad.</param>
+public sealed record EmulatorUserFolder(string Name, string Path, DateTime LastUsed);
 
 /// <summary>
-/// Localiza la carpeta de usuario del emulador y la carpeta de mods de un juego dentro de ella.
-/// La estructura <c>load/mods/&lt;TitleID&gt;</c> es la misma en los emuladores derivados de Citra.
+/// Localiza la carpeta de usuario del emulador y, dentro de ella, la carpeta de mods y la partida de un juego.
+/// La estructura es la misma en los emuladores derivados de Citra.
 /// </summary>
 public static class EmulatorUserFolders
 {
+    /// <summary>Carpetas encontradas, la usada más recientemente primero.</summary>
     public static IReadOnlyList<EmulatorUserFolder> Detect()
     {
         string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -26,8 +30,15 @@ public static class EmulatorUserFolders
         return candidates
             .Where(c => Directory.Exists(c.Path))
             .DistinctBy(c => c.Path)
-            .Select(c => new EmulatorUserFolder(c.Name, c.Path))
+            .Select(c => new EmulatorUserFolder(c.Name, c.Path, LastUsed(c.Path)))
+            .OrderByDescending(e => e.LastUsed)
             .ToList();
+    }
+
+    private static DateTime LastUsed(string userDirectory)
+    {
+        string config = System.IO.Path.Combine(userDirectory, "config", "qt-config.ini");
+        return File.Exists(config) ? File.GetLastWriteTime(config) : Directory.GetLastWriteTime(userDirectory);
     }
 
     /// <summary><c>&lt;usuario&gt;/load/mods/&lt;TitleID&gt;</c>.</summary>
@@ -44,4 +55,12 @@ public static class EmulatorUserFolders
         return System.IO.Path.Combine(userDirectory, "sdmc", "Nintendo 3DS", zeros, zeros, "title",
             (titleId >> 32).ToString("x8"), (titleId & 0xFFFFFFFF).ToString("x8"), "data", "00000001", "main");
     }
+
+    /// <summary>Nombres de proceso de emuladores de 3DS abiertos (escribir la partida con ellos abiertos se perdería).</summary>
+    public static IReadOnlyList<string> RunningEmulators() =>
+        Process.GetProcesses()
+            .Select(p => { try { return p.ProcessName; } catch (InvalidOperationException) { return ""; } })
+            .Where(n => n.StartsWith("citra", StringComparison.OrdinalIgnoreCase) || n.StartsWith("azahar", StringComparison.OrdinalIgnoreCase))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
 }
