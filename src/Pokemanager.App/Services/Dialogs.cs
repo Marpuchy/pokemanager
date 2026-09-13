@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using Pokemanager.App.Resources;
 using Pokemanager.App.ViewModels;
 using Pokemanager.App.Views;
 
@@ -9,7 +10,7 @@ public interface IDialogs
 {
     Task<string?> PickFolderAsync(string title, string? startDirectory = null);
 
-    /// <param name="patterns">Filtros como <c>*.rnqs</c>. Null: proyectos (<c>*.json</c>).</param>
+    /// <param name="patterns">Filters such as <c>*.rnqs</c>. Null: projects (<c>*.json</c>).</param>
     Task<string?> PickOpenFileAsync(string title, IReadOnlyList<string>? patterns = null);
 
     Task<string?> PickSaveFileAsync(string title, string suggestedName, string extension = "json");
@@ -19,7 +20,7 @@ public interface IDialogs
 
 public sealed class Dialogs(Window owner) : IDialogs
 {
-    private static readonly FilePickerFileType ProjectType = new("Proyecto de Pokemanager") { Patterns = ["*.json"] };
+    private static FilePickerFileType ProjectType => new(Strings.Dialog_ProjectType) { Patterns = ["*.json"] };
 
     public async Task<string?> PickFolderAsync(string title, string? startDirectory = null)
     {

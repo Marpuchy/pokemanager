@@ -1,11 +1,13 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
+using Pokemanager.Randomizer.Resources;
 
 namespace Pokemanager.Randomizer;
 
-/// <summary>Resultado de una randomización: carpeta LayeredFS del juego y log de UPR.</summary>
-/// <param name="TitleDirectory">Carpeta <c>&lt;salida&gt;/&lt;TitleID&gt;</c> con <c>romfs/</c> y <c>code.bin</c>.</param>
+/// <summary>Result of a randomization: the game's LayeredFS folder and the UPR log.</summary>
+/// <param name="TitleDirectory">Folder <c>&lt;output&gt;/&lt;TitleID&gt;</c> with <c>romfs/</c> and <c>code.bin</c>.</param>
+/// <param name="Warnings">Localized warnings reported by UPR.</param>
 public sealed record UprResult(long Seed, string TitleDirectory, string LogPath, IReadOnlyList<string> Warnings);
 
 public sealed class UprException(string message, string output) : Exception(message)
@@ -13,52 +15,60 @@ public sealed class UprException(string message, string output) : Exception(mess
     public string Output { get; } = output;
 }
 
-/// <summary>Ejecuta las órdenes de <c>upr/PokemanagerUpr.java</c> sobre UPR ZX.</summary>
+/// <summary>Runs the commands of <c>upr/PokemanagerUpr.java</c> on UPR ZX.</summary>
 public sealed class UprRunner(UprTools tools)
 {
-    /// <summary>Ruta del lanzador Java copiado junto a los binarios.</summary>
+    /// <summary>Path of the Java launcher copied next to the binaries.</summary>
     public static string LauncherPath => Path.Combine(AppContext.BaseDirectory, "upr", "PokemanagerUpr.java");
 
-    /// <summary>Semilla nueva, del mismo orden de magnitud que las que genera UPR ZX.</summary>
+    /// <summary>A new seed, of the same order of magnitude as the ones UPR ZX generates.</summary>
     public static long NewSeed() => Random.Shared.NextInt64(1, 1L << 47);
 
-    /// <summary>Randomiza y deja la salida LayeredFS en <paramref name="outputDirectory"/> (vacía o inexistente).</summary>
+    /// <summary>Warning codes printed by the launcher (<c>WARNING:CODE</c>) → resource keys.</summary>
+    private static readonly Dictionary<string, string> WarningKeys = new()
+    {
+        ["CUSTOM_STARTERS_CHANGED"] = nameof(Strings.Upr_Warning_CustomStartersChanged),
+        ["OLD_PRESET"] = nameof(Strings.Upr_Warning_OldPreset),
+    };
+
+    /// <summary>Randomizes and leaves the LayeredFS output in <paramref name="outputDirectory"/> (empty or missing).</summary>
     public async Task<UprResult> RandomizeAsync(
         string presetFile, string romFile, long seed, string outputDirectory,
         IProgress<string>? progress = null, CancellationToken cancellationToken = default)
     {
         if (Directory.Exists(outputDirectory) && Directory.EnumerateFileSystemEntries(outputDirectory).Any())
-            throw new IOException($"La carpeta de salida de UPR debe estar vacía: {outputDirectory}");
+            throw new IOException(string.Format(Strings.Upr_OutputNotEmpty, outputDirectory));
         Directory.CreateDirectory(outputDirectory);
         string logPath = Path.Combine(outputDirectory, "upr.log");
 
-        progress?.Report($"Randomizando con la semilla {seed}…");
+        progress?.Report(string.Format(Strings.Upr_Randomizing, seed));
         string output = await RunAsync(["randomize", presetFile, romFile, outputDirectory, seed.ToString(), logPath], progress, cancellationToken);
 
         string? titleDir = Directory.GetDirectories(outputDirectory).FirstOrDefault(d => Path.GetFileName(d).Length == 16);
         if (titleDir is null || !File.Exists(logPath))
-            throw new UprException("UPR ZX no generó la carpeta LayeredFS esperada.", output);
+            throw new UprException(Strings.Upr_NoLayeredFs, output);
 
         var warnings = output.Split('\n')
             .Select(l => l.Trim())
-            .Where(l => l.StartsWith("AVISO:", StringComparison.Ordinal))
-            .Select(l => l["AVISO:".Length..].Trim())
+            .Where(l => l.StartsWith("WARNING:", StringComparison.Ordinal))
+            .Select(l => l["WARNING:".Length..].Trim())
+            .Select(code => WarningKeys.TryGetValue(code, out var key) ? Strings.ResourceManager.GetString(key, Strings.Culture) ?? code : code)
             .ToList();
         return new UprResult(seed, titleDir, logPath, warnings);
     }
 
-    /// <summary>ROM base + archivos de <paramref name="titleDirectory"/> (romfs/ y code.bin) → .cxi.</summary>
+    /// <summary>Base ROM + the files in <paramref name="titleDirectory"/> (romfs/ and code.bin) → .cxi.</summary>
     public async Task PackAsync(string romFile, string titleDirectory, string outputCxi, long seed,
         IProgress<string>? progress = null, CancellationToken cancellationToken = default)
     {
-        progress?.Report("Creando la ROM randomizada…");
+        progress?.Report(Strings.Upr_Packing);
         await RunAsync(["pack", romFile, titleDirectory, outputCxi, seed.ToString()], progress, cancellationToken);
         if (!File.Exists(outputCxi))
-            throw new UprException("UPR ZX no generó el .cxi.", "");
+            throw new UprException(Strings.Upr_NoCxi, "");
     }
 
-    /// <summary>Opciones de un preset (null: ajustes por defecto de UPR ZX).</summary>
-    /// <param name="romFile">Si se indica, marca qué ajustes varios admite el juego (tarda unos segundos más).</param>
+    /// <summary>Options of a preset (null: UPR ZX defaults).</summary>
+    /// <param name="romFile">When given, marks which misc tweaks the game supports (takes a few seconds more).</param>
     public async Task<UprSettingsDescription> DescribeSettingsAsync(byte[]? preset, string? romFile = null, CancellationToken cancellationToken = default)
     {
         using var temp = new TempFile(preset);
@@ -67,14 +77,14 @@ public sealed class UprRunner(UprTools tools)
             args.Add(romFile);
 
         string output = await RunAsync(args, null, cancellationToken);
-        // UPR escribe trazas al cargar la ROM: el JSON es la última línea que empieza por '{'.
+        // UPR prints traces while loading the ROM: the JSON is the last line starting with '{'.
         string json = output.Split('\n').Select(l => l.Trim()).LastOrDefault(l => l.StartsWith('{'))
-                      ?? throw new UprException("UPR ZX no devolvió la descripción de los ajustes.", output);
+                      ?? throw new UprException(Strings.Upr_NoDescription, output);
         return JsonSerializer.Deserialize<UprSettingsDescription>(json, JsonOptions)
-               ?? throw new UprException("Descripción de ajustes vacía.", output);
+               ?? throw new UprException(Strings.Upr_EmptyDescription, output);
     }
 
-    /// <summary>Aplica <paramref name="assignments"/> sobre <paramref name="basePreset"/> y devuelve el .rnqs resultante.</summary>
+    /// <summary>Applies <paramref name="assignments"/> on top of <paramref name="basePreset"/> and returns the resulting .rnqs.</summary>
     public async Task<byte[]> WriteSettingsAsync(byte[]? basePreset, IEnumerable<KeyValuePair<string, string>> assignments,
         CancellationToken cancellationToken = default)
     {
@@ -91,7 +101,7 @@ public sealed class UprRunner(UprTools tools)
     private async Task<string> RunAsync(IReadOnlyList<string> arguments, IProgress<string>? progress, CancellationToken cancellationToken)
     {
         if (!File.Exists(LauncherPath))
-            throw new FileNotFoundException("Falta el lanzador de UPR junto a la aplicación.", LauncherPath);
+            throw new FileNotFoundException(Strings.Upr_LauncherMissing, LauncherPath);
 
         var psi = new ProcessStartInfo(tools.JavaPath)
         {
@@ -99,7 +109,7 @@ public sealed class UprRunner(UprTools tools)
             RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true,
-            // UPR busca archivos auxiliares (nombres personalizados) relativos al directorio de trabajo.
+            // UPR looks for auxiliary files (custom names) relative to the working directory.
             WorkingDirectory = Path.GetDirectoryName(tools.JarPath)!,
             StandardOutputEncoding = Encoding.UTF8,
             StandardErrorEncoding = Encoding.UTF8,
@@ -118,8 +128,8 @@ public sealed class UprRunner(UprTools tools)
                 return;
             lock (output)
                 output.AppendLine(line);
-            // UPR imprime una línea por archivo del romfs: se informa sin inundar la interfaz.
-            if (!line.StartsWith("NCCH:", StringComparison.Ordinal) && !line.StartsWith('{'))
+            // UPR prints one line per romfs file: report progress without flooding the UI.
+            if (!line.StartsWith("NCCH:", StringComparison.Ordinal) && !line.StartsWith('{') && !line.StartsWith("WARNING:", StringComparison.Ordinal))
                 progress?.Report(line);
         }
 
@@ -143,7 +153,7 @@ public sealed class UprRunner(UprTools tools)
         lock (output)
             text = output.ToString();
         if (process.ExitCode != 0)
-            throw new UprException($"UPR ZX terminó con código {process.ExitCode} ({arguments[0]}).", text);
+            throw new UprException(string.Format(Strings.Upr_ExitCode, process.ExitCode, arguments[0]), text);
         return text;
     }
 

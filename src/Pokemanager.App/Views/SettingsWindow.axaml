@@ -1,17 +1,28 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Pokemanager.App.ViewModels"
+        xmlns:r="using:Pokemanager.App.Resources"
         x:Class="Pokemanager.App.Views.SettingsWindow"
         x:DataType="vm:SettingsViewModel"
-        Title="Ajustes de Pokemanager"
-        Width="760" Height="620" MinWidth="560" MinHeight="420"
+        Title="{x:Static r:Strings.Set_Title}"
+        Width="760" Height="680" MinWidth="560" MinHeight="420"
         WindowStartupLocation="CenterOwner">
   <ScrollViewer>
     <StackPanel Margin="20" Spacing="6">
-      <TextBlock Text="Ajustes de Pokemanager" FontSize="22" FontWeight="SemiBold" />
+      <TextBlock Text="{x:Static r:Strings.Set_Title}" FontSize="22" FontWeight="SemiBold" />
 
-      <TextBlock Classes="section" Text="Emulador" />
-      <TextBlock Classes="hint" Text="Dónde está tu partida. Por defecto se usa el emulador que abriste por última vez." />
+      <TextBlock Classes="section" Text="{x:Static r:Strings.Set_Language}" />
+      <ComboBox ItemsSource="{x:Static vm:SettingsViewModel.UiLanguages}" SelectedItem="{Binding SelectedLanguage}" MinWidth="200">
+        <ComboBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:UiLanguageOption">
+            <TextBlock Text="{Binding Name}" />
+          </DataTemplate>
+        </ComboBox.ItemTemplate>
+      </ComboBox>
+      <TextBlock Classes="hint" Foreground="#E07B00" Text="{x:Static r:Strings.Set_LanguageHint}" IsVisible="{Binding LanguageChanged}" />
+
+      <TextBlock Classes="section" Text="{x:Static r:Strings.Set_Emulator}" />
+      <TextBlock Classes="hint" Text="{x:Static r:Strings.Set_EmulatorHint}" />
       <Grid ColumnDefinitions="*,Auto">
         <ComboBox ItemsSource="{Binding Emulators}" SelectedItem="{Binding SelectedEmulator}" HorizontalAlignment="Stretch">
           <ComboBox.ItemTemplate>
@@ -20,31 +31,31 @@
             </DataTemplate>
           </ComboBox.ItemTemplate>
         </ComboBox>
-        <Button Grid.Column="1" Margin="6,0,0,0" Content="Otra carpeta…" Command="{Binding BrowseEmulatorCommand}" />
+        <Button Grid.Column="1" Margin="6,0,0,0" Content="{x:Static r:Strings.Set_OtherFolder}" Command="{Binding BrowseEmulatorCommand}" />
       </Grid>
       <TextBlock Text="{Binding EffectiveText}" TextWrapping="Wrap" />
       <TextBlock Classes="hint" Text="{Binding SaveText}" />
 
       <StackPanel IsVisible="{Binding HasProject}" Spacing="6">
-        <TextBlock Classes="section" Text="Proyecto actual" />
-        <TextBlock Text="ROM base (nunca se modifica; la randomizada se crea a su lado)" />
+        <TextBlock Classes="section" Text="{x:Static r:Strings.Set_CurrentProject}" />
+        <TextBlock Text="{x:Static r:Strings.Set_BaseRom}" />
         <Grid ColumnDefinitions="*,Auto">
           <TextBlock Text="{Binding BaseRomText}" TextWrapping="Wrap" VerticalAlignment="Center" />
-          <Button Grid.Column="1" Margin="6,0,0,0" Content="Cambiar…" Command="{Binding BrowseBaseRomCommand}" />
+          <Button Grid.Column="1" Margin="6,0,0,0" Content="{x:Static r:Strings.Set_Change}" Command="{Binding BrowseBaseRomCommand}" />
         </Grid>
       </StackPanel>
 
-      <TextBlock Classes="section" Text="Herramientas incluidas" />
+      <TextBlock Classes="section" Text="{x:Static r:Strings.Set_Tools}" />
       <TextBlock Text="{Binding UprText}" TextWrapping="Wrap" />
       <TextBlock Text="{Binding PkhexText}" TextWrapping="Wrap" />
       <TextBlock Text="{Binding JavaText}" TextWrapping="Wrap" />
 
-      <TextBlock Classes="section" Text="Datos de la aplicación" />
+      <TextBlock Classes="section" Text="{x:Static r:Strings.Set_AppData}" />
       <TextBlock Classes="hint" Text="{Binding CacheText}" />
       <TextBlock Classes="hint" Text="{Binding BackupText}" />
       <StackPanel Orientation="Horizontal" Spacing="6">
-        <Button Content="Vaciar caché" Command="{Binding ClearCacheCommand}" />
-        <Button Content="Abrir copias de seguridad" Command="{Binding OpenBackupsCommand}" />
+        <Button Content="{x:Static r:Strings.Set_ClearCache}" Command="{Binding ClearCacheCommand}" />
+        <Button Content="{x:Static r:Strings.Set_OpenBackups}" Command="{Binding OpenBackupsCommand}" />
       </StackPanel>
     </StackPanel>
   </ScrollViewer>

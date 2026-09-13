@@ -1,14 +1,18 @@
+using System.Collections.ObjectModel;
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Pokemanager.App.Resources;
 using Pokemanager.App.Services;
 using Pokemanager.Model.Dump;
 using Pokemanager.Model.Projects;
 
 namespace Pokemanager.App.ViewModels;
 
+/// <summary>A language option shown with its own (native) name.</summary>
 public sealed record LanguageOption(GameLanguage Value, string Name);
 
-/// <summary>Pantalla inicial: crear un proyecto nuevo o abrir uno existente.</summary>
+/// <summary>Start screen: recent projects, create a new one or open an existing one.</summary>
 public partial class WelcomeViewModel : ObservableObject
 {
     private readonly MainWindowViewModel main;
@@ -16,8 +20,8 @@ public partial class WelcomeViewModel : ObservableObject
 
     public static IReadOnlyList<LanguageOption> Languages { get; } =
     [
-        new(GameLanguage.Spanish, "Español"),
         new(GameLanguage.English, "English"),
+        new(GameLanguage.Spanish, "Español"),
         new(GameLanguage.French, "Français"),
         new(GameLanguage.Italian, "Italiano"),
         new(GameLanguage.German, "Deutsch"),
@@ -26,12 +30,17 @@ public partial class WelcomeViewModel : ObservableObject
         new(GameLanguage.Korean, "한국어"),
     ];
 
+    public ObservableCollection<RecentProjectItem> RecentProjects { get; } = [];
+
+    public bool HasRecentProjects => RecentProjects.Count > 0;
+
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CreateCommand))]
     public partial string DumpDirectory { get; set; }
 
+    /// <summary>Game text language; defaults to the UI language.</summary>
     [ObservableProperty]
-    public partial LanguageOption Language { get; set; } = Languages[0];
+    public partial LanguageOption Language { get; set; }
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CreateCommand))]
@@ -40,16 +49,13 @@ public partial class WelcomeViewModel : ObservableObject
     [ObservableProperty]
     public partial string? Error { get; set; }
 
-    public System.Collections.ObjectModel.ObservableCollection<RecentProjectItem> RecentProjects { get; } = [];
-
-    public bool HasRecentProjects => RecentProjects.Count > 0;
-
     public WelcomeViewModel(MainWindowViewModel main, IDialogs dialogs)
     {
         this.main = main;
         this.dialogs = dialogs;
         DumpDirectory = Environment.GetEnvironmentVariable("POKEMANAGER_DUMP") ?? "";
         ProjectPath = SuggestProjectPath();
+        Language = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "es" ? Languages[1] : Languages[0];
         LoadRecentProjects();
     }
 
@@ -61,7 +67,7 @@ public partial class WelcomeViewModel : ObservableObject
         OnPropertyChanged(nameof(HasRecentProjects));
     }
 
-    /// <summary>Documentos/Pokemanager/pokemon-x.json, o pokemon-x2.json… si ya existe.</summary>
+    /// <summary>Documents/Pokemanager/pokemon-x.json, or pokemon-x2.json… if it already exists.</summary>
     private static string SuggestProjectPath()
     {
         string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Pokemanager");
@@ -82,14 +88,14 @@ public partial class WelcomeViewModel : ObservableObject
     [RelayCommand]
     private async Task BrowseDump()
     {
-        if (await dialogs.PickFolderAsync("Carpeta del volcado (con el .3ds, romfs y exefs)", DumpDirectory) is { } path)
+        if (await dialogs.PickFolderAsync(Strings.Welcome_PickDumpTitle, DumpDirectory) is { } path)
             DumpDirectory = path;
     }
 
     [RelayCommand]
     private async Task BrowseProject()
     {
-        if (await dialogs.PickSaveFileAsync("Guardar proyecto como", Path.GetFileName(ProjectPath)) is { } path)
+        if (await dialogs.PickSaveFileAsync(Strings.Welcome_SaveProjectTitle, Path.GetFileName(ProjectPath)) is { } path)
             ProjectPath = path;
     }
 
@@ -106,25 +112,25 @@ public partial class WelcomeViewModel : ObservableObject
         var inspection = DumpInspector.Inspect(Path.Combine(DumpDirectory, "romfs"), Path.Combine(DumpDirectory, "exefs"));
         if (!inspection.IsValid)
         {
-            Error = "El volcado no es utilizable:\n- " + string.Join("\n- ", inspection.Problems);
+            Error = Strings.Welcome_DumpInvalid + "\n- " + string.Join("\n- ", inspection.Problems);
             return;
         }
 
         if (File.Exists(ProjectPath))
         {
-            Error = $"Ya existe un proyecto en {ProjectPath}. Ábrelo o elige otro nombre.";
+            Error = string.Format(Strings.Welcome_ProjectExists, ProjectPath);
             return;
         }
 
         try
         {
             string dump = Path.GetFullPath(DumpDirectory);
-            // La ROM base se fija al crear el proyecto: después pueden aparecer ROM randomizadas en la misma carpeta.
+            // The base ROM is fixed when the project is created: randomized ROMs may appear in the same folder later.
             new Project { DumpDirectory = dump, RomFile = Project.FindBaseRom(dump), Language = Language.Value }.Save(ProjectPath);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            Error = $"No se pudo crear el proyecto: {ex.Message}";
+            Error = string.Format(Strings.Welcome_CreateFailed, ex.Message);
             return;
         }
 
@@ -134,7 +140,7 @@ public partial class WelcomeViewModel : ObservableObject
     [RelayCommand]
     private async Task OpenExisting()
     {
-        if (await dialogs.PickOpenFileAsync("Abrir proyecto") is { } path)
+        if (await dialogs.PickOpenFileAsync(Strings.Welcome_OpenProjectTitle) is { } path)
             Error = main.OpenProject(path);
     }
 }

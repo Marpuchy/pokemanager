@@ -12,7 +12,7 @@ public class UprLocatorTests
     [InlineData("java version \"1.8.0_481\"", 8)]
     [InlineData("java version \"25.0.2\" 2026-01-20 LTS", 25)]
     [InlineData("openjdk version \"17.0.12\" 2024-07-16", 17)]
-    [InlineData("basura", 0)]
+    [InlineData("garbage", 0)]
     public void ParseJavaMajor(string output, int expected) => Assert.Equal(expected, UprLocator.ParseJavaMajor(output));
 
     [Fact]
@@ -37,9 +37,9 @@ public class UprLocatorTests
     }
 
     [Theory]
-    [InlineData("Mi random", null)]
-    [InlineData("", "Pon un nombre")]
-    [InlineData("a/b", "caracteres no válidos")]
+    [InlineData("My random", null)]
+    [InlineData("", "Give the randomized ROM a name")]
+    [InlineData("a/b", "characters that are not valid")]
     public void ValidateOutputName(string name, string? error)
     {
         string? result = RomBuilder.ValidateName(name);
@@ -52,28 +52,28 @@ public class UprLocatorTests
     [Fact]
     public void OutputRom_GoesNextToBaseRom()
     {
-        string baseRom = Path.Combine(Path.GetTempPath(), "juegos", "Pokemon X.3ds");
-        Assert.Equal(Path.Combine(Path.GetTempPath(), "juegos", "Partida nico.cxi"), RomBuilder.OutputPath(baseRom, "Partida nico"));
+        string baseRom = Path.Combine(Path.GetTempPath(), "games", "Pokemon X.3ds");
+        Assert.Equal(Path.Combine(Path.GetTempPath(), "games", "Nico run.cxi"), RomBuilder.OutputPath(baseRom, "Nico run"));
     }
 
     [Fact]
     public void Catalog_CoversEveryVisibleOptionOfTheBundledUpr()
     {
-        // Lista medida sobre UPR ZX 4.6.1; si se actualiza el jar y aparecen opciones nuevas, que no pasen desapercibidas.
+        // Measured on UPR ZX 4.6.1; if the jar is updated and new options appear, they must not go unnoticed.
         Assert.All(UprOptionCatalog.Options.Values, o => Assert.Contains(o.Group, UprOptionCatalog.Groups));
     }
 }
 
 /// <summary>
-/// UPR ZX incluido, contra datos reales. Requiere Java 11+ y, para randomizar, <c>POKEMANAGER_DUMP</c> (con el .3ds dentro)
-/// y <c>POKEMANAGER_UPR_PRESET</c>. Se omite si falta algo.
+/// Bundled UPR ZX against real data. Requires Java 11+ and, to randomize, <c>POKEMANAGER_DUMP</c> (with the .3ds inside)
+/// and <c>POKEMANAGER_UPR_PRESET</c>. Skipped if anything is missing.
 /// </summary>
 public class UprRealTests
 {
     private static UprTools RequireTools()
     {
         var tools = UprLocator.Find();
-        Assert.SkipWhen(tools is null, "No hay Java 11+ o falta el jar incluido.");
+        Assert.SkipWhen(tools is null, "No Java 11+ or the bundled jar is missing.");
         return tools!;
     }
 
@@ -82,9 +82,9 @@ public class UprRealTests
         var tools = RequireTools();
         string? preset = Environment.GetEnvironmentVariable("POKEMANAGER_UPR_PRESET");
         string? dump = Environment.GetEnvironmentVariable("POKEMANAGER_DUMP");
-        Assert.SkipWhen(string.IsNullOrWhiteSpace(preset) || string.IsNullOrWhiteSpace(dump), "Faltan POKEMANAGER_UPR_PRESET o POKEMANAGER_DUMP.");
+        Assert.SkipWhen(string.IsNullOrWhiteSpace(preset) || string.IsNullOrWhiteSpace(dump), "POKEMANAGER_UPR_PRESET or POKEMANAGER_DUMP is not set.");
         string? rom = new Project { DumpDirectory = dump! }.ResolveRomFile();
-        Assert.SkipWhen(rom is null, "No hay .3ds en la carpeta del volcado.");
+        Assert.SkipWhen(rom is null, "No .3ds in the dump folder.");
         return (tools, File.ReadAllBytes(preset!), rom!, dump!);
     }
 
@@ -99,7 +99,7 @@ public class UprRealTests
         var described = await runner.DescribeSettingsAsync(defaults, cancellationToken: ct);
         Assert.True(described.Options.Count > 100);
 
-        // Reescribir todas las opciones con sus mismos valores no cambia el preset.
+        // Rewriting every option with its same value leaves the preset unchanged.
         var same = described.Options.Select(o => new KeyValuePair<string, string>(o.Name,
             o.Type == "enum" ? o.Value.GetString()! : o.Value.ValueKind == JsonValueKind.True ? "true" : o.Value.ValueKind == JsonValueKind.False ? "false" : o.Value.GetRawText()));
         Assert.Equal(defaults, await runner.WriteSettingsAsync(defaults, same, ct));
@@ -133,9 +133,9 @@ public class UprRealTests
             Assert.NotEmpty(files);
             foreach (string f in files)
                 Assert.True(File.ReadAllBytes(Path.Combine(first.TitleDirectory, f))
-                    .AsSpan().SequenceEqual(File.ReadAllBytes(Path.Combine(second.TitleDirectory, f))), $"{f} difiere con la misma semilla");
+                    .AsSpan().SequenceEqual(File.ReadAllBytes(Path.Combine(second.TitleDirectory, f))), $"{f} differs with the same seed");
 
-            // La base de edición es el random: alguna especie difiere del volcado original.
+            // The editing base is the random output: some species differs from the original dump.
             var session = EditorSession.Open(new Project { DumpDirectory = dumpDir }, Path.Combine(first.TitleDirectory, "romfs"));
             var vanilla = GameData.Load(Path.Combine(dumpDir, "romfs"));
             Assert.Contains(Enumerable.Range(1, 721),

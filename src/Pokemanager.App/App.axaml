@@ -20,7 +20,7 @@
   <Application.Styles>
     <FluentTheme />
 
-    <!-- Campo con valor distinto del original del volcado -->
+    <!-- Field whose value differs from the base -->
     <Style Selector="TextBlock.field-label.modified">
       <Setter Property="Foreground" Value="#E07B00" />
       <Setter Property="FontWeight" Value="SemiBold" />

@@ -1,66 +1,66 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Pokemanager.App.ViewModels"
+             xmlns:r="using:Pokemanager.App.Resources"
              x:Class="Pokemanager.App.Views.RandomizerView"
              x:DataType="vm:RandomizerViewModel">
   <TabControl x:Name="Tabs" Padding="0">
 
-    <!-- ======================= Generar ======================= -->
-    <TabItem Header="Generar">
+    <!-- ======================= Build ======================= -->
+    <TabItem Header="{x:Static r:Strings.Rnd_Tab_Build}">
       <Grid ColumnDefinitions="500,*">
         <ScrollViewer Margin="0,0,8,0">
           <StackPanel Margin="16,8" Spacing="6">
-            <CheckBox IsChecked="{Binding Enabled}" FontSize="15" FontWeight="SemiBold" Content="Randomizar la ROM" />
+            <CheckBox IsChecked="{Binding Enabled}" FontSize="15" FontWeight="SemiBold" Content="{x:Static r:Strings.Rnd_Enable}" />
             <TextBlock Text="{Binding ToolsStatus}" TextWrapping="Wrap" Classes="hint" Classes.error="{Binding !ToolsReady}" />
 
-            <TextBlock Classes="section" Text="ROM base" />
+            <TextBlock Classes="section" Text="{x:Static r:Strings.Rnd_BaseRom}" />
             <TextBlock Text="{Binding BaseRomText}" TextWrapping="Wrap" />
-            <TextBlock Classes="hint" Text="Nunca se modifica. Cámbiala en Ajustes." />
+            <TextBlock Classes="hint" Text="{x:Static r:Strings.Rnd_BaseRomHint}" />
 
-            <TextBlock Classes="section" Text="Opciones y semilla" />
+            <TextBlock Classes="section" Text="{x:Static r:Strings.Rnd_OptionsAndSeed}" />
             <Grid ColumnDefinitions="*,Auto">
               <TextBlock Text="{Binding PresetText}" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
               <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
-                <Button Content="Importar .rnqs…" Command="{Binding ImportPresetCommand}" />
-                <Button Content="Exportar…" Command="{Binding ExportPresetCommand}" />
+                <Button Content="{x:Static r:Strings.Rnd_ImportPreset}" Command="{Binding ImportPresetCommand}" />
+                <Button Content="{x:Static r:Strings.Rnd_Export}" Command="{Binding ExportPresetCommand}" />
               </StackPanel>
             </Grid>
-            <TextBlock Classes="hint" Text="Edita las opciones en la pestaña «Opciones»." />
+            <TextBlock Classes="hint" Text="{x:Static r:Strings.Rnd_EditOptionsHint}" />
             <Grid ColumnDefinitions="*,Auto">
-              <TextBox Text="{Binding SeedText}" Watermark="Semilla" />
-              <Button Grid.Column="1" Margin="6,0,0,0" Content="Nueva semilla" Command="{Binding NewSeedCommand}" />
+              <TextBox Text="{Binding SeedText}" PlaceholderText="{x:Static r:Strings.Rnd_SeedWatermark}" />
+              <Button Grid.Column="1" Margin="6,0,0,0" Content="{x:Static r:Strings.Rnd_NewSeed}" Command="{Binding NewSeedCommand}" />
             </Grid>
             <TextBlock Classes="error" Text="{Binding SeedError}" IsVisible="{Binding SeedError, Converter={x:Static ObjectConverters.IsNotNull}}" />
-            <TextBlock Classes="hint" Text="Mismas opciones y misma semilla dan siempre el mismo juego." />
+            <TextBlock Classes="hint" Text="{x:Static r:Strings.Rnd_SeedHint}" />
 
-            <TextBlock Classes="section" Text="ROM randomizada" />
+            <TextBlock Classes="section" Text="{x:Static r:Strings.Rnd_OutputRom}" />
             <StackPanel IsVisible="{Binding HasPreviousRom}" Spacing="2">
-              <RadioButton GroupName="salida" IsChecked="{Binding ReplacePrevious}" Content="{Binding PreviousRomText}" />
-              <RadioButton GroupName="salida" IsChecked="{Binding CreateNew}" Content="Crear una ROM nueva (se conserva la anterior)" />
+              <RadioButton GroupName="output" IsChecked="{Binding ReplacePrevious}" Content="{Binding PreviousRomText}" />
+              <RadioButton GroupName="output" IsChecked="{Binding CreateNew}" Content="{x:Static r:Strings.Rnd_CreateNew}" />
             </StackPanel>
-            <TextBlock Text="Nombre" IsVisible="{Binding IsNameEditable}" />
+            <TextBlock Text="{x:Static r:Strings.Rnd_Name}" IsVisible="{Binding IsNameEditable}" />
             <TextBox Text="{Binding OutputName}" IsVisible="{Binding IsNameEditable}" />
             <TextBlock Classes="error" Text="{Binding OutputError}" IsVisible="{Binding OutputError, Converter={x:Static ObjectConverters.IsNotNull}}" />
             <TextBlock Classes="hint" Text="{Binding OutputPath}" TextWrapping="Wrap" />
-            <TextBlock Classes="hint" Foreground="#E07B00" IsVisible="{Binding OutputExists}" Text="Ya existe un archivo con ese nombre: se sustituirá." />
+            <TextBlock Classes="hint" Foreground="#E07B00" IsVisible="{Binding OutputExists}" Text="{x:Static r:Strings.Rnd_OutputExists}" />
 
-            <TextBlock Classes="section" Text="Tu partida" />
+            <TextBlock Classes="section" Text="{x:Static r:Strings.Rnd_YourSave}" />
             <TextBlock Text="{Binding SaveText}" TextWrapping="Wrap" />
             <TextBlock Classes="hint" Text="{Binding SaveTargetText}" TextWrapping="Wrap" />
-            <CheckBox IsChecked="{Binding UpdateSave}" IsEnabled="{Binding HasSave}"
-                      Content="Adaptar la partida a la nueva ROM (habilidades y stats)" />
-            <Button Content="Adaptar partida ahora a la ROM ya creada" Command="{Binding AdaptSaveNowCommand}"
+            <CheckBox IsChecked="{Binding UpdateSave}" IsEnabled="{Binding HasSave}" Content="{x:Static r:Strings.Rnd_UpdateSave}" />
+            <Button Content="{x:Static r:Strings.Rnd_AdaptNow}" Command="{Binding AdaptSaveNowCommand}"
                     IsVisible="{Binding HasPreviousRom}" IsEnabled="{Binding HasSave}"
-                    ToolTip.Tip="Sin volver a crear la ROM. Solo si no has cambiado nada desde que la creaste." />
+                    ToolTip.Tip="{x:Static r:Strings.Rnd_AdaptNowTip}" />
             <Border Padding="10" CornerRadius="4" Background="#26E07B00" BorderBrush="#E07B00" BorderThickness="1"
                     IsVisible="{Binding HasSaveWarning}">
               <TextBlock Text="{Binding SaveWarning}" TextWrapping="Wrap" />
             </Border>
 
             <Button Classes="accent" Margin="0,12,0,0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                    Content="Randomizar y crear ROM" Command="{Binding RandomizeAndBuildCommand}" />
+                    Content="{x:Static r:Strings.Rnd_BuildButton}" Command="{Binding RandomizeAndBuildCommand}" />
 
-            <TextBlock Classes="section" Text="Cambios en tu partida" IsVisible="{Binding SaveChangesSummary, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+            <TextBlock Classes="section" Text="{x:Static r:Strings.Rnd_SaveChanges}" IsVisible="{Binding SaveChangesSummary, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
             <TextBlock Text="{Binding SaveChangesSummary}" TextWrapping="Wrap" />
             <ItemsControl ItemsSource="{Binding SaveChanges}">
               <ItemsControl.ItemTemplate>
@@ -78,9 +78,9 @@
           </StackPanel>
         </ScrollViewer>
 
-        <!-- Log de UPR -->
+        <!-- UPR log -->
         <DockPanel Grid.Column="1" Margin="8">
-          <TextBlock DockPanel.Dock="Top" Classes="section" Margin="0,0,0,6" Text="Log de la randomización" />
+          <TextBlock DockPanel.Dock="Top" Classes="section" Margin="0,0,0,6" Text="{x:Static r:Strings.Log_Title}" />
           <Grid DockPanel.Dock="Top" ColumnDefinitions="300,*">
             <ComboBox ItemsSource="{Binding LogSections}" SelectedItem="{Binding SelectedLogSection}"
                       HorizontalAlignment="Stretch" MaxDropDownHeight="420">
@@ -90,7 +90,7 @@
                 </DataTemplate>
               </ComboBox.ItemTemplate>
             </ComboBox>
-            <TextBox Grid.Column="1" Margin="6,0,0,0" Text="{Binding LogFilter}" Watermark="Buscar (p. ej. un Pokémon o un entrenador)" />
+            <TextBox Grid.Column="1" Margin="6,0,0,0" Text="{Binding LogFilter}" PlaceholderText="{x:Static r:Strings.Log_SearchWatermark}" />
           </Grid>
           <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="0,4" Text="{Binding LogSummary}" />
           <Border BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
@@ -112,8 +112,8 @@
       </Grid>
     </TabItem>
 
-    <!-- ======================= Opciones ======================= -->
-    <TabItem Header="Opciones">
+    <!-- ======================= Options ======================= -->
+    <TabItem Header="{x:Static r:Strings.Rnd_Tab_Options}">
       <Grid ColumnDefinitions="280,*" DataContext="{Binding Options}" x:DataType="vm:UprOptionsViewModel">
         <TextBlock Grid.ColumnSpan="2" Margin="16" Text="{Binding LoadStatus}" TextWrapping="Wrap" IsVisible="{Binding !IsLoaded}" />
 

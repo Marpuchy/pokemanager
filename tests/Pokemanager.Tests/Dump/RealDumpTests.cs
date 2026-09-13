@@ -3,8 +3,8 @@ using Pokemanager.Model.Dump;
 namespace Pokemanager.Tests.Dump;
 
 /// <summary>
-/// Pruebas contra un volcado real de Pokémon X. Se omiten si la variable de entorno
-/// <c>POKEMANAGER_DUMP</c> no apunta a una carpeta con <c>romfs</c> y <c>exefs</c>.
+/// Tests against a real Pokémon X dump. Skipped when the environment variable
+/// <c>POKEMANAGER_DUMP</c> does not point to a folder with <c>romfs</c> and <c>exefs</c>.
 /// </summary>
 public class RealDumpTests
 {
@@ -12,9 +12,9 @@ public class RealDumpTests
 
     private static (string RomFs, string ExeFs) RequireDump()
     {
-        Assert.SkipWhen(string.IsNullOrWhiteSpace(DumpDir), "POKEMANAGER_DUMP no está definida.");
+        Assert.SkipWhen(string.IsNullOrWhiteSpace(DumpDir), "POKEMANAGER_DUMP is not set.");
         string romFs = Path.Combine(DumpDir!, "romfs"), exeFs = Path.Combine(DumpDir!, "exefs");
-        Assert.SkipUnless(Directory.Exists(romFs) && Directory.Exists(exeFs), $"{DumpDir} no contiene romfs y exefs.");
+        Assert.SkipUnless(Directory.Exists(romFs) && Directory.Exists(exeFs), $"{DumpDir} does not contain romfs and exefs.");
         return (romFs, exeFs);
     }
 
@@ -27,7 +27,8 @@ public class RealDumpTests
 
         Assert.Equal(GameTitle.X, dump.Title);
         var bulbasaur = dump.Config.Personal[1];
-        Assert.Equal([45, 49, 49, 45, 65, 65], bulbasaur.Stats); // PS, Atq, Def, Vel, AtqEsp, DefEsp
+        Assert.Equal([45, 49, 49, 45, 65, 65], bulbasaur.Stats); // HP, Atk, Def, Spe, SpA, SpD
+        // Game text in the chosen game language (Spanish).
         Assert.Equal("Charizard", dump.Config.GetText(pk3DS.Core.TextName.SpeciesNames)[6]);
         Assert.Equal("Placaje", dump.Config.GetText(pk3DS.Core.TextName.MoveNames)[33]);
     }

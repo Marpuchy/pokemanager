@@ -1,20 +1,24 @@
 using System.Security.Cryptography;
 using System.Text;
+using Pokemanager.Randomizer.Resources;
 
 namespace Pokemanager.Randomizer;
 
 /// <summary>
-/// Guarda la salida de UPR ZX por (ROM, preset, semilla, versión del jar) para no repetir la
-/// randomización. Es regenerable: borrar la caché solo cuesta volver a ejecutar UPR.
+/// Stores UPR ZX output per (ROM, preset, seed, jar version) so the randomization is not repeated. Regenerable:
+/// deleting the cache only costs running UPR again.
 /// </summary>
 public sealed class RandomizationCache(string root)
 {
+    private const string CompleteMarker = ".complete";
+    private const string OutputFolder = "output";
+
     public static string DefaultRoot => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Pokemanager", "random");
 
     public string Root { get; } = root;
 
-    /// <summary>Clave estable: cambia si cambia la ROM (ruta, tamaño, fecha), el preset, la semilla o el jar.</summary>
+    /// <summary>Stable key: changes when the ROM (path, size, date), the preset, the seed or the jar changes.</summary>
     public static string Key(string romFile, byte[] preset, long seed, string jarFile)
     {
         var rom = new FileInfo(romFile);
@@ -26,48 +30,48 @@ public sealed class RandomizationCache(string root)
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(material)))[..24];
     }
 
-    /// <summary>Salida ya generada para esos parámetros, sin ejecutar UPR. Null si no está en caché.</summary>
+    /// <summary>Output already generated for those parameters, without running UPR. Null if not cached.</summary>
     public UprResult? TryGet(string romFile, byte[] preset, long seed, string jarFile)
     {
         string dir = Path.Combine(Root, Key(romFile, preset, seed, jarFile));
-        return File.Exists(Path.Combine(dir, ".completo")) ? FindResult(Path.Combine(dir, "salida"), seed) : null;
+        return File.Exists(Path.Combine(dir, CompleteMarker)) ? FindResult(Path.Combine(dir, OutputFolder), seed) : null;
     }
 
-    /// <summary>Devuelve la salida en caché o ejecuta UPR para generarla.</summary>
+    /// <summary>Returns the cached output or runs UPR to generate it.</summary>
     public async Task<UprResult> GetOrCreateAsync(
         UprRunner runner, UprTools tools, string romFile, byte[] preset, long seed,
         IProgress<string>? progress = null, CancellationToken cancellationToken = default)
     {
         if (TryGet(romFile, preset, seed, tools.JarPath) is { } cached)
         {
-            progress?.Report($"Usando la randomización en caché de la semilla {seed}.");
-            // Se marca como usada ahora para que Prune la conserve.
-            File.SetLastWriteTimeUtc(Path.Combine(Root, Key(romFile, preset, seed, tools.JarPath), ".completo"), DateTime.UtcNow);
+            progress?.Report(string.Format(Strings.Upr_UsingCache, seed));
+            // Mark it as used now so Prune keeps it.
+            File.SetLastWriteTimeUtc(Path.Combine(Root, Key(romFile, preset, seed, tools.JarPath), CompleteMarker), DateTime.UtcNow);
             return cached;
         }
 
         string dir = Path.Combine(Root, Key(romFile, preset, seed, tools.JarPath));
         if (Directory.Exists(dir))
-            Directory.Delete(dir, recursive: true); // incompleta: la creó esta caché y se rehace
+            Directory.Delete(dir, recursive: true); // incomplete: this cache created it, so it is redone
         Directory.CreateDirectory(dir);
 
-        // UPR solo lee el preset de disco.
+        // UPR only reads the preset from disk.
         string presetFile = Path.Combine(dir, "preset.rnqs");
         await File.WriteAllBytesAsync(presetFile, preset, cancellationToken);
 
-        var result = await runner.RandomizeAsync(presetFile, romFile, seed, Path.Combine(dir, "salida"), progress, cancellationToken);
-        await File.WriteAllTextAsync(Path.Combine(dir, ".completo"), DateTime.UtcNow.ToString("O"), cancellationToken);
+        var result = await runner.RandomizeAsync(presetFile, romFile, seed, Path.Combine(dir, OutputFolder), progress, cancellationToken);
+        await File.WriteAllTextAsync(Path.Combine(dir, CompleteMarker), DateTime.UtcNow.ToString("O"), cancellationToken);
         return result;
     }
 
-    /// <summary>Borra las randomizaciones en caché salvo las <paramref name="keep"/> más recientes y la indicada.</summary>
+    /// <summary>Deletes cached randomizations except the <paramref name="keep"/> most recent and the given one.</summary>
     public void Prune(int keep, string? keepTitleDirectory = null)
     {
         if (!Directory.Exists(Root))
             return;
         var entries = Directory.GetDirectories(Root)
-            .Where(d => File.Exists(Path.Combine(d, ".completo")))
-            .OrderByDescending(d => File.GetLastWriteTimeUtc(Path.Combine(d, ".completo")))
+            .Where(d => File.Exists(Path.Combine(d, CompleteMarker)))
+            .OrderByDescending(d => File.GetLastWriteTimeUtc(Path.Combine(d, CompleteMarker)))
             .ToList();
         foreach (string dir in entries.Skip(keep))
         {

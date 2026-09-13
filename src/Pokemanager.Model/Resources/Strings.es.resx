@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Dump_RomFsMissing" xml:space="preserve">
+    <value>No existe la carpeta romfs: {0}</value>
+  </data>
+  <data name="Dump_ExeFsMissing" xml:space="preserve">
+    <value>No existe la carpeta exefs: {0}</value>
+  </data>
+  <data name="Dump_NoAFolder" xml:space="preserve">
+    <value>La carpeta romfs no contiene 'a'. ¿Es la raíz del romfs?</value>
+  </data>
+  <data name="Dump_FileCount" xml:space="preserve">
+    <value>romfs/a tiene {0} archivos; X/Y tiene {1} (ORAS 299, Sol/Luna 311, USUM 333).</value>
+  </data>
+  <data name="Dump_GarcMissing" xml:space="preserve">
+    <value>Falta {0} ({1}).</value>
+  </data>
+  <data name="Dump_GarcTooShort" xml:space="preserve">
+    <value>{0} ({1}) es demasiado corto para ser un GARC.</value>
+  </data>
+  <data name="Dump_NotGarc" xml:space="preserve">
+    <value>{0} ({1}) no es un GARC.</value>
+  </data>
+  <data name="Dump_GarcVersion" xml:space="preserve">
+    <value>{0} ({1}) es un GARC versión 0x{2:X4}; X/Y usa 0x{3:X4}.</value>
+  </data>
+  <data name="Dump_GarcEntries" xml:space="preserve">
+    <value>{0} ({1}) tiene {2} entradas; X/Y tiene {3}.</value>
+  </data>
+  <data name="Dump_IconMissing" xml:space="preserve">
+    <value>Falta exefs/icon.bin: no se puede saber si es Pokémon X o Y.</value>
+  </data>
+  <data name="Dump_IconInvalid" xml:space="preserve">
+    <value>exefs/icon.bin no es un SMDH válido.</value>
+  </data>
+  <data name="Dump_TitleUnknown" xml:space="preserve">
+    <value>El título de exefs/icon.bin no es Pokémon X ni Y: {0}</value>
+  </data>
+  <data name="Dump_CodeMissing" xml:space="preserve">
+    <value>Falta exefs/code.bin.</value>
+  </data>
+  <data name="Dump_CodeCompressed" xml:space="preserve">
+    <value>exefs/code.bin está comprimido (BLZ). Hace falta la versión descomprimida.</value>
+  </data>
+  <data name="Dump_Invalid" xml:space="preserve">
+    <value>El volcado no es utilizable:</value>
+  </data>
+  <data name="Tables_UnknownTable" xml:space="preserve">
+    <value>Tabla desconocida: {0}</value>
+  </data>
+  <data name="Tables_UnknownField" xml:space="preserve">
+    <value>Campo desconocido en {0}: {1}</value>
+  </data>
+  <data name="Tables_OutOfRange" xml:space="preserve">
+    <value>La tabla {0} tiene {1} entradas.</value>
+  </data>
+  <data name="Session_InvalidEdits" xml:space="preserve">
+    <value>Ediciones no válidas en el proyecto:</value>
+  </data>
+  <data name="Project_Empty" xml:space="preserve">
+    <value>Proyecto vacío: {0}</value>
+  </data>
+  <data name="Project_NewerFormat" xml:space="preserve">
+    <value>El proyecto usa el formato {0}; esta versión solo entiende hasta el {1}.</value>
+  </data>
+  <data name="Layers_NeedOne" xml:space="preserve">
+    <value>Hace falta al menos una carpeta romfs.</value>
+  </data>
+  <data name="Layers_NotFound" xml:space="preserve">
+    <value>{0} no está en ninguna capa del romfs.</value>
+  </data>
+  <data name="Mod_OutsideFolder" xml:space="preserve">
+    <value>Ruta fuera de la carpeta del mod: {0}</value>
+  </data>
+  <data name="Mod_InsideDump" xml:space="preserve">
+    <value>La carpeta del mod ({0}) no puede estar dentro del volcado ni contenerlo: el volcado es de solo lectura.</value>
+  </data>
+</root>

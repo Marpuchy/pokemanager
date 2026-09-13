@@ -1,25 +1,27 @@
 using System.Text.Json;
+using Pokemanager.Model.Resources;
 
 namespace Pokemanager.Model.Build;
 
 public sealed record InstallResult(string ModDirectory, IReadOnlyList<string> Written, IReadOnlyList<string> Removed);
 
 /// <summary>
-/// Escribe el mod en <c>load/mods/&lt;TitleID&gt;</c>: la salida del randomizer y, encima, los GARC de
-/// las ediciones manuales.
+/// LayeredFS mod folder (<c>load/mods/&lt;TitleID&gt;</c>): randomizer output with the manual edit GARCs on top.
 /// </summary>
 /// <remarks>
-/// Un manifiesto registra lo escrito para borrar en la siguiente instalación lo que ya no toque, sin
-/// tocar archivos ajenos a la aplicación. Se niega a escribir dentro del volcado.
+/// The app now builds ROM files instead of installing mods, because a mod applies to every ROM of the game.
+/// <see cref="Uninstall"/> removes what earlier versions installed. A manifest records what was written so that
+/// files that no longer apply are removed without touching anything the app did not create. Writing inside the dump
+/// is refused.
 /// </remarks>
 public static class ModInstaller
 {
     public const string ManifestName = "pokemanager-build.json";
 
-    /// <param name="modDirectory"><c>&lt;usuario&gt;/load/mods/&lt;TitleID&gt;</c>.</param>
-    /// <param name="dumpDirectory">Volcado, solo para impedir escribir dentro de él.</param>
-    /// <param name="randomizedTitleDirectory">Salida de UPR ZX (<c>romfs/</c> y <c>code.bin</c>), o null.</param>
-    /// <param name="editOutputs">Resultado de <see cref="ModBuilder.BuildEdits"/>; sustituye a lo del randomizer.</param>
+    /// <param name="modDirectory"><c>&lt;user&gt;/load/mods/&lt;TitleID&gt;</c>.</param>
+    /// <param name="dumpDirectory">The dump, only to refuse writing inside it.</param>
+    /// <param name="randomizedTitleDirectory">UPR ZX output (<c>romfs/</c> and <c>code.bin</c>), or null.</param>
+    /// <param name="editOutputs">Result of <see cref="ModBuilder.BuildEdits"/>; overrides the randomizer files.</param>
     public static InstallResult Install(
         string modDirectory, string dumpDirectory, string? randomizedTitleDirectory,
         IReadOnlyDictionary<string, byte[]> editOutputs)
@@ -29,7 +31,7 @@ public static class ModInstaller
 
         var written = new List<string>();
 
-        // 1. Randomizer: romfs tal cual; code.bin a exefs/code.bin (ruta de override de ExeFS del emulador).
+        // 1. Randomizer: romfs as is; code.bin to exefs/code.bin (the emulator's ExeFS override path).
         if (randomizedTitleDirectory is not null)
         {
             string romfs = Path.Combine(randomizedTitleDirectory, "romfs");
@@ -48,7 +50,7 @@ public static class ModInstaller
                 Copy(code, modDirectory, "exefs/code.bin", written);
         }
 
-        // 2. Ediciones manuales encima.
+        // 2. Manual edits on top.
         foreach (var (relative, bytes) in editOutputs)
         {
             string path = Target(modDirectory, relative);
@@ -57,7 +59,7 @@ public static class ModInstaller
             written.Add(relative);
         }
 
-        // 3. Lo que instalamos antes y ya no toca.
+        // 3. What an earlier install wrote and no longer applies.
         var removed = new List<string>();
         foreach (string stale in ReadManifest(modDirectory).Except(written))
         {
@@ -74,8 +76,8 @@ public static class ModInstaller
     }
 
     /// <summary>
-    /// Quita de <paramref name="modDirectory"/> lo que instaló la aplicación (según su manifiesto) y nada más.
-    /// Borra las carpetas que queden vacías. Devuelve los archivos eliminados.
+    /// Removes from <paramref name="modDirectory"/> what the app installed (according to its manifest) and nothing
+    /// else, then deletes folders left empty. Returns the removed files.
     /// </summary>
     public static IReadOnlyList<string> Uninstall(string modDirectory)
     {
@@ -117,7 +119,7 @@ public static class ModInstaller
     {
         string path = Path.GetFullPath(Path.Combine(modDirectory, relative.Replace('/', Path.DirectorySeparatorChar)));
         if (!path.StartsWith(modDirectory.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException($"Ruta fuera de la carpeta del mod: {relative}");
+            throw new InvalidOperationException(string.Format(Strings.Mod_OutsideFolder, relative));
         return path;
     }
 
@@ -126,7 +128,7 @@ public static class ModInstaller
         string dump = Path.GetFullPath(dumpDirectory).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
         string target = modDirectory.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
         if (target.StartsWith(dump, StringComparison.OrdinalIgnoreCase) || dump.StartsWith(target, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException($"La carpeta del mod ({modDirectory}) no puede estar dentro del volcado ni contenerlo: el volcado es de solo lectura.");
+            throw new InvalidOperationException(string.Format(Strings.Mod_InsideDump, modDirectory));
     }
 
     private static IReadOnlyList<string> ReadManifest(string modDirectory)

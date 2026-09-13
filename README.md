@@ -1,91 +1,101 @@
 # Pokemanager
 
-Randomizador y editor de partida para Pokémon X/Y (3DS), pensado para usarse con un emulador de
-3DS mediante LayeredFS. Junta en una sola aplicación lo que hoy se hace con Universal Pokémon
-Randomizer ZX (la ROM) y PKHeX (la partida).
+Randomizer and save editor for Pokémon X/Y (3DS), meant to be played on a 3DS emulator (Citra, Azahar).
+It brings together in one application what is usually done with Universal Pokémon Randomizer ZX (the ROM)
+and PKHeX (the save file).
 
-La aplicación no modifica nunca el volcado del juego: todo lo que genera va a la carpeta de
-mods del emulador y se puede regenerar a partir de `volcado + proyecto`. El repositorio no
-contiene datos del juego; cada usuario aporta su propio volcado descifrado.
+The application never modifies your base ROM or dump: randomized ROMs are created as new files next to it
+and can always be regenerated from `dump + project`. The repository contains no game data; each user
+provides their own decrypted dump.
 
-> Estado: **randomizer completo** (opciones editables, ROM nueva, partida adaptada). Editor de partida
-> completo (fase B) pendiente.
+> Status: **randomizer complete** (editable options, new ROM, save adapted to it). Full save editor
+> (phase B) still to do.
 
-## Requisitos
+The interface is in **English** by default; Spanish can be selected in **Settings → Language**.
 
-- SDK de .NET 10 y Java 11 o superior.
-- Volcado descifrado de Pokémon X o Y: el `.3ds` y sus carpetas `romfs` y `exefs` extraídas
-  (`code.bin` descomprimido), todo en la misma carpeta.
-- Universal Pokémon Randomizer ZX y PKHeX.Core **vienen incluidos** (ver [tools/LEEME.md](tools/LEEME.md)).
+## Requirements
 
-## Uso
+- .NET 10 SDK and Java 11 or later.
+- A decrypted Pokémon X or Y dump: the `.3ds` plus its extracted `romfs` and `exefs` folders
+  (`code.bin` decompressed), all in the same folder.
+- Universal Pokémon Randomizer ZX and PKHeX.Core **are bundled** (see [tools/README.md](tools/README.md)).
+
+## Usage
 
 ```
 dotnet run --project src/Pokemanager.App
 ```
 
-1. **Nuevo proyecto:** carpeta del volcado, idioma y dónde guardar el proyecto `.json`.
-2. **Ajustes…:** emulador (por defecto, el que usaste por última vez), ROM base y herramientas.
-3. **Randomizer → Opciones:** todas las opciones de UPR ZX en español, agrupadas como en UPR. Se puede
-   importar/exportar un `.rnqs`.
-4. **Randomizer → Generar:** semilla y nombre de la ROM. **Randomizar y crear ROM**:
-   - crea `<carpeta de la ROM base>/<nombre>.cxi` (y su log); la ROM base no se toca;
-   - si hay partida y está marcado, la **adapta a la nueva ROM**: cada Pokémon recibe la habilidad que le
-     toca y el equipo recalcula sus stats, con copia de seguridad previa y verificación. El emulador de esa
-     partida tiene que estar cerrado.
-5. Abre el `.cxi` en el emulador.
-6. **Avanzado:** retoques manuales de Pokémon y movimientos encima del random; se incluyen en la ROM creada.
+1. **New project:** dump folder, game text language and where to save the project `.json`.
+   Projects you create or open appear under **Recent projects** on the start page.
+2. **Settings…:** interface language, emulator (by default the one you used most recently), base ROM,
+   bundled tools, cache and save backups.
+3. **Randomizer → Options:** every UPR ZX option, grouped as in UPR. A `.rnqs` preset can be
+   imported/exported.
+4. **Randomizer → Build:** seed and ROM name. **Randomize and build ROM**:
+   - creates `<base ROM folder>/<name>.cxi` (and its log); the base ROM is never touched;
+   - after the first build you can **replace the previous ROM** (default) or create a new one, so files do
+     not pile up;
+   - if there is a save and the option is checked, it **adapts the save to the new ROM**: every Pokémon gets
+     the ability it should have and the party stats are recalculated, with a backup first and verification
+     afterwards. The emulator of that save must be closed. **Adapt the save now** does the same without
+     rebuilding.
+5. Open the `.cxi` in the emulator.
+6. **Advanced:** manual Pokémon and move edits on top of the randomization; they are included in the built ROM.
 
-Mismas opciones + misma semilla = mismo juego: se puede reproducir una ROM hecha antes con UPR ZX usando
-su preset y la semilla de su log.
+Same options + same seed = same game: a ROM made earlier with UPR ZX can be reproduced from its preset and
+the seed in its log.
 
-## Deriva de pk3DS
+## Derived from pk3DS
 
-**Este proyecto deriva de [pk3DS](https://github.com/kwsch/pk3DS), de Kaphotics (kwsch) y
-colaboradores**, publicado bajo GPL-3.0.
+**This project derives from [pk3DS](https://github.com/kwsch/pk3DS), by Kaphotics (kwsch) and
+contributors**, published under GPL-3.0.
 
-`src/Pokemanager.Formats/` es `pk3DS.Core`, importado con `git subtree` y modificado para que
-compile como librería `net10.0` multiplataforma, sin WinForms. Ver [NOTICE](NOTICE) y
-[docs/upstream-pk3ds.md](docs/upstream-pk3ds.md) para el detalle de los cambios y cómo traer
-actualizaciones de upstream.
+`src/Pokemanager.Formats/` is `pk3DS.Core`, imported with `git subtree` and modified so that it
+builds as a cross-platform `net10.0` library without WinForms. See [NOTICE](NOTICE) and
+[docs/upstream-pk3ds.md](docs/upstream-pk3ds.md) for the changes and how to pull upstream updates.
 
-Universal Pokémon Randomizer ZX (GPL-3.0) no se incluye: se usa el jar que tenga el usuario.
+## License
 
-## Licencia
+GPL-3.0, inherited from pk3DS. See [LICENSE.md](LICENSE.md).
 
-GPL-3.0, heredada de pk3DS. Ver [LICENSE.md](LICENSE.md).
-
-## Estructura
+## Layout
 
 ```
-src/Pokemanager.Formats     pk3DS.Core sin WinForms: GARC, LZ11, BLZ, estructuras Gen 6
-src/Pokemanager.Model       volcado (Dump/), datos y capas de romfs (Data/), ediciones (Edits/, Editing/),
-                            proyecto (Projects/), construcción e instalación del mod (Build/)
-src/Pokemanager.Randomizer  UPR ZX: localizar Java y el jar, lanzador con semilla fija, caché
-src/Pokemanager.Bridge      emulador: carpeta de usuario, de mods y del guardado
-src/Pokemanager.App         interfaz Avalonia
-tests/Pokemanager.Tests     pruebas (xUnit v3)
+src/Pokemanager.Formats     pk3DS.Core without WinForms: GARC, LZ11, BLZ, Gen 6 structures
+src/Pokemanager.Model       dump (Dump/), data and romfs layers (Data/), edits (Edits/, Editing/),
+                            project (Projects/), edit build (Build/)
+src/Pokemanager.Randomizer  UPR ZX: locate Java and the jar, fixed-seed launcher, options, cache, ROM build
+src/Pokemanager.Save        save adaptation with PKHeX.Core
+src/Pokemanager.Bridge      emulator: user folder, mods folder and save file
+src/Pokemanager.App         Avalonia interface (strings in Resources/Strings.resx, Spanish in Strings.es.resx)
+tests/Pokemanager.Tests     tests (xUnit v3)
 ```
 
-## Compilar y probar
+## Build and test
 
 ```
 dotnet build
-dotnet test
+dotnet test --solution Pokemanager.slnx
 ```
 
-Las pruebas usan Microsoft Testing Platform (`global.json`) y xUnit v3. Las que necesitan datos
-reales se **omiten** (no fallan) si faltan estas variables:
+Tests use Microsoft Testing Platform (`global.json`) and xUnit v3. Tests that need real data are
+**skipped** (not failed) when these variables are missing:
 
-| Variable | Qué es |
+| Variable | What it is |
 |---|---|
-| `POKEMANAGER_DUMP` | Carpeta con el `.3ds`, `romfs` y `exefs` |
-| `POKEMANAGER_UPR_JAR` | `PokeRandoZX.jar` |
-| `POKEMANAGER_UPR_PRESET` | Un preset `.rnqs` |
+| `POKEMANAGER_DUMP` | Folder with the `.3ds`, `romfs` and `exefs` |
+| `POKEMANAGER_UPR_PRESET` | A `.rnqs` preset |
+| `POKEMANAGER_SAVE` | A Pokémon X/Y `main` save file (only a temporary copy is read) |
 
 ```
 $env:POKEMANAGER_DUMP = "G:\pokemanager-dump"        # PowerShell
-$env:POKEMANAGER_UPR_JAR = "D:\citra\roms\PokeRandoZX.jar"
 $env:POKEMANAGER_UPR_PRESET = "D:\citra\roms\alex.rnqs"
-dotnet test
+dotnet test --solution Pokemanager.slnx
 ```
+
+## Translations
+
+Every user-facing string lives in a `Resources/Strings.resx` file per project (App, Model, Randomizer, Save)
+with its Spanish counterpart in `Strings.es.resx`. `LocalizationTests` checks that each Spanish file
+translates every key and keeps the same `{0}` placeholders.

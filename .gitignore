@@ -8,7 +8,7 @@ obj/
 *.DotSettings.user
 TestResults/
 
-## Datos del usuario: nunca en el repo
+## User game data: never in the repository
 *.3ds
 *.cia
 *.cxi

@@ -10,13 +10,25 @@
     <InternalsVisibleTo Include="Pokemanager.Tests" />
   </ItemGroup>
 
-  <!-- Lanzador Java y herramientas incluidas (tools/upr/PokeRandoZX.jar): viajan con cualquier proyecto que use este. -->
+  <ItemGroup>
+    <ProjectReference Include="..\Pokemanager.Model\Pokemanager.Model.csproj" />
+  </ItemGroup>
+
+  <!-- Java launcher and bundled tools (tools/upr/PokeRandoZX.jar): copied to the output of any project using this one. -->
   <ItemGroup>
     <None Include="upr\PokemanagerUpr.java" CopyToOutputDirectory="PreserveNewest" LinkBase="upr" />
     <None Include="..\..\tools\**\*" CopyToOutputDirectory="PreserveNewest" LinkBase="tools" />
   </ItemGroup>
+
+  <!-- User-facing text, including the option catalog: English by default, Spanish in Strings.es.resx. -->
   <ItemGroup>
-    <ProjectReference Include="..\Pokemanager.Model\Pokemanager.Model.csproj" />
+    <EmbeddedResource Update="Resources\Strings.resx">
+      <Generator>MSBuild:Compile</Generator>
+      <StronglyTypedFileName>$(IntermediateOutputPath)Strings.Designer.cs</StronglyTypedFileName>
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+      <StronglyTypedNamespace>Pokemanager.Randomizer.Resources</StronglyTypedNamespace>
+      <StronglyTypedClassName>Strings</StronglyTypedClassName>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

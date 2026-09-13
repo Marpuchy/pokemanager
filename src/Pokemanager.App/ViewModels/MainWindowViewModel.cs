@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Pokemanager.App.Resources;
 using Pokemanager.App.Services;
 using Pokemanager.Model.Dump;
 using Pokemanager.Model.Editing;
@@ -24,15 +25,15 @@ public partial class MainWindowViewModel : ObservableObject
         this.settings = settings;
         Upr = new UprService();
 
-        // Se empieza en la lista de proyectos: con varios, el usuario elige cuál abrir.
+        // Start on the project list: with several projects, the user picks which one to open.
         CurrentPage = new WelcomeViewModel(this, dialogs);
     }
 
-    public string Title => CurrentPage is EditorViewModel e ? $"Pokemanager — {Path.GetFileName(e.ProjectPath)}" : "Pokemanager";
+    public string Title => CurrentPage is EditorViewModel e ? string.Format(Strings.Main_TitleWithProject, Path.GetFileName(e.ProjectPath)) : "Pokemanager";
 
     partial void OnCurrentPageChanged(ObservableObject value) => OnPropertyChanged(nameof(Title));
 
-    /// <summary>Abre un proyecto guardado. Devuelve el error para mostrarlo, o null si se abrió.</summary>
+    /// <summary>Opens a saved project. Returns the error to show, or null when it opened.</summary>
     public string? OpenProject(string path)
     {
         if (!TryOpen(path, out var editor, out string? error))
@@ -51,7 +52,7 @@ public partial class MainWindowViewModel : ObservableObject
             var project = Project.Load(path);
             var dump = GameDump.Open(project.RomFsPath, project.ExeFsPath, project.Language);
 
-            // Si la randomización del proyecto ya está en caché, el editor avanzado trabaja sobre ella.
+            // If the project's randomization is cached, the advanced editor works on top of it.
             string? randomRomFs = Upr.TryGetCached(project, project.Randomization.Preset) is { } cached
                 ? Path.Combine(cached.TitleDirectory, "romfs")
                 : null;
@@ -68,7 +69,7 @@ public partial class MainWindowViewModel : ObservableObject
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or System.Text.Json.JsonException or UnauthorizedAccessException)
         {
-            error = $"No se pudo abrir {path}: {ex.Message}";
+            error = string.Format(Strings.Main_OpenFailed, path, ex.Message);
         }
         return false;
     }

@@ -2,17 +2,17 @@ using System.Diagnostics;
 
 namespace Pokemanager.Bridge;
 
-/// <summary>Carpeta de usuario de un emulador de 3DS encontrada en esta máquina.</summary>
-/// <param name="LastUsed">Última vez que el emulador guardó su configuración: indica cuál se usa de verdad.</param>
+/// <summary>User folder of a 3DS emulator found on this machine.</summary>
+/// <param name="LastUsed">Last time the emulator saved its configuration: tells which one is actually in use.</param>
 public sealed record EmulatorUserFolder(string Name, string Path, DateTime LastUsed);
 
 /// <summary>
-/// Localiza la carpeta de usuario del emulador y, dentro de ella, la carpeta de mods y la partida de un juego.
-/// La estructura es la misma en los emuladores derivados de Citra.
+/// Locates the emulator user folder and, inside it, a game's mods folder and save file. The layout is the same in
+/// every Citra-derived emulator.
 /// </summary>
 public static class EmulatorUserFolders
 {
-    /// <summary>Carpetas encontradas, la usada más recientemente primero.</summary>
+    /// <summary>Folders found, most recently used first.</summary>
     public static IReadOnlyList<EmulatorUserFolder> Detect()
     {
         string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -41,13 +41,13 @@ public static class EmulatorUserFolders
         return File.Exists(config) ? File.GetLastWriteTime(config) : Directory.GetLastWriteTime(userDirectory);
     }
 
-    /// <summary><c>&lt;usuario&gt;/load/mods/&lt;TitleID&gt;</c>.</summary>
+    /// <summary><c>&lt;user&gt;/load/mods/&lt;TitleID&gt;</c>.</summary>
     public static string ModDirectory(string userDirectory, string titleIdHex) =>
         System.IO.Path.Combine(userDirectory, "load", "mods", titleIdHex);
 
     /// <summary>
-    /// Archivo de guardado principal del juego en la SD emulada:
-    /// <c>sdmc/Nintendo 3DS/&lt;32 ceros&gt;/&lt;32 ceros&gt;/title/&lt;TID alto&gt;/&lt;TID bajo&gt;/data/00000001/main</c>.
+    /// Main save file of the game on the emulated SD card:
+    /// <c>sdmc/Nintendo 3DS/&lt;32 zeros&gt;/&lt;32 zeros&gt;/title/&lt;TID high&gt;/&lt;TID low&gt;/data/00000001/main</c>.
     /// </summary>
     public static string SaveFile(string userDirectory, ulong titleId)
     {
@@ -57,8 +57,8 @@ public static class EmulatorUserFolders
     }
 
     /// <summary>
-    /// Procesos abiertos del emulador indicado («Citra», «Azahar»); con otro nombre, de cualquiera de los dos.
-    /// Escribir la partida con su emulador abierto no sirve: al salir la sobrescribe.
+    /// Running processes of the given emulator ("Citra", "Azahar"); for any other name, of either of them.
+    /// Writing a save while its emulator is open is pointless: the emulator overwrites it when it exits.
     /// </summary>
     public static IReadOnlyList<string> RunningEmulators(string? emulatorName = null)
     {

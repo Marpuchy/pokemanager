@@ -1,28 +1,28 @@
 using System.Text;
 using pk3DS.Core.CTR;
+using Pokemanager.Model.Resources;
 
 namespace Pokemanager.Model.Dump;
 
-/// <summary>Resultado de inspeccionar un volcado. <see cref="Title"/> es null si no se pudo identificar.</summary>
+/// <summary>Result of inspecting a dump. <see cref="Title"/> is null when the game could not be identified.</summary>
 public sealed record DumpInspection(GameTitle? Title, IReadOnlyList<string> Problems)
 {
     public bool IsValid => Title is not null && Problems.Count == 0;
 }
 
 /// <summary>
-/// Comprueba que un par de carpetas <c>romfs</c>/<c>exefs</c> es un volcado utilizable de X/Y.
-/// Solo lee: nunca modifica nada.
+/// Checks that a <c>romfs</c>/<c>exefs</c> folder pair is a usable X/Y dump. Read-only: never modifies anything.
 /// </summary>
 /// <remarks>
-/// pk3DS identifica el juego únicamente contando los archivos de <c>a/</c>, que no distingue X de Y y
-/// falla en silencio con un volcado raro. Aquí se añade: firma estructural de varios GARC, el título
-/// de <c>icon.bin</c> y que <c>code.bin</c> esté descomprimido. Se informa de todos los problemas a la vez.
+/// pk3DS identifies the game only by counting the files in <c>a/</c>, which cannot tell X from Y and fails silently
+/// on an unusual dump. This adds: the structural signature of several GARCs, the title in <c>icon.bin</c> and a check
+/// that <c>code.bin</c> is decompressed. Every problem is reported at once.
 /// </remarks>
 public static class DumpInspector
 {
     public const int FileCountXY = 271;
 
-    /// <summary>GARC de X/Y con su número de entradas, medido sobre un volcado real de Pokémon X.</summary>
+    /// <summary>X/Y GARCs with their entry counts, measured on a real Pokémon X dump.</summary>
     internal static readonly (string Path, string Name, int Entries)[] SignatureGarcs =
     [
         ("a/2/1/8", "personal", 800),
@@ -36,14 +36,14 @@ public static class DumpInspector
         var problems = new List<string>();
 
         if (!Directory.Exists(romFsPath))
-            problems.Add($"No existe la carpeta romfs: {romFsPath}");
+            problems.Add(string.Format(Strings.Dump_RomFsMissing, romFsPath));
         else
             CheckRomFs(romFsPath, problems);
 
         GameTitle? title = null;
         if (!Directory.Exists(exeFsPath))
         {
-            problems.Add($"No existe la carpeta exefs: {exeFsPath}");
+            problems.Add(string.Format(Strings.Dump_ExeFsMissing, exeFsPath));
         }
         else
         {
@@ -59,13 +59,13 @@ public static class DumpInspector
         string aDir = Path.Combine(romFsPath, "a");
         if (!Directory.Exists(aDir))
         {
-            problems.Add("La carpeta romfs no contiene 'a'. ¿Es la raíz del romfs?");
+            problems.Add(Strings.Dump_NoAFolder);
             return;
         }
 
         int count = Directory.EnumerateFiles(aDir, "*", SearchOption.AllDirectories).Count();
         if (count != FileCountXY)
-            problems.Add($"romfs/a tiene {count} archivos; X/Y tiene {FileCountXY} (ORAS 299, Sol/Luna 311, USUM 333).");
+            problems.Add(string.Format(Strings.Dump_FileCount, count, FileCountXY));
 
         foreach (var (relative, name, entries) in SignatureGarcs)
             CheckGarc(romFsPath, relative, name, entries, problems);
@@ -76,53 +76,53 @@ public static class DumpInspector
         string path = Path.Combine(romFsPath, relative.Replace('/', Path.DirectorySeparatorChar));
         if (!File.Exists(path))
         {
-            problems.Add($"Falta {relative} ({name}).");
+            problems.Add(string.Format(Strings.Dump_GarcMissing, relative, name));
             return;
         }
 
-        // Cabecera GARC VER_4: magic "CRAG", versión en 0x0A; tras 0x1C bytes empieza FATO ("OTAF")
-        // con el número de entradas en 0x24.
+        // VER_4 GARC header: magic "CRAG", version at 0x0A; FATO ("OTAF") starts after 0x1C bytes with the entry
+        // count at 0x24.
         Span<byte> header = stackalloc byte[0x28];
         using (var fs = File.OpenRead(path))
         {
             if (fs.ReadAtLeast(header, header.Length, throwOnEndOfStream: false) < header.Length)
             {
-                problems.Add($"{relative} ({name}) es demasiado corto para ser un GARC.");
+                problems.Add(string.Format(Strings.Dump_GarcTooShort, relative, name));
                 return;
             }
         }
 
         if (!header[..4].SequenceEqual("CRAG"u8) || !header.Slice(0x1C, 4).SequenceEqual("OTAF"u8))
         {
-            problems.Add($"{relative} ({name}) no es un GARC.");
+            problems.Add(string.Format(Strings.Dump_NotGarc, relative, name));
             return;
         }
 
         ushort version = BitConverter.ToUInt16(header[0x0A..]);
         if (version != GARC.VER_4)
-            problems.Add($"{relative} ({name}) es un GARC versión 0x{version:X4}; X/Y usa 0x{GARC.VER_4:X4}.");
+            problems.Add(string.Format(Strings.Dump_GarcVersion, relative, name, version, GARC.VER_4));
 
         ushort entries = BitConverter.ToUInt16(header[0x24..]);
         if (entries != expectedEntries)
-            problems.Add($"{relative} ({name}) tiene {entries} entradas; X/Y tiene {expectedEntries}.");
+            problems.Add(string.Format(Strings.Dump_GarcEntries, relative, name, entries, expectedEntries));
     }
 
     /// <summary>
-    /// Lee los títulos del SMDH (<c>icon.bin</c>): 16 entradas de 0x200 bytes desde 0x08, cada una
-    /// empieza por la descripción corta en UTF-16 (0x80 bytes). Todas las no vacías deben acabar en X o en Y.
+    /// Reads the SMDH titles (<c>icon.bin</c>): 16 entries of 0x200 bytes from 0x08, each starting with the short
+    /// description in UTF-16 (0x80 bytes). Every non-empty one must end in X or in Y.
     /// </summary>
     private static GameTitle? ReadTitle(string iconPath, List<string> problems)
     {
         if (!File.Exists(iconPath))
         {
-            problems.Add("Falta exefs/icon.bin: no se puede saber si es Pokémon X o Y.");
+            problems.Add(Strings.Dump_IconMissing);
             return null;
         }
 
         byte[] smdh = File.ReadAllBytes(iconPath);
         if (smdh.Length < 0x2008 || !smdh.AsSpan(0, 4).SequenceEqual("SMDH"u8))
         {
-            problems.Add("exefs/icon.bin no es un SMDH válido.");
+            problems.Add(Strings.Dump_IconInvalid);
             return null;
         }
 
@@ -147,7 +147,7 @@ public static class DumpInspector
         if (found.Count == 1 && !unrecognized)
             return found.First();
 
-        problems.Add($"El título de exefs/icon.bin no es Pokémon X ni Y: {string.Join(" | ", names)}");
+        problems.Add(string.Format(Strings.Dump_TitleUnknown, string.Join(" | ", names)));
         return null;
     }
 
@@ -155,18 +155,18 @@ public static class DumpInspector
     {
         if (!File.Exists(codePath))
         {
-            problems.Add("Falta exefs/code.bin.");
+            problems.Add(Strings.Dump_CodeMissing);
             return;
         }
 
         if (LooksBlzCompressed(codePath))
-            problems.Add("exefs/code.bin está comprimido (BLZ). Hace falta la versión descomprimida.");
+            problems.Add(Strings.Dump_CodeCompressed);
     }
 
     /// <summary>
-    /// Un archivo BLZ termina en un pie de 8 bytes: longitud codificada (24 bits) + longitud de cabecera
-    /// (1 byte, 8–11) y el incremento de tamaño al descomprimir (int32 &gt; 0). Mismas comprobaciones que
-    /// <see cref="BLZCoder"/>. Un code.bin descomprimido no las supera.
+    /// A BLZ file ends with an 8-byte footer: encoded length (24 bits) + header length (1 byte, 8–11) and the size
+    /// increase when decompressing (int32 &gt; 0). Same checks as <see cref="BLZCoder"/>. A decompressed code.bin
+    /// does not pass them.
     /// </summary>
     internal static bool LooksBlzCompressed(string path)
     {

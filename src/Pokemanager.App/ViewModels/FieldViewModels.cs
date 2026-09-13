@@ -1,9 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Pokemanager.App.Resources;
 using Pokemanager.Model.Editing;
 
 namespace Pokemanager.App.ViewModels;
 
-/// <summary>Base de un campo editable enlazado a (tabla, id, campo) de la sesión.</summary>
+/// <summary>Base of an editable field bound to (table, id, field) of the session.</summary>
 public abstract class FieldViewModel(EditorSession session, string table, int id, string field, string label) : ObservableObject
 {
     protected EditorSession Session { get; } = session;
@@ -13,7 +14,7 @@ public abstract class FieldViewModel(EditorSession session, string table, int id
 
     public string Label { get; } = label;
     public bool IsModified => Session.IsModified(Table, Id, Field);
-    public string OriginalTip => $"Original: {FormatOriginal(Session.GetOriginal(Table, Id, Field).GetValue<int>())}";
+    public string OriginalTip => string.Format(Strings.Field_OriginalTip, FormatOriginal(Session.GetOriginal(Table, Id, Field).GetValue<int>()));
 
     protected virtual string FormatOriginal(int value) => value.ToString();
 

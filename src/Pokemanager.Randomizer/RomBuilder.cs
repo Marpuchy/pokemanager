@@ -1,33 +1,35 @@
+using Pokemanager.Randomizer.Resources;
+
 namespace Pokemanager.Randomizer;
 
 public sealed record RomBuildResult(string RomPath, string? LogPath, int FilesChanged);
 
 /// <summary>
-/// Crea la ROM final como archivo nuevo (.cxi): ROM base + salida del randomizer + ediciones manuales.
-/// La ROM base no se modifica nunca.
+/// Builds the final ROM as a new file (.cxi): base ROM + randomizer output + manual edits. The base ROM is never
+/// modified.
 /// </summary>
 public static class RomBuilder
 {
-    /// <summary>Extensión de la ROM generada. UPR ZX solo sabe escribir juegos de 3DS como NCCH (.cxi).</summary>
+    /// <summary>Extension of the built ROM. UPR ZX can only write 3DS games as NCCH (.cxi).</summary>
     public const string Extension = ".cxi";
 
-    /// <summary>Caracteres no válidos o nombre vacío. Devuelve el error o null.</summary>
+    /// <summary>Empty name or invalid characters. Returns the error, or null.</summary>
     public static string? ValidateName(string? name)
     {
         if (string.IsNullOrWhiteSpace(name))
-            return "Pon un nombre a la ROM randomizada.";
+            return Strings.Rom_NameEmpty;
         if (name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
-            return "El nombre contiene caracteres no válidos para un archivo.";
+            return Strings.Rom_NameInvalid;
         return null;
     }
 
-    /// <summary><c>&lt;carpeta de la ROM base&gt;/&lt;nombre&gt;.cxi</c>.</summary>
+    /// <summary><c>&lt;base ROM folder&gt;/&lt;name&gt;.cxi</c>.</summary>
     public static string OutputPath(string baseRom, string name) =>
         Path.Combine(Path.GetDirectoryName(Path.GetFullPath(baseRom))!, name.Trim() + Extension);
 
-    /// <param name="random">Salida de UPR ZX, o null para crear la ROM solo con las ediciones.</param>
-    /// <param name="edits">Rutas relativas (<c>romfs/a/2/1/8</c>) → contenido; sustituyen a lo del randomizer.</param>
-    /// <param name="workRoot">Carpeta de trabajo para montar los archivos antes de empaquetar.</param>
+    /// <param name="random">UPR ZX output, or null to build the ROM with the edits only.</param>
+    /// <param name="edits">Relative paths (<c>romfs/a/2/1/8</c>) → contents; they override the randomizer files.</param>
+    /// <param name="workRoot">Working folder where the files are staged before packing.</param>
     public static async Task<RomBuildResult> BuildAsync(
         UprRunner runner, string baseRom, UprResult? random, IReadOnlyDictionary<string, byte[]> edits,
         string outputRom, long seed, string workRoot,
@@ -35,10 +37,10 @@ public static class RomBuilder
     {
         outputRom = Path.GetFullPath(outputRom);
         if (string.Equals(outputRom, Path.GetFullPath(baseRom), StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("La ROM randomizada no puede sustituir a la ROM base.");
+            throw new InvalidOperationException(Strings.Rom_CannotReplaceBase);
 
-        string work = Path.Combine(workRoot, "montaje-" + Guid.NewGuid().ToString("N"));
-        string title = Path.Combine(work, "titulo");
+        string work = Path.Combine(workRoot, "staging-" + Guid.NewGuid().ToString("N"));
+        string title = Path.Combine(work, "title");
         try
         {
             int files = 0;
@@ -67,7 +69,7 @@ public static class RomBuilder
             foreach (var (relative, bytes) in edits)
             {
                 if (!relative.StartsWith("romfs/", StringComparison.Ordinal))
-                    throw new InvalidOperationException($"Solo se admiten ediciones del romfs: {relative}");
+                    throw new InvalidOperationException(string.Format(Strings.Rom_OnlyRomFs, relative));
                 string target = Path.Combine(title, relative.Replace('/', Path.DirectorySeparatorChar));
                 Directory.CreateDirectory(Path.GetDirectoryName(target)!);
                 bool replaced = File.Exists(target);
@@ -77,8 +79,8 @@ public static class RomBuilder
             }
             Directory.CreateDirectory(title);
 
-            // Se escribe con otro nombre y se renombra al final: nunca queda una ROM a medias con el nombre bueno.
-            string partial = outputRom + ".parcial";
+            // Written under another name and renamed at the end: a half-written ROM never has the final name.
+            string partial = outputRom + ".partial";
             if (File.Exists(partial))
                 File.Delete(partial);
             await runner.PackAsync(baseRom, title, partial, seed, progress, cancellationToken);

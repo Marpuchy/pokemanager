@@ -44,7 +44,7 @@ public sealed class AppSettingsTests : IDisposable
     public void RecentProjects_HideDeletedFiles_AndForget()
     {
         string file = Path.Combine(dir, "settings.json");
-        string a = Path.Combine(dir, "a.json"), gone = Path.Combine(dir, "borrado.json");
+        string a = Path.Combine(dir, "a.json"), gone = Path.Combine(dir, "deleted.json");
         File.WriteAllText(a, "{}");
         File.WriteAllText(gone, "{}");
         var settings = AppSettings.Load(file);

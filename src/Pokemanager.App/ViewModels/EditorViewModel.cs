@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Pokemanager.App.Resources;
 using Pokemanager.App.Services;
 using Pokemanager.Bridge;
 using Pokemanager.Model.Build;
@@ -64,18 +65,18 @@ public partial class EditorViewModel : ObservableObject
     public partial bool StatusIsError { get; set; }
 
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(BuildRomCommand))]
+    [NotifyCanExecuteChangedFor(nameof(BuildRomCommand), nameof(AdaptSaveCommand))]
     public partial bool IsBusy { get; set; }
 
-    public string GameText => $"Pokémon {Dump.Title} · {Dump.Title.TitleIdHex()} · {Session.Project.DumpDirectory}";
-    public string EditCountText => Session.Project.Edits.Count == 1 ? "1 retoque avanzado" : $"{Session.Project.Edits.Count} retoques avanzados";
-    public string DirtyText => IsDirty ? "sin guardar" : "guardado";
-    public string EmulatorText => $"Emulador: {settings.EffectiveEmulatorName}";
+    public string GameText => string.Format(Strings.Editor_GameText, Dump.Title, Dump.Title.TitleIdHex(), Session.Project.DumpDirectory);
+    public string EditCountText => Session.Project.Edits.Count == 1 ? Strings.Editor_EditCountOne : string.Format(Strings.Editor_EditCount, Session.Project.Edits.Count);
+    public string DirtyText => IsDirty ? Strings.Editor_Unsaved : Strings.Editor_Saved;
+    public string EmulatorText => string.Format(Strings.Editor_Emulator, settings.EffectiveEmulatorName);
 
-    /// <summary>Qué base usa el editor avanzado: el juego original o el random de una semilla.</summary>
+    /// <summary>Which base the advanced editor uses: the original game or a seed's randomization.</summary>
     public string BaseText => Session.Layers.Roots.Count > 1
-        ? $"Base: randomización con semilla {Session.Project.Randomization.Seed}"
-        : "Base: juego original";
+        ? string.Format(Strings.Editor_BaseRandom, Session.Project.Randomization.Seed)
+        : Strings.Editor_BaseOriginal;
 
     public EditorViewModel(MainWindowViewModel main, IDialogs dialogs, UprService upr, AppSettings settings,
         string projectPath, GameDump dump, EditorSession session)
@@ -90,7 +91,7 @@ public partial class EditorViewModel : ObservableObject
         Names = new GameNames(dump, session.Original);
         LoadLists();
 
-        // Proyectos sin ROM base fijada: se fija ahora, antes de que una ROM creada pueda confundirse con ella.
+        // Projects without a fixed base ROM get it now, before a built ROM can be mistaken for it.
         if (session.Project.RomFile is null && Project.FindBaseRom(session.Project.DumpDirectory) is { } baseRom)
         {
             session.Project.RomFile = baseRom;
@@ -101,12 +102,12 @@ public partial class EditorViewModel : ObservableObject
         Randomizer = new RandomizerViewModel(this, dialogs, upr, settings);
     }
 
-    // ------------------------------------------------------------------ editor avanzado
+    // ------------------------------------------------------------------ advanced editor
 
     private void LoadLists()
     {
         string[] personalTables = [GameTables.Personal, GameTables.Learnsets];
-        allSpecies = Enumerable.Range(1, Session.Current.Personal.Length - 1) // la entrada 0 es un marcador vacío
+        allSpecies = Enumerable.Range(1, Session.Current.Personal.Length - 1) // entry 0 is an empty placeholder
             .Select(i => new ListEntryViewModel(Session, personalTables, i, Names.PersonalEntries[i]))
             .ToList();
         allMoves = Enumerable.Range(1, Session.Current.Moves.Length - 1)
@@ -136,8 +137,8 @@ public partial class EditorViewModel : ObservableObject
 
     public void MarkDirty() => IsDirty = true;
 
-    // Filtrar regenera la lista y el ListBox pierde la selección: se conserva la ficha abierta
-    // y se vuelve a seleccionar su entrada si sigue visible.
+    // Filtering rebuilds the list and the ListBox loses its selection: keep the open detail and reselect its entry
+    // if it is still visible.
     partial void OnSpeciesFilterChanged(string value)
     {
         var keep = SelectedSpecies;
@@ -174,12 +175,12 @@ public partial class EditorViewModel : ObservableObject
             target.Add(entry);
     }
 
-    // ------------------------------------------------------------------ guardar
+    // ------------------------------------------------------------------ save
 
     [RelayCommand]
     private async Task Save() => await SaveAsync();
 
-    /// <summary>Escribe las opciones del randomizer al preset y guarda el proyecto. Devuelve false si falló.</summary>
+    /// <summary>Writes the randomizer options to the preset and saves the project. Returns false on failure.</summary>
     private async Task<bool> SaveAsync()
     {
         try
@@ -187,23 +188,23 @@ public partial class EditorViewModel : ObservableObject
             await Randomizer.CommitOptionsAsync();
             Session.Project.Save(ProjectPath);
             IsDirty = false;
-            SetStatus($"Proyecto guardado en {ProjectPath}");
+            SetStatus(string.Format(Strings.Status_Saved, ProjectPath));
             return true;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or UprException)
         {
-            SetStatus($"No se pudo guardar: {ex.Message}", error: true);
+            SetStatus(string.Format(Strings.Status_SaveFailed, ex.Message), error: true);
             return false;
         }
     }
 
-    // ------------------------------------------------------------------ crear la ROM
+    // ------------------------------------------------------------------ build the ROM
 
     private bool CanBuild() => !IsBusy;
 
     /// <summary>
-    /// Crea la ROM (.cxi) junto a la ROM base con el random y los retoques, retira mods antiguos de la app en el
-    /// emulador y, si se ha pedido, adapta la partida a la nueva ROM.
+    /// Builds the ROM (.cxi) next to the base ROM with the randomization and the edits, removes old app mods from the
+    /// emulators and, when requested, adapts the save to the new ROM.
     /// </summary>
     [RelayCommand(CanExecute = nameof(CanBuild))]
     private async Task BuildRom()
@@ -214,8 +215,8 @@ public partial class EditorViewModel : ObservableObject
         if (upr.Tools is not { } tools) { SetStatus(upr.StatusText, error: true); return; }
         if (project.ResolveRomFile() is not { } baseRom) { SetStatus(Randomizer.BaseRomText, error: true); return; }
         if (Randomizer.OutputError is { } nameError) { SetStatus(nameError, error: true); return; }
-        if (Randomizer.OutputPath is not { } output) { SetStatus("No se puede determinar dónde crear la ROM.", error: true); return; }
-        if (r.Enabled && !r.IsReady) { SetStatus("Falta una semilla válida.", error: true); return; }
+        if (Randomizer.OutputPath is not { } output) { SetStatus(Strings.Status_NoOutput, error: true); return; }
+        if (r.Enabled && !r.IsReady) { SetStatus(Strings.Status_NoSeed, error: true); return; }
 
         string? savePath = r.UpdateSave ? Randomizer.SavePath : null;
         if (savePath is not null && File.Exists(savePath) && EmulatorBlocking() is { } blocking)
@@ -242,12 +243,12 @@ public partial class EditorViewModel : ObservableObject
                 output, r.Seed, upr.Cache.Root, progress);
             r.LastBuiltRom = built.RomPath;
             if (random is null && File.Exists(built.RomPath + ".log"))
-                File.Delete(built.RomPath + ".log"); // log de una randomización anterior que ya no corresponde
+                File.Delete(built.RomPath + ".log"); // log of an earlier randomization that no longer applies
 
-            // No acumular: se conservan las últimas randomizaciones en caché y copias de seguridad.
+            // Do not pile things up: keep the latest cached randomizations and save backups only.
             upr.Cache.Prune(keep: 3, keepTitleDirectory: random?.TitleDirectory);
 
-            // Los mods LayeredFS que instalaban versiones anteriores de la app se aplican a cualquier ROM del juego: fuera.
+            // LayeredFS mods installed by earlier app versions apply to every ROM of the game: remove them.
             int removedMods = 0;
             foreach (var emulator in EmulatorUserFolders.Detect())
                 removedMods += await Task.Run(() => ModInstaller.Uninstall(EmulatorUserFolders.ModDirectory(emulator.Path, Dump.Title.TitleIdHex())).Count);
@@ -260,12 +261,12 @@ public partial class EditorViewModel : ObservableObject
             await SaveAsync();
             Randomizer.OnBuilt(random, saveResult);
 
-            string what = random is null ? "sin randomizar" : $"semilla {random.Seed}";
-            string mods = removedMods > 0 ? $" Se retiraron {removedMods} archivo(s) de un mod anterior de la carpeta de mods." : "";
+            string what = random is null ? Strings.Status_NotRandomized : string.Format(Strings.Status_Seed, random.Seed);
+            string mods = removedMods > 0 ? string.Format(Strings.Status_ModsRemoved, removedMods) : "";
             string save = saveResult is null ? "" : saveResult.Changes.Count == 0
-                ? " Partida revisada: no hacía falta cambiar nada."
-                : $" Partida actualizada ({saveResult.Changes.Count} cambios) y verificada.";
-            SetStatus($"ROM creada ({what}): {built.RomPath}.{save}{mods} Ábrela en {settings.EffectiveEmulatorName}.");
+                ? Strings.Status_SaveUnchanged
+                : string.Format(Strings.Status_SaveUpdated, saveResult.Changes.Count);
+            SetStatus(string.Format(Strings.Status_RomBuilt, what, built.RomPath, save, mods, settings.EffectiveEmulatorName));
         }
         catch (UprException ex)
         {
@@ -274,7 +275,7 @@ public partial class EditorViewModel : ObservableObject
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException
                                        or InvalidDataException or SaveUpdateException)
         {
-            SetStatus($"No se pudo crear la ROM: {ex.Message}", error: true);
+            SetStatus(string.Format(Strings.Status_BuildFailed, ex.Message), error: true);
         }
         finally
         {
@@ -284,12 +285,12 @@ public partial class EditorViewModel : ObservableObject
 
     private string? EmulatorBlocking() =>
         EmulatorUserFolders.RunningEmulators(settings.EffectiveEmulatorName) is { Count: > 0 } running
-            ? $"Cierra {string.Join(", ", running)} antes de modificar la partida: si el emulador está abierto, al salir la sobrescribiría."
+            ? string.Format(Strings.Status_CloseEmulator, string.Join(", ", running))
             : null;
 
     private async Task<SaveUpdateResult> ApplySaveUpdateAsync(string savePath)
     {
-        SetStatus($"Adaptando la partida ({savePath})…");
+        SetStatus(string.Format(Strings.Status_AdaptingSave, savePath));
         string backups = Path.Combine(AppSettings.BackupRoot, settings.EffectiveEmulatorName);
         var result = await Task.Run(() => SaveUpdater.Apply(savePath, Session.Current, backups));
         SaveUpdater.PruneBackups(backups, keep: 10);
@@ -299,18 +300,18 @@ public partial class EditorViewModel : ObservableObject
     private bool CanAdaptSave() => !IsBusy;
 
     /// <summary>
-    /// Adapta la partida a la ROM ya creada, sin volver a crearla. Solo si la configuración actual es la de esa ROM
-    /// (misma semilla y la randomización en caché), para no adaptarla a algo distinto de lo que se juega.
+    /// Adapts the save to the already built ROM without rebuilding it. Only when the current configuration is the one of
+    /// that ROM (same seed, randomization cached), so the save is never adapted to something other than what is played.
     /// </summary>
     [RelayCommand(CanExecute = nameof(CanAdaptSave))]
     private async Task AdaptSave()
     {
         var r = Session.Project.Randomization;
         if (Randomizer.SavePath is not { } savePath || !File.Exists(savePath)) { SetStatus(Randomizer.SaveText, error: true); return; }
-        if (r.LastBuiltRom is null || !File.Exists(r.LastBuiltRom)) { SetStatus("Primero crea la ROM: la partida se adapta a ella.", error: true); return; }
+        if (r.LastBuiltRom is null || !File.Exists(r.LastBuiltRom)) { SetStatus(Strings.Status_BuildFirst, error: true); return; }
         if (IsDirty || (r.Enabled && r.InstalledSeed != r.Seed) || Randomizer.Options.HasChanges)
         {
-            SetStatus("Hay cambios desde la última ROM creada. Crea la ROM de nuevo (también adapta la partida).", error: true);
+            SetStatus(Strings.Status_ChangedSinceBuild, error: true);
             return;
         }
         if (EmulatorBlocking() is { } blocking) { SetStatus(blocking, error: true); return; }
@@ -318,7 +319,7 @@ public partial class EditorViewModel : ObservableObject
         UprResult? random = null;
         if (r.Enabled && (random = upr.TryGetCached(Session.Project, r.Preset)) is null)
         {
-            SetStatus("No está en caché la randomización de la ROM creada. Crea la ROM de nuevo.", error: true);
+            SetStatus(Strings.Status_NotCached, error: true);
             return;
         }
 
@@ -329,12 +330,12 @@ public partial class EditorViewModel : ObservableObject
             var result = await ApplySaveUpdateAsync(savePath);
             Randomizer.OnBuilt(null, result);
             SetStatus(result.Changes.Count == 0
-                ? $"Partida revisada ({result.PokemonChecked} Pokémon): ya estaba adaptada a la ROM."
-                : $"Partida adaptada a {Path.GetFileName(r.LastBuiltRom)}: {result.Changes.Count} cambios, verificada. Copia: {result.BackupPath}");
+                ? string.Format(Strings.Status_SaveAlreadyAdapted, result.PokemonChecked)
+                : string.Format(Strings.Status_SaveAdapted, Path.GetFileName(r.LastBuiltRom), result.Changes.Count, result.BackupPath));
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SaveUpdateException or InvalidDataException)
         {
-            SetStatus($"No se pudo adaptar la partida: {ex.Message}", error: true);
+            SetStatus(string.Format(Strings.Status_AdaptFailed, ex.Message), error: true);
         }
         finally
         {
@@ -342,7 +343,7 @@ public partial class EditorViewModel : ObservableObject
         }
     }
 
-    /// <summary>Si la base (random o no, y qué semilla) ya no coincide, reabre la sesión conservando las ediciones.</summary>
+    /// <summary>If the base (randomized or not, and which seed) no longer matches, reopens the session keeping the edits.</summary>
     private void ReloadBaseIfNeeded(string? randomizedRomFs)
     {
         string? current = Session.Layers.Roots.Count > 1 ? Session.Layers.Roots[0] : null;
@@ -359,7 +360,7 @@ public partial class EditorViewModel : ObservableObject
     private static string LastLines(string text, int count) =>
         string.Join(" ", text.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).TakeLast(count));
 
-    // ------------------------------------------------------------------ otros
+    // ------------------------------------------------------------------ other
 
     [RelayCommand]
     private async Task OpenSettings()
@@ -367,13 +368,13 @@ public partial class EditorViewModel : ObservableObject
         await dialogs.ShowSettingsAsync(new SettingsViewModel(settings, upr, dialogs, Session.Project, Dump.Title));
         OnPropertyChanged(nameof(EmulatorText));
         Randomizer.RefreshSave();
-        MarkDirty(); // la ROM base del proyecto puede haber cambiado
+        MarkDirty(); // the project's base ROM may have changed
     }
 
     [RelayCommand]
     private async Task OpenOtherProject()
     {
-        if (await dialogs.PickOpenFileAsync("Abrir proyecto") is { } path && main.OpenProject(path) is { } error)
+        if (await dialogs.PickOpenFileAsync(Strings.Welcome_OpenProjectTitle) is { } path && main.OpenProject(path) is { } error)
             SetStatus(error, error: true);
     }
 

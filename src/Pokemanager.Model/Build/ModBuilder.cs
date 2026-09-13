@@ -5,14 +5,14 @@ using Pokemanager.Model.Edits;
 
 namespace Pokemanager.Model.Build;
 
-/// <summary>Calcula los GARC que cambian por las ediciones manuales.</summary>
+/// <summary>Computes the GARCs changed by the manual edits.</summary>
 /// <remarks>
-/// Solo se generan los GARC de tablas con ediciones. Dentro de cada GARC solo cambian las entradas
-/// editadas; el resto conserva los bytes de la base (volcado o volcado randomizado).
+/// Only GARCs of tables with edits are produced. Inside each GARC only edited entries change; everything else keeps
+/// the bytes of the base (dump or randomized dump).
 /// </remarks>
 public static class ModBuilder
 {
-    /// <returns>Ruta relativa dentro del mod (<c>romfs/a/2/1/8</c>) → contenido.</returns>
+    /// <returns>Relative path inside the title (<c>romfs/a/2/1/8</c>) → contents.</returns>
     public static IReadOnlyDictionary<string, byte[]> BuildEdits(EditorSession session)
     {
         var edits = session.Project.Edits;
@@ -31,7 +31,7 @@ public static class ModBuilder
     private static HashSet<int> EditedIds(EditSet edits, string table) =>
         edits.All.Where(e => e.Table == table).Select(e => e.Id).ToHashSet();
 
-    /// <summary>Personal: entradas individuales editadas y la tabla concatenada del último archivo.</summary>
+    /// <summary>Personal: edited individual entries plus the concatenated table in the last file.</summary>
     private static byte[] BuildPersonal(EditorSession session, HashSet<int> ids)
     {
         byte[][] files = GameData.ReadFiles(session.Layers, GameData.PersonalGarc);

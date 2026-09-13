@@ -3,58 +3,62 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Pokemanager.Model.Dump;
 using Pokemanager.Model.Edits;
+using Pokemanager.Model.Resources;
 
 namespace Pokemanager.Model.Projects;
 
-/// <summary>Randomización del proyecto: preset de UPR ZX (embebido) y semilla.</summary>
+/// <summary>Project randomization: the UPR ZX preset (embedded) and the seed.</summary>
 public sealed class RandomizationSettings
 {
     public bool Enabled { get; set; }
 
-    /// <summary>Nombre para mostrar del preset (normalmente el nombre del .rnqs de origen).</summary>
+    /// <summary>Display name of the preset (usually the name of the source .rnqs).</summary>
     public string? PresetName { get; set; }
 
-    /// <summary>Contenido del .rnqs. Pesa ~100 bytes: se guarda dentro del proyecto para poder compartirlo.</summary>
+    /// <summary>Contents of the .rnqs. About 100 bytes, so it is stored inside the project to keep it shareable.</summary>
     public byte[]? Preset { get; set; }
+
+    /// <summary>The preset was edited in the app after being imported.</summary>
+    public bool PresetModified { get; set; }
 
     public long Seed { get; set; }
 
-    /// <summary>Semilla de la última ROM creada, para avisar si se cambia con partida en curso.</summary>
+    /// <summary>Seed of the last built ROM, to warn when it changes with a game in progress.</summary>
     public long? InstalledSeed { get; set; }
 
-    /// <summary>Nombre (sin extensión) de la ROM randomizada, que se crea junto a la ROM base.</summary>
+    /// <summary>File name (without extension) of the randomized ROM, created next to the base ROM.</summary>
     public string? OutputName { get; set; }
 
-    /// <summary>Ruta de la última ROM creada por este proyecto.</summary>
+    /// <summary>Path of the last ROM built by this project.</summary>
     public string? LastBuiltRom { get; set; }
 
-    /// <summary>Al crear la ROM, sustituir la anterior de este proyecto en lugar de crear otro archivo.</summary>
+    /// <summary>When building, replace this project's previous ROM instead of creating another file.</summary>
     public bool ReplacePreviousRom { get; set; } = true;
 
-    /// <summary>Al crear la ROM, adaptar la partida del emulador (habilidades y stats del equipo) a ella.</summary>
+    /// <summary>When building, adapt the emulator's save (abilities and party stats) to the new ROM.</summary>
     public bool UpdateSave { get; set; } = true;
 
-    /// <summary>Hay semilla. El preset puede faltar: entonces se usan los ajustes por defecto de UPR ZX.</summary>
+    /// <summary>There is a seed. The preset may be missing: UPR ZX defaults are used then.</summary>
     public bool IsReady => Enabled && Seed > 0;
 }
 
 /// <summary>
-/// Proyecto compartible: dónde está el volcado, el idioma, la carpeta de usuario del emulador, la
-/// randomización y las ediciones manuales. No contiene ni un byte del juego.
+/// Shareable project: where the dump is, the game text language, the randomization and the manual edits.
+/// It never contains a single byte of the game.
 /// </summary>
 public sealed class Project
 {
     public const int CurrentFormat = 2;
 
-    /// <summary>Carpeta que contiene <c>romfs</c> y <c>exefs</c>.</summary>
+    /// <summary>Folder that contains <c>romfs</c> and <c>exefs</c>.</summary>
     public required string DumpDirectory { get; set; }
 
-    /// <summary>ROM descifrada (.3ds/.cxi) que usa el randomizer. Null: se busca en <see cref="DumpDirectory"/>.</summary>
+    /// <summary>Decrypted ROM (.3ds/.cxi) used by the randomizer. Null: looked up in <see cref="DumpDirectory"/>.</summary>
     public string? RomFile { get; set; }
 
-    public GameLanguage Language { get; set; } = GameLanguage.Spanish;
+    public GameLanguage Language { get; set; } = GameLanguage.English;
 
-    /// <summary>Carpeta de usuario del emulador (la que contiene <c>load/mods</c>). Null si aún no se ha elegido.</summary>
+    /// <summary>Legacy (format 1–2): the emulator folder now lives in the application settings.</summary>
     public string? EmulatorUserDirectory { get; set; }
 
     public RandomizationSettings Randomization { get; set; } = new();
@@ -64,7 +68,7 @@ public sealed class Project
     public string RomFsPath => Path.Combine(DumpDirectory, "romfs");
     public string ExeFsPath => Path.Combine(DumpDirectory, "exefs");
 
-    /// <summary><see cref="RomFile"/> o, si no está fijada, la ROM original de la carpeta del volcado.</summary>
+    /// <summary><see cref="RomFile"/> or, when not set, the original ROM in the dump folder.</summary>
     public string? ResolveRomFile()
     {
         if (!string.IsNullOrWhiteSpace(RomFile))
@@ -73,9 +77,9 @@ public sealed class Project
     }
 
     /// <summary>
-    /// ROM original de una carpeta: se prefieren .3ds/.cci a .cxi y se descartan las ROM randomizadas, que llevan su
-    /// log al lado (<c>&lt;rom&gt;.log</c>, como las crean Pokemanager y UPR ZX). Así una ROM creada en la misma carpeta
-    /// nunca se toma como base.
+    /// Original ROM in a folder: .3ds/.cci are preferred over .cxi, and randomized ROMs are skipped because they have
+    /// their log next to them (<c>&lt;rom&gt;.log</c>, as Pokemanager and UPR ZX create them). A ROM built in the same
+    /// folder is therefore never taken as the base.
     /// </summary>
     public static string? FindBaseRom(string directory)
     {
@@ -111,9 +115,9 @@ public sealed class Project
     public static Project Load(string path)
     {
         var file = JsonSerializer.Deserialize<ProjectFile>(File.ReadAllText(path), JsonOptions)
-                   ?? throw new InvalidDataException($"Proyecto vacío: {path}");
+                   ?? throw new InvalidDataException(string.Format(Strings.Project_Empty, path));
         if (file.Format > CurrentFormat)
-            throw new InvalidDataException($"El proyecto usa el formato {file.Format}; esta versión solo entiende hasta el {CurrentFormat}.");
+            throw new InvalidDataException(string.Format(Strings.Project_NewerFormat, file.Format, CurrentFormat));
 
         var project = new Project
         {
@@ -121,7 +125,7 @@ public sealed class Project
             RomFile = file.RomFile,
             Language = file.Language,
             EmulatorUserDirectory = file.EmulatorUserDirectory,
-            Randomization = file.Randomization ?? new RandomizationSettings(), // formato 1 no la tenía
+            Randomization = file.Randomization ?? new RandomizationSettings(), // format 1 did not have it
         };
         foreach (var e in file.Edits ?? [])
             project.Edits.Set(e.Table, e.Id, e.Field, e.Value);

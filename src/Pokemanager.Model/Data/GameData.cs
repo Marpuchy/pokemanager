@@ -1,12 +1,13 @@
 using pk3DS.Core.CTR;
 using pk3DS.Core.Structures;
 using pk3DS.Core.Structures.PersonalInfo;
+using Pokemanager.Model.Resources;
 
 namespace Pokemanager.Model.Data;
 
 /// <summary>
-/// Tablas editables de X/Y leídas directamente de sus GARC. Cada instancia tiene sus propias copias
-/// de los bytes: modificarla no afecta al volcado ni a otras instancias.
+/// Editable X/Y tables read directly from their GARCs. Each instance owns its copy of the bytes: modifying it does not
+/// affect the dump or other instances.
 /// </summary>
 public sealed class GameData
 {
@@ -33,8 +34,8 @@ public sealed class GameData
         ReadFiles(layers, LevelUpGarc).Select(f => new Learnset6(f)).ToArray());
 
     /// <summary>
-    /// El GARC de personal tiene una entrada de 0x40 bytes por Pokémon o forma y, como último archivo,
-    /// la concatenación de todas ellas. Las entradas individuales son las que se leen.
+    /// The personal GARC has one 0x40-byte entry per Pokémon or form and, as its last file, the concatenation of all
+    /// of them. The individual entries are the ones read.
     /// </summary>
     private static PersonalInfoXY[] ReadPersonal(RomFsLayers layers)
     {
@@ -47,22 +48,22 @@ public sealed class GameData
 }
 
 /// <summary>
-/// Romfs formado por capas superpuestas, de la más alta a la más baja: cada archivo se toma de la
-/// primera capa que lo tenga. Es el mismo principio que LayeredFS del emulador.
+/// A romfs made of stacked layers, highest first: each file is taken from the first layer that has it. Same principle
+/// as the emulator's LayeredFS.
 /// </summary>
 public sealed class RomFsLayers
 {
     public IReadOnlyList<string> Roots { get; }
 
-    /// <param name="roots">Carpetas romfs, de mayor a menor prioridad. La última suele ser el volcado.</param>
+    /// <param name="roots">romfs folders, highest priority first. The last one is usually the dump.</param>
     public RomFsLayers(params string[] roots)
     {
         if (roots.Length == 0)
-            throw new ArgumentException("Hace falta al menos una carpeta romfs.", nameof(roots));
+            throw new ArgumentException(Strings.Layers_NeedOne, nameof(roots));
         Roots = roots.Select(Path.GetFullPath).ToArray();
     }
 
-    /// <summary>Ruta física del archivo relativo (<c>a/2/1/8</c>) en la capa más alta que lo contenga.</summary>
+    /// <summary>Physical path of the relative file (<c>a/2/1/8</c>) in the highest layer that contains it.</summary>
     public string Resolve(string relative)
     {
         string native = relative.Replace('/', Path.DirectorySeparatorChar);
@@ -72,6 +73,6 @@ public sealed class RomFsLayers
             if (File.Exists(path))
                 return path;
         }
-        throw new FileNotFoundException($"{relative} no está en ninguna capa del romfs.", relative);
+        throw new FileNotFoundException(string.Format(Strings.Layers_NotFound, relative), relative);
     }
 }

@@ -28,7 +28,7 @@ public sealed class ModBuilderTests : IDisposable
     private InstallResult Install(EditorSession session, string? randomizedTitle = null) =>
         ModInstaller.Install(modDir, romfs.DumpDirectory, randomizedTitle, ModBuilder.BuildEdits(session));
 
-    /// <summary>Simula la salida de UPR: &lt;TitleID&gt;/romfs con un personal distinto y un code.bin.</summary>
+    /// <summary>Simulates UPR output: &lt;TitleID&gt;/romfs with a different personal table and a code.bin.</summary>
     private string FakeRandomizerOutput(int bulbasaurHp)
     {
         string title = Path.Combine(romfs.Root, "upr", "0004000000055D00");
@@ -103,8 +103,8 @@ public sealed class ModBuilderTests : IDisposable
         var session = NewSession(Path.Combine(title, "romfs"));
 
         Assert.Equal(99, session.GetOriginal(GameTables.Personal, 1, "hp").GetValue<int>());
-        Assert.Equal(30, session.GetInt(GameTables.Personal, 2, "hp")); // lo que el random no toca, del volcado
-        session.SetInt(GameTables.Personal, 1, "hp", 20); // el valor del volcado ya es una edición sobre el random
+        Assert.Equal(30, session.GetInt(GameTables.Personal, 2, "hp")); // untouched by the randomizer: comes from the dump
+        session.SetInt(GameTables.Personal, 1, "hp", 20); // the dump value is now an edit on top of the random base
         Assert.True(session.IsModified(GameTables.Personal, 1, "hp"));
     }
 
@@ -121,8 +121,8 @@ public sealed class ModBuilderTests : IDisposable
         Assert.Contains("exefs/code.bin", result.Written);
         Assert.True(File.Exists(Path.Combine(modDir, "exefs", "code.bin")));
         byte[][] personal = romfs.ReadGarc(Path.Combine(modDir, "romfs"), GameData.PersonalGarc);
-        Assert.Equal(99, new PersonalInfoXY(personal[1]).HP);   // del random
-        Assert.Equal(200, new PersonalInfoXY(personal[2]).ATK); // de la edición
+        Assert.Equal(99, new PersonalInfoXY(personal[1]).HP);   // from the randomizer
+        Assert.Equal(200, new PersonalInfoXY(personal[2]).ATK); // from the edit
         Assert.Single(result.Written, w => w == "romfs/a/2/1/8");
     }
 
@@ -131,8 +131,8 @@ public sealed class ModBuilderTests : IDisposable
     {
         string title = FakeRandomizerOutput(bulbasaurHp: 99);
         Install(NewSession(Path.Combine(title, "romfs")), title);
-        string foreign = Path.Combine(modDir, "romfs", "otro-mod.bin");
-        File.WriteAllText(foreign, "no es nuestro");
+        string foreign = Path.Combine(modDir, "romfs", "other-mod.bin");
+        File.WriteAllText(foreign, "not ours");
 
         var result = Install(NewSession());
 

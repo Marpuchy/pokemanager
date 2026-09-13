@@ -1,8 +1,8 @@
 namespace Pokemanager.Model.Dump;
 
 /// <summary>
-/// Idioma de los textos del juego. El valor es el índice que usa pk3DS en X/Y: se suma a
-/// <c>a/0/7/2</c> (gametext) y <c>a/0/8/0</c> (storytext) para elegir el GARC de ese idioma.
+/// Language of the game texts. The value is the index pk3DS uses in X/Y: it is added to <c>a/0/7/2</c> (gametext) and
+/// <c>a/0/8/0</c> (storytext) to pick that language's GARC.
 /// </summary>
 public enum GameLanguage
 {

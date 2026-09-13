@@ -1,19 +1,21 @@
-// Puente entre Pokemanager y Universal Pokemon Randomizer ZX.
+// Bridge between Pokemanager and Universal Pokemon Randomizer ZX.
 //
-// Se ejecuta con el lanzador de código fuente de Java (JDK 11+), sin compilar:
-//   java -Xmx4096M -cp PokeRandoZX.jar PokemanagerUpr.java <orden> ...
+// Run with Java's source-file launcher (JDK 11+), no compilation needed:
+//   java -Xmx4096M -cp PokeRandoZX.jar PokemanagerUpr.java <command> ...
 //
-// Órdenes:
-//   randomize <ajustes.rnqs> <rom> <salida> <semilla> <log>
-//       Como CliRandomizer, pero con semilla fija (Randomizer.randomize(archivo, log, semilla)).
-//       Salida LayeredFS: <salida>/<TitleID>/{romfs/..., code.bin}.
-//   pack <rom> <carpetaTitulo> <salida.cxi> <semilla>
-//       ROM base + los archivos de <carpetaTitulo> (romfs/... y code.bin) -> .cxi con ctr.NCCH.saveAsNCCH.
-//   describe-settings <ajustes.rnqs | -> [rom]
-//       Opciones del preset (o de los ajustes por defecto con "-") en JSON por la salida estándar.
-//       Con ROM indica qué ajustes varios están disponibles para ese juego.
-//   write-settings <base.rnqs | -> <asignaciones.txt> <salida.rnqs>
-//       Aplica líneas "nombre=valor" (y "tweak:CAMPO=true|false") y escribe el preset.
+// Commands:
+//   randomize <settings.rnqs> <rom> <output> <seed> <log>
+//       Like CliRandomizer, but with a fixed seed (Randomizer.randomize(file, log, seed)).
+//       LayeredFS output: <output>/<TitleID>/{romfs/..., code.bin}.
+//   pack <rom> <titleFolder> <output.cxi> <seed>
+//       Base ROM + the files in <titleFolder> (romfs/... and code.bin) -> .cxi via ctr.NCCH.saveAsNCCH.
+//   describe-settings <settings.rnqs | -> [rom]
+//       Options of the preset (or of the defaults with "-") as JSON on standard output.
+//       With a ROM, tells which misc tweaks that game supports.
+//   write-settings <base.rnqs | -> <assignments.txt> <output.rnqs>
+//       Applies "name=value" lines (and "tweak:FIELD=true|false") and writes the preset.
+//
+// Warnings are printed as "WARNING:<CODE>" so the application can show them in the user's language.
 
 import com.dabomstew.pkrandom.FileFunctions;
 import com.dabomstew.pkrandom.MiscTweak;
@@ -72,10 +74,10 @@ public class PokemanagerUpr {
 
         Settings.TweakForROMFeedback feedback = settings.tweakForRom(handler);
         if (feedback.isChangedStarter() && settings.getStartersMod() == Settings.StartersMod.CUSTOM) {
-            System.out.println("AVISO: los iniciales personalizados del preset no existen en esta ROM y se han cambiado.");
+            System.out.println("WARNING:CUSTOM_STARTERS_CHANGED");
         }
         if (settings.isUpdatedFromOldVersion()) {
-            System.out.println("AVISO: el preset es de una versión anterior de UPR ZX.");
+            System.out.println("WARNING:OLD_PRESET");
         }
 
         ByteArrayOutputStream logBytes = new ByteArrayOutputStream();
@@ -115,12 +117,12 @@ public class PokemanagerUpr {
         }
 
         ncch.saveAsNCCH(new File(outputCxi).getAbsolutePath(), (String) acronym.invoke(handler), seed);
-        System.out.println("OK " + count + " archivos");
+        System.out.println("OK " + count + " files");
     }
 
     // ---------------------------------------------------------------- settings
 
-    /** Opciones simples de Settings: getter get/is + setter público con boolean, int o boolean... (enum). */
+    /** Simple Settings options: get/is getter + public setter taking boolean, int or boolean... (enum). */
     private static Map<String, Method[]> options() {
         Map<String, Method[]> result = new TreeMap<>();
         for (Method setter : Settings.class.getMethods()) {
@@ -141,7 +143,7 @@ public class PokemanagerUpr {
 
     private static void describeSettings(String settingsPath, String romPath) throws Exception {
         Settings settings = "-".equals(settingsPath) ? defaults() : readSettings(settingsPath);
-        // Con ROM, se marca qué ajustes varios admite ese juego (los demás UPR los ignora).
+        // With a ROM, mark which misc tweaks that game supports (UPR ignores the others).
         int available = romPath == null ? -1 : loadRom(romPath).miscTweaksAvailable();
         StringBuilder json = new StringBuilder("{\"version\":").append(Settings.VERSION).append(",\"options\":[");
         boolean first = true;
@@ -190,21 +192,21 @@ public class PokemanagerUpr {
         int tweaks = settings.getCurrentMiscTweaks();
 
         for (String raw : Files.readAllLines(Path.of(assignmentsPath), StandardCharsets.UTF_8)) {
-            String line = raw.replace("﻿", "").trim();
+            String line = raw.replace("﻿", "").trim(); // ignore a UTF-8 BOM
             if (line.isEmpty() || line.startsWith("#")) continue;
             int eq = line.indexOf('=');
-            if (eq < 0) { errors.add("Línea sin '=': " + line); continue; }
+            if (eq < 0) { errors.add("Line without '=': " + line); continue; }
             String name = line.substring(0, eq).trim(), value = line.substring(eq + 1).trim();
 
             if (name.startsWith("tweak:")) {
                 MiscTweak t = tweakByField(name.substring(6));
-                if (t == null) { errors.add("Ajuste varios desconocido: " + name); continue; }
+                if (t == null) { errors.add("Unknown misc tweak: " + name); continue; }
                 tweaks = Boolean.parseBoolean(value) ? (tweaks | t.getValue()) : (tweaks & ~t.getValue());
                 continue;
             }
 
             Method[] m = options.get(name);
-            if (m == null) { errors.add("Opción desconocida: " + name); continue; }
+            if (m == null) { errors.add("Unknown option: " + name); continue; }
             Class<?> type = m[1].getParameterTypes()[0];
             if (type == boolean.class) m[1].invoke(settings, Boolean.parseBoolean(value));
             else if (type == int.class) m[1].invoke(settings, Integer.parseInt(value));
@@ -216,7 +218,7 @@ public class PokemanagerUpr {
                     selected[i] = ((Enum<?>) constants[i]).name().equals(value);
                     found |= selected[i];
                 }
-                if (!found) { errors.add("Valor no válido para " + name + ": " + value); continue; }
+                if (!found) { errors.add("Invalid value for " + name + ": " + value); continue; }
                 m[1].invoke(settings, (Object) selected);
             }
         }
@@ -232,9 +234,9 @@ public class PokemanagerUpr {
         System.out.println("OK");
     }
 
-    // ---------------------------------------------------------------- utilidades
+    // ---------------------------------------------------------------- helpers
 
-    /** Ajustes por defecto. new Settings() deja campos nulos que la GUI de UPR rellena y que write() necesita. */
+    /** Default settings. new Settings() leaves null fields that UPR's GUI fills in and write() needs. */
     private static Settings defaults() {
         Settings settings = new Settings();
         if (settings.getSelectedEXPCurve() == null) settings.setSelectedEXPCurve(com.dabomstew.pkrandom.pokemon.ExpCurve.MEDIUM_FAST);
@@ -251,9 +253,9 @@ public class PokemanagerUpr {
     private static RomHandler loadRom(String romPath) {
         String rom = new File(romPath).getAbsolutePath();
         RomHandler.Factory factory = new Gen6RomHandler.Factory();
-        if (!factory.isLoadable(rom)) fail("La ROM no es un juego de 6.ª generación que UPR ZX pueda cargar: " + rom);
+        if (!factory.isLoadable(rom)) fail("The ROM is not a Generation 6 game UPR ZX can load: " + rom);
         RomHandler handler = factory.create(RandomSource.instance());
-        if (!handler.loadRom(rom)) fail("UPR ZX no pudo cargar la ROM: " + rom);
+        if (!handler.loadRom(rom)) fail("UPR ZX could not load the ROM: " + rom);
         return handler;
     }
 
@@ -300,7 +302,7 @@ public class PokemanagerUpr {
     }
 
     private static void usage() {
-        System.err.println("Uso: PokemanagerUpr randomize|pack|describe-settings|write-settings ...");
+        System.err.println("Usage: PokemanagerUpr randomize|pack|describe-settings|write-settings ...");
         System.exit(2);
     }
 

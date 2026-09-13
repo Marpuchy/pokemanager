@@ -1,0 +1,744 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Common_Browse" xml:space="preserve">
+    <value>Browse…</value>
+  </data>
+  <data name="Common_Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Main_TitleWithProject" xml:space="preserve">
+    <value>Pokemanager — {0}</value>
+  </data>
+  <data name="Main_OpenFailed" xml:space="preserve">
+    <value>Could not open {0}: {1}</value>
+  </data>
+  <data name="Welcome_Subtitle" xml:space="preserve">
+    <value>Randomizer and save editor for Pokémon X/Y. Your base ROM is never modified: randomized ROMs are created as new files next to it.</value>
+  </data>
+  <data name="Welcome_Settings" xml:space="preserve">
+    <value>Settings…</value>
+  </data>
+  <data name="Welcome_Recent" xml:space="preserve">
+    <value>Recent projects</value>
+  </data>
+  <data name="Welcome_RemoveTip" xml:space="preserve">
+    <value>Remove from the list (does not delete the file)</value>
+  </data>
+  <data name="Welcome_NewProject" xml:space="preserve">
+    <value>New project</value>
+  </data>
+  <data name="Welcome_DumpFolder" xml:space="preserve">
+    <value>Dump folder (with the .3ds and its romfs and exefs folders, code.bin decompressed)</value>
+  </data>
+  <data name="Welcome_GameLanguage" xml:space="preserve">
+    <value>Game text language</value>
+  </data>
+  <data name="Welcome_ProjectFile" xml:space="preserve">
+    <value>Project file</value>
+  </data>
+  <data name="Welcome_Create" xml:space="preserve">
+    <value>Create project</value>
+  </data>
+  <data name="Welcome_OpenExisting" xml:space="preserve">
+    <value>Open existing project…</value>
+  </data>
+  <data name="Welcome_PickDumpTitle" xml:space="preserve">
+    <value>Dump folder (with the .3ds, romfs and exefs)</value>
+  </data>
+  <data name="Welcome_SaveProjectTitle" xml:space="preserve">
+    <value>Save project as</value>
+  </data>
+  <data name="Welcome_OpenProjectTitle" xml:space="preserve">
+    <value>Open project</value>
+  </data>
+  <data name="Welcome_DumpInvalid" xml:space="preserve">
+    <value>The dump cannot be used:</value>
+  </data>
+  <data name="Welcome_ProjectExists" xml:space="preserve">
+    <value>A project already exists at {0}. Open it or choose another name.</value>
+  </data>
+  <data name="Welcome_CreateFailed" xml:space="preserve">
+    <value>Could not create the project: {0}</value>
+  </data>
+  <data name="Recent_Details" xml:space="preserve">
+    <value>{0} · opened {1:g}</value>
+  </data>
+  <data name="Emulator_None" xml:space="preserve">
+    <value>no emulator</value>
+  </data>
+  <data name="Editor_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Editor_BuildRom" xml:space="preserve">
+    <value>Build ROM</value>
+  </data>
+  <data name="Editor_BuildRomTip" xml:space="preserve">
+    <value>Builds the randomized ROM next to the base ROM and adapts your save (Ctrl+B)</value>
+  </data>
+  <data name="Editor_Settings" xml:space="preserve">
+    <value>Settings…</value>
+  </data>
+  <data name="Editor_Open" xml:space="preserve">
+    <value>Open…</value>
+  </data>
+  <data name="Editor_Projects" xml:space="preserve">
+    <value>Projects</value>
+  </data>
+  <data name="Editor_ProjectsTip" xml:space="preserve">
+    <value>Back to the project list</value>
+  </data>
+  <data name="Editor_GameText" xml:space="preserve">
+    <value>Pokémon {0} · {1} · {2}</value>
+  </data>
+  <data name="Editor_EditCountOne" xml:space="preserve">
+    <value>1 advanced edit</value>
+  </data>
+  <data name="Editor_EditCount" xml:space="preserve">
+    <value>{0} advanced edits</value>
+  </data>
+  <data name="Editor_Unsaved" xml:space="preserve">
+    <value>unsaved</value>
+  </data>
+  <data name="Editor_Saved" xml:space="preserve">
+    <value>saved</value>
+  </data>
+  <data name="Editor_Emulator" xml:space="preserve">
+    <value>Emulator: {0}</value>
+  </data>
+  <data name="Editor_BaseRandom" xml:space="preserve">
+    <value>Base: randomization with seed {0}</value>
+  </data>
+  <data name="Editor_BaseOriginal" xml:space="preserve">
+    <value>Base: original game</value>
+  </data>
+  <data name="Tab_Randomizer" xml:space="preserve">
+    <value>Randomizer</value>
+  </data>
+  <data name="Tab_Save" xml:space="preserve">
+    <value>Save file</value>
+  </data>
+  <data name="Tab_AdvancedPokemon" xml:space="preserve">
+    <value>Advanced: Pokémon</value>
+  </data>
+  <data name="Tab_AdvancedMoves" xml:space="preserve">
+    <value>Advanced: Moves</value>
+  </data>
+  <data name="SaveTab_Title" xml:space="preserve">
+    <value>Save editor — coming soon</value>
+  </data>
+  <data name="SaveTab_Body" xml:space="preserve">
+    <value>Here you will be able to edit your save (party and boxes, bag, trainer and Pokédex) with the emulator closed, with an automatic backup and a check that the game can load it.</value>
+  </data>
+  <data name="Search_Watermark" xml:space="preserve">
+    <value>Search by name or number</value>
+  </data>
+  <data name="Detail_Revert" xml:space="preserve">
+    <value>Undo changes</value>
+  </data>
+  <data name="Detail_Data" xml:space="preserve">
+    <value>Data</value>
+  </data>
+  <data name="Detail_LevelUp" xml:space="preserve">
+    <value>Level-up moves</value>
+  </data>
+  <data name="Detail_Modified" xml:space="preserve">
+    <value>Modified</value>
+  </data>
+  <data name="Section_BaseStats" xml:space="preserve">
+    <value>Base stats</value>
+  </data>
+  <data name="Section_Total" xml:space="preserve">
+    <value>Total:</value>
+  </data>
+  <data name="Section_EvYield" xml:space="preserve">
+    <value>EV yield</value>
+  </data>
+  <data name="Section_Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="Section_Types" xml:space="preserve">
+    <value>Types</value>
+  </data>
+  <data name="Section_Abilities" xml:space="preserve">
+    <value>Abilities</value>
+  </data>
+  <data name="Section_Breeding" xml:space="preserve">
+    <value>Breeding and experience</value>
+  </data>
+  <data name="Section_WildItems" xml:space="preserve">
+    <value>Wild held items</value>
+  </data>
+  <data name="Gender_Hint" xml:space="preserve">
+    <value>Gender: 0 = male only · 254 = female only · 255 = genderless · otherwise = female ratio out of 254.</value>
+  </data>
+  <data name="LevelUp_Add" xml:space="preserve">
+    <value>Add move</value>
+  </data>
+  <data name="LevelUp_Sort" xml:space="preserve">
+    <value>Sort by level</value>
+  </data>
+  <data name="LevelUp_Hint" xml:space="preserve">
+    <value>The game stores them sorted by level.</value>
+  </data>
+  <data name="LevelUp_Level" xml:space="preserve">
+    <value>Level</value>
+  </data>
+  <data name="Move_Main" xml:space="preserve">
+    <value>Main</value>
+  </data>
+  <data name="Move_Details" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="Field_OriginalTip" xml:space="preserve">
+    <value>Original: {0}</value>
+  </data>
+  <data name="Stat_HP" xml:space="preserve">
+    <value>HP</value>
+  </data>
+  <data name="Stat_Atk" xml:space="preserve">
+    <value>Attack</value>
+  </data>
+  <data name="Stat_Def" xml:space="preserve">
+    <value>Defense</value>
+  </data>
+  <data name="Stat_SpA" xml:space="preserve">
+    <value>Sp. Atk</value>
+  </data>
+  <data name="Stat_SpD" xml:space="preserve">
+    <value>Sp. Def</value>
+  </data>
+  <data name="Stat_Spe" xml:space="preserve">
+    <value>Speed</value>
+  </data>
+  <data name="Field_Type1" xml:space="preserve">
+    <value>Type 1</value>
+  </data>
+  <data name="Field_Type2" xml:space="preserve">
+    <value>Type 2</value>
+  </data>
+  <data name="Field_Ability1" xml:space="preserve">
+    <value>Ability 1</value>
+  </data>
+  <data name="Field_Ability2" xml:space="preserve">
+    <value>Ability 2</value>
+  </data>
+  <data name="Field_AbilityHidden" xml:space="preserve">
+    <value>Hidden ability</value>
+  </data>
+  <data name="Field_CatchRate" xml:space="preserve">
+    <value>Catch rate</value>
+  </data>
+  <data name="Field_BaseExp" xml:space="preserve">
+    <value>Base EXP</value>
+  </data>
+  <data name="Field_ExpGrowth" xml:space="preserve">
+    <value>Growth rate</value>
+  </data>
+  <data name="Field_Gender" xml:space="preserve">
+    <value>Gender</value>
+  </data>
+  <data name="Field_HatchCycles" xml:space="preserve">
+    <value>Hatch cycles</value>
+  </data>
+  <data name="Field_BaseFriendship" xml:space="preserve">
+    <value>Base friendship</value>
+  </data>
+  <data name="Field_EggGroup1" xml:space="preserve">
+    <value>Egg group 1</value>
+  </data>
+  <data name="Field_EggGroup2" xml:space="preserve">
+    <value>Egg group 2</value>
+  </data>
+  <data name="Field_Item1" xml:space="preserve">
+    <value>Held item 50 %</value>
+  </data>
+  <data name="Field_Item2" xml:space="preserve">
+    <value>Held item 5 %</value>
+  </data>
+  <data name="Field_Item3" xml:space="preserve">
+    <value>Held item 1 %</value>
+  </data>
+  <data name="Ev_HP" xml:space="preserve">
+    <value>HP</value>
+  </data>
+  <data name="Ev_Atk" xml:space="preserve">
+    <value>Atk</value>
+  </data>
+  <data name="Ev_Def" xml:space="preserve">
+    <value>Def</value>
+  </data>
+  <data name="Ev_SpA" xml:space="preserve">
+    <value>SpA</value>
+  </data>
+  <data name="Ev_SpD" xml:space="preserve">
+    <value>SpD</value>
+  </data>
+  <data name="Ev_Spe" xml:space="preserve">
+    <value>Spe</value>
+  </data>
+  <data name="Field_Height" xml:space="preserve">
+    <value>Height (cm)</value>
+  </data>
+  <data name="Field_Weight" xml:space="preserve">
+    <value>Weight (hg)</value>
+  </data>
+  <data name="Field_EscapeRate" xml:space="preserve">
+    <value>Escape rate</value>
+  </data>
+  <data name="Species_Form" xml:space="preserve">
+    <value>{0} (form {1})</value>
+  </data>
+  <data name="Species_Entry" xml:space="preserve">
+    <value>Entry {0}</value>
+  </data>
+  <data name="Move_Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Move_Category" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="Move_Power" xml:space="preserve">
+    <value>Power</value>
+  </data>
+  <data name="Move_Accuracy" xml:space="preserve">
+    <value>Accuracy (101 = never misses)</value>
+  </data>
+  <data name="Move_PP" xml:space="preserve">
+    <value>PP</value>
+  </data>
+  <data name="Move_Priority" xml:space="preserve">
+    <value>Priority</value>
+  </data>
+  <data name="Move_CritStage" xml:space="preserve">
+    <value>Critical-hit stage</value>
+  </data>
+  <data name="Move_Flinch" xml:space="preserve">
+    <value>Flinch (%)</value>
+  </data>
+  <data name="Move_HitMin" xml:space="preserve">
+    <value>Min hits</value>
+  </data>
+  <data name="Move_HitMax" xml:space="preserve">
+    <value>Max hits</value>
+  </data>
+  <data name="Move_Recoil" xml:space="preserve">
+    <value>Recoil/drain (%)</value>
+  </data>
+  <data name="Move_EffectChance" xml:space="preserve">
+    <value>Effect chance (%)</value>
+  </data>
+  <data name="Growth_MediumFast" xml:space="preserve">
+    <value>Medium Fast</value>
+  </data>
+  <data name="Growth_Erratic" xml:space="preserve">
+    <value>Erratic</value>
+  </data>
+  <data name="Growth_Fluctuating" xml:space="preserve">
+    <value>Fluctuating</value>
+  </data>
+  <data name="Growth_MediumSlow" xml:space="preserve">
+    <value>Medium Slow</value>
+  </data>
+  <data name="Growth_Fast" xml:space="preserve">
+    <value>Fast</value>
+  </data>
+  <data name="Growth_Slow" xml:space="preserve">
+    <value>Slow</value>
+  </data>
+  <data name="Egg_None" xml:space="preserve">
+    <value>—</value>
+  </data>
+  <data name="Egg_Monster" xml:space="preserve">
+    <value>Monster</value>
+  </data>
+  <data name="Egg_Water1" xml:space="preserve">
+    <value>Water 1</value>
+  </data>
+  <data name="Egg_Bug" xml:space="preserve">
+    <value>Bug</value>
+  </data>
+  <data name="Egg_Flying" xml:space="preserve">
+    <value>Flying</value>
+  </data>
+  <data name="Egg_Field" xml:space="preserve">
+    <value>Field</value>
+  </data>
+  <data name="Egg_Fairy" xml:space="preserve">
+    <value>Fairy</value>
+  </data>
+  <data name="Egg_Grass" xml:space="preserve">
+    <value>Grass</value>
+  </data>
+  <data name="Egg_HumanLike" xml:space="preserve">
+    <value>Human-Like</value>
+  </data>
+  <data name="Egg_Water3" xml:space="preserve">
+    <value>Water 3</value>
+  </data>
+  <data name="Egg_Mineral" xml:space="preserve">
+    <value>Mineral</value>
+  </data>
+  <data name="Egg_Amorphous" xml:space="preserve">
+    <value>Amorphous</value>
+  </data>
+  <data name="Egg_Water2" xml:space="preserve">
+    <value>Water 2</value>
+  </data>
+  <data name="Egg_Ditto" xml:space="preserve">
+    <value>Ditto</value>
+  </data>
+  <data name="Egg_Dragon" xml:space="preserve">
+    <value>Dragon</value>
+  </data>
+  <data name="Egg_Undiscovered" xml:space="preserve">
+    <value>Undiscovered</value>
+  </data>
+  <data name="Category_Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Category_Physical" xml:space="preserve">
+    <value>Physical</value>
+  </data>
+  <data name="Category_Special" xml:space="preserve">
+    <value>Special</value>
+  </data>
+  <data name="Status_Saved" xml:space="preserve">
+    <value>Project saved to {0}</value>
+  </data>
+  <data name="Status_SaveFailed" xml:space="preserve">
+    <value>Could not save: {0}</value>
+  </data>
+  <data name="Status_NoOutput" xml:space="preserve">
+    <value>Cannot determine where to build the ROM.</value>
+  </data>
+  <data name="Status_NoSeed" xml:space="preserve">
+    <value>A valid seed is missing.</value>
+  </data>
+  <data name="Status_NotRandomized" xml:space="preserve">
+    <value>not randomized</value>
+  </data>
+  <data name="Status_Seed" xml:space="preserve">
+    <value>seed {0}</value>
+  </data>
+  <data name="Status_RomBuilt" xml:space="preserve">
+    <value>ROM built ({0}): {1}.{2}{3} Open it in {4}.</value>
+  </data>
+  <data name="Status_ModsRemoved" xml:space="preserve">
+    <value> Removed {0} file(s) of an old mod from the mods folder.</value>
+  </data>
+  <data name="Status_SaveUnchanged" xml:space="preserve">
+    <value> Save checked: nothing needed to change.</value>
+  </data>
+  <data name="Status_SaveUpdated" xml:space="preserve">
+    <value> Save updated and verified (changes: {0}).</value>
+  </data>
+  <data name="Status_BuildFailed" xml:space="preserve">
+    <value>Could not build the ROM: {0}</value>
+  </data>
+  <data name="Status_CloseEmulator" xml:space="preserve">
+    <value>Close {0} before modifying the save: if the emulator is open, it would overwrite the save when it exits.</value>
+  </data>
+  <data name="Status_AdaptingSave" xml:space="preserve">
+    <value>Adapting the save ({0})…</value>
+  </data>
+  <data name="Status_BuildFirst" xml:space="preserve">
+    <value>Build the ROM first: the save is adapted to it.</value>
+  </data>
+  <data name="Status_ChangedSinceBuild" xml:space="preserve">
+    <value>There are changes since the last built ROM. Build the ROM again (it also adapts the save).</value>
+  </data>
+  <data name="Status_NotCached" xml:space="preserve">
+    <value>The randomization of the built ROM is not cached. Build the ROM again.</value>
+  </data>
+  <data name="Status_SaveAlreadyAdapted" xml:space="preserve">
+    <value>Save checked ({0} Pokémon): it already matched the ROM.</value>
+  </data>
+  <data name="Status_SaveAdapted" xml:space="preserve">
+    <value>Save adapted to {0}: {1} changes, verified. Backup: {2}</value>
+  </data>
+  <data name="Status_AdaptFailed" xml:space="preserve">
+    <value>Could not adapt the save: {0}</value>
+  </data>
+  <data name="Rnd_Tab_Build" xml:space="preserve">
+    <value>Build</value>
+  </data>
+  <data name="Rnd_Tab_Options" xml:space="preserve">
+    <value>Options</value>
+  </data>
+  <data name="Rnd_Enable" xml:space="preserve">
+    <value>Randomize the ROM</value>
+  </data>
+  <data name="Rnd_BaseRom" xml:space="preserve">
+    <value>Base ROM</value>
+  </data>
+  <data name="Rnd_BaseRomHint" xml:space="preserve">
+    <value>Never modified. Change it in Settings.</value>
+  </data>
+  <data name="Rnd_BaseRomMissing" xml:space="preserve">
+    <value>The base ROM (.3ds) was not found in the dump folder. Choose it in Settings.</value>
+  </data>
+  <data name="Rnd_OptionsAndSeed" xml:space="preserve">
+    <value>Options and seed</value>
+  </data>
+  <data name="Rnd_ImportPreset" xml:space="preserve">
+    <value>Import .rnqs…</value>
+  </data>
+  <data name="Rnd_Export" xml:space="preserve">
+    <value>Export…</value>
+  </data>
+  <data name="Rnd_EditOptionsHint" xml:space="preserve">
+    <value>Edit the options in the Options tab.</value>
+  </data>
+  <data name="Rnd_SeedWatermark" xml:space="preserve">
+    <value>Seed</value>
+  </data>
+  <data name="Rnd_NewSeed" xml:space="preserve">
+    <value>New seed</value>
+  </data>
+  <data name="Rnd_SeedHint" xml:space="preserve">
+    <value>Same options and same seed always produce the same game.</value>
+  </data>
+  <data name="Rnd_SeedError" xml:space="preserve">
+    <value>The seed must be a positive whole number.</value>
+  </data>
+  <data name="Rnd_Preset" xml:space="preserve">
+    <value>Preset: {0}</value>
+  </data>
+  <data name="Rnd_PresetDefaults" xml:space="preserve">
+    <value>UPR ZX defaults</value>
+  </data>
+  <data name="Rnd_PresetModified" xml:space="preserve">
+    <value>{0} (modified)</value>
+  </data>
+  <data name="Rnd_OutputRom" xml:space="preserve">
+    <value>Randomized ROM</value>
+  </data>
+  <data name="Rnd_ReplacePrevious" xml:space="preserve">
+    <value>Replace the previous ROM: {0}</value>
+  </data>
+  <data name="Rnd_CreateNew" xml:space="preserve">
+    <value>Build a new ROM (keeps the previous one)</value>
+  </data>
+  <data name="Rnd_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Rnd_OutputExists" xml:space="preserve">
+    <value>A file with that name already exists: it will be replaced.</value>
+  </data>
+  <data name="Rnd_YourSave" xml:space="preserve">
+    <value>Your save</value>
+  </data>
+  <data name="Rnd_UpdateSave" xml:space="preserve">
+    <value>Adapt the save to the new ROM (abilities and stats)</value>
+  </data>
+  <data name="Rnd_AdaptNow" xml:space="preserve">
+    <value>Adapt the save now to the built ROM</value>
+  </data>
+  <data name="Rnd_AdaptNowTip" xml:space="preserve">
+    <value>Without rebuilding the ROM. Only if nothing changed since it was built.</value>
+  </data>
+  <data name="Rnd_BuildButton" xml:space="preserve">
+    <value>Randomize and build ROM</value>
+  </data>
+  <data name="Rnd_SaveChanges" xml:space="preserve">
+    <value>Changes to your save</value>
+  </data>
+  <data name="Rnd_NoEmulator" xml:space="preserve">
+    <value>No emulator found. Choose it in Settings.</value>
+  </data>
+  <data name="Rnd_NoSave" xml:space="preserve">
+    <value>There is no Pokémon {0} save in {1}.</value>
+  </data>
+  <data name="Rnd_SaveInfo" xml:space="preserve">
+    <value>{0} save: {1}, {2} in the party, saved {3:g}.</value>
+  </data>
+  <data name="Rnd_SaveUnreadable" xml:space="preserve">
+    <value>Cannot read the {0} save: {1}</value>
+  </data>
+  <data name="Rnd_SaveFile" xml:space="preserve">
+    <value>File: {0}</value>
+  </data>
+  <data name="Rnd_WarningUpdate" xml:space="preserve">
+    <value>When the ROM is built your save will be adapted: every Pokémon in the party and boxes gets the ability it has in the new ROM and the party recalculates its stats. Species, level, IVs, EVs, nature and moves do not change. A backup is made first.</value>
+  </data>
+  <data name="Rnd_WarningNoUpdate" xml:space="preserve">
+    <value>Your save will not be touched: the Pokémon you already have keep their current abilities and stats even if the new ROM has different ones.</value>
+  </data>
+  <data name="Rnd_LoadingOptions" xml:space="preserve">
+    <value>Loading the randomizer options…</value>
+  </data>
+  <data name="Rnd_ReloadingOptions" xml:space="preserve">
+    <value>Reloading options…</value>
+  </data>
+  <data name="Rnd_OptionsLoadFailed" xml:space="preserve">
+    <value>Could not read the randomizer options: {0}</value>
+  </data>
+  <data name="Rnd_ImportTitle" xml:space="preserve">
+    <value>UPR ZX preset (.rnqs)</value>
+  </data>
+  <data name="Rnd_PresetReadFailed" xml:space="preserve">
+    <value>Could not read the preset: {0}</value>
+  </data>
+  <data name="Rnd_ExportTitle" xml:space="preserve">
+    <value>Export preset</value>
+  </data>
+  <data name="Rnd_Exported" xml:space="preserve">
+    <value>Preset exported to {0}. It can be opened in UPR ZX.</value>
+  </data>
+  <data name="Rnd_SaveChecked" xml:space="preserve">
+    <value>Save checked ({0} Pokémon): nothing needed to change.</value>
+  </data>
+  <data name="Rnd_SaveUpdatedSummary" xml:space="preserve">
+    <value>Save updated: {0} change(s) in {1} Pokémon. Backup: {2}</value>
+  </data>
+  <data name="Change_Party" xml:space="preserve">
+    <value>Party {0}</value>
+  </data>
+  <data name="Change_Box" xml:space="preserve">
+    <value>Box {0}, slot {1}</value>
+  </data>
+  <data name="Change_Ability" xml:space="preserve">
+    <value>ability {0} → {1}</value>
+  </data>
+  <data name="Change_Stats" xml:space="preserve">
+    <value>stats {0} → {1}</value>
+  </data>
+  <data name="Log_Title" xml:space="preserve">
+    <value>Randomization log</value>
+  </data>
+  <data name="Log_All" xml:space="preserve">
+    <value>Whole log</value>
+  </data>
+  <data name="Log_SearchWatermark" xml:space="preserve">
+    <value>Search (e.g. a Pokémon or a trainer)</value>
+  </data>
+  <data name="Log_Empty" xml:space="preserve">
+    <value>No log yet: randomize to generate it.</value>
+  </data>
+  <data name="Log_TooMany" xml:space="preserve">
+    <value>{0} lines match; showing the first {1}. Narrow the search.</value>
+  </data>
+  <data name="Log_Count" xml:space="preserve">
+    <value>{0} of {1} lines.</value>
+  </data>
+  <data name="Upr_Status_Ok" xml:space="preserve">
+    <value>Universal Pokémon Randomizer ZX bundled · Java {0}</value>
+  </data>
+  <data name="Upr_Status_NoJava" xml:space="preserve">
+    <value>Java {0} or later is required to run the randomizer</value>
+  </data>
+  <data name="Upr_Status_NoJar" xml:space="preserve">
+    <value>The bundled randomizer is missing ({0})</value>
+  </data>
+  <data name="Set_Title" xml:space="preserve">
+    <value>Pokemanager settings</value>
+  </data>
+  <data name="Set_Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Set_LanguageHint" xml:space="preserve">
+    <value>Restart Pokemanager to apply the language.</value>
+  </data>
+  <data name="Set_Emulator" xml:space="preserve">
+    <value>Emulator</value>
+  </data>
+  <data name="Set_EmulatorHint" xml:space="preserve">
+    <value>Where your save is. By default the emulator you opened most recently is used.</value>
+  </data>
+  <data name="Set_OtherFolder" xml:space="preserve">
+    <value>Other folder…</value>
+  </data>
+  <data name="Set_Automatic" xml:space="preserve">
+    <value>Automatic (last used: {0})</value>
+  </data>
+  <data name="Set_None" xml:space="preserve">
+    <value>none</value>
+  </data>
+  <data name="Set_DetectedItem" xml:space="preserve">
+    <value>{0} — {1} (used {2:g})</value>
+  </data>
+  <data name="Set_Custom" xml:space="preserve">
+    <value>Custom — {0}</value>
+  </data>
+  <data name="Set_Using" xml:space="preserve">
+    <value>In use: {0} ({1})</value>
+  </data>
+  <data name="Set_NotFound" xml:space="preserve">
+    <value>not found</value>
+  </data>
+  <data name="Set_NoEmulatorSave" xml:space="preserve">
+    <value>Without an emulator the save cannot be located.</value>
+  </data>
+  <data name="Set_SaveFound" xml:space="preserve">
+    <value>Pokémon {0} save: {1} (saved {2:g})</value>
+  </data>
+  <data name="Set_SaveMissing" xml:space="preserve">
+    <value>There is no Pokémon {0} save in that folder.</value>
+  </data>
+  <data name="Set_CurrentProject" xml:space="preserve">
+    <value>Current project</value>
+  </data>
+  <data name="Set_BaseRom" xml:space="preserve">
+    <value>Base ROM (never modified; the randomized one is created next to it)</value>
+  </data>
+  <data name="Set_Change" xml:space="preserve">
+    <value>Change…</value>
+  </data>
+  <data name="Set_BaseRomMissing" xml:space="preserve">
+    <value>The base ROM (.3ds) was not found</value>
+  </data>
+  <data name="Set_Tools" xml:space="preserve">
+    <value>Bundled tools</value>
+  </data>
+  <data name="Set_Upr" xml:space="preserve">
+    <value>Universal Pokémon Randomizer ZX 4.6.1 — {0}</value>
+  </data>
+  <data name="Set_UprMissing" xml:space="preserve">
+    <value>The bundled randomizer was not found at {0}</value>
+  </data>
+  <data name="Set_Pkhex" xml:space="preserve">
+    <value>PKHeX.Core {0} — built into the application</value>
+  </data>
+  <data name="Set_Java" xml:space="preserve">
+    <value>Java {0} — {1}</value>
+  </data>
+  <data name="Set_JavaMissing" xml:space="preserve">
+    <value>Java {0} or later was not found (required by the randomizer)</value>
+  </data>
+  <data name="Set_AppData" xml:space="preserve">
+    <value>Application data</value>
+  </data>
+  <data name="Set_Cache" xml:space="preserve">
+    <value>Randomization cache: {0}</value>
+  </data>
+  <data name="Set_Backups" xml:space="preserve">
+    <value>Save backups: {0}</value>
+  </data>
+  <data name="Set_ClearCache" xml:space="preserve">
+    <value>Clear cache</value>
+  </data>
+  <data name="Set_OpenBackups" xml:space="preserve">
+    <value>Open backups</value>
+  </data>
+  <data name="Set_PickEmulator" xml:space="preserve">
+    <value>Emulator user folder (contains sdmc and load)</value>
+  </data>
+  <data name="Set_PickBaseRom" xml:space="preserve">
+    <value>Decrypted Pokémon X/Y base ROM</value>
+  </data>
+  <data name="Dialog_ProjectType" xml:space="preserve">
+    <value>Pokemanager project</value>
+  </data>
+</root>

@@ -4,8 +4,8 @@ using Pokemanager.Model.Data;
 namespace Pokemanager.Tests.Editing;
 
 /// <summary>
-/// Romfs mínimo con los tres GARC editables y datos reconocibles:
-/// personal (entradas de 0x40 + concatenación final), move (archivos de 36 bytes) y levelup.
+/// Minimal romfs with the three editable GARCs and recognizable data:
+/// personal (0x40 entries + final concatenation), move (36-byte files) and levelup.
 /// </summary>
 internal sealed class SyntheticRomFs : IDisposable
 {
@@ -22,9 +22,9 @@ internal sealed class SyntheticRomFs : IDisposable
         {
             var entry = new byte[0x40];
             for (int b = 0; b < 6; b++)
-                entry[b] = (byte)(10 * (i + 1) + b); // stats: 10,11,12... por especie
-            entry[0x06] = 1; entry[0x07] = 2;          // tipos
-            entry[0x18] = (byte)(100 + i * 3);         // habilidades 1, 2 y oculta: 100+3i, 101+3i, 102+3i
+                entry[b] = (byte)(10 * (i + 1) + b); // stats: 10,11,12... per species
+            entry[0x06] = 1; entry[0x07] = 2;          // types
+            entry[0x18] = (byte)(100 + i * 3);         // abilities 1, 2 and hidden: 100+3i, 101+3i, 102+3i
             entry[0x19] = (byte)(101 + i * 3);
             entry[0x1A] = (byte)(102 + i * 3);
             return entry;
@@ -34,12 +34,12 @@ internal sealed class SyntheticRomFs : IDisposable
         Write(GameData.MoveGarc, Enumerable.Range(0, MoveCount).Select(i =>
         {
             var move = new byte[36];
-            move[0x03] = (byte)(40 + i); // potencia
+            move[0x03] = (byte)(40 + i); // power
             move[0x05] = 35;             // PP
             return move;
         }).ToArray());
 
-        // Learnset i: movimiento 1 a nivel 1 y movimiento 2 a nivel 5, con terminador -1.
+        // Learnset i: move 1 at level 1 and move 2 at level 5, with a -1 terminator.
         byte[] learnset = [1, 0, 1, 0, 2, 0, 5, 0, 0xFF, 0xFF, 0xFF, 0xFF];
         Write(GameData.LevelUpGarc, Enumerable.Repeat(learnset, Species).ToArray());
     }

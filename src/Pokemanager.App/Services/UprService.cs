@@ -1,9 +1,10 @@
+using Pokemanager.App.Resources;
 using Pokemanager.Model.Projects;
 using Pokemanager.Randomizer;
 
 namespace Pokemanager.App.Services;
 
-/// <summary>UPR ZX incluido con la app, Java del sistema y la caché de randomizaciones.</summary>
+/// <summary>The UPR ZX bundled with the app, the system Java and the randomization cache.</summary>
 public sealed class UprService
 {
     private UprTools? tools;
@@ -26,12 +27,12 @@ public sealed class UprService
     }
 
     public string StatusText => Tools is { } t
-        ? $"Universal Pokémon Randomizer ZX incluido · Java {t.JavaMajorVersion}"
+        ? string.Format(Strings.Upr_Status_Ok, t.JavaMajorVersion)
         : File.Exists(UprLocator.BundledJar)
-            ? $"Falta Java {UprLocator.MinimumJava} o superior para ejecutar el randomizer"
-            : $"Falta el randomizer incluido ({UprLocator.BundledJar})";
+            ? string.Format(Strings.Upr_Status_NoJava, UprLocator.MinimumJava)
+            : string.Format(Strings.Upr_Status_NoJar, UprLocator.BundledJar);
 
-    /// <summary>Salida de UPR ya generada para el proyecto, sin ejecutar nada.</summary>
+    /// <summary>UPR output already generated for the project, without running anything.</summary>
     public UprResult? TryGetCached(Project project, byte[]? effectivePreset)
     {
         var r = project.Randomization;
@@ -40,9 +41,7 @@ public sealed class UprService
         return Cache.TryGet(rom, effectivePreset, r.Seed, t.JarPath);
     }
 
-    /// <summary>
-    /// Qué ajustes varios admite la ROM. Se calcula una vez por sesión (UPR tiene que cargar la ROM).
-    /// </summary>
+    /// <summary>Which misc tweaks the ROM supports. Computed once per session (UPR has to load the ROM).</summary>
     public async Task<IReadOnlySet<string>> AvailableTweaksAsync(string romFile)
     {
         if (Tools is not { } t)

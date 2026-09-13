@@ -1,0 +1,597 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Upr_OutputNotEmpty" xml:space="preserve">
+    <value>La carpeta de salida de UPR debe estar vacía: {0}</value>
+  </data>
+  <data name="Upr_Randomizing" xml:space="preserve">
+    <value>Randomizando con la semilla {0}…</value>
+  </data>
+  <data name="Upr_NoLayeredFs" xml:space="preserve">
+    <value>UPR ZX no generó la carpeta LayeredFS esperada.</value>
+  </data>
+  <data name="Upr_Packing" xml:space="preserve">
+    <value>Creando la ROM randomizada…</value>
+  </data>
+  <data name="Upr_NoCxi" xml:space="preserve">
+    <value>UPR ZX no generó el .cxi.</value>
+  </data>
+  <data name="Upr_NoDescription" xml:space="preserve">
+    <value>UPR ZX no devolvió la descripción de los ajustes.</value>
+  </data>
+  <data name="Upr_EmptyDescription" xml:space="preserve">
+    <value>Descripción de ajustes vacía.</value>
+  </data>
+  <data name="Upr_LauncherMissing" xml:space="preserve">
+    <value>Falta el lanzador de UPR junto a la aplicación.</value>
+  </data>
+  <data name="Upr_ExitCode" xml:space="preserve">
+    <value>UPR ZX terminó con código {0} ({1}).</value>
+  </data>
+  <data name="Upr_UsingCache" xml:space="preserve">
+    <value>Usando la randomización en caché de la semilla {0}.</value>
+  </data>
+  <data name="Upr_Warning_CustomStartersChanged" xml:space="preserve">
+    <value>Los iniciales personalizados del preset no existen en esta ROM y se han cambiado.</value>
+  </data>
+  <data name="Upr_Warning_OldPreset" xml:space="preserve">
+    <value>El preset es de una versión anterior de UPR ZX.</value>
+  </data>
+  <data name="Rom_NameEmpty" xml:space="preserve">
+    <value>Pon un nombre a la ROM randomizada.</value>
+  </data>
+  <data name="Rom_NameInvalid" xml:space="preserve">
+    <value>El nombre contiene caracteres no válidos para un archivo.</value>
+  </data>
+  <data name="Rom_CannotReplaceBase" xml:space="preserve">
+    <value>La ROM randomizada no puede sustituir a la ROM base.</value>
+  </data>
+  <data name="Rom_OnlyRomFs" xml:space="preserve">
+    <value>Solo se admiten ediciones del romfs: {0}</value>
+  </data>
+  <data name="Group_Traits" xml:space="preserve">
+    <value>Pokémon: stats, tipos y habilidades</value>
+  </data>
+  <data name="Group_Evolutions" xml:space="preserve">
+    <value>Evoluciones</value>
+  </data>
+  <data name="Group_Starters" xml:space="preserve">
+    <value>Iniciales, estáticos e intercambios</value>
+  </data>
+  <data name="Group_Moves" xml:space="preserve">
+    <value>Movimientos</value>
+  </data>
+  <data name="Group_Trainers" xml:space="preserve">
+    <value>Entrenadores</value>
+  </data>
+  <data name="Group_Wild" xml:space="preserve">
+    <value>Pokémon salvajes</value>
+  </data>
+  <data name="Group_TmsTutors" xml:space="preserve">
+    <value>MT y tutores</value>
+  </data>
+  <data name="Group_Items" xml:space="preserve">
+    <value>Objetos</value>
+  </data>
+  <data name="Group_Misc" xml:space="preserve">
+    <value>General y ajustes varios</value>
+  </data>
+  <data name="Choice_UNCHANGED" xml:space="preserve">
+    <value>Sin cambios</value>
+  </data>
+  <data name="Choice_RANDOM" xml:space="preserve">
+    <value>Aleatorio</value>
+  </data>
+  <data name="Choice_RANDOMIZE" xml:space="preserve">
+    <value>Aleatorias</value>
+  </data>
+  <data name="Choice_SHUFFLE" xml:space="preserve">
+    <value>Barajar</value>
+  </data>
+  <data name="Choice_COMPLETELY_RANDOM" xml:space="preserve">
+    <value>Completamente aleatorio</value>
+  </data>
+  <data name="Choice_SIMILAR_STRENGTH" xml:space="preserve">
+    <value>Fuerza similar</value>
+  </data>
+  <data name="Choice_NONE" xml:space="preserve">
+    <value>Ninguna</value>
+  </data>
+  <data name="Choice_FULL" xml:space="preserve">
+    <value>Todos aprenden todo</value>
+  </data>
+  <data name="Choice_RANDOM_PREFER_TYPE" xml:space="preserve">
+    <value>Aleatoria (preferir su tipo)</value>
+  </data>
+  <data name="Opt_BaseStatisticsMod" xml:space="preserve">
+    <value>Estadísticas base</value>
+  </data>
+  <data name="Choice_BaseStatisticsMod_SHUFFLE" xml:space="preserve">
+    <value>Barajar las de cada Pokémon</value>
+  </data>
+  <data name="Choice_BaseStatisticsMod_RANDOM" xml:space="preserve">
+    <value>Aleatorias (mismo total)</value>
+  </data>
+  <data name="Opt_BaseStatsFollowEvolutions" xml:space="preserve">
+    <value>Las evoluciones siguen el reparto de su preevolución</value>
+  </data>
+  <data name="Opt_BaseStatsFollowMegaEvolutions" xml:space="preserve">
+    <value>Las megaevoluciones siguen a su forma base</value>
+  </data>
+  <data name="Opt_AssignEvoStatsRandomly" xml:space="preserve">
+    <value>Repartir al azar las stats ganadas al evolucionar</value>
+  </data>
+  <data name="Opt_UpdateBaseStats" xml:space="preserve">
+    <value>Actualizar stats base a una generación posterior</value>
+  </data>
+  <data name="Opt_UpdateBaseStatsToGeneration" xml:space="preserve">
+    <value>Generación de las stats</value>
+  </data>
+  <data name="Opt_StandardizeEXPCurves" xml:space="preserve">
+    <value>Unificar curvas de experiencia</value>
+  </data>
+  <data name="Opt_ExpCurveMod" xml:space="preserve">
+    <value>A qué Pokémon afecta la curva unificada</value>
+  </data>
+  <data name="Choice_ExpCurveMod_LEGENDARIES" xml:space="preserve">
+    <value>Todos salvo legendarios</value>
+  </data>
+  <data name="Choice_ExpCurveMod_STRONG_LEGENDARIES" xml:space="preserve">
+    <value>Todos salvo legendarios fuertes</value>
+  </data>
+  <data name="Choice_ExpCurveMod_ALL" xml:space="preserve">
+    <value>Todos</value>
+  </data>
+  <data name="Opt_TypesMod" xml:space="preserve">
+    <value>Tipos</value>
+  </data>
+  <data name="Choice_TypesMod_RANDOM_FOLLOW_EVOLUTIONS" xml:space="preserve">
+    <value>Aleatorios (respetan evoluciones)</value>
+  </data>
+  <data name="Opt_TypesFollowMegaEvolutions" xml:space="preserve">
+    <value>Las megaevoluciones siguen el tipo de su forma base</value>
+  </data>
+  <data name="Opt_DualTypeOnly" xml:space="preserve">
+    <value>Todos con doble tipo</value>
+  </data>
+  <data name="Opt_AbilitiesMod" xml:space="preserve">
+    <value>Habilidades</value>
+  </data>
+  <data name="Opt_AbilitiesFollowEvolutions" xml:space="preserve">
+    <value>Las evoluciones conservan las habilidades</value>
+  </data>
+  <data name="Opt_AbilitiesFollowMegaEvolutions" xml:space="preserve">
+    <value>Las megaevoluciones siguen a su forma base</value>
+  </data>
+  <data name="Opt_AllowWonderGuard" xml:space="preserve">
+    <value>Permitir Superguarda</value>
+  </data>
+  <data name="Opt_BanTrappingAbilities" xml:space="preserve">
+    <value>Prohibir habilidades que atrapan</value>
+  </data>
+  <data name="Opt_BanNegativeAbilities" xml:space="preserve">
+    <value>Prohibir habilidades negativas</value>
+  </data>
+  <data name="Opt_BanBadAbilities" xml:space="preserve">
+    <value>Prohibir habilidades malas</value>
+  </data>
+  <data name="Opt_WeighDuplicateAbilitiesTogether" xml:space="preserve">
+    <value>Contar juntas las habilidades repetidas</value>
+  </data>
+  <data name="Opt_EnsureTwoAbilities" xml:space="preserve">
+    <value>Asegurar dos habilidades</value>
+  </data>
+  <data name="Opt_EvolutionsMod" xml:space="preserve">
+    <value>Evoluciones</value>
+  </data>
+  <data name="Choice_EvolutionsMod_RANDOM_EVERY_LEVEL" xml:space="preserve">
+    <value>Aleatoria en cada nivel</value>
+  </data>
+  <data name="Opt_EvosSimilarStrength" xml:space="preserve">
+    <value>Fuerza similar</value>
+  </data>
+  <data name="Opt_EvosSameTyping" xml:space="preserve">
+    <value>Mismo tipo</value>
+  </data>
+  <data name="Opt_EvosMaxThreeStages" xml:space="preserve">
+    <value>Máximo tres fases</value>
+  </data>
+  <data name="Opt_EvosForceChange" xml:space="preserve">
+    <value>Forzar cambio</value>
+  </data>
+  <data name="Opt_EvosAllowAltFormes" xml:space="preserve">
+    <value>Permitir formas alternativas</value>
+  </data>
+  <data name="Opt_ChangeImpossibleEvolutions" xml:space="preserve">
+    <value>Cambiar evoluciones imposibles (por intercambio…)</value>
+  </data>
+  <data name="Opt_MakeEvolutionsEasier" xml:space="preserve">
+    <value>Evoluciones más fáciles</value>
+  </data>
+  <data name="Opt_RemoveTimeBasedEvolutions" xml:space="preserve">
+    <value>Quitar evoluciones que dependen de la hora</value>
+  </data>
+  <data name="Opt_StartersMod" xml:space="preserve">
+    <value>Iniciales</value>
+  </data>
+  <data name="Choice_StartersMod_CUSTOM" xml:space="preserve">
+    <value>Personalizados (del preset)</value>
+  </data>
+  <data name="Choice_StartersMod_RANDOM_WITH_TWO_EVOLUTIONS" xml:space="preserve">
+    <value>Aleatorios con dos evoluciones</value>
+  </data>
+  <data name="Opt_AllowStarterAltFormes" xml:space="preserve">
+    <value>Iniciales: permitir formas alternativas</value>
+  </data>
+  <data name="Opt_RandomizeStartersHeldItems" xml:space="preserve">
+    <value>Iniciales: objeto equipado aleatorio</value>
+  </data>
+  <data name="Opt_BanBadRandomStarterHeldItems" xml:space="preserve">
+    <value>Iniciales: prohibir objetos malos</value>
+  </data>
+  <data name="Opt_StaticPokemonMod" xml:space="preserve">
+    <value>Pokémon estáticos (legendarios, regalos…)</value>
+  </data>
+  <data name="Choice_StaticPokemonMod_RANDOM_MATCHING" xml:space="preserve">
+    <value>Aleatorios (legendario por legendario)</value>
+  </data>
+  <data name="Opt_AllowStaticAltFormes" xml:space="preserve">
+    <value>Estáticos: permitir formas alternativas</value>
+  </data>
+  <data name="Opt_SwapStaticMegaEvos" xml:space="preserve">
+    <value>Estáticos: cambiar megaevoluciones</value>
+  </data>
+  <data name="Opt_LimitMainGameLegendaries" xml:space="preserve">
+    <value>Estáticos: limitar legendarios de la historia</value>
+  </data>
+  <data name="Opt_Limit600" xml:space="preserve">
+    <value>Estáticos: limitar a 600 de total</value>
+  </data>
+  <data name="Opt_StaticLevelModified" xml:space="preserve">
+    <value>Estáticos: modificar nivel</value>
+  </data>
+  <data name="Opt_StaticLevelModifier" xml:space="preserve">
+    <value>Estáticos: % de nivel</value>
+  </data>
+  <data name="Opt_CorrectStaticMusic" xml:space="preserve">
+    <value>Estáticos: música acorde al nuevo Pokémon</value>
+  </data>
+  <data name="Opt_InGameTradesMod" xml:space="preserve">
+    <value>Intercambios del juego</value>
+  </data>
+  <data name="Choice_InGameTradesMod_RANDOMIZE_GIVEN" xml:space="preserve">
+    <value>Aleatorizar el que dan</value>
+  </data>
+  <data name="Choice_InGameTradesMod_RANDOMIZE_GIVEN_AND_REQUESTED" xml:space="preserve">
+    <value>Aleatorizar el que dan y el que piden</value>
+  </data>
+  <data name="Opt_RandomizeInGameTradesNicknames" xml:space="preserve">
+    <value>Intercambios: motes aleatorios</value>
+  </data>
+  <data name="Opt_RandomizeInGameTradesOTs" xml:space="preserve">
+    <value>Intercambios: entrenador original aleatorio</value>
+  </data>
+  <data name="Opt_RandomizeInGameTradesIVs" xml:space="preserve">
+    <value>Intercambios: IV aleatorios</value>
+  </data>
+  <data name="Opt_RandomizeInGameTradesItems" xml:space="preserve">
+    <value>Intercambios: objeto aleatorio</value>
+  </data>
+  <data name="Opt_RandomizeMovePowers" xml:space="preserve">
+    <value>Potencia aleatoria</value>
+  </data>
+  <data name="Opt_RandomizeMoveAccuracies" xml:space="preserve">
+    <value>Precisión aleatoria</value>
+  </data>
+  <data name="Opt_RandomizeMovePPs" xml:space="preserve">
+    <value>PP aleatorios</value>
+  </data>
+  <data name="Opt_RandomizeMoveTypes" xml:space="preserve">
+    <value>Tipo aleatorio</value>
+  </data>
+  <data name="Opt_RandomizeMoveCategory" xml:space="preserve">
+    <value>Categoría aleatoria (físico/especial)</value>
+  </data>
+  <data name="Opt_UpdateMoves" xml:space="preserve">
+    <value>Actualizar movimientos a una generación posterior</value>
+  </data>
+  <data name="Opt_UpdateMovesToGeneration" xml:space="preserve">
+    <value>Generación de los movimientos</value>
+  </data>
+  <data name="Opt_MovesetsMod" xml:space="preserve">
+    <value>Movimientos que aprenden</value>
+  </data>
+  <data name="Choice_MovesetsMod_RANDOM_PREFER_SAME_TYPE" xml:space="preserve">
+    <value>Aleatorios (preferir su tipo)</value>
+  </data>
+  <data name="Choice_MovesetsMod_METRONOME_ONLY" xml:space="preserve">
+    <value>Solo Metrónomo</value>
+  </data>
+  <data name="Opt_StartWithGuaranteedMoves" xml:space="preserve">
+    <value>Empezar con movimientos garantizados</value>
+  </data>
+  <data name="Opt_GuaranteedMoveCount" xml:space="preserve">
+    <value>Número de movimientos garantizados</value>
+  </data>
+  <data name="Opt_ReorderDamagingMoves" xml:space="preserve">
+    <value>Ordenar movimientos de daño por potencia</value>
+  </data>
+  <data name="Opt_MovesetsForceGoodDamaging" xml:space="preserve">
+    <value>Forzar buenos movimientos de daño</value>
+  </data>
+  <data name="Opt_MovesetsGoodDamagingPercent" xml:space="preserve">
+    <value>% de buenos movimientos de daño</value>
+  </data>
+  <data name="Opt_BlockBrokenMovesetMoves" xml:space="preserve">
+    <value>Bloquear movimientos rotos</value>
+  </data>
+  <data name="Opt_EvolutionMovesForAll" xml:space="preserve">
+    <value>Movimientos al evolucionar para todos</value>
+  </data>
+  <data name="Opt_TrainersMod" xml:space="preserve">
+    <value>Pokémon de los entrenadores</value>
+  </data>
+  <data name="Choice_TrainersMod_DISTRIBUTED" xml:space="preserve">
+    <value>Aleatorios repartidos</value>
+  </data>
+  <data name="Choice_TrainersMod_MAINPLAYTHROUGH" xml:space="preserve">
+    <value>Repartidos en la historia principal</value>
+  </data>
+  <data name="Choice_TrainersMod_TYPE_THEMED" xml:space="preserve">
+    <value>Con tipo temático</value>
+  </data>
+  <data name="Choice_TrainersMod_TYPE_THEMED_ELITE4_GYMS" xml:space="preserve">
+    <value>Tipo temático solo en gimnasios y Alto Mando</value>
+  </data>
+  <data name="Opt_RivalCarriesStarterThroughout" xml:space="preserve">
+    <value>El rival lleva su inicial toda la partida</value>
+  </data>
+  <data name="Opt_TrainersUsePokemonOfSimilarStrength" xml:space="preserve">
+    <value>Fuerza similar al original</value>
+  </data>
+  <data name="Opt_TrainersMatchTypingDistribution" xml:space="preserve">
+    <value>Mantener la proporción de tipos</value>
+  </data>
+  <data name="Opt_TrainersBlockLegendaries" xml:space="preserve">
+    <value>Sin legendarios</value>
+  </data>
+  <data name="Opt_TrainersBlockEarlyWonderGuard" xml:space="preserve">
+    <value>Sin Superguarda al principio</value>
+  </data>
+  <data name="Opt_TrainersEnforceDistribution" xml:space="preserve">
+    <value>Forzar reparto</value>
+  </data>
+  <data name="Opt_TrainersEnforceMainPlaythrough" xml:space="preserve">
+    <value>Forzar reparto en la historia</value>
+  </data>
+  <data name="Opt_TrainersForceFullyEvolved" xml:space="preserve">
+    <value>Pokémon totalmente evolucionados a partir de un nivel</value>
+  </data>
+  <data name="Opt_TrainersForceFullyEvolvedLevel" xml:space="preserve">
+    <value>Nivel a partir del cual</value>
+  </data>
+  <data name="Opt_TrainersLevelModified" xml:space="preserve">
+    <value>Modificar nivel de los entrenadores</value>
+  </data>
+  <data name="Opt_TrainersLevelModifier" xml:space="preserve">
+    <value>% de nivel</value>
+  </data>
+  <data name="Opt_EliteFourUniquePokemonNumber" xml:space="preserve">
+    <value>Pokémon únicos en el Alto Mando</value>
+  </data>
+  <data name="Opt_AllowTrainerAlternateFormes" xml:space="preserve">
+    <value>Permitir formas alternativas</value>
+  </data>
+  <data name="Opt_SwapTrainerMegaEvos" xml:space="preserve">
+    <value>Cambiar megaevoluciones de entrenadores</value>
+  </data>
+  <data name="Opt_DoubleBattleMode" xml:space="preserve">
+    <value>Todos los combates dobles</value>
+  </data>
+  <data name="Opt_AdditionalBossTrainerPokemon" xml:space="preserve">
+    <value>Pokémon extra: jefes</value>
+  </data>
+  <data name="Opt_AdditionalImportantTrainerPokemon" xml:space="preserve">
+    <value>Pokémon extra: importantes</value>
+  </data>
+  <data name="Opt_AdditionalRegularTrainerPokemon" xml:space="preserve">
+    <value>Pokémon extra: normales</value>
+  </data>
+  <data name="Opt_RandomizeHeldItemsForBossTrainerPokemon" xml:space="preserve">
+    <value>Objetos aleatorios: jefes</value>
+  </data>
+  <data name="Opt_RandomizeHeldItemsForImportantTrainerPokemon" xml:space="preserve">
+    <value>Objetos aleatorios: importantes</value>
+  </data>
+  <data name="Opt_RandomizeHeldItemsForRegularTrainerPokemon" xml:space="preserve">
+    <value>Objetos aleatorios: normales</value>
+  </data>
+  <data name="Opt_ConsumableItemsOnlyForTrainers" xml:space="preserve">
+    <value>Solo objetos consumibles</value>
+  </data>
+  <data name="Opt_SensibleItemsOnlyForTrainers" xml:space="preserve">
+    <value>Solo objetos con sentido</value>
+  </data>
+  <data name="Opt_HighestLevelGetsItemsForTrainers" xml:space="preserve">
+    <value>Solo el de mayor nivel lleva objeto</value>
+  </data>
+  <data name="Opt_BetterTrainerMovesets" xml:space="preserve">
+    <value>Mejores movimientos para los entrenadores</value>
+  </data>
+  <data name="Opt_RandomizeTrainerNames" xml:space="preserve">
+    <value>Nombres de entrenador aleatorios</value>
+  </data>
+  <data name="Opt_RandomizeTrainerClassNames" xml:space="preserve">
+    <value>Clases de entrenador aleatorias</value>
+  </data>
+  <data name="Opt_WildPokemonMod" xml:space="preserve">
+    <value>Pokémon salvajes</value>
+  </data>
+  <data name="Choice_WildPokemonMod_AREA_MAPPING" xml:space="preserve">
+    <value>Uno por uno en cada zona</value>
+  </data>
+  <data name="Choice_WildPokemonMod_GLOBAL_MAPPING" xml:space="preserve">
+    <value>Uno por uno en todo el juego</value>
+  </data>
+  <data name="Opt_WildPokemonRestrictionMod" xml:space="preserve">
+    <value>Restricción</value>
+  </data>
+  <data name="Choice_WildPokemonRestrictionMod_CATCH_EM_ALL" xml:space="preserve">
+    <value>Hazte con todos</value>
+  </data>
+  <data name="Choice_WildPokemonRestrictionMod_TYPE_THEME_AREAS" xml:space="preserve">
+    <value>Zonas con tipo temático</value>
+  </data>
+  <data name="Opt_UseTimeBasedEncounters" xml:space="preserve">
+    <value>Usar encuentros según la hora</value>
+  </data>
+  <data name="Opt_BlockWildLegendaries" xml:space="preserve">
+    <value>Sin legendarios salvajes</value>
+  </data>
+  <data name="Opt_AllowWildAltFormes" xml:space="preserve">
+    <value>Permitir formas alternativas</value>
+  </data>
+  <data name="Opt_BalanceShakingGrass" xml:space="preserve">
+    <value>Equilibrar la hierba que se mueve</value>
+  </data>
+  <data name="Opt_UseMinimumCatchRate" xml:space="preserve">
+    <value>Ratio de captura mínimo</value>
+  </data>
+  <data name="Opt_MinimumCatchRateLevel" xml:space="preserve">
+    <value>Nivel del ratio mínimo (1–5)</value>
+  </data>
+  <data name="Opt_RandomizeWildPokemonHeldItems" xml:space="preserve">
+    <value>Objetos equipados aleatorios</value>
+  </data>
+  <data name="Opt_BanBadRandomWildPokemonHeldItems" xml:space="preserve">
+    <value>Prohibir objetos malos</value>
+  </data>
+  <data name="Opt_WildLevelsModified" xml:space="preserve">
+    <value>Modificar nivel de los salvajes</value>
+  </data>
+  <data name="Opt_WildLevelModifier" xml:space="preserve">
+    <value>% de nivel</value>
+  </data>
+  <data name="Opt_TmsMod" xml:space="preserve">
+    <value>Movimientos de las MT</value>
+  </data>
+  <data name="Opt_KeepFieldMoveTMs" xml:space="preserve">
+    <value>MT: conservar movimientos de campo</value>
+  </data>
+  <data name="Opt_TmsForceGoodDamaging" xml:space="preserve">
+    <value>MT: forzar buenos movimientos de daño</value>
+  </data>
+  <data name="Opt_TmsGoodDamagingPercent" xml:space="preserve">
+    <value>MT: % de buenos movimientos</value>
+  </data>
+  <data name="Opt_BlockBrokenTMMoves" xml:space="preserve">
+    <value>MT: bloquear movimientos rotos</value>
+  </data>
+  <data name="Opt_TmsHmsCompatibilityMod" xml:space="preserve">
+    <value>Compatibilidad con MT/MO</value>
+  </data>
+  <data name="Opt_TmLevelUpMoveSanity" xml:space="preserve">
+    <value>MT: coherente con lo que aprenden por nivel</value>
+  </data>
+  <data name="Opt_TmsFollowEvolutions" xml:space="preserve">
+    <value>MT: las evoluciones heredan compatibilidad</value>
+  </data>
+  <data name="Opt_FullHMCompat" xml:space="preserve">
+    <value>Todos compatibles con las MO</value>
+  </data>
+  <data name="Opt_MoveTutorMovesMod" xml:space="preserve">
+    <value>Movimientos de los tutores</value>
+  </data>
+  <data name="Opt_KeepFieldMoveTutors" xml:space="preserve">
+    <value>Tutores: conservar movimientos de campo</value>
+  </data>
+  <data name="Opt_TutorsForceGoodDamaging" xml:space="preserve">
+    <value>Tutores: forzar buenos movimientos de daño</value>
+  </data>
+  <data name="Opt_TutorsGoodDamagingPercent" xml:space="preserve">
+    <value>Tutores: % de buenos movimientos</value>
+  </data>
+  <data name="Opt_BlockBrokenTutorMoves" xml:space="preserve">
+    <value>Tutores: bloquear movimientos rotos</value>
+  </data>
+  <data name="Opt_MoveTutorsCompatibilityMod" xml:space="preserve">
+    <value>Compatibilidad con tutores</value>
+  </data>
+  <data name="Opt_TutorLevelUpMoveSanity" xml:space="preserve">
+    <value>Tutores: coherente con lo que aprenden por nivel</value>
+  </data>
+  <data name="Opt_TutorFollowEvolutions" xml:space="preserve">
+    <value>Tutores: las evoluciones heredan compatibilidad</value>
+  </data>
+  <data name="Opt_FieldItemsMod" xml:space="preserve">
+    <value>Objetos del suelo</value>
+  </data>
+  <data name="Choice_FieldItemsMod_RANDOM_EVEN" xml:space="preserve">
+    <value>Aleatorios equilibrados</value>
+  </data>
+  <data name="Opt_BanBadRandomFieldItems" xml:space="preserve">
+    <value>Suelo: prohibir objetos malos</value>
+  </data>
+  <data name="Opt_ShopItemsMod" xml:space="preserve">
+    <value>Objetos de las tiendas</value>
+  </data>
+  <data name="Opt_BanBadRandomShopItems" xml:space="preserve">
+    <value>Tiendas: prohibir objetos malos</value>
+  </data>
+  <data name="Opt_BanRegularShopItems" xml:space="preserve">
+    <value>Tiendas: prohibir objetos normales</value>
+  </data>
+  <data name="Opt_BanOPShopItems" xml:space="preserve">
+    <value>Tiendas: prohibir objetos demasiado buenos</value>
+  </data>
+  <data name="Opt_BalanceShopPrices" xml:space="preserve">
+    <value>Equilibrar precios</value>
+  </data>
+  <data name="Opt_GuaranteeEvolutionItems" xml:space="preserve">
+    <value>Garantizar objetos de evolución</value>
+  </data>
+  <data name="Opt_GuaranteeXItems" xml:space="preserve">
+    <value>Garantizar objetos X</value>
+  </data>
+  <data name="Opt_PickupItemsMod" xml:space="preserve">
+    <value>Objetos de Recogida</value>
+  </data>
+  <data name="Opt_BanBadRandomPickupItems" xml:space="preserve">
+    <value>Recogida: prohibir objetos malos</value>
+  </data>
+  <data name="Opt_BanIrregularAltFormes" xml:space="preserve">
+    <value>Prohibir formas alternativas irregulares</value>
+  </data>
+  <data name="Opt_RaceMode" xml:space="preserve">
+    <value>Modo carrera (verificación de semilla en el log)</value>
+  </data>
+  <data name="Opt_BlockBrokenMoves" xml:space="preserve">
+    <value>Bloquear movimientos rotos</value>
+  </data>
+  <data name="Opt_ShinyChance" xml:space="preserve">
+    <value>Aumentar probabilidad de shiny</value>
+  </data>
+  <data name="Tweak_FASTEST_TEXT" xml:space="preserve">
+    <value>Texto a máxima velocidad</value>
+  </data>
+  <data name="Tweak_NATIONAL_DEX_AT_START" xml:space="preserve">
+    <value>Pokédex Nacional desde el principio</value>
+  </data>
+  <data name="Tweak_BAN_LUCKY_EGG" xml:space="preserve">
+    <value>Prohibir Huevo Suerte</value>
+  </data>
+  <data name="Tweak_RETAIN_ALT_FORMES" xml:space="preserve">
+    <value>No revertir formas temporales</value>
+  </data>
+</root>

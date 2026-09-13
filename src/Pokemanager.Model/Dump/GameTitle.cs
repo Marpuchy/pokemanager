@@ -1,6 +1,6 @@
 namespace Pokemanager.Model.Dump;
 
-/// <summary>Juegos soportados.</summary>
+/// <summary>Supported games.</summary>
 public enum GameTitle
 {
     X,
@@ -9,7 +9,7 @@ public enum GameTitle
 
 public static class GameTitleExtensions
 {
-    /// <summary>Title ID del juego, igual en todas las regiones.</summary>
+    /// <summary>Title ID of the game, the same in every region.</summary>
     public static ulong TitleId(this GameTitle title) => title switch
     {
         GameTitle.X => 0x0004000000055D00,
@@ -17,6 +17,6 @@ public static class GameTitleExtensions
         _ => throw new ArgumentOutOfRangeException(nameof(title), title, null),
     };
 
-    /// <summary>Title ID en 16 dígitos hexadecimales, como lo usa la carpeta de mods del emulador.</summary>
+    /// <summary>Title ID as 16 hex digits, as the emulator's mods folder uses it.</summary>
     public static string TitleIdHex(this GameTitle title) => title.TitleId().ToString("X16");
 }

@@ -18,7 +18,7 @@ public sealed class ProjectTests : IDisposable
     [Fact]
     public void FindBaseRom_IgnoresRandomizedRomsCreatedNextToIt()
     {
-        // Caso real: «… - random.cxi» ordena antes que «….3ds» y era elegida como base.
+        // Real case: "… - random.cxi" sorts before "….3ds" and was picked as the base.
         string original = Touch("Pokemon X (Europe) (En,Ja,Fr,De,Es,It,Ko).3ds");
         Touch("Pokemon X (Europe) (En,Ja,Fr,De,Es,It,Ko) - random.cxi");
         Touch("Pokemon X (Europe) (En,Ja,Fr,De,Es,It,Ko) - random.cxi.log");
@@ -48,7 +48,7 @@ public sealed class ProjectTests : IDisposable
     public void ExplicitRomFile_Wins()
     {
         Touch("base.3ds");
-        string chosen = Touch("otra.cci");
+        string chosen = Touch("other.cci");
 
         Assert.Equal(chosen, new Project { DumpDirectory = dir, RomFile = chosen }.ResolveRomFile());
     }

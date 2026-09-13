@@ -3,24 +3,24 @@ using System.Text.RegularExpressions;
 
 namespace Pokemanager.Randomizer;
 
-/// <summary>Java y el jar de Universal Pokémon Randomizer ZX listos para usar.</summary>
+/// <summary>Java and the Universal Pokémon Randomizer ZX jar, ready to use.</summary>
 public sealed record UprTools(string JavaPath, int JavaMajorVersion, string JarPath);
 
-/// <summary>Localiza Java (11 o superior, por el lanzador de código fuente) y el UPR ZX incluido con la app.</summary>
+/// <summary>Locates Java (11 or later, for the source-file launcher) and the UPR ZX bundled with the app.</summary>
 public static partial class UprLocator
 {
     public const int MinimumJava = 11;
 
-    /// <summary>UPR ZX incluido con la aplicación: <c>&lt;app&gt;/tools/upr/PokeRandoZX.jar</c>.</summary>
+    /// <summary>UPR ZX bundled with the application: <c>&lt;app&gt;/tools/upr/PokeRandoZX.jar</c>.</summary>
     public static string BundledJar => Path.Combine(AppContext.BaseDirectory, "tools", "upr", "PokeRandoZX.jar");
 
-    /// <summary>Java utilizable y el jar incluido, o null si falta alguno.</summary>
+    /// <summary>A usable Java and the bundled jar, or null if either is missing.</summary>
     public static UprTools? Find() =>
         FindJava() is { } java && File.Exists(BundledJar) ? new UprTools(java.Path, java.Major, BundledJar) : null;
 
     /// <summary>
-    /// Busca un Java utilizable: <c>JAVA_HOME</c>, los JDK instalados y el <c>java</c> del PATH.
-    /// Devuelve el de versión más alta que cumpla el mínimo, o null.
+    /// Looks for a usable Java: <c>JAVA_HOME</c>, installed JDKs and <c>java</c> on the PATH. Returns the highest version
+    /// that meets the minimum, or null.
     /// </summary>
     public static (string Path, int Major)? FindJava()
     {

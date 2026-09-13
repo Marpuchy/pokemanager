@@ -1,36 +1,49 @@
 using PKHeX.Core;
+using Pokemanager.Save.Resources;
 using GameData = Pokemanager.Model.Data.GameData;
 
 namespace Pokemanager.Save;
 
-/// <summary>Un cambio aplicado a un Pokémon de la partida.</summary>
-/// <param name="Location">«Equipo 1», «Caja 3, hueco 12»…</param>
-public sealed record PokemonChange(string Location, ushort Species, string Description);
+/// <summary>Where a Pokémon is in the save: a party slot (<see cref="Box"/> null) or a box slot. Zero-based.</summary>
+public readonly record struct SaveSlot(int? Box, int Slot)
+{
+    public bool IsParty => Box is null;
+}
+
+public enum ChangeKind
+{
+    /// <summary><see cref="PokemonChange.Before"/>/<see cref="PokemonChange.After"/> hold one ability ID.</summary>
+    Ability,
+
+    /// <summary>Before/After hold the six party stats: HP, Atk, Def, Spe, SpA, SpD.</summary>
+    Stats,
+}
+
+/// <summary>A change applied to a Pokémon in the save.</summary>
+public sealed record PokemonChange(SaveSlot Slot, ushort Species, ChangeKind Kind, IReadOnlyList<int> Before, IReadOnlyList<int> After);
 
 public sealed record SaveUpdateResult(string SavePath, string? BackupPath, int PokemonChecked, IReadOnlyList<PokemonChange> Changes);
 
 public sealed class SaveUpdateException(string message) : Exception(message);
 
-/// <summary>
-/// Adapta una partida de X/Y a otra versión de la ROM (por ejemplo, otra semilla del randomizer).
-/// </summary>
+/// <summary>Adapts an X/Y save to another version of the ROM (for example, another randomizer seed).</summary>
 /// <remarks>
-/// En la 6.ª generación la partida guarda la habilidad de cada Pokémon y las stats del equipo; la ROM solo
-/// aporta las stats base y las habilidades posibles de cada especie. Por eso, al cambiar la ROM, hay que:
+/// In Generation 6 the save stores each Pokémon's ability and the party stats; the ROM only provides each species'
+/// base stats and possible abilities. So when the ROM changes:
 /// <list type="bullet">
-/// <item>asignar a cada Pokémon la habilidad de su mismo número (1, 2 u oculta) en la nueva especie;</item>
-/// <item>recalcular las stats del equipo con las nuevas stats base (las de las cajas se calculan al sacarlos).</item>
+/// <item>each Pokémon gets the ability with the same number (1, 2 or hidden) in its species' new entry;</item>
+/// <item>party stats are recalculated from the new base stats (box stats are computed by the game on withdrawal).</item>
 /// </list>
-/// Especie, nivel, IV, EV, naturaleza y movimientos aprendidos no se tocan.
+/// Species, level, IVs, EVs, nature and learned moves are not touched.
 /// </remarks>
 public static class SaveUpdater
 {
-    /// <summary>Tamaño del archivo <c>main</c> de X/Y.</summary>
+    /// <summary>Size of the X/Y <c>main</c> file.</summary>
     public const int SizeXY = 0x65600;
 
     /// <summary>
-    /// Carga la partida. Si la autodetección de PKHeX no la reconoce pero tiene el tamaño de X/Y (p. ej. una partida
-    /// recién creada), se abre como X/Y; las sumas de control se comprueban igualmente antes de modificarla.
+    /// Loads the save. If PKHeX auto-detection does not recognize it but it has the X/Y size (e.g. a freshly created
+    /// save), it is opened as X/Y; checksums are still checked before modifying it.
     /// </summary>
     public static SaveFile Load(string savePath)
     {
@@ -39,24 +52,22 @@ public static class SaveUpdater
             return sav;
         if (data.Length == SizeXY)
             return new SAV6XY(data);
-        throw new SaveUpdateException($"No se reconoce la partida: {savePath}");
+        throw new SaveUpdateException(string.Format(Strings.Save_NotRecognized, savePath));
     }
 
-    /// <summary>Calcula los cambios sin escribir nada.</summary>
+    /// <summary>Computes the changes without writing anything.</summary>
     public static SaveUpdateResult Preview(string savePath, GameData rom) => Run(savePath, rom, backupRoot: null, write: false);
 
-    /// <summary>
-    /// Aplica los cambios: copia de seguridad en <paramref name="backupRoot"/>, escritura y verificación releyendo el archivo.
-    /// </summary>
+    /// <summary>Applies the changes: backup in <paramref name="backupRoot"/>, write, and verification by re-reading the file.</summary>
     public static SaveUpdateResult Apply(string savePath, GameData rom, string backupRoot) => Run(savePath, rom, backupRoot, write: true);
 
     private static SaveUpdateResult Run(string savePath, GameData rom, string? backupRoot, bool write)
     {
         var sav = Load(savePath);
         if (sav is not SAV6XY)
-            throw new SaveUpdateException($"La partida no es de Pokémon X/Y ({sav.GetType().Name}).");
+            throw new SaveUpdateException(string.Format(Strings.Save_NotXY, sav.GetType().Name));
         if (!sav.ChecksumsValid)
-            throw new SaveUpdateException("Las sumas de control de la partida no son válidas; no se modifica.");
+            throw new SaveUpdateException(Strings.Save_BadChecksums);
 
         var changes = new List<PokemonChange>();
         int checkedCount = 0;
@@ -67,7 +78,7 @@ public static class SaveUpdater
             if (pk.Species == 0)
                 continue;
             checkedCount++;
-            if (UpdatePokemon(pk, rom, isParty: true, $"Equipo {i + 1}", changes))
+            if (UpdatePokemon(pk, rom, new SaveSlot(null, i), changes))
                 sav.SetPartySlotAtIndex(pk, i, EntityImportSettings.None);
         }
 
@@ -79,7 +90,7 @@ public static class SaveUpdater
                 if (pk.Species == 0)
                     continue;
                 checkedCount++;
-                if (UpdatePokemon(pk, rom, isParty: false, $"Caja {box + 1}, hueco {slot + 1}", changes))
+                if (UpdatePokemon(pk, rom, new SaveSlot(box, slot), changes))
                     sav.SetBoxSlotAtIndex(pk, box, slot, EntityImportSettings.None);
             }
         }
@@ -100,30 +111,29 @@ public static class SaveUpdater
         File.WriteAllBytes(tmp, updated);
         File.Move(tmp, savePath, overwrite: true);
 
-        // Verificación final sobre lo que ha quedado en disco.
+        // Final check on what actually ended up on disk.
         if (!File.ReadAllBytes(savePath).AsSpan().SequenceEqual(updated))
-            throw new SaveUpdateException($"La partida escrita no coincide con la esperada. Copia de seguridad: {backup}");
+            throw new SaveUpdateException(string.Format(Strings.Save_WrittenMismatch, backup));
 
         return new SaveUpdateResult(savePath, backup, checkedCount, changes);
     }
 
-    private static bool UpdatePokemon(PKM pk, GameData rom, bool isParty, string location, List<PokemonChange> changes)
+    private static bool UpdatePokemon(PKM pk, GameData rom, SaveSlot slot, List<PokemonChange> changes)
     {
         var personal = Personal(rom, pk);
         if (personal is null)
             return false;
 
         bool changed = false;
-        int abilityIndex = AbilityIndex(pk.AbilityNumber);
-        int newAbility = personal.Abilities[abilityIndex];
+        int newAbility = personal.Abilities[AbilityIndex(pk.AbilityNumber)];
         if (newAbility != 0 && pk.Ability != newAbility)
         {
-            changes.Add(new PokemonChange(location, pk.Species, $"habilidad {pk.Ability} → {newAbility}"));
+            changes.Add(new PokemonChange(slot, pk.Species, ChangeKind.Ability, [pk.Ability], [newAbility]));
             pk.Ability = newAbility;
             changed = true;
         }
 
-        if (isParty)
+        if (slot.IsParty)
         {
             int[] stats = CalculateStats(pk, personal);
             int[] old = [pk.Stat_HPMax, pk.Stat_ATK, pk.Stat_DEF, pk.Stat_SPE, pk.Stat_SPA, pk.Stat_SPD];
@@ -131,8 +141,7 @@ public static class SaveUpdater
             {
                 bool fullHp = pk.Stat_HPCurrent >= pk.Stat_HPMax;
                 int hp = fullHp ? stats[0] : Math.Clamp(pk.Stat_HPCurrent, pk.Stat_HPCurrent > 0 ? 1 : 0, stats[0]);
-                changes.Add(new PokemonChange(location, pk.Species,
-                    $"stats {string.Join('/', old)} → {string.Join('/', stats)}"));
+                changes.Add(new PokemonChange(slot, pk.Species, ChangeKind.Stats, old, stats));
                 (pk.Stat_HPMax, pk.Stat_ATK, pk.Stat_DEF, pk.Stat_SPE, pk.Stat_SPA, pk.Stat_SPD) = (stats[0], stats[1], stats[2], stats[3], stats[4], stats[5]);
                 pk.Stat_HPCurrent = hp;
                 changed = true;
@@ -142,7 +151,7 @@ public static class SaveUpdater
         return changed;
     }
 
-    /// <summary>Entrada de personal de la especie y forma del Pokémon en la ROM.</summary>
+    /// <summary>Personal entry of the Pokémon's species and form in the ROM.</summary>
     internal static pk3DS.Core.Structures.PersonalInfo.PersonalInfoXY? Personal(GameData rom, PKM pk)
     {
         if (pk.Species >= rom.Personal.Length)
@@ -151,7 +160,7 @@ public static class SaveUpdater
         return index < rom.Personal.Length ? rom.Personal[index] : null;
     }
 
-    /// <summary>Borra las copias de seguridad de <paramref name="backupRoot"/> salvo las <paramref name="keep"/> más recientes.</summary>
+    /// <summary>Deletes the backups in <paramref name="backupRoot"/> except the <paramref name="keep"/> most recent.</summary>
     public static void PruneBackups(string backupRoot, int keep)
     {
         if (!Directory.Exists(backupRoot))
@@ -163,12 +172,12 @@ public static class SaveUpdater
         }
     }
 
-    /// <summary>AbilityNumber de PKHeX: 1 = primera, 2 = segunda, 4 = oculta.</summary>
+    /// <summary>PKHeX AbilityNumber: 1 = first, 2 = second, 4 = hidden.</summary>
     internal static int AbilityIndex(int abilityNumber) => abilityNumber switch { 2 => 1, 4 => 2, _ => 0 };
 
     /// <summary>
-    /// Fórmula de la 6.ª generación. PS = ⌊(2B + IV + ⌊EV/4⌋)·N/100⌋ + N + 10;
-    /// resto = ⌊(⌊(2B + IV + ⌊EV/4⌋)·N/100⌋ + 5)·naturaleza⌋. Orden: PS, Atq, Def, Vel, AtE, DfE.
+    /// Generation 6 formula. HP = ⌊(2B + IV + ⌊EV/4⌋)·L/100⌋ + L + 10;
+    /// others = ⌊(⌊(2B + IV + ⌊EV/4⌋)·L/100⌋ + 5)·nature⌋. Order: HP, Atk, Def, Spe, SpA, SpD.
     /// </summary>
     internal static int[] CalculateStats(PKM pk, pk3DS.Core.Structures.PersonalInfo.PersonalInfoXY personal)
     {
@@ -178,10 +187,10 @@ public static class SaveUpdater
         int[] evs = [pk.EV_HP, pk.EV_ATK, pk.EV_DEF, pk.EV_SPE, pk.EV_SPA, pk.EV_SPD];
 
         var stats = new int[6];
-        // Shedinja (292) siempre tiene 1 PS.
+        // Shedinja (292) always has 1 HP.
         stats[0] = pk.Species == 292 ? 1 : ((2 * baseStats[0] + ivs[0] + evs[0] / 4) * level / 100) + level + 10;
 
-        // Naturaleza: índice n → sube (n / 5) y baja (n % 5), en el orden Atq, Def, Vel, AtE, DfE.
+        // Nature n raises stat (n / 5) and lowers stat (n % 5), in the order Atk, Def, Spe, SpA, SpD.
         int nature = (int)pk.Nature;
         int up = nature / 5, down = nature % 5;
         for (int s = 1; s < 6; s++)
@@ -197,20 +206,20 @@ public static class SaveUpdater
         return stats;
     }
 
-    /// <summary>Relee los bytes nuevos: tienen que ser una partida válida con las habilidades esperadas.</summary>
+    /// <summary>Re-reads the new bytes: they must be a valid save with the expected abilities.</summary>
     private static void Verify(byte[] updated, GameData rom)
     {
         var reread = (SaveUtil.GetSaveFile(updated) ?? (updated.Length == SizeXY ? new SAV6XY(updated) : null)) as SAV6XY
-                     ?? throw new SaveUpdateException("La partida modificada no se puede releer.");
+                     ?? throw new SaveUpdateException(Strings.Save_CannotReread);
         if (!reread.ChecksumsValid)
-            throw new SaveUpdateException("La partida modificada tiene sumas de control inválidas; no se escribe.");
+            throw new SaveUpdateException(Strings.Save_ModifiedBadChecksums);
 
         foreach (var pk in reread.PartyData.Concat(reread.BoxData).Where(p => p.Species != 0))
         {
             if (Personal(rom, pk) is { } personal
                 && personal.Abilities[AbilityIndex(pk.AbilityNumber)] is var expected and not 0
                 && pk.Ability != expected)
-                throw new SaveUpdateException($"Verificación fallida: la especie {pk.Species} no quedó con la habilidad {expected}.");
+                throw new SaveUpdateException(string.Format(Strings.Save_VerifyAbility, pk.Species, expected));
         }
     }
 }

@@ -2,13 +2,10 @@ using pk3DS.Core;
 
 namespace Pokemanager.Model.Dump;
 
-/// <summary>
-/// Volcado de X/Y abierto y validado, con el modelo de pk3DS ya cargado.
-/// </summary>
+/// <summary>An opened and validated X/Y dump with the pk3DS model already loaded.</summary>
 /// <remarks>
-/// El volcado es de solo lectura. <see cref="Config"/> expone métodos de pk3DS que escriben dentro del
-/// romfs (<c>GARCFile.Save</c>, <c>BackupFiles</c>): no deben llamarse nunca. Todo lo generado va a la
-/// carpeta de mods del emulador.
+/// The dump is read-only. <see cref="Config"/> exposes pk3DS methods that write inside the romfs
+/// (<c>GARCFile.Save</c>, <c>BackupFiles</c>): they must never be called.
 /// </remarks>
 public sealed class GameDump
 {
@@ -27,7 +24,7 @@ public sealed class GameDump
         Config = config;
     }
 
-    /// <exception cref="InvalidDumpException">El volcado no pasa la inspección; incluye todos los problemas.</exception>
+    /// <exception cref="InvalidDumpException">The dump fails inspection; carries every problem.</exception>
     public static GameDump Open(string romFsPath, string exeFsPath, GameLanguage language)
     {
         romFsPath = Path.GetFullPath(romFsPath);
@@ -37,7 +34,7 @@ public sealed class GameDump
         if (!inspection.IsValid)
             throw new InvalidDumpException(inspection.Problems);
 
-        // La versión ya está verificada: no se usa el constructor de pk3DS que la deduce del conteo.
+        // The version is already verified: the pk3DS constructor that guesses it from the file count is not used.
         var config = new GameConfig(GameVersion.XY);
         config.Initialize(romFsPath, exeFsPath, (int)language);
 

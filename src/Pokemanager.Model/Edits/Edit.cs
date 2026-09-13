@@ -3,8 +3,8 @@ using System.Text.Json.Nodes;
 namespace Pokemanager.Model.Edits;
 
 /// <summary>
-/// Una edición manual: el campo <see cref="Field"/> de la entrada <see cref="Id"/> de la tabla
-/// <see cref="Table"/> vale <see cref="Value"/>. Es neutra respecto al formato en disco.
+/// A manual edit: field <see cref="Field"/> of entry <see cref="Id"/> in table <see cref="Table"/> has value
+/// <see cref="Value"/>. Independent of the on-disk format.
 /// </summary>
 public sealed record Edit(string Table, int Id, string Field, JsonNode Value)
 {

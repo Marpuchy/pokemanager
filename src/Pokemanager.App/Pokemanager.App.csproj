@@ -24,4 +24,16 @@
     <ProjectReference Include="..\Pokemanager.Save\Pokemanager.Save.csproj" />
   </ItemGroup>
 
+  <!-- UI text: English by default, Spanish in Strings.es.resx. Public so XAML can use {x:Static}. -->
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\Strings.resx">
+      <Generator>MSBuild:Compile</Generator>
+      <StronglyTypedFileName>$(IntermediateOutputPath)Strings.Designer.cs</StronglyTypedFileName>
+      <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
+      <StronglyTypedNamespace>Pokemanager.App.Resources</StronglyTypedNamespace>
+      <StronglyTypedClassName>Strings</StronglyTypedClassName>
+      <PublicClass>true</PublicClass>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

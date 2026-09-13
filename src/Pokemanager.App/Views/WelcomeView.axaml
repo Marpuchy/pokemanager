@@ -1,18 +1,19 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Pokemanager.App.ViewModels"
+             xmlns:r="using:Pokemanager.App.Resources"
              x:Class="Pokemanager.App.Views.WelcomeView"
              x:DataType="vm:WelcomeViewModel">
   <ScrollViewer>
     <StackPanel MaxWidth="720" Margin="32" Spacing="6" HorizontalAlignment="Center">
       <Grid ColumnDefinitions="*,Auto">
         <TextBlock Text="Pokemanager" FontSize="28" FontWeight="SemiBold" />
-        <Button Grid.Column="1" Content="Ajustes…" Command="{Binding OpenSettingsCommand}" VerticalAlignment="Center" />
+        <Button Grid.Column="1" Content="{x:Static r:Strings.Welcome_Settings}" Command="{Binding OpenSettingsCommand}" VerticalAlignment="Center" />
       </Grid>
-      <TextBlock Classes="hint" Text="Randomizer y editor de partida para Pokémon X/Y. Tu ROM base nunca se modifica: las ROM randomizadas se crean como archivos nuevos a su lado." />
+      <TextBlock Classes="hint" Text="{x:Static r:Strings.Welcome_Subtitle}" />
 
       <StackPanel IsVisible="{Binding HasRecentProjects}" Spacing="4">
-        <TextBlock Classes="section" Text="Proyectos recientes" />
+        <TextBlock Classes="section" Text="{x:Static r:Strings.Welcome_Recent}" />
         <ItemsControl ItemsSource="{Binding RecentProjects}">
           <ItemsControl.ItemTemplate>
             <DataTemplate x:DataType="vm:RecentProjectItem">
@@ -23,23 +24,23 @@
                     <TextBlock Classes="hint" Text="{Binding Details}" TextTrimming="CharacterEllipsis" />
                   </StackPanel>
                 </Button>
-                <Button Grid.Column="1" Margin="6,0,0,0" Content="Quitar" VerticalAlignment="Center"
-                        Command="{Binding ForgetCommand}" ToolTip.Tip="Quitar de la lista (no borra el archivo)" />
+                <Button Grid.Column="1" Margin="6,0,0,0" Content="{x:Static r:Strings.Common_Remove}" VerticalAlignment="Center"
+                        Command="{Binding ForgetCommand}" ToolTip.Tip="{x:Static r:Strings.Welcome_RemoveTip}" />
               </Grid>
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
       </StackPanel>
 
-      <TextBlock Classes="section" Text="Nuevo proyecto" />
+      <TextBlock Classes="section" Text="{x:Static r:Strings.Welcome_NewProject}" />
 
-      <TextBlock Text="Carpeta del volcado (con el .3ds y sus carpetas romfs y exefs, con code.bin descomprimido)" />
+      <TextBlock Text="{x:Static r:Strings.Welcome_DumpFolder}" />
       <Grid ColumnDefinitions="*,Auto">
-        <TextBox Text="{Binding DumpDirectory}" Watermark="G:\pokemanager-dump" />
-        <Button Grid.Column="1" Margin="6,0,0,0" Content="Examinar…" Command="{Binding BrowseDumpCommand}" />
+        <TextBox Text="{Binding DumpDirectory}" PlaceholderText="G:\pokemanager-dump" />
+        <Button Grid.Column="1" Margin="6,0,0,0" Content="{x:Static r:Strings.Common_Browse}" Command="{Binding BrowseDumpCommand}" />
       </Grid>
 
-      <TextBlock Margin="0,8,0,0" Text="Idioma de los textos del juego" />
+      <TextBlock Margin="0,8,0,0" Text="{x:Static r:Strings.Welcome_GameLanguage}" />
       <ComboBox ItemsSource="{x:Static vm:WelcomeViewModel.Languages}" SelectedItem="{Binding Language}" MinWidth="220">
         <ComboBox.ItemTemplate>
           <DataTemplate x:DataType="vm:LanguageOption">
@@ -48,15 +49,15 @@
         </ComboBox.ItemTemplate>
       </ComboBox>
 
-      <TextBlock Margin="0,8,0,0" Text="Archivo del proyecto" />
+      <TextBlock Margin="0,8,0,0" Text="{x:Static r:Strings.Welcome_ProjectFile}" />
       <Grid ColumnDefinitions="*,Auto">
         <TextBox Text="{Binding ProjectPath}" />
-        <Button Grid.Column="1" Margin="6,0,0,0" Content="Examinar…" Command="{Binding BrowseProjectCommand}" />
+        <Button Grid.Column="1" Margin="6,0,0,0" Content="{x:Static r:Strings.Common_Browse}" Command="{Binding BrowseProjectCommand}" />
       </Grid>
 
       <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,16,0,0">
-        <Button Classes="accent" Content="Crear proyecto" Command="{Binding CreateCommand}" />
-        <Button Content="Abrir proyecto existente…" Command="{Binding OpenExistingCommand}" />
+        <Button Classes="accent" Content="{x:Static r:Strings.Welcome_Create}" Command="{Binding CreateCommand}" />
+        <Button Content="{x:Static r:Strings.Welcome_OpenExisting}" Command="{Binding OpenExistingCommand}" />
       </StackPanel>
 
       <TextBlock Classes="error" Margin="0,12,0,0" Text="{Binding Error}" IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />

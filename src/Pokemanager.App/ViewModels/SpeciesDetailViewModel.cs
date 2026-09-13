@@ -2,13 +2,14 @@ using System.Collections.ObjectModel;
 using System.Text.Json.Nodes;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Pokemanager.App.Resources;
 using Pokemanager.App.Services;
 using Pokemanager.Model.Editing;
 using Pokemanager.Model.Edits;
 
 namespace Pokemanager.App.ViewModels;
 
-/// <summary>Ficha de una entrada de personal (especie o forma) con su learnset.</summary>
+/// <summary>Detail of a personal entry (species or form) with its learnset.</summary>
 public partial class SpeciesDetailViewModel : ObservableObject
 {
     private const string P = GameTables.Personal;
@@ -43,23 +44,41 @@ public partial class SpeciesDetailViewModel : ObservableObject
         IntFieldViewModel Int(string field, string label, int max = 255) => new(session, P, id, field, label, 0, max);
         ChoiceFieldViewModel Choice(string field, string label, IReadOnlyList<string> options) => new(session, P, id, field, label, options);
 
-        Stats = [Int("hp", "PS"), Int("atk", "Ataque"), Int("def", "Defensa"), Int("spa", "At. Esp."), Int("spd", "Def. Esp."), Int("spe", "Velocidad")];
-        Types = [Choice("type1", "Tipo 1", names.Types), Choice("type2", "Tipo 2", names.Types)];
-        Abilities = [Choice("ability1", "Habilidad 1", names.Abilities), Choice("ability2", "Habilidad 2", names.Abilities), Choice("abilityHidden", "Oculta", names.Abilities)];
+        Stats =
+        [
+            Int("hp", Strings.Stat_HP), Int("atk", Strings.Stat_Atk), Int("def", Strings.Stat_Def),
+            Int("spa", Strings.Stat_SpA), Int("spd", Strings.Stat_SpD), Int("spe", Strings.Stat_Spe),
+        ];
+        Types = [Choice("type1", Strings.Field_Type1, names.Types), Choice("type2", Strings.Field_Type2, names.Types)];
+        Abilities =
+        [
+            Choice("ability1", Strings.Field_Ability1, names.Abilities),
+            Choice("ability2", Strings.Field_Ability2, names.Abilities),
+            Choice("abilityHidden", Strings.Field_AbilityHidden, names.Abilities),
+        ];
         Breeding =
         [
-            Int("catchRate", "Ratio de captura"),
-            Int("baseExp", "EXP base", 65535),
-            Choice("expGrowth", "Crecimiento", GameNames.ExpGrowth),
-            Int("gender", "Género"),
-            Int("hatchCycles", "Ciclos de eclosión"),
-            Int("baseFriendship", "Amistad base"),
-            Choice("eggGroup1", "Grupo huevo 1", GameNames.EggGroups),
-            Choice("eggGroup2", "Grupo huevo 2", GameNames.EggGroups),
+            Int("catchRate", Strings.Field_CatchRate),
+            Int("baseExp", Strings.Field_BaseExp, 65535),
+            Choice("expGrowth", Strings.Field_ExpGrowth, GameNames.ExpGrowth),
+            Int("gender", Strings.Field_Gender),
+            Int("hatchCycles", Strings.Field_HatchCycles),
+            Int("baseFriendship", Strings.Field_BaseFriendship),
+            Choice("eggGroup1", Strings.Field_EggGroup1, GameNames.EggGroups),
+            Choice("eggGroup2", Strings.Field_EggGroup2, GameNames.EggGroups),
         ];
-        Items = [Choice("item1", "Objeto 50 %", names.Items), Choice("item2", "Objeto 5 %", names.Items), Choice("item3", "Objeto 1 %", names.Items)];
-        EvYield = [Int("evHp", "PS", 3), Int("evAtk", "Atq", 3), Int("evDef", "Def", 3), Int("evSpa", "AtE", 3), Int("evSpd", "DfE", 3), Int("evSpe", "Vel", 3)];
-        Other = [Int("height", "Altura (cm)", 65535), Int("weight", "Peso (hg)", 65535), Int("escapeRate", "Huida")];
+        Items =
+        [
+            Choice("item1", Strings.Field_Item1, names.Items),
+            Choice("item2", Strings.Field_Item2, names.Items),
+            Choice("item3", Strings.Field_Item3, names.Items),
+        ];
+        EvYield =
+        [
+            Int("evHp", Strings.Ev_HP, 3), Int("evAtk", Strings.Ev_Atk, 3), Int("evDef", Strings.Ev_Def, 3),
+            Int("evSpa", Strings.Ev_SpA, 3), Int("evSpd", Strings.Ev_SpD, 3), Int("evSpe", Strings.Ev_Spe, 3),
+        ];
+        Other = [Int("height", Strings.Field_Height, 65535), Int("weight", Strings.Field_Weight, 65535), Int("escapeRate", Strings.Field_EscapeRate)];
 
         foreach (var stat in Stats)
             stat.PropertyChanged += (_, _) => OnPropertyChanged(nameof(BaseStatTotal));
@@ -75,7 +94,7 @@ public partial class SpeciesDetailViewModel : ObservableObject
         OnPropertyChanged(nameof(IsLearnsetModified));
     }
 
-    /// <summary>Guarda la lista completa como una sola edición y la vuelve a leer ya ordenada por nivel.</summary>
+    /// <summary>Stores the whole list as a single edit and optionally reloads it sorted by level.</summary>
     internal void CommitLearnset(bool reload)
     {
         var value = new JsonArray(Learnset.Select(r => (JsonNode)new JsonArray(r.LevelValue, r.MoveIndex)).ToArray());

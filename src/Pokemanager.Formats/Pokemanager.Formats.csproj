@@ -3,14 +3,13 @@
     <TargetFramework>net10.0</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AssemblyName>Pokemanager.Formats</AssemblyName>
-    <!-- Se conserva el namespace de pk3DS para no chocar con upstream al fusionar. -->
+    <!-- The pk3DS namespace is kept to avoid conflicts when merging upstream. -->
     <RootNamespace>pk3DS.Core</RootNamespace>
   </PropertyGroup>
 
   <!--
-    Excluido de la compilación: depende de System.Drawing (solo Windows) o de la
-    ETC1Lib.dll nativa. Son gráficos, fuera del alcance actual. Los archivos se
-    mantienen para no generar conflictos con upstream.
+    Excluded from compilation: depends on System.Drawing (Windows only) or on the native
+    ETC1Lib.dll. Graphics code, out of scope. The files stay to avoid upstream merge conflicts.
   -->
   <ItemGroup>
     <Compile Remove="ImageUtil.cs" />

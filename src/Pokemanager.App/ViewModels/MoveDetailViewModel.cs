@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Pokemanager.App.Resources;
 using Pokemanager.App.Services;
 using Pokemanager.Model.Editing;
 using Pokemanager.Model.Edits;
@@ -26,21 +27,21 @@ public partial class MoveDetailViewModel : ObservableObject
 
         Main =
         [
-            new ChoiceFieldViewModel(session, M, id, "type", "Tipo", names.Types),
-            new ChoiceFieldViewModel(session, M, id, "category", "Categoría", GameNames.MoveCategories),
-            Int("power", "Potencia"),
-            Int("accuracy", "Precisión (101 = no falla)"),
-            Int("pp", "PP"),
-            Int("priority", "Prioridad", -7, 7),
+            new ChoiceFieldViewModel(session, M, id, "type", Strings.Move_Type, names.Types),
+            new ChoiceFieldViewModel(session, M, id, "category", Strings.Move_Category, GameNames.MoveCategories),
+            Int("power", Strings.Move_Power),
+            Int("accuracy", Strings.Move_Accuracy),
+            Int("pp", Strings.Move_PP),
+            Int("priority", Strings.Move_Priority, -7, 7),
         ];
         Details =
         [
-            Int("critStage", "Nivel de crítico"),
-            Int("flinch", "Retroceso (%)"),
-            Int("hitMin", "Golpes mín.", 0, 15),
-            Int("hitMax", "Golpes máx.", 0, 15),
-            Int("recoil", "Retroceso/absorción (%)", -128, 127),
-            Int("inflictPercent", "Prob. de efecto (%)"),
+            Int("critStage", Strings.Move_CritStage),
+            Int("flinch", Strings.Move_Flinch),
+            Int("hitMin", Strings.Move_HitMin, 0, 15),
+            Int("hitMax", Strings.Move_HitMax, 0, 15),
+            Int("recoil", Strings.Move_Recoil, -128, 127),
+            Int("inflictPercent", Strings.Move_EffectChance),
         ];
     }
 

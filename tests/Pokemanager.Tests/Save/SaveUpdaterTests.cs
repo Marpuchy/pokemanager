@@ -16,7 +16,7 @@ public sealed class SaveUpdaterTests : IDisposable
         Directory.Delete(dir, true);
     }
 
-    /// <summary>Partida X/Y en blanco con dos Pokémon en el equipo y uno en la caja 1.</summary>
+    /// <summary>Blank X/Y save with two Pokémon in the party and one in box 1.</summary>
     private string CreateSave()
     {
         var sav = new SAV6XY();
@@ -35,11 +35,11 @@ public sealed class SaveUpdaterTests : IDisposable
             Species = species,
             AbilityNumber = abilityNumber,
             Ability = ability,
-            Nature = Nature.Adamant, // +Atq −AtE
+            Nature = Nature.Adamant, // +Atk −SpA
             CurrentLevel = level,
             IV_HP = 31, IV_ATK = 31, IV_DEF = 31, IV_SPA = 31, IV_SPD = 31, IV_SPE = 31,
             EV_ATK = 252,
-            OriginalTrainerName = "Prueba",
+            OriginalTrainerName = "Test",
         };
         pk.Stat_Level = level;
         pk.Stat_HPMax = pk.Stat_HPCurrent = 1;
@@ -55,19 +55,19 @@ public sealed class SaveUpdaterTests : IDisposable
         string save = CreateSave();
         byte[] original = File.ReadAllBytes(save);
 
-        var result = SaveUpdater.Apply(save, Rom(), Path.Combine(dir, "copias"));
+        var result = SaveUpdater.Apply(save, Rom(), Path.Combine(dir, "backups"));
 
         var sav = SaveUpdater.Load(save);
         Assert.True(sav.ChecksumsValid);
         var p0 = sav.GetPartySlotAtIndex(0);
         var p1 = sav.GetPartySlotAtIndex(1);
         var box = sav.GetBoxSlotAtIndex(0, 0);
-        Assert.Equal(104, p0.Ability);  // especie 1, 2.ª habilidad: 101 + 3·1
-        Assert.Equal(111, p1.Ability);  // especie 3, oculta: 102 + 3·3
-        Assert.Equal(106, box.Ability); // especie 2 en caja, 1.ª: 100 + 3·2
+        Assert.Equal(104, p0.Ability);  // species 1, 2nd ability: 101 + 3·1
+        Assert.Equal(111, p1.Ability);  // species 3, hidden: 102 + 3·3
+        Assert.Equal(106, box.Ability); // species 2 in a box, 1st: 100 + 3·2
 
-        // Especie 1 del romfs sintético: bytes 0–5 = 20..25 en el orden de disco de X/Y (PS, Atq, Def, Vel, AtE, DfE).
-        // Nivel 50, IV 31, 252 EV en Atq, Firme (+Atq −AtE).
+        // Species 1 of the synthetic romfs: bytes 0–5 = 20..25 in X/Y on-disk order (HP, Atk, Def, Spe, SpA, SpD).
+        // Level 50, IV 31, 252 Atk EVs, Adamant (+Atk −SpA).
         Assert.Equal((2 * 20 + 31) * 50 / 100 + 60, p0.Stat_HPMax);
         Assert.Equal(((2 * 21 + 31 + 63) * 50 / 100 + 5) * 110 / 100, p0.Stat_ATK);
         Assert.Equal((2 * 23 + 31) * 50 / 100 + 5, p0.Stat_SPE);
@@ -77,7 +77,7 @@ public sealed class SaveUpdaterTests : IDisposable
         Assert.NotNull(result.BackupPath);
         Assert.Equal(original, File.ReadAllBytes(result.BackupPath!));
         Assert.Equal(3, result.PokemonChecked);
-        Assert.Contains(result.Changes, c => c.Location == "Caja 1, hueco 1" && c.Description.StartsWith("habilidad"));
+        Assert.Contains(result.Changes, c => c.Slot == new SaveSlot(0, 0) && c.Kind == ChangeKind.Ability);
     }
 
     [Fact]
@@ -97,10 +97,10 @@ public sealed class SaveUpdaterTests : IDisposable
     public void Apply_Twice_SecondTimeHasNothingToChange()
     {
         string save = CreateSave();
-        SaveUpdater.Apply(save, Rom(), Path.Combine(dir, "copias"));
+        SaveUpdater.Apply(save, Rom(), Path.Combine(dir, "backups"));
         byte[] afterFirst = File.ReadAllBytes(save);
 
-        var second = SaveUpdater.Apply(save, Rom(), Path.Combine(dir, "copias"));
+        var second = SaveUpdater.Apply(save, Rom(), Path.Combine(dir, "backups"));
 
         Assert.Empty(second.Changes);
         Assert.Null(second.BackupPath);
@@ -110,7 +110,7 @@ public sealed class SaveUpdaterTests : IDisposable
     [Fact]
     public void NotASave_Throws()
     {
-        string path = Path.Combine(dir, "basura");
+        string path = Path.Combine(dir, "garbage");
         File.WriteAllBytes(path, new byte[1234]);
 
         Assert.Throws<SaveUpdateException>(() => SaveUpdater.Preview(path, Rom()));
@@ -118,8 +118,8 @@ public sealed class SaveUpdaterTests : IDisposable
 }
 
 /// <summary>
-/// Partida real (se omite sin <c>POKEMANAGER_SAVE</c> y <c>POKEMANAGER_DUMP</c>). Trabaja sobre una copia.
-/// Con la ROM original, la fórmula de stats debe reproducir exactamente las que guardó el juego.
+/// Real save (skipped without <c>POKEMANAGER_SAVE</c> and <c>POKEMANAGER_DUMP</c>). Works on a copy.
+/// With the original ROM, the stat formula must reproduce exactly the stats stored by the game.
 /// </summary>
 public class RealSaveTests
 {
@@ -129,7 +129,7 @@ public class RealSaveTests
         string? save = Environment.GetEnvironmentVariable("POKEMANAGER_SAVE");
         string? dump = Environment.GetEnvironmentVariable("POKEMANAGER_DUMP");
         Assert.SkipWhen(string.IsNullOrWhiteSpace(save) || string.IsNullOrWhiteSpace(dump) || !File.Exists(save),
-            "Faltan POKEMANAGER_SAVE o POKEMANAGER_DUMP.");
+            "POKEMANAGER_SAVE or POKEMANAGER_DUMP is not set.");
 
         string copy = Path.GetTempFileName();
         try
@@ -138,7 +138,7 @@ public class RealSaveTests
             var result = SaveUpdater.Preview(copy, GameData.Load(Path.Combine(dump!, "romfs")));
 
             Assert.True(result.PokemonChecked > 0);
-            Assert.DoesNotContain(result.Changes, c => c.Description.StartsWith("stats"));
+            Assert.DoesNotContain(result.Changes, c => c.Kind == ChangeKind.Stats);
         }
         finally
         {

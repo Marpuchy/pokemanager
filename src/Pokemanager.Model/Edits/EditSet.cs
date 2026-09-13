@@ -2,7 +2,7 @@ using System.Text.Json.Nodes;
 
 namespace Pokemanager.Model.Edits;
 
-/// <summary>Conjunto de ediciones, como mucho una por (tabla, id, campo). Conserva el orden de inserción.</summary>
+/// <summary>Set of edits, at most one per (table, id, field). Keeps insertion order.</summary>
 public sealed class EditSet
 {
     private readonly Dictionary<EditKey, Edit> edits = [];

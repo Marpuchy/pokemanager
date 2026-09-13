@@ -97,7 +97,7 @@ public class EditorSessionTests
         Assert.Equal(120, reopened.GetInt(GameTables.Moves, 3, "power"));
         Assert.Equal("[[1,3]]", reopened.Get(GameTables.Learnsets, 2, GameTables.LevelUp).ToJsonString());
         Assert.Equal(@"C:\emu", reopened.Project.EmulatorUserDirectory);
-        Assert.DoesNotContain(File.ReadAllText(file), "\u0000"); // texto legible, sin bytes del juego
+        Assert.DoesNotContain(File.ReadAllText(file), "\u0000"); // readable text, no game bytes
     }
 
     [Fact]

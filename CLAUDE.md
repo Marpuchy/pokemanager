@@ -1,184 +1,198 @@
 # Pokemanager
 
-Editor + randomizador + tablero en vivo para Pokémon X/Y (3DS), sobre Azahar.
+Editor + randomizer + live dashboard for Pokémon X/Y (3DS), on a 3DS emulator (Citra / Azahar).
 
-Este documento es el traspaso de una sesión de investigación previa. Todo lo marcado
-como **verificado** se leyó directamente del código fuente de pk3DS y de Azahar, no de foros.
+This document started as the handover of an earlier research session. Everything marked
+**verified** was read directly from the pk3DS and Azahar source code, or measured on real data — not taken from forums.
 
----
-
-## 1. Qué es
-
-Un intermediario entre tres cosas: el volcado del juego del usuario, el emulador, y el usuario.
-
-**Regla que lo gobierna todo:** la aplicación nunca modifica el volcado. Es de solo lectura,
-siempre. Todo lo que produce va a la carpeta de mods de Azahar, que puede borrarse entera
-sin perder nada porque se regenera desde `volcado + proyecto`.
-
-### Las capas (el orden importa y no es el obvio)
-
-```
-volcado original  →  randomización(semilla)  →  ediciones manuales  →  construir
-```
-
-El random baraja sobre el original; las ediciones manuales se aplican encima. Así la
-edición manual siempre gana, y el resultado sigue siendo reproducible porque el random
-solo depende de (volcado, semilla, configuración).
-
-Consecuencias: cambiar la semilla no destruye las ediciones; borrar las ediciones devuelve
-el random puro; el proyecto compartible pesa KBs y no contiene ni un byte del juego.
-
-### Direccionamiento de las ediciones
-
-Una edición es `{tabla, id, campo, valor}`. Neutro respecto al formato en disco. Es lo que
-permite que la capa de ediciones sobreviva a cambios del randomizador y se lea en un diff.
+**Project language: English** (code, comments, UI, docs, commit messages). The UI is localized with
+`.resx` resources; Spanish (`Strings.es.resx`) is selectable in Settings and applies on restart.
+Talk to the user in Spanish.
 
 ---
 
-## 2. Decisiones ya tomadas
+## 1. What it is
 
-| Decisión | Elección |
+A middleman between three things: the user's game dump, the emulator, and the user.
+
+**The rule that governs everything:** the application never modifies the dump. It is read-only,
+always. Everything it produces can be deleted and regenerated from `dump + project`.
+
+### The layers (the order matters and is not the obvious one)
+
+```
+original dump  →  randomization(seed)  →  manual edits  →  build
+```
+
+The randomizer shuffles the original; manual edits are applied on top. So manual edits always win,
+and the result stays reproducible because the random part depends only on (dump, seed, settings).
+
+Consequences: changing the seed does not destroy edits; removing edits gives back the pure random;
+the shareable project weighs KBs and contains no game bytes.
+
+### Edit addressing
+
+An edit is `{table, id, field, value}`. Neutral with respect to the on-disk format. This is what lets
+the edit layer survive randomizer changes and be read in a diff.
+
+---
+
+## 2. Decisions already made
+
+| Decision | Choice |
 |---|---|
-| Juego objetivo | Pokémon X / Y (Gen 6) |
-| Base de código | Fork de `pk3DS.Core` (kwsch/pk3DS) |
-| Lenguaje | C# / .NET 10 |
-| Interfaz | Avalonia (escritorio, multiplataforma) |
-| Emulador | Azahar 2126.1.1 |
-| Primer hito | El ciclo editar → ver en el juego |
+| Target game | Pokémon X / Y (Gen 6) |
+| Code base | Fork of `pk3DS.Core` (kwsch/pk3DS) |
+| Language | C# / .NET 10 |
+| UI | Avalonia 12 (desktop, cross-platform) |
+| Emulator | Azahar 2126.1.1 in the original plan; **the user actually plays on Citra** |
+| First milestone | The edit → see it in game loop |
 
-**Licencia: pk3DS es GPL-3.0.** Construir sobre él obliga a publicar este proyecto bajo
-GPL-3 con el código fuente disponible. Decisión asumida.
+**License: pk3DS is GPL-3.0.** Building on it requires publishing this project under GPL-3 with
+source available. Accepted.
 
-### Reorientación del producto (2026-09-13) — manda sobre lo anterior
+### Product reorientation (2026-09-13) — overrides the above
 
-El usuario hoy juega así: **Universal Pokémon Randomizer ZX** (`PokeRandoZX.jar` 4.6.1, presets
-`.rnqs` por grupo de amigos) genera la ROM, y **PKHeX** retoca la partida. Lo que quiere es **una
-sola app que junte ambas cosas**, no un editor exhaustivo de datos de la ROM:
+Today the user plays like this: **Universal Pokémon Randomizer ZX** (`PokeRandoZX.jar` 4.6.1, `.rnqs`
+presets per group of friends) generates the ROM, and **PKHeX** tweaks the save. What they want is **one
+app combining both**, not an exhaustive ROM data editor:
 
-| Decisión | Elección |
+| Decision | Choice |
 |---|---|
-| Motor de randomización | **UPR ZX por debajo**, no randomizador propio. Se invoca con Java (JDK 25 instalado) mediante un lanzador propio que llama a `Randomizer.randomize(archivo, log, semilla)`, porque el CLI de UPR (`cli -s -i -o -d -u -l`) **no permite fijar la semilla**. Salida LayeredFS (`-d`) directa a la carpeta de mods. |
-| Semilla | Reproducible y cambiable desde la app. Avisar si hay partida en curso: los Pokémon ya capturados conservan especie, pero stats base/habilidades/learnsets salen de la ROM y cambian. |
-| Editor de partida | **PKHeX.Core** (NuGet, GPL-3) sobre el archivo `main` del emulador, **con el emulador cerrado** y copia de seguridad automática antes de escribir. En vivo (RPC) queda para después. |
-| Qué se edita de la partida | Pokémon de equipo y cajas, mochila, datos del entrenador, Pokédex. |
-| Validación | Dos niveles: **«seguro para el juego»** (IDs existentes, rangos, checksums) bloquea al guardar; **legalidad de PKHeX** solo avisa, porque compara con el juego original y marcaría como ilegal lo que el random hace válido. |
-| Editor manual de la ROM ya hecho | Se mantiene como pestaña **avanzada**, aplicado encima del resultado randomizado. |
-| Orden | **Fase A: randomizer** → Fase B: editor de partida → después, tablero en vivo. |
+| Randomization engine | **UPR ZX underneath**, not our own randomizer. Invoked through Java (JDK 25 installed) with our own launcher that calls `Randomizer.randomize(file, log, seed)`, because the UPR CLI (`cli -s -i -o -d -u -l`) **cannot fix the seed**. |
+| Seed | Reproducible and changeable from the app. Warn when a save is in progress: caught Pokémon keep their species, but base stats/abilities/learnsets come from the ROM and change. |
+| Save editor | **PKHeX.Core** (NuGet, GPL-3) on the emulator's `main` file, **with the emulator closed** and an automatic backup before writing. Live (RPC) comes later. |
+| What gets edited in the save | Party and box Pokémon, bag, trainer data, Pokédex. |
+| Validation | Two levels: **"safe for the game"** (existing IDs, ranges, checksums) blocks saving; **PKHeX legality** only warns, because it compares against the original game and would flag what the randomizer makes valid. |
+| Manual ROM editor already built | Kept as an **advanced** tab, applied on top of the randomized result. |
+| Order | **Phase A: randomizer** → Phase B: save editor → then the live dashboard. |
 
-Partida de X en Azahar: `%APPDATA%\Azahar\sdmc\Nintendo 3DS\000…0\000…0\title\00040000\00055d00\data\00000001\main` (415 232 B).
-UPR ZX y PKHeX del usuario: `D:\citra\roms\`.
+X save in Azahar: `%APPDATA%\Azahar\sdmc\Nintendo 3DS\000…0\000…0\title\00040000\00055d00\data\00000001\main` (415 232 B).
+Same layout under `%APPDATA%\Citra`. The user's UPR ZX and PKHeX: `D:\citra\roms\`.
 
-**Fase A hecha** (`Pokemanager.Randomizer`, pestaña Randomizer). **Verificado** con UPR ZX 4.6.1,
-preset `alex.rnqs` y el volcado real:
-- `upr/PokemanagerUpr.java` se ejecuta con el lanzador de código fuente de Java (`java -cp jar X.java`).
-  Repite `CliRandomizer.performDirectRandomization` (Gen6RomHandler, `Settings.read`, `tweakForRom`,
+**Phase A done** (`Pokemanager.Randomizer`, Randomizer tab). **Verified** with UPR ZX 4.6.1,
+preset `alex.rnqs` and the real dump:
+- `upr/PokemanagerUpr.java` runs with Java's source launcher (`java -cp jar X.java`).
+  It repeats `CliRandomizer.performDirectRandomization` (Gen6RomHandler, `Settings.read`, `tweakForRom`,
   bundle `com/dabomstew/pkrandom/newgui/Bundle`, `new Randomizer(settings, handler, bundle, true)`).
-- Salida `-d`: `<salida>/0004000000055D00/{romfs/…, code.bin}`, 24 archivos, ~27 MB, ~9 s. `code.bin`
-  sale **descomprimido**; se instala en `exefs/code.bin`. UPR también toca `.cro` del romfs.
-- **Misma semilla → archivos idénticos byte a byte.** El log solo difiere en «Time elapsed».
-- El log está en secciones `--Título--` (15 con ese preset).
+  Warnings are printed as codes (`WARNING:CUSTOM_STARTERS_CHANGED`, `WARNING:OLD_PRESET`) and translated in C#.
+- `-d` output: `<out>/0004000000055D00/{romfs/…, code.bin}`, 24 files, ~27 MB, ~9 s. `code.bin`
+  comes out **decompressed**. UPR also touches romfs `.cro` files.
+- **Same seed → byte-identical files.** The log differs only in "Time elapsed".
+- The log is split into `--Title--` sections (15 with that preset).
 
-### Rediseño tras la primera prueba del usuario (2026-09-13) — manda sobre lo anterior de la fase A
+### Redesign after the user's first test (2026-09-13) — overrides the phase A notes above
 
-Lo que pidió el usuario y cómo quedó:
-
-| Petición | Implementación |
+| Request | Implementation |
 |---|---|
-| La ROM randomizada es **un archivo nuevo** con nombre elegido, en la carpeta de la ROM base, que queda limpia | `RomBuilder` → `<carpeta base>/<nombre>.cxi` (+ `.cxi.log`). UPR solo escribe 3DS como NCCH (.cxi). **Ya no se instalan mods LayeredFS**: se aplicaban a cualquier ROM del juego. `ModInstaller.Uninstall` retira los que instaló la versión anterior (solo lo de su manifiesto). |
-| Opciones del randomizer **editables en la app** | Lanzador Java `describe-settings` / `write-settings` sobre `Settings` por reflexión (140 opciones, 22 enums, misc tweaks como bits). Round-trip sin cambios = `.rnqs` idéntico. `UprOptionCatalog` las traduce y agrupa. |
-| UPR y PKHeX **incluidos**, sin elegir rutas | `tools/upr/PokeRandoZX.jar` (4.6.1) se copia con la app; PKHeX.Core va por NuGet. Java sigue siendo del sistema (pendiente: `jlink` en el instalador). |
-| Rutas en una ventana **Ajustes de Pokemanager** | Emulador (por defecto el usado más recientemente según `config/qt-config.ini`), ROM base, herramientas, caché y copias. |
-| Al randomizar una partida empezada, **las habilidades de sus Pokémon deben cambiar** | `Pokemanager.Save.SaveUpdater` (PKHeX.Core). |
+| The randomized ROM is **a new file** with a chosen name, in the base ROM folder, which stays clean | `RomBuilder` → `<base folder>/<name>.cxi` (+ `.cxi.log`). UPR only writes 3DS as NCCH (.cxi). **LayeredFS mods are no longer installed**: they applied to any ROM of the game. `ModInstaller.Uninstall` removes those installed by the previous version (only what its manifest lists). |
+| Randomizer options **editable in the app** | Java launcher `describe-settings` / `write-settings` on `Settings` via reflection (140 options, 22 enums, misc tweaks as bits). Round-trip without changes = identical `.rnqs`. `UprOptionCatalog` labels and groups them (resources). |
+| UPR and PKHeX **bundled**, no paths to pick | `tools/upr/PokeRandoZX.jar` (4.6.1) is copied with the app; PKHeX.Core comes from NuGet. Java is still the system one (to do: `jlink` in the installer). |
+| Paths in a **Pokemanager settings** window | Language, emulator (default: most recently used according to `config/qt-config.ini`), base ROM, tools, cache and backups. |
+| When randomizing a started save, **its Pokémon abilities must change** | `Pokemanager.Save.SaveUpdater` (PKHeX.Core). |
 
-**Verificado — por qué no cambiaban:** (1) el usuario juega en **Citra**, no en Azahar, y la versión anterior
-instaló el mod en `%APPDATA%\Azahar`; (2) aunque hubiera llegado, **en Gen 6 la partida guarda la habilidad
-(`Ability` + `AbilityNumber` 1/2/4) y las stats del equipo**; la ROM no las recalcula. `SaveUpdater` asigna la
-habilidad del mismo número en la nueva entrada de personal (especie + forma) y recalcula las stats del equipo
-con la fórmula de Gen 6 (la de las cajas la calcula el juego al sacarlos). Copia de seguridad en
-`%LOCALAPPDATA%\Pokemanager\copias-partida\<emulador>\<fecha>\main`, escritura atómica y verificación releyendo.
-Se niega a escribir si el emulador de esa partida está abierto.
+**Verified — why they didn't change:** (1) the user plays on **Citra**, not Azahar, and the earlier version
+installed the mod under `%APPDATA%\Azahar`; (2) even if it had arrived, **in Gen 6 the save stores the ability
+(`Ability` + `AbilityNumber` 1/2/4) and the party stats**; the ROM does not recalculate them. `SaveUpdater` assigns the
+ability with the same number from the new personal entry (species + form) and recalculates party stats
+with the Gen 6 formula (box stats are computed by the game when withdrawn). Backup in
+`%LOCALAPPDATA%\Pokemanager\save-backups\<emulator>\<date>\main` (last 10 kept), atomic write and verification by re-reading.
+Refuses to write if the emulator owning that save is running.
 
-**Verificado con datos reales:**
-- La partida de Citra del usuario (entrenador Puchy) es de `pokemonXAlex.cxi` = preset `alex` + semilla
-  `70696688520378` (el «Settings String» del log coincide con `alex.rnqs`). Con esa semilla la app reproduce la
-  ROM y `SaveUpdater` concluye 0 cambios en sus 20 Pokémon. Con otra semilla: 20 cambios, checksums válidos.
-- La fórmula de stats reproduce **exactamente** las stats guardadas por el juego para los 6 del equipo.
-- `pack` genera un `.cxi` de 1,8 GB en ~30 s; extraído con pk3DS, los 23 archivos de UPR son idénticos.
-- `new Settings()` de UPR deja `selectedEXPCurve` nulo y `write()` falla: el lanzador usa `defaults()`.
-- Misc tweaks que UPR admite en X: `FASTEST_TEXT`, `NATIONAL_DEX_AT_START`, `BAN_LUCKY_EGG`, `RETAIN_ALT_FORMES`.
+**Verified with real data:**
+- The user's Citra save (trainer Puchy) comes from `pokemonXAlex.cxi` = preset `alex` + seed
+  `70696688520378` (the log's "Settings String" matches `alex.rnqs`). With that seed the app reproduces the
+  ROM and `SaveUpdater` finds 0 changes in its 20 Pokémon. With another seed: 20 changes, valid checksums.
+- The stat formula reproduces **exactly** the stats stored by the game for the 6 party members.
+- `pack` produces a 1.8 GB `.cxi` in ~30 s; extracted with pk3DS, UPR's 23 files are identical.
+- UPR's `new Settings()` leaves `selectedEXPCurve` null and `write()` fails: the launcher uses `defaults()`.
+- Misc tweaks UPR supports on X: `FASTEST_TEXT`, `NATIONAL_DEX_AT_START`, `BAN_LUCKY_EGG`, `RETAIN_ALT_FORMES`.
 
-Pendiente: **comprobarlo dentro del juego** (el usuario). Editor de partida completo (fase B).
+### Second user test (2026-09-13): "types changed, stats and abilities did not"
+
+**Verified root cause:** the headless screenshot harness had saved the user's real
+`%APPDATA%\Pokemanager\settings.json` with `EmulatorUserDirectory` pointing to a scratch folder, so the app
+adapted a test copy instead of the Citra save. Fixes and rules:
+- `AppSettings.Save()` is a no-op unless the instance came from `Load()`; `SettingsViewModel` does not save while initializing.
+  **Tests and harnesses must never write the user's settings or real save** (use temp files / copies).
+- Base ROM resolution picked `… - random.cxi` (sorts before `.3ds`): `Project.FindBaseRom` prefers `.3ds/.cci`
+  and skips files with a `<file>.log` next to them.
+- Recent projects are stored in settings (`RecentProjects`) and listed on the start page.
+- Rebuilding offers **replace the previous ROM** (`ReplacePreviousRom`, default) to avoid piling up files; the
+  randomization cache keeps the last 3 results.
+- E2E verified: editing Magneton atk to 190 with the user's seed → exactly 1 save change (44 → 117).
+
+Pending: **checking it inside the game** (the user: close Citra, open the project, "Adapt the save now"). Full save editor (phase B).
 
 ---
 
-## 3. pk3DS — cómo reutilizarlo
+## 3. pk3DS — how to reuse it
 
-Repo: https://github.com/kwsch/pk3DS · Último commit 27-feb-2026 ("Update to .NET 10").
-99 archivos en `pk3DS.Core`, 116 en `pk3DS.WinForms`.
+Repo: https://github.com/kwsch/pk3DS · Last commit 2026-02-27 ("Update to .NET 10").
+99 files in `pk3DS.Core`, 116 in `pk3DS.WinForms`.
 
-### El problema a resolver primero
+### The problem to solve first
 
-`pk3DS.Core.csproj` declara `<TargetFrameworks>net10.0-windows</TargetFrameworks>` y
-`<UseWindowsForms>true</UseWindowsForms>`. **No es una librería portable.** Como la interfaz
-va a ser Avalonia (multiplataforma), desacoplarlo no es opcional.
+`pk3DS.Core.csproj` declares `<TargetFrameworks>net10.0-windows</TargetFrameworks>` and
+`<UseWindowsForms>true</UseWindowsForms>`. **It is not a portable library.** Since the UI is
+Avalonia (cross-platform), decoupling it is not optional.
 
-**Resuelto** (ver `docs/upstream-pk3ds.md`). La contaminación era de dos tipos:
+**Solved** (see `docs/upstream-pk3ds.md`). The contamination was of two kinds:
 
-1. **WinForms** — 6 archivos de `CTR/` aceptaban `RichTextBox`/`ProgressBar` como reporte de
-   progreso: `BLZ.cs`, `CRO.cs`, `CTR.cs`, `NCCH.cs`, `NCSD.cs`, `RomFS.cs`. Sustituidos por
-   `IProgress<string>` e `IProgress<ProgressState>`. `Properties/Resources.resx` solo nombra
-   `ResXFileRef` de WinForms y el SDK de .NET lo compila sin tocarlo.
-2. **`System.Drawing` y código nativo** — no aparecía en la investigación inicial. `System.Drawing`
-   solo funciona en Windows en .NET moderno. Afecta a `ImageUtil.cs`, `CTR/SMDH.cs`,
-   `CTR/Images/**` y `Structures/TypeChart.cs`; `CTR/ETC1.cs` además carga una `ETC1Lib.dll`
-   nativa de Windows. Son gráficos: **excluidos de la compilación**, no borrados. Nada de
-   `Game/`, `Structures/` ni `Randomizers/` depende de ellos.
+1. **WinForms** — 6 files in `CTR/` took `RichTextBox`/`ProgressBar` for progress reporting:
+   `BLZ.cs`, `CRO.cs`, `CTR.cs`, `NCCH.cs`, `NCSD.cs`, `RomFS.cs`. Replaced with
+   `IProgress<string>` and `IProgress<ProgressState>`. `Properties/Resources.resx` only names
+   WinForms `ResXFileRef`s and the .NET SDK compiles it untouched.
+2. **`System.Drawing` and native code** — not found in the initial research. `System.Drawing`
+   only works on Windows in modern .NET. Affects `ImageUtil.cs`, `CTR/SMDH.cs`,
+   `CTR/Images/**` and `Structures/TypeChart.cs`; `CTR/ETC1.cs` also loads a native Windows
+   `ETC1Lib.dll`. Graphics code: **excluded from compilation**, not deleted. Nothing in
+   `Game/`, `Structures/` or `Randomizers/` depends on it.
 
-Lo que de verdad se necesita compila limpio: `Game/`, `Structures/`, `Randomizers/`,
+What is really needed builds cleanly: `Game/`, `Structures/`, `Randomizers/`,
 `CTR/GARC.cs`, `CTR/LZSS.cs`, `CTR/mini.cs`.
 
-### Lo que ya trae hecho
+### What it already provides
 
-- **Editores Gen 6:** personal, learnsets, evoluciones, movimientos huevo, movimientos,
-  objetos, TM/HM, tutores, tabla de tipos, iniciales, encuentros estáticos, regalos,
-  tiendas, Pickup, megaevoluciones, Maison, pantalla de título, `RSTE` (entrenadores),
-  `XYWE` (salvajes), `OWSE` (scripts), editor de textos.
-- **Randomizadores en `pk3DS.Core/Randomizers/`:** especies, movimientos, info de
-  movimientos, learnsets, evoluciones, movimientos huevo, formas, personal, genérico.
+- **Gen 6 editors:** personal, learnsets, evolutions, egg moves, moves, items, TM/HM, tutors,
+  type chart, starters, static encounters, gifts, shops, Pickup, mega evolutions, Maison,
+  title screen, `RSTE` (trainers), `XYWE` (wild), `OWSE` (scripts), text editor.
+- **Randomizers in `pk3DS.Core/Randomizers/`:** species, moves, move info, learnsets, evolutions,
+  egg moves, forms, personal, generic.
 
-### Trampa heredada
+### Inherited trap
 
-Identifica el juego **contando archivos en la carpeta `a/`**: 271 = X/Y, 299 = ORAS,
-311 = SM, 333 = USUM. Sin hash ni cabecera. Con un dump raro falla en silencio.
+It identifies the game **by counting files in the `a/` folder**: 271 = X/Y, 299 = ORAS,
+311 = SM, 333 = USUM. No hash, no header. With an odd dump it fails silently.
 
-**Reforzado** en `Pokemanager.Model/Dump/DumpInspector.cs`. Además del conteo comprueba:
-- que los GARC de firma sean VER_4 con su número de entradas (personal 800, move 618, levelup 799,
-  evolution 799; medidas sobre un volcado real de X);
-- el título SMDH de `exefs/icon.bin`, que es lo único que **distingue X de Y** (el conteo no puede);
-- que `code.bin` no tenga pie BLZ, es decir, que esté descomprimido.
+**Hardened** in `Pokemanager.Model/Dump/DumpInspector.cs`. Besides the count it checks:
+- that the signature GARCs are VER_4 with their entry count (personal 800, move 618, levelup 799,
+  evolution 799; measured on a real X dump);
+- the SMDH title in `exefs/icon.bin`, the only thing that **tells X from Y** (the count cannot);
+- that `code.bin` has no BLZ footer, i.e. it is decompressed.
 
-Informa de todos los problemas a la vez.
+It reports every problem at once.
 
-Índice de idioma de pk3DS en X/Y (se suma a gametext 072 / storytext 080): 0 kana, 1 kanji,
-2 inglés, 3 francés, 4 italiano, 5 alemán, 6 español, 7 coreano.
+pk3DS language index for X/Y (added to gametext 072 / storytext 080): 0 kana, 1 kanji,
+2 English, 3 French, 4 Italian, 5 German, 6 Spanish, 7 Korean.
 
 ---
 
-## 4. Mapa del RomFS de X/Y — **verificado**
+## 4. X/Y RomFS map — **verified**
 
-Fuente: `pk3DS.Core/Game/GARCReference.cs`. Regla: el número `NNN` → ruta `a/N/N/N`.
+Source: `pk3DS.Core/Game/GARCReference.cs`. Rule: number `NNN` → path `a/N/N/N`.
 
-| Núm | Ruta | Contenido |
+| No. | Path | Contents |
 |---|---|---|
 | 005 | `a/0/0/5` | movesprite |
-| 012 | `a/0/1/2` | encdata (encuentros salvajes) |
+| 012 | `a/0/1/2` | encdata (wild encounters) |
 | 038 | `a/0/3/8` | trdata |
 | 039 | `a/0/3/9` | trclass |
 | 040 | `a/0/4/0` | trpoke |
 | 041 | `a/0/4/1` | mapGR |
 | 042 | `a/0/4/2` | mapMatrix |
-| 072 + idioma | `a/0/7/x` | gametext |
-| 080 + idioma | `a/0/8/x` | storytext |
+| 072 + lang | `a/0/7/x` | gametext |
+| 080 + lang | `a/0/8/x` | storytext |
 | 104 | `a/1/0/4` | wallpaper |
 | 165 | `a/1/6/5` | titlescreen |
 | 203–206 | `a/2/0/3` … | maison |
@@ -187,34 +201,33 @@ Fuente: `pk3DS.Core/Game/GARCReference.cs`. Regla: el número `NNN` → ruta `a/
 | 214 | `a/2/1/4` | levelup |
 | 215 | `a/2/1/5` | evolution |
 | 216 | `a/2/1/6` | megaevo |
-| **218** | **`a/2/1/8`** | **personal** ← objetivo del hito 1 |
+| **218** | **`a/2/1/8`** | **personal** ← milestone 1 target |
 | 220 | `a/2/2/0` | item |
 
-### Formatos
+### Formats
 
-- Contenedor GARC **versión `0x0400`** (`GARC.VER_4`) en X/Y y ORAS. Gen 7 usa `0x0600`.
-- `PersonalInfoXY`: **`0x40` bytes** por entrada. `a/2/1/8` tiene 800 archivos: 799 entradas
-  (especies 0–721 y formas alternativas desde 722) y, como **último** archivo, la
-  **concatenación de las 799 entradas** (verificado con el volcado real; pk3DS construye
-  `PersonalTable` desde él). Al modificar una entrada hay que actualizar también esa copia.
-- Archivos de `a/2/1/2` (move) de 36 bytes, aunque `Move6` solo interpreta 0x22.
-- `Learnset6`: pares `int16` (movimiento, nivel) con terminador.
-- En X/Y cada movimiento es un archivo suelto del GARC. En ORAS y Gen 7 van empaquetados
-  en un contenedor "mini" `WD` — ese código **no** se comparte entre generaciones.
+- GARC container **version `0x0400`** (`GARC.VER_4`) on X/Y and ORAS. Gen 7 uses `0x0600`.
+- `PersonalInfoXY`: **`0x40` bytes** per entry. `a/2/1/8` has 800 files: 799 entries
+  (species 0–721 and alternate forms from 722) and, as the **last** file, the
+  **concatenation of the 799 entries** (verified on the real dump; pk3DS builds
+  `PersonalTable` from it). When modifying an entry, that copy must be updated too.
+- `a/2/1/2` (move) files are 36 bytes, although `Move6` only interprets 0x22.
+- `Learnset6`: `int16` pairs (move, level) with a terminator.
+- On X/Y each move is a separate GARC file. On ORAS and Gen 7 they are packed in a "mini" `WD`
+  container — that code is **not** shared across generations.
 
-### Fuera del RomFS
+### Outside the RomFS
 
-**Las MT y los tutores viven en `.code.bin` (ExeFS)**, y tiene que estar **descomprimido**
-(BLZ) para editarlo. Consecuencia: la app necesita dos carpetas del usuario, `romfs` y
-`exefs`, ambas de un dump descifrado.
+**TMs and tutors live in `.code.bin` (ExeFS)**, which must be **decompressed** (BLZ) to edit.
+Consequence: the app needs two user folders, `romfs` and `exefs`, both from a decrypted dump.
 
 ---
 
-## 5. Azahar — **verificado**
+## 5. Azahar — **verified**
 
-Repo: https://github.com/azahar-emu/azahar · muy activo.
-Versión en uso: **2126.1.1**, build `azahar-windows-msvc` (portable).
-Fuente de todo lo de abajo: `src/core/file_sys/ncch_container.cpp`, `src/common/common_paths.h`,
+Repo: https://github.com/azahar-emu/azahar · very active.
+Version in use: **2126.1.1**, build `azahar-windows-msvc` (portable).
+Source for everything below: `src/core/file_sys/ncch_container.cpp`, `src/common/common_paths.h`,
 `src/common/settings.h`, `dist/scripting/citra.py`.
 
 ### Title IDs
@@ -222,102 +235,101 @@ Fuente de todo lo de abajo: `src/core/file_sys/ncch_container.cpp`, `src/common/
 - Pokémon X → `0004000000055D00`
 - Pokémon Y → `0004000000055E00`
 
-### Dónde está la carpeta de usuario
+### Where the user folder is
 
-- **Portable** (el zip): carpeta `user` junto a `azahar.exe` → `<dir>\user\load\mods\...`
-- **Instalado en Windows:** `%APPDATA%\Azahar\load\mods\...`
+- **Portable** (the zip): `user` folder next to `azahar.exe` → `<dir>\user\load\mods\...`
+- **Installed on Windows:** `%APPDATA%\Azahar\load\mods\...`
 
-### Gancho 1 — LayeredFS (RomFS)
+### Hook 1 — LayeredFS (RomFS)
 
 ```
 <user>/load/mods/<ProgramID 16 hex>/romfs/
-<user>/load/mods/<ProgramID 16 hex>/romfs_ext/    ← para archivos que no existen en el original
+<user>/load/mods/<ProgramID 16 hex>/romfs_ext/    ← for files that do not exist in the original
 ```
 
-Overlay a nivel de archivo: solo se colocan los GARC modificados. `GetModId` enmascara el
-bit de actualización, así que el mod se aplica también sobre la versión parcheada del juego.
+File-level overlay: only modified GARCs are placed. `GetModId` masks the update bit, so the mod
+also applies to the patched version of the game.
 
-Alternativa bruta: un archivo `<rom>.romfs` reemplaza el RomFS entero y desactiva LayeredFS.
+Blunt alternative: a `<rom>.romfs` file replaces the whole RomFS and disables LayeredFS.
 
-### Gancho 2 — ExeFS / code.bin
+### Hook 2 — ExeFS / code.bin
 
-Dos vías, y una es claramente mejor:
+Two ways, and one is clearly better:
 
-1. `load/mods/<TID>/exefs/code.bin` — reemplazo completo. **Debe ir descomprimido**: la ruta
-   de override se resuelve *antes* de la descompresión LZSS del código original.
-2. `load/mods/<TID>/exefs/code.ips` o `code.bps` — parche sobre el código **ya descomprimido**.
-   **Esta es la vía buena**: unos KB en lugar de un binario de varios MB por cada cambio de MT.
+1. `load/mods/<TID>/exefs/code.bin` — full replacement. **Must be decompressed**: the override
+   path is resolved *before* LZSS decompression of the original code.
+2. `load/mods/<TID>/exefs/code.ips` or `code.bps` — patch over the **already decompressed** code.
+   **This is the good way**: a few KB instead of a multi-MB binary per TM change.
 
-### Gancho 3 — RPC de memoria
+### Hook 3 — memory RPC
 
-- UDP, puerto **45987**.
-- Operaciones: `ReadMemory`, `WriteMemory`, `ProcessList`, `SetGetProcess`.
-- **Máximo 1024 bytes de datos por paquete** → toda lectura grande hay que trocearla.
-- `Settings::values.enable_rpc_server` arranca en **`false`**. El usuario lo activa a mano;
-  esto va en la guía de primeros pasos, no enterrado en un FAQ.
-- Protocolo documentado por implementación en `scripting/citra.py` (viene dentro del zip).
-- Clientes existentes de referencia: [CitraRNG](https://github.com/Admiral-Fish/CitraRNG),
+- UDP, port **45987**.
+- Operations: `ReadMemory`, `WriteMemory`, `ProcessList`, `SetGetProcess`.
+- **At most 1024 data bytes per packet** → every large read must be chunked.
+- `Settings::values.enable_rpc_server` starts as **`false`**. The user enables it by hand;
+  this goes in the getting-started guide, not buried in a FAQ.
+- Protocol documented by implementation in `scripting/citra.py` (included in the zip).
+- Existing reference clients: [CitraRNG](https://github.com/Admiral-Fish/CitraRNG),
   [PKHeXRNG](https://github.com/kwsch/PKHeXRNG).
 
 ---
 
-## 6. Riesgos
+## 6. Risks
 
-1. **No existe un mapa de memoria de X/Y que se pueda copiar.** Azahar da el canal, no las
-   direcciones. Party, mapa actual y estado del RNG hay que sacarlos de CitraRNG y de códigos
-   ActionReplay de Project Pokémon, y **son específicas de versión** (1.0 ≠ 1.5). Es la parte
-   más artesanal del proyecto.
-2. **El RPC es API interna, no un contrato.** Aislar el cliente detrás de una interfaz propia.
-3. **1024 B/paquete no es un stream.** Diseñar con caché y sondeo a 5–10 Hz, no a 60 fps.
-4. **El usuario debe aportar un dump descifrado** (romfs + exefs). La app no puede descifrar nada.
-5. **No escribir "Citra" ni "Azahar" en la arquitectura.** Llamarlo "emulador" y meter la
-   conexión detrás de una capa fina.
+1. **There is no X/Y memory map to copy.** Azahar provides the channel, not the addresses. Party,
+   current map and RNG state must be taken from CitraRNG and Project Pokémon ActionReplay codes,
+   and **they are version-specific** (1.0 ≠ 1.5). The most hand-crafted part of the project.
+2. **The RPC is an internal API, not a contract.** Isolate the client behind our own interface.
+3. **1024 B/packet is not a stream.** Design with caching and 5–10 Hz polling, not 60 fps.
+4. **The user must provide a decrypted dump** (romfs + exefs). The app cannot decrypt anything.
+5. **Do not write "Citra" or "Azahar" into the architecture.** Call it "emulator" and put the
+   connection behind a thin layer.
 
 ---
 
-## 7. Hito 1 — el ciclo editar → ver en el juego
+## 7. Milestone 1 — the edit → see it in game loop
 
-El objetivo no es tener un editor: es cerrar el circuito completo una vez.
+The goal is not having an editor: it is closing the full loop once.
 
-1. **[Hecho]** Fork de pk3DS. Desacoplar `pk3DS.Core` de WinForms (`IProgress<T>` en los 7 archivos de
-   `CTR/`), target `net10.0`. Verificar que compila fuera de Windows.
-2. **[Hecho]** Envoltura headless (`GameDump.Open`): abrir la carpeta `romfs`, contar archivos en `a/`, construir el
-   `GameConfig` y llamar a `Initialize(romfs, exefs, idioma)`.
-3. **[Hecho]** Capa de ediciones (`Model/Edits`, `EditorSession`, proyecto JSON en `Model/Projects`): modelo `{tabla, id, campo, valor}` y su aplicación sobre el modelo.
-4. **[Hecho]** (`Model/Build/ModBuilder`, también move y learnsets) Leer `a/2/1/8`, modificar los stats base de una especie y reempaquetar con
+1. **[Done]** Fork pk3DS. Decouple `pk3DS.Core` from WinForms (`IProgress<T>` in the `CTR/` files),
+   target `net10.0`. Verify it builds outside Windows.
+2. **[Done]** Headless wrapper (`GameDump.Open`): open the `romfs` folder, count files in `a/`, build the
+   `GameConfig` and call `Initialize(romfs, exefs, language)`.
+3. **[Done]** Edit layer (`Model/Edits`, `EditorSession`, JSON project in `Model/Projects`): `{table, id, field, value}` model and applying it to the model.
+4. **[Done]** (`Model/Build/ModBuilder`, also moves and learnsets) Read `a/2/1/8`, modify a species' base stats and repack with
    `GARC.PackGARC(byte[][], GARC.VER_4, padding)`.
-5. **[Hecho]** **Escribir el resultado en `<user>/load/mods/0004000000055D00/romfs/a/2/1/8`** — no encima
-   del romfs original. Este paso define la arquitectura de toda la aplicación.
-6. Arrancar Azahar y comprobar el cambio dentro del juego.
-7. **[Hecho, ampliado]** Interfaz en Avalonia 12 (`Pokemanager.App`): Pokémon (datos + learnset),
-   movimientos, Guardar y Generar mod. Verificada con capturas headless sobre el volcado real.
+5. **[Done, later superseded]** Write the result to `<user>/load/mods/0004000000055D00/romfs/a/2/1/8`. Since the
+   redesign, edits go into the built `.cxi` instead.
+6. Start the emulator and check the change in game.
+7. **[Done, extended]** Avalonia 12 UI (`Pokemanager.App`): Pokémon (data + learnset),
+   moves, Save and Build. Verified with headless screenshots on the real dump.
 
-**Pendiente del hito 1: el paso 6**, comprobar el cambio dentro del juego en Azahar.
+**Milestone 1 pending: step 6**, checking the change in game.
 
-### Estructura de solución propuesta
+### Solution layout
 
 ```
-Pokemanager.Formats   fork de pk3DS.Core sin WinForms — lo único que sabe de GARC/LZ11/code.bin
-Pokemanager.Model     modelo del juego, capa de ediciones, randomización, construcción
-Pokemanager.Bridge    puente con el emulador (UDP 45987, lanzar/recargar)
-Pokemanager.App       Avalonia
+Pokemanager.Formats     pk3DS.Core fork without WinForms — the only thing that knows GARC/LZ11/code.bin
+Pokemanager.Model       game model, edit layer, build
+Pokemanager.Randomizer  UPR ZX integration
+Pokemanager.Save        save adaptation (PKHeX.Core)
+Pokemanager.Bridge      emulator bridge (folders; later UDP 45987, launch/reload)
+Pokemanager.App         Avalonia
 Pokemanager.Tests
 ```
 
-Nota: con un solo juego objetivo, no abstraer `Model` respecto a las estructuras de pk3DS más
-de lo necesario. Lo único que sí conviene mantener neutro desde el día uno es el
-direccionamiento de las ediciones.
+Note: with a single target game, do not abstract `Model` over pk3DS structures more than needed.
+The one thing worth keeping neutral from day one is edit addressing.
 
 ---
 
-## 8. Alcance de la primera versión
+## 8. First version scope
 
-**Sí:** stats y tipos, movimientos, learnsets, evoluciones, entrenadores, encuentros salvajes,
-objetos, MT.
+**Yes:** stats and types, moves, learnsets, evolutions, trainers, wild encounters, items, TMs.
 
-**Todavía no:** textos, scripts de eventos, gráficos, mapas, modelos 3D.
+**Not yet:** text, event scripts, graphics, maps, 3D models.
 
-## 9. Pendiente de averiguar
+## 9. Still to find out
 
-- Si Azahar permite recargar el juego por línea de órdenes o hay que cerrar y reabrir.
-- Direcciones de memoria de X/Y para party, mapa actual y RNG (ver riesgo 1).
+- Whether Azahar can reload the game from the command line or it must be closed and reopened.
+- X/Y memory addresses for party, current map and RNG (see risk 1).

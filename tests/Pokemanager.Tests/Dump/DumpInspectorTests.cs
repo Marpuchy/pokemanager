@@ -29,7 +29,7 @@ public class DumpInspectorTests
         var result = DumpInspector.Inspect(dump.RomFs, dump.ExeFs);
 
         Assert.False(result.IsValid);
-        Assert.Contains(result.Problems, p => p.Contains("272 archivos"));
+        Assert.Contains(result.Problems, p => p.Contains("272 files"));
     }
 
     [Fact]
@@ -40,7 +40,7 @@ public class DumpInspectorTests
 
         var result = DumpInspector.Inspect(dump.RomFs, dump.ExeFs);
 
-        Assert.Contains(result.Problems, p => p.Contains("a/2/1/8") && p.Contains("799 entradas"));
+        Assert.Contains(result.Problems, p => p.Contains("a/2/1/8") && p.Contains("799 entries"));
     }
 
     [Fact]
@@ -62,7 +62,7 @@ public class DumpInspectorTests
 
         var result = DumpInspector.Inspect(dump.RomFs, dump.ExeFs);
 
-        Assert.Contains(result.Problems, p => p.Contains("a/2/1/8") && p.Contains("no es un GARC"));
+        Assert.Contains(result.Problems, p => p.Contains("a/2/1/8") && p.Contains("is not a GARC"));
     }
 
     [Fact]
@@ -82,10 +82,10 @@ public class DumpInspectorTests
         using var dump = new SyntheticDump();
         _ = new BLZCoder(["-en", dump.CodePath]);
 
-        Assert.True(DumpInspector.LooksBlzCompressed(dump.CodePath), "BLZCoder no produjo un archivo comprimido.");
+        Assert.True(DumpInspector.LooksBlzCompressed(dump.CodePath), "BLZCoder did not produce a compressed file.");
         var result = DumpInspector.Inspect(dump.RomFs, dump.ExeFs);
 
-        Assert.Contains(result.Problems, p => p.Contains("comprimido"));
+        Assert.Contains(result.Problems, p => p.Contains("compressed"));
     }
 
     [Fact]

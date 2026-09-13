@@ -1,11 +1,12 @@
 using System.Collections.ObjectModel;
 using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Pokemanager.App.Resources;
 using Pokemanager.Randomizer;
 
 namespace Pokemanager.App.ViewModels;
 
-/// <summary>Editor de las opciones de UPR ZX. La fuente de verdad es el preset (.rnqs) del proyecto.</summary>
+/// <summary>Editor of the UPR ZX options. The source of truth is the project's preset (.rnqs).</summary>
 public partial class UprOptionsViewModel : ObservableObject
 {
     private readonly Action markDirty;
@@ -20,9 +21,9 @@ public partial class UprOptionsViewModel : ObservableObject
     public partial bool IsLoaded { get; set; }
 
     [ObservableProperty]
-    public partial string LoadStatus { get; set; } = "Cargando las opciones del randomizer…";
+    public partial string LoadStatus { get; set; } = Strings.Rnd_LoadingOptions;
 
-    /// <summary>Hay cambios en las opciones que aún no se han escrito al preset.</summary>
+    /// <summary>There are option changes not yet written to the preset.</summary>
     public bool HasChanges { get; private set; }
 
     public UprOptionsViewModel(Action markDirty) => this.markDirty = markDirty;
@@ -43,13 +44,12 @@ public partial class UprOptionsViewModel : ObservableObject
 
         foreach (var tweak in description.Tweaks.Where(t => availableTweaks.Contains(t.Name)))
         {
-            string label = UprOptionCatalog.TweakLabels.TryGetValue(tweak.Name, out var l) ? l : tweak.Label;
-            var vm = UprOptionViewModel.ForTweak(this, tweak, label);
-            byName["tweak:" + tweak.Name] = vm;
+            var vm = UprOptionViewModel.ForTweak(this, tweak);
+            byName[vm.Name] = vm;
             groups[UprOptionCatalog.Misc].Items.Add(vm);
         }
 
-        // Orden del catálogo dentro de cada grupo (las no catalogadas, al final).
+        // Catalog order within each group (uncatalogued options last).
         var order = UprOptionCatalog.Options.Keys.Select((k, i) => (k, i)).ToDictionary(p => p.k, p => p.i);
         foreach (var g in groups.Values)
         {
@@ -87,16 +87,17 @@ public partial class UprOptionsViewModel : ObservableObject
             vm.IsEnabled = vm.Info.DependsOn is not { } parent || !byName.TryGetValue(parent, out var p) || p.IsActive;
     }
 
-    /// <summary>Todas las opciones como líneas nombre=valor para <c>write-settings</c>.</summary>
+    /// <summary>Every option as name=value lines for <c>write-settings</c>.</summary>
     public IReadOnlyList<KeyValuePair<string, string>> Assignments() =>
         byName.Values.Select(v => new KeyValuePair<string, string>(v.Name, v.SerializedValue)).ToList();
 
     public void MarkWritten() => HasChanges = false;
 }
 
-public sealed class UprOptionGroupViewModel(string name)
+public sealed class UprOptionGroupViewModel(string id)
 {
-    public string Name { get; } = name;
+    public string Id { get; } = id;
+    public string Name { get; } = UprOptionCatalog.GroupLabel(id);
     public ObservableCollection<UprOptionViewModel> Items { get; } = [];
 }
 
@@ -125,8 +126,7 @@ public partial class UprOptionViewModel : ObservableObject
         this.owner = owner;
         Name = option.Name;
         Info = info;
-        Label = info.Label;
-        Hint = info.Hint;
+        Label = UprOptionCatalog.Label(option.Name);
         switch (option.Type)
         {
             case "bool":
@@ -140,7 +140,7 @@ public partial class UprOptionViewModel : ObservableObject
             default:
                 IsChoice = true;
                 Choices = option.Choices ?? [];
-                ChoiceLabels = Choices.Select(c => info.ChoiceLabels?.GetValueOrDefault(c) ?? c).ToList();
+                ChoiceLabels = Choices.Select(c => UprOptionCatalog.ChoiceLabel(option.Name, c)).ToList();
                 choiceIndex = option.Value.ValueKind == JsonValueKind.String ? Math.Max(0, Choices.ToList().IndexOf(option.Value.GetString()!)) : 0;
                 break;
         }
@@ -150,15 +150,15 @@ public partial class UprOptionViewModel : ObservableObject
     {
         this.owner = owner;
         Name = name;
-        Info = new UprOptionInfo(UprOptionCatalog.Misc, label, hint);
+        Info = new UprOptionInfo(UprOptionCatalog.Misc);
         Label = label;
         Hint = hint;
         IsBool = true;
         boolValue = value;
     }
 
-    internal static UprOptionViewModel ForTweak(UprOptionsViewModel owner, UprTweakValue tweak, string label) =>
-        new(owner, "tweak:" + tweak.Name, label, tweak.Tooltip, tweak.Value);
+    internal static UprOptionViewModel ForTweak(UprOptionsViewModel owner, UprTweakValue tweak) =>
+        new(owner, "tweak:" + tweak.Name, UprOptionCatalog.TweakLabel(tweak.Name, tweak.Label), tweak.Tooltip, tweak.Value);
 
     public bool BoolValue
     {
@@ -194,7 +194,7 @@ public partial class UprOptionViewModel : ObservableObject
     public int Min => Info.Min;
     public int Max => Info.Max;
 
-    /// <summary>Activa en el sentido de las dependencias: bool marcado o enum distinto del primer valor («sin cambios»).</summary>
+    /// <summary>Active for dependencies: bool checked, or enum other than its first value ("unchanged").</summary>
     public bool IsActive => IsBool ? boolValue : IsChoice ? choiceIndex > 0 : intValue != 0;
 
     public string SerializedValue => IsBool ? (boolValue ? "true" : "false") : IsInt ? intValue.ToString() : Choices[choiceIndex];

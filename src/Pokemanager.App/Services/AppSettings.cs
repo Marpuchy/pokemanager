@@ -1,51 +1,59 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Pokemanager.App.Resources;
 using Pokemanager.Bridge;
 
 namespace Pokemanager.App.Services;
 
-/// <summary>Un proyecto abierto alguna vez en este equipo.</summary>
+/// <summary>A project opened at some point on this machine.</summary>
 public sealed record RecentProject(string Path, DateTime LastOpened);
 
-/// <summary>Ajustes de Pokemanager en este equipo (no del proyecto).</summary>
+/// <summary>Pokemanager settings on this machine (not per project).</summary>
 public sealed class AppSettings
 {
     public const int MaxRecentProjects = 15;
+    public const string DefaultLanguage = "en";
+
+    /// <summary>UI languages with a translation.</summary>
+    public static IReadOnlySet<string?> SupportedLanguages { get; } = new HashSet<string?> { "en", "es" };
+
+    /// <summary>UI language code ("en", "es"). Applied when the app starts.</summary>
+    public string UiLanguage { get; set; } = DefaultLanguage;
 
     public string? LastProject { get; set; }
 
-    /// <summary>Proyectos abiertos recientemente, el más reciente primero.</summary>
+    /// <summary>Recently opened projects, most recent first.</summary>
     public List<RecentProject> RecentProjects { get; set; } = [];
 
-    /// <summary>Carpeta de usuario del emulador elegida en Ajustes. Null: la del emulador usado más recientemente.</summary>
+    /// <summary>Emulator user folder chosen in Settings. Null: the most recently used emulator.</summary>
     public string? EmulatorUserDirectory { get; set; }
 
     /// <summary>
-    /// Archivo desde el que se cargaron estos ajustes. Solo se guarda en disco si viene de <see cref="Load"/>:
-    /// unos ajustes creados con <c>new</c> (pruebas, previsualizaciones) nunca tocan los del usuario.
+    /// File these settings were loaded from. Only settings coming from <see cref="Load"/> are written to disk:
+    /// settings created with <c>new</c> (tests, previews) never touch the user's file.
     /// </summary>
     [JsonIgnore]
     public string? FilePath { get; private set; }
 
-    /// <summary>Carpeta de usuario del emulador que se usa: la elegida o la detectada.</summary>
+    /// <summary>Emulator user folder in use: the chosen one or the detected one.</summary>
     [JsonIgnore]
     public string? EffectiveEmulatorDirectory =>
         EmulatorUserDirectory is { } chosen && Directory.Exists(chosen)
             ? chosen
             : EmulatorUserFolders.Detect().FirstOrDefault()?.Path;
 
-    /// <summary>Nombre para mostrar del emulador en uso («Citra», «Azahar» o la carpeta).</summary>
+    /// <summary>Display name of the emulator in use ("Citra", "Azahar" or the folder name).</summary>
     [JsonIgnore]
     public string EffectiveEmulatorName =>
         EffectiveEmulatorDirectory is not { } dir
-            ? "ningún emulador"
+            ? Strings.Emulator_None
             : EmulatorUserFolders.Detect().FirstOrDefault(e => string.Equals(e.Path, dir, StringComparison.OrdinalIgnoreCase))?.Name
               ?? Path.GetFileName(dir.TrimEnd(Path.DirectorySeparatorChar));
 
     public static string DataRoot => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Pokemanager");
 
-    /// <summary>Copias de seguridad de partidas antes de modificarlas.</summary>
-    public static string BackupRoot => Path.Combine(DataRoot, "copias-partida");
+    /// <summary>Save backups made before modifying a save.</summary>
+    public static string BackupRoot => Path.Combine(DataRoot, "save-backups");
 
     public static string DefaultFilePath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Pokemanager", "settings.json");
@@ -68,7 +76,7 @@ public sealed class AppSettings
         return settings;
     }
 
-    /// <summary>Registra un proyecto como abierto ahora (y como último proyecto).</summary>
+    /// <summary>Records a project as opened now (and as the last project).</summary>
     public void TouchProject(string projectPath)
     {
         string full = Path.GetFullPath(projectPath);
@@ -80,10 +88,10 @@ public sealed class AppSettings
         Save();
     }
 
-    /// <summary>Quita de la lista los proyectos cuyo archivo ya no existe.</summary>
+    /// <summary>Recent projects whose file still exists.</summary>
     public IReadOnlyList<RecentProject> ExistingRecentProjects()
     {
-        // Proyectos anteriores a la lista de recientes: el último abierto entra en ella.
+        // Projects from before the recent list existed: the last opened one joins it.
         if (LastProject is { } last && File.Exists(last) && RecentProjects.All(r => !string.Equals(r.Path, last, StringComparison.OrdinalIgnoreCase)))
             RecentProjects.Add(new RecentProject(last, File.GetLastWriteTime(last)));
         return RecentProjects.Where(r => File.Exists(r.Path)).ToList();
@@ -108,7 +116,7 @@ public sealed class AppSettings
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            // Las preferencias son una comodidad: si no se pueden guardar, se sigue sin ellas.
+            // Preferences are a convenience: if they cannot be saved, the app carries on without them.
         }
     }
 }

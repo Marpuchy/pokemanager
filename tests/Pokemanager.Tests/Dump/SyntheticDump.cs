@@ -5,9 +5,9 @@ using Pokemanager.Model.Dump;
 namespace Pokemanager.Tests.Dump;
 
 /// <summary>
-/// Volcado falso con la forma mínima que exige <see cref="DumpInspector"/>: 271 archivos en romfs/a,
-/// los GARC de firma con sus entradas, icon.bin con título y un code.bin descomprimido.
-/// Vive en una carpeta temporal que se borra al terminar.
+/// Fake dump with the minimum shape <see cref="DumpInspector"/> requires: 271 files in romfs/a,
+/// the signature GARCs with their entries, icon.bin with a title and a decompressed code.bin.
+/// Lives in a temporary folder deleted on dispose.
 /// </summary>
 internal sealed class SyntheticDump : IDisposable
 {

@@ -3,7 +3,7 @@ using Pokemanager.Model.Editing;
 
 namespace Pokemanager.App.ViewModels;
 
-/// <summary>Elemento de una lista lateral (Pokémon o movimiento).</summary>
+/// <summary>An item of a side list (Pokémon or move).</summary>
 public sealed class ListEntryViewModel(EditorSession session, IReadOnlyList<string> tables, int id, string name) : ObservableObject
 {
     public int Id { get; } = id;
@@ -11,7 +11,7 @@ public sealed class ListEntryViewModel(EditorSession session, IReadOnlyList<stri
     public string Number => $"#{Id:000}";
     public bool IsModified => tables.Any(t => session.IsModified(t, Id));
 
-    /// <summary>Vacío: todo. Un número (con o sin #): ese id. Texto: nombre que lo contenga.</summary>
+    /// <summary>Empty: everything. A number (with or without #): that id. Text: names containing it.</summary>
     public bool Matches(string filter) =>
         filter.Length == 0
         || (int.TryParse(filter.TrimStart('#'), out int number)

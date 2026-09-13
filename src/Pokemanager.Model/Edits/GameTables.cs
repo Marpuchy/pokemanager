@@ -2,10 +2,11 @@ using System.Text.Json.Nodes;
 using pk3DS.Core.Structures;
 using pk3DS.Core.Structures.PersonalInfo;
 using Pokemanager.Model.Data;
+using Pokemanager.Model.Resources;
 
 namespace Pokemanager.Model.Edits;
 
-/// <summary>Traduce (tabla, id, campo) a lecturas y escrituras sobre <see cref="GameData"/>.</summary>
+/// <summary>Maps (table, id, field) to reads and writes on <see cref="GameData"/>.</summary>
 public interface ITable
 {
     string Name { get; }
@@ -21,7 +22,7 @@ public static class GameTables
     public const string Moves = "move";
     public const string Learnsets = "learnset";
 
-    /// <summary>Campo de <see cref="Learnsets"/>: lista de pares <c>[nivel, movimiento]</c> ordenada por nivel.</summary>
+    /// <summary>Field of <see cref="Learnsets"/>: list of <c>[level, move]</c> pairs sorted by level.</summary>
     public const string LevelUp = "levelup";
 
     public static readonly ITable PersonalTable = new IntTable<PersonalInfoXY>(Personal, d => d.Personal,
@@ -80,7 +81,7 @@ public static class GameTables
     public static IReadOnlyList<ITable> All { get; } = [PersonalTable, MoveTable, LearnsetTable];
 
     public static ITable Get(string name) =>
-        All.FirstOrDefault(t => t.Name == name) ?? throw new ArgumentException($"Tabla desconocida: {name}", nameof(name));
+        All.FirstOrDefault(t => t.Name == name) ?? throw new ArgumentException(string.Format(Strings.Tables_UnknownTable, name), nameof(name));
 
     internal sealed record IntField<T>(string Name, Func<T, int> Get, Action<T, int> Set);
 
@@ -101,12 +102,12 @@ public static class GameTables
         {
             var all = entries(data);
             if ((uint)id >= all.Length)
-                throw new ArgumentOutOfRangeException(nameof(id), id, $"La tabla {name} tiene {all.Length} entradas.");
+                throw new ArgumentOutOfRangeException(nameof(id), id, string.Format(Strings.Tables_OutOfRange, name, all.Length));
             return all[id];
         }
 
         private IntField<T> Field(string field) =>
-            byName.TryGetValue(field, out var f) ? f : throw new ArgumentException($"Campo desconocido en {name}: {field}", nameof(field));
+            byName.TryGetValue(field, out var f) ? f : throw new ArgumentException(string.Format(Strings.Tables_UnknownField, name, field), nameof(field));
     }
 
     private sealed class LearnsetTableImpl : ITable
@@ -129,7 +130,7 @@ public static class GameTables
             Check(field);
             var pairs = value.AsArray()
                 .Select(p => (Level: p![0]!.GetValue<int>(), Move: p[1]!.GetValue<int>()))
-                .OrderBy(p => p.Level) // estable: conserva el orden entre movimientos del mismo nivel
+                .OrderBy(p => p.Level) // stable: keeps the order of moves learned at the same level
                 .ToArray();
             var l = data.Learnsets[id];
             l.Levels = pairs.Select(p => p.Level).ToArray();
@@ -140,7 +141,7 @@ public static class GameTables
         private static void Check(string field)
         {
             if (field != LevelUp)
-                throw new ArgumentException($"Campo desconocido en {Learnsets}: {field}", nameof(field));
+                throw new ArgumentException(string.Format(Strings.Tables_UnknownField, Learnsets, field), nameof(field));
         }
     }
 }

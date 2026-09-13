@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Pokemanager.App.Resources;
 using Pokemanager.App.Services;
 using Pokemanager.Bridge;
 using Pokemanager.Model.Dump;
@@ -10,14 +11,13 @@ using Pokemanager.Save;
 
 namespace Pokemanager.App.ViewModels;
 
-/// <summary>Una línea de «cambios en tu partida» ya con nombres.</summary>
+/// <summary>A "changes to your save" line, already with names.</summary>
 public sealed record SaveChangeLine(string Location, string Pokemon, string Description);
 
-/// <summary>Pestaña del randomizer: opciones, semilla, ROM de salida, partida y log.</summary>
+/// <summary>Randomizer tab: options, seed, output ROM, save and log.</summary>
 public partial class RandomizerViewModel : ObservableObject
 {
     private const int MaxLogLines = 3000;
-    private const string AllSections = "Todo el log";
 
     private readonly EditorViewModel editor;
     private readonly IDialogs dialogs;
@@ -28,6 +28,9 @@ public partial class RandomizerViewModel : ObservableObject
 
     private Project Project => editor.Session.Project;
     private RandomizationSettings Settings => Project.Randomization;
+
+    /// <summary>First entry of the section list, meaning "no section filter".</summary>
+    private static string AllSections => Strings.Log_All;
 
     public UprOptionsViewModel Options { get; }
 
@@ -52,7 +55,7 @@ public partial class RandomizerViewModel : ObservableObject
     public partial string? SelectedLogSection { get; set; }
 
     [ObservableProperty]
-    public partial string LogSummary { get; set; } = "Aún no hay log: randomiza para generarlo.";
+    public partial string LogSummary { get; set; } = Strings.Log_Empty;
 
     [ObservableProperty]
     public partial string SaveChangesSummary { get; set; } = "";
@@ -68,7 +71,7 @@ public partial class RandomizerViewModel : ObservableObject
         SeedText = Settings.Seed > 0 ? Settings.Seed.ToString() : UprRunner.NewSeed().ToString();
         OutputName = Settings.OutputName ?? DefaultOutputName();
 
-        // Proyectos anteriores a LastBuiltRom: si la ROM con su nombre existe, es la última creada.
+        // Projects from before LastBuiltRom: if the ROM with its name exists, it is the last one built.
         if (Settings.LastBuiltRom is null && BaseRom is { } baseRom && RomBuilder.ValidateName(OutputName) is null
             && RomBuilder.OutputPath(baseRom, OutputName) is var previous && File.Exists(previous))
             Settings.LastBuiltRom = previous;
@@ -76,7 +79,7 @@ public partial class RandomizerViewModel : ObservableObject
             LoadLog(cached.LogPath);
     }
 
-    // ------------------------------------------------------------------ estado
+    // ------------------------------------------------------------------ state
 
     public bool Enabled
     {
@@ -109,15 +112,24 @@ public partial class RandomizerViewModel : ObservableObject
     public string ToolsStatus => upr.StatusText;
     public bool ToolsReady => upr.Tools is not null;
 
-    public string PresetText => Settings.PresetName is { } name ? $"Preset: {name}" : "Preset: ajustes por defecto de UPR ZX";
+    public string PresetText
+    {
+        get
+        {
+            string name = Settings.PresetName ?? Strings.Rnd_PresetDefaults;
+            if (Settings.PresetModified)
+                name = string.Format(Strings.Rnd_PresetModified, name);
+            return string.Format(Strings.Rnd_Preset, name);
+        }
+    }
 
     public string? BaseRom => Project.ResolveRomFile();
-    public string BaseRomText => BaseRom ?? "No se encuentra la ROM base (.3ds) en la carpeta del volcado. Cámbiala en Ajustes del proyecto.";
+    public string BaseRomText => BaseRom ?? Strings.Rnd_BaseRomMissing;
 
-    /// <summary>Hay una ROM creada antes por este proyecto que todavía existe.</summary>
+    /// <summary>There is a ROM built earlier by this project that still exists.</summary>
     public bool HasPreviousRom => Settings.LastBuiltRom is { } p && File.Exists(p);
 
-    public string PreviousRomText => HasPreviousRom ? $"Sustituir la ROM anterior: {Path.GetFileName(Settings.LastBuiltRom)}" : "";
+    public string PreviousRomText => HasPreviousRom ? string.Format(Strings.Rnd_ReplacePrevious, Path.GetFileName(Settings.LastBuiltRom)) : "";
 
     public bool ReplacePrevious
     {
@@ -147,7 +159,7 @@ public partial class RandomizerViewModel : ObservableObject
 
     public bool IsNameEditable => !Replacing;
 
-    /// <summary>Dónde se escribirá la ROM: la anterior (si se sustituye) o una nueva con el nombre indicado.</summary>
+    /// <summary>Where the ROM will be written: the previous one (when replacing) or a new one with the given name.</summary>
     public string? OutputPath => Replacing
         ? Settings.LastBuiltRom
         : BaseRom is { } rom && RomBuilder.ValidateName(OutputName) is null ? RomBuilder.OutputPath(rom, OutputName) : null;
@@ -161,44 +173,33 @@ public partial class RandomizerViewModel : ObservableObject
         ? EmulatorUserFolders.SaveFile(dir, editor.Dump.Title.TitleId())
         : null;
 
-    /// <summary>Resumen de la partida del emulador (entrenador, equipo, fecha), o por qué no la hay.</summary>
+    /// <summary>Summary of the emulator save (trainer, party, date), or why there is none.</summary>
     public string SaveText
     {
         get
         {
             if (SavePath is not { } path)
-                return "No se ha encontrado ningún emulador. Elígelo en Ajustes.";
+                return Strings.Rnd_NoEmulator;
             if (!File.Exists(path))
-                return $"No hay partida de Pokémon {editor.Dump.Title} en {EmulatorName}.";
+                return string.Format(Strings.Rnd_NoSave, editor.Dump.Title, EmulatorName);
             try
             {
                 var sav = SaveUpdater.Load(path);
-                return $"Partida de {EmulatorName}: {sav.OT}, {sav.PartyCount} en el equipo, guardada el {File.GetLastWriteTime(path):g}.";
+                return string.Format(Strings.Rnd_SaveInfo, EmulatorName, sav.OT, sav.PartyCount, File.GetLastWriteTime(path));
             }
             catch (Exception ex) when (ex is IOException or SaveUpdateException or UnauthorizedAccessException)
             {
-                return $"No se puede leer la partida de {EmulatorName}: {ex.Message}";
+                return string.Format(Strings.Rnd_SaveUnreadable, EmulatorName, ex.Message);
             }
         }
     }
 
     public bool HasSave => SavePath is { } p && File.Exists(p);
 
-    /// <summary>Ruta exacta de la partida que se modificará, para que siempre se vea cuál es.</summary>
-    public string SaveTargetText => SavePath is { } p ? $"Archivo: {p}" : "";
+    /// <summary>Exact path of the save that will be modified, so it is always visible which one it is.</summary>
+    public string SaveTargetText => SavePath is { } p ? string.Format(Strings.Rnd_SaveFile, p) : "";
 
-    public string? SaveWarning
-    {
-        get
-        {
-            if (!HasSave || !Settings.Enabled)
-                return null;
-            return UpdateSave
-                ? "Al crear la ROM se adaptará tu partida: cada Pokémon del equipo y de las cajas recibirá la habilidad que le toca en la nueva ROM "
-                  + "y el equipo recalculará sus stats. Especie, nivel, IV, EV, naturaleza y movimientos no cambian. Antes se hace una copia de seguridad."
-                : "Tu partida no se tocará: los Pokémon que ya tienes conservarán sus habilidades y stats actuales aunque la nueva ROM tenga otras.";
-        }
-    }
+    public string? SaveWarning => !HasSave || !Settings.Enabled ? null : UpdateSave ? Strings.Rnd_WarningUpdate : Strings.Rnd_WarningNoUpdate;
 
     public bool HasSaveWarning => SaveWarning is not null;
 
@@ -221,7 +222,7 @@ public partial class RandomizerViewModel : ObservableObject
         }
         else
         {
-            SeedError = "La semilla debe ser un número entero positivo.";
+            SeedError = Strings.Rnd_SeedError;
         }
     }
 
@@ -251,9 +252,9 @@ public partial class RandomizerViewModel : ObservableObject
         OnPropertyChanged(nameof(OutputExists));
     }
 
-    // ------------------------------------------------------------------ opciones
+    // ------------------------------------------------------------------ options
 
-    /// <summary>Carga las opciones del preset en el editor (UPR tarda unos segundos la primera vez).</summary>
+    /// <summary>Loads the preset options into the editor (UPR takes a few seconds the first time).</summary>
     public async Task LoadOptionsAsync()
     {
         if (optionsLoading || Options.IsLoaded)
@@ -274,7 +275,7 @@ public partial class RandomizerViewModel : ObservableObject
         }
         catch (Exception ex) when (ex is UprException or IOException or System.Text.Json.JsonException)
         {
-            Options.Fail($"No se pudieron leer las opciones del randomizer: {ex.Message}");
+            Options.Fail(string.Format(Strings.Rnd_OptionsLoadFailed, ex.Message));
         }
         finally
         {
@@ -282,7 +283,7 @@ public partial class RandomizerViewModel : ObservableObject
         }
     }
 
-    /// <summary>Escribe al proyecto el preset con las opciones editadas (o los ajustes por defecto si no hay preset).</summary>
+    /// <summary>Writes the preset with the edited options to the project (or UPR defaults when there is no preset).</summary>
     public async Task CommitOptionsAsync()
     {
         if (upr.Tools is not { } tools)
@@ -290,7 +291,7 @@ public partial class RandomizerViewModel : ObservableObject
         if (Options.IsLoaded && Options.HasChanges)
         {
             Settings.Preset = await new UprRunner(tools).WriteSettingsAsync(Settings.Preset, Options.Assignments());
-            Settings.PresetName = Settings.PresetName is { } n && !n.EndsWith(" (modificado)") ? n + " (modificado)" : Settings.PresetName ?? "Personalizado";
+            Settings.PresetModified = true;
             Options.MarkWritten();
             OnPropertyChanged(nameof(PresetText));
         }
@@ -306,20 +307,21 @@ public partial class RandomizerViewModel : ObservableObject
     [RelayCommand]
     private async Task ImportPreset()
     {
-        if (await dialogs.PickOpenFileAsync("Preset de UPR ZX (.rnqs)", ["*.rnqs"]) is not { } path)
+        if (await dialogs.PickOpenFileAsync(Strings.Rnd_ImportTitle, ["*.rnqs"]) is not { } path)
             return;
         try
         {
             Settings.Preset = await File.ReadAllBytesAsync(path);
             Settings.PresetName = Path.GetFileNameWithoutExtension(path);
+            Settings.PresetModified = false;
             editor.MarkDirty();
             OnPropertyChanged(nameof(PresetText));
-            Options.Fail("Recargando opciones…");
+            Options.Fail(Strings.Rnd_ReloadingOptions);
             await LoadOptionsAsync();
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            editor.SetStatus($"No se pudo leer el preset: {ex.Message}", error: true);
+            editor.SetStatus(string.Format(Strings.Rnd_PresetReadFailed, ex.Message), error: true);
         }
     }
 
@@ -329,10 +331,10 @@ public partial class RandomizerViewModel : ObservableObject
         await CommitOptionsAsync();
         if (Settings.Preset is null)
             return;
-        if (await dialogs.PickSaveFileAsync("Exportar preset", (Settings.PresetName ?? "preset") + ".rnqs", "rnqs") is { } path)
+        if (await dialogs.PickSaveFileAsync(Strings.Rnd_ExportTitle, (Settings.PresetName ?? "preset") + ".rnqs", "rnqs") is { } path)
         {
             await File.WriteAllBytesAsync(path, Settings.Preset);
-            editor.SetStatus($"Preset exportado a {path}. Se puede abrir en UPR ZX.");
+            editor.SetStatus(string.Format(Strings.Rnd_Exported, path));
         }
     }
 
@@ -341,9 +343,10 @@ public partial class RandomizerViewModel : ObservableObject
     {
         Settings.Preset = null;
         Settings.PresetName = null;
+        Settings.PresetModified = false;
         editor.MarkDirty();
         OnPropertyChanged(nameof(PresetText));
-        Options.Fail("Recargando opciones…");
+        Options.Fail(Strings.Rnd_ReloadingOptions);
         await LoadOptionsAsync();
     }
 
@@ -358,9 +361,9 @@ public partial class RandomizerViewModel : ObservableObject
     [RelayCommand]
     private async Task AdaptSaveNow() => await editor.AdaptSaveCommand.ExecuteAsync(null);
 
-    // ------------------------------------------------------------------ resultados
+    // ------------------------------------------------------------------ results
 
-    /// <summary>Llamado por el editor tras crear la ROM.</summary>
+    /// <summary>Called by the editor after building the ROM or adapting the save.</summary>
     public void OnBuilt(UprResult? random, SaveUpdateResult? save)
     {
         RefreshSave();
@@ -374,25 +377,26 @@ public partial class RandomizerViewModel : ObservableObject
             return;
         }
         foreach (var c in save.Changes)
-            SaveChanges.Add(new SaveChangeLine(c.Location, SpeciesName(c.Species), Describe(c.Description)));
+            SaveChanges.Add(new SaveChangeLine(Location(c.Slot), SpeciesName(c.Species), Describe(c)));
         SaveChangesSummary = save.Changes.Count == 0
-            ? $"Partida revisada ({save.PokemonChecked} Pokémon): no hacía falta cambiar nada."
-            : $"Partida actualizada: {save.Changes.Count} cambio(s) en {save.PokemonChecked} Pokémon. Copia de seguridad: {save.BackupPath}";
+            ? string.Format(Strings.Rnd_SaveChecked, save.PokemonChecked)
+            : string.Format(Strings.Rnd_SaveUpdatedSummary, save.Changes.Count, save.PokemonChecked, save.BackupPath);
     }
+
+    private static string Location(SaveSlot slot) => slot.Box is { } box
+        ? string.Format(Strings.Change_Box, box + 1, slot.Slot + 1)
+        : string.Format(Strings.Change_Party, slot.Slot + 1);
 
     private string SpeciesName(ushort species) =>
         species < editor.Names.Species.Count ? editor.Names.Species[species] : $"#{species}";
 
-    /// <summary>«habilidad 26 → 51» → «habilidad Levitación → Vista Lince».</summary>
-    private string Describe(string description)
+    private string Describe(PokemonChange change) => change.Kind switch
     {
-        const string prefix = "habilidad ";
-        if (!description.StartsWith(prefix))
-            return description;
-        var parts = description[prefix.Length..].Split(" → ");
-        string Name(string id) => int.TryParse(id, out int n) && n < editor.Names.Abilities.Count ? editor.Names.Abilities[n] : id;
-        return parts.Length == 2 ? $"habilidad {Name(parts[0])} → {Name(parts[1])}" : description;
-    }
+        ChangeKind.Ability => string.Format(Strings.Change_Ability, AbilityName(change.Before[0]), AbilityName(change.After[0])),
+        _ => string.Format(Strings.Change_Stats, string.Join('/', change.Before), string.Join('/', change.After)),
+    };
+
+    private string AbilityName(int id) => id >= 0 && id < editor.Names.Abilities.Count ? editor.Names.Abilities[id] : id.ToString();
 
     // ------------------------------------------------------------------ log
 
@@ -423,7 +427,7 @@ public partial class RandomizerViewModel : ObservableObject
 
     private IEnumerable<string> SectionLines()
     {
-        if (SelectedLogSection is null or AllSections)
+        if (SelectedLogSection is null || SelectedLogSection == AllSections)
             return logLines;
         int start = Array.IndexOf(logLines, SelectedLogSection);
         return start < 0 ? logLines : logLines.Skip(start).TakeWhile((line, i) => i == 0 || !IsSectionHeader(line));
@@ -442,9 +446,9 @@ public partial class RandomizerViewModel : ObservableObject
             VisibleLog.Add(line);
 
         LogSummary = logLines.Length == 0
-            ? "Aún no hay log: randomiza para generarlo."
+            ? Strings.Log_Empty
             : matches.Length > MaxLogLines
-                ? $"{matches.Length} líneas coinciden; se muestran las primeras {MaxLogLines}. Afina la búsqueda."
-                : $"{matches.Length} de {logLines.Length} líneas.";
+                ? string.Format(Strings.Log_TooMany, matches.Length, MaxLogLines)
+                : string.Format(Strings.Log_Count, matches.Length, logLines.Length);
     }
 }
