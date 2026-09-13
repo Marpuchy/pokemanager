@@ -50,7 +50,7 @@ public partial class MainWindowViewModel : ObservableObject
         try
         {
             var project = Project.Load(path);
-            var dump = GameDump.Open(project.RomFsPath, project.ExeFsPath, project.Language);
+            var dump = GameDump.Open(project.RomFsPath, project.ExeFsPath, GameTextLanguage.Current);
 
             // If the project's randomization is cached, the advanced editor works on top of it.
             string? randomRomFs = Upr.TryGetCached(project, project.Randomization.Preset) is { } cached

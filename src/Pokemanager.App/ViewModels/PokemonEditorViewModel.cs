@@ -169,13 +169,14 @@ public partial class PokemonEditorViewModel : ObservableObject
 
     private static readonly string[] Notified =
     [
-        nameof(Title), nameof(SpeciesIndex), nameof(FormChoices), nameof(FormIndex), nameof(HasForms), nameof(Nickname), nameof(IsNicknamed),
+        nameof(Title), nameof(Icon), nameof(SpeciesIndex), nameof(FormChoices), nameof(FormIndex), nameof(HasForms), nameof(Nickname), nameof(IsNicknamed),
         nameof(Level), nameof(NatureIndex), nameof(AbilityChoices), nameof(AbilityIndex), nameof(HeldItemIndex),
         nameof(GenderChoices), nameof(GenderIndex), nameof(IsShiny), nameof(Friendship), nameof(BallIndex), nameof(OriginalTrainer),
         nameof(EvTotalText), nameof(EvTotalTooHigh), nameof(Problems), nameof(HasProblems), nameof(IsEgg), nameof(ExpText),
     ];
 
     public string Title => $"{SaveEditorViewModel.SlotLabel(Slot)} · {Names.SpeciesName(Pokemon.Species)}";
+    public Avalonia.Media.Imaging.Bitmap? Icon => Pokemon.IsEgg ? null : owner.Sprites.For(Pokemon.Species, Pokemon.Form, Pokemon.Gender == 1, Pokemon.IsShiny);
     public bool IsEgg => Pokemon.IsEgg;
 
     public IReadOnlyList<string> SpeciesNames => Names.SpeciesChoices;

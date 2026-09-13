@@ -1,0 +1,40 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Pokemanager.App.ViewModels"
+        xmlns:r="using:Pokemanager.App.Resources"
+        x:Class="Pokemanager.App.Views.LogWindow"
+        x:DataType="vm:RandomizerViewModel"
+        Title="{x:Static r:Strings.Log_Title}"
+        Width="1100" Height="760" MinWidth="520" MinHeight="360"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="12">
+    <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="0,0,0,8" Text="{x:Static r:Strings.Log_SpoilerHint}" />
+    <Grid DockPanel.Dock="Top" ColumnDefinitions="300,*">
+      <ComboBox ItemsSource="{Binding LogSections}" SelectedItem="{Binding SelectedLogSection}"
+                HorizontalAlignment="Stretch" MaxDropDownHeight="420">
+        <ComboBox.ItemTemplate>
+          <DataTemplate x:DataType="x:String">
+            <TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis" />
+          </DataTemplate>
+        </ComboBox.ItemTemplate>
+      </ComboBox>
+      <TextBox Grid.Column="1" Margin="6,0,0,0" Text="{Binding LogFilter}" PlaceholderText="{x:Static r:Strings.Log_SearchWatermark}" />
+    </Grid>
+    <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="0,4" Text="{Binding LogSummary}" />
+    <Border BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+      <ListBox ItemsSource="{Binding VisibleLog}" FontFamily="Cascadia Mono, Consolas, Menlo, monospace" FontSize="12">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="x:String">
+            <TextBlock Text="{Binding}" />
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+        <ListBox.Styles>
+          <Style Selector="ListBoxItem">
+            <Setter Property="Padding" Value="6,0" />
+            <Setter Property="MinHeight" Value="0" />
+          </Style>
+        </ListBox.Styles>
+      </ListBox>
+    </Border>
+  </DockPanel>
+</Window>

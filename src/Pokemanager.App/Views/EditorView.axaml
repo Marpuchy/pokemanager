@@ -28,10 +28,11 @@
       </Grid>
     </DataTemplate>
     <DataTemplate DataType="vm:ListEntryViewModel">
-      <Grid ColumnDefinitions="48,*,Auto">
-        <TextBlock Classes="hint" Text="{Binding Number}" VerticalAlignment="Center" />
-        <TextBlock Grid.Column="1" Text="{Binding Name}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-        <TextBlock Grid.Column="2" Classes="dot" Text="●" IsVisible="{Binding IsModified}" ToolTip.Tip="{x:Static r:Strings.Detail_Modified}" />
+      <Grid ColumnDefinitions="Auto,48,*,Auto">
+        <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="40" Height="30" Margin="0,0,6,0" IsVisible="{Binding HasIcon}" />
+        <TextBlock Grid.Column="1" Classes="hint" Text="{Binding Number}" VerticalAlignment="Center" />
+        <TextBlock Grid.Column="2" Text="{Binding Name}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+        <TextBlock Grid.Column="3" Classes="dot" Text="●" IsVisible="{Binding IsModified}" ToolTip.Tip="{x:Static r:Strings.Detail_Modified}" />
       </Grid>
     </DataTemplate>
   </UserControl.DataTemplates>
@@ -106,9 +107,11 @@
             <ContentControl.ContentTemplate>
               <DataTemplate x:DataType="vm:SpeciesDetailViewModel">
                 <DockPanel Margin="8,8,12,8">
-                  <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="0,0,0,4">
-                    <TextBlock Text="{Binding Title}" FontSize="22" FontWeight="SemiBold" />
-                    <Button Grid.Column="1" Content="{x:Static r:Strings.Detail_Revert}" Command="{Binding RevertCommand}" IsEnabled="{Binding IsModified}" />
+                  <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,4">
+                    <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="80" Height="60" Margin="0,0,10,0"
+                           IsVisible="{Binding Icon, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                    <TextBlock Grid.Column="1" Text="{Binding Title}" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                    <Button Grid.Column="2" Content="{x:Static r:Strings.Detail_Revert}" Command="{Binding RevertCommand}" IsEnabled="{Binding IsModified}" VerticalAlignment="Center" />
                   </Grid>
                   <TabControl>
                     <TabItem Header="{x:Static r:Strings.Detail_Data}">

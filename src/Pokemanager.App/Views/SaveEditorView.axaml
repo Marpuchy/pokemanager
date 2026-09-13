@@ -16,6 +16,10 @@
       <Setter Property="BorderThickness" Value="2" />
       <Setter Property="BorderBrush" Value="Transparent" />
     </Style>
+    <Style Selector="Button.slot.box">
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="Padding" Value="0" />
+    </Style>
     <Style Selector="Button.slot.empty">
       <Setter Property="Opacity" Value="0.55" />
     </Style>
@@ -33,12 +37,17 @@
 
   <UserControl.DataTemplates>
     <DataTemplate DataType="vm:SlotViewModel">
-      <Button Classes="slot" Classes.empty="{Binding IsEmpty}" Classes.selected="{Binding IsSelected}" Classes.problem="{Binding HasProblem}"
+      <Button Classes="slot" Classes.box="{Binding !Slot.IsParty}" Classes.empty="{Binding IsEmpty}" Classes.selected="{Binding IsSelected}" Classes.problem="{Binding HasProblem}"
               Command="{Binding SelectCommand}">
-        <StackPanel>
-          <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-          <TextBlock Classes="hint" Text="{Binding Detail}" FontSize="11" TextTrimming="CharacterEllipsis" />
-        </StackPanel>
+        <Grid ColumnDefinitions="Auto,*" ToolTip.Tip="{Binding Tooltip}">
+          <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="40" Height="30" Margin="0,0,4,0" VerticalAlignment="Center" />
+          <TextBlock Grid.ColumnSpan="2" Classes="hint" FontSize="11" Text="—" HorizontalAlignment="Center" VerticalAlignment="Center"
+                     IsVisible="{Binding ShowEmptyMark}" />
+          <StackPanel Grid.Column="1" VerticalAlignment="Center" IsVisible="{Binding Slot.IsParty}">
+            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="12" TextTrimming="CharacterEllipsis" />
+            <TextBlock Classes="hint" Text="{Binding Detail}" FontSize="10" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
+          </StackPanel>
+        </Grid>
       </Button>
     </DataTemplate>
   </UserControl.DataTemplates>
@@ -92,7 +101,7 @@
                 <ItemsControl ItemsSource="{Binding BoxSlots}">
                   <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                      <UniformGrid Columns="5" />
+                      <UniformGrid Columns="6" />
                     </ItemsPanelTemplate>
                   </ItemsControl.ItemsPanel>
                 </ItemsControl>
@@ -119,6 +128,7 @@
               <StackPanel Margin="16" Spacing="8" MaxWidth="520" HorizontalAlignment="Left" IsVisible="{Binding CanCreate}">
                 <TextBlock Classes="section" Text="{x:Static r:Strings.Save_CreateTitle}" />
                 <TextBlock Classes="hint" Text="{x:Static r:Strings.Save_CreateHint}" />
+                <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding NewSpeciesIcon}" Width="80" Height="60" HorizontalAlignment="Left" />
                 <Grid ColumnDefinitions="140,*" RowDefinitions="Auto,Auto" >
                   <TextBlock Classes="row-label" Text="{x:Static r:Strings.Pkm_Species}" />
                   <ComboBox Grid.Column="1" ItemsSource="{Binding SpeciesChoices}" SelectedIndex="{Binding NewSpecies}" HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
@@ -130,9 +140,10 @@
               </StackPanel>
 
               <DockPanel IsVisible="{Binding HasPokemon}">
-                <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto" Margin="12,8,12,0">
-                  <TextBlock Text="{Binding Pokemon.Title}" FontSize="22" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                  <Button Grid.Column="1" Content="{x:Static r:Strings.Save_DeleteButton}" Command="{Binding DeletePokemonCommand}" />
+                <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*,Auto" Margin="12,8,12,0">
+                  <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Pokemon.Icon}" Width="80" Height="60" Margin="0,0,10,0" />
+                  <TextBlock Grid.Column="1" Text="{Binding Pokemon.Title}" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                  <Button Grid.Column="2" Content="{x:Static r:Strings.Save_DeleteButton}" Command="{Binding DeletePokemonCommand}" VerticalAlignment="Center" />
                 </Grid>
                 <ContentControl Content="{Binding Pokemon}">
                   <ContentControl.ContentTemplate>
@@ -520,11 +531,12 @@
             <ListBox ItemsSource="{Binding Entries}" MaxWidth="620" HorizontalAlignment="Left">
               <ListBox.ItemTemplate>
                 <DataTemplate x:DataType="vm:DexEntryViewModel">
-                  <Grid ColumnDefinitions="60,220,120,120">
-                    <TextBlock Classes="hint" VerticalAlignment="Center" Text="{Binding Number}" />
-                    <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Name}" />
-                    <CheckBox Grid.Column="2" IsChecked="{Binding Seen}" Content="{x:Static r:Strings.Dex_Seen}" />
-                    <CheckBox Grid.Column="3" IsChecked="{Binding Caught}" Content="{x:Static r:Strings.Dex_Caught}" />
+                  <Grid ColumnDefinitions="48,60,220,120,120">
+                    <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="40" Height="30" />
+                    <TextBlock Grid.Column="1" Classes="hint" VerticalAlignment="Center" Text="{Binding Number}" />
+                    <TextBlock Grid.Column="2" VerticalAlignment="Center" Text="{Binding Name}" />
+                    <CheckBox Grid.Column="3" IsChecked="{Binding Seen}" Content="{x:Static r:Strings.Dex_Seen}" />
+                    <CheckBox Grid.Column="4" IsChecked="{Binding Caught}" Content="{x:Static r:Strings.Dex_Caught}" />
                   </Grid>
                 </DataTemplate>
               </ListBox.ItemTemplate>

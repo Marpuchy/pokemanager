@@ -30,6 +30,9 @@ public partial class EditorViewModel : ObservableObject
     public SaveEditorViewModel SaveEditor { get; }
     public IDialogs Dialogs => dialogs;
 
+    /// <summary>Pokémon icons from the dump.</summary>
+    public PokemonSprites Sprites { get; }
+
     [ObservableProperty]
     public partial EditorSession Session { get; private set; }
 
@@ -92,6 +95,7 @@ public partial class EditorViewModel : ObservableObject
         Dump = dump;
         Session = session;
         Names = new GameNames(dump, session.Original);
+        Sprites = PokemonSprites.Load(session.Project, session.Original);
         LoadLists();
 
         // Projects without a fixed base ROM get it now, before a built ROM can be mistaken for it.
@@ -135,7 +139,7 @@ public partial class EditorViewModel : ObservableObject
     {
         string[] personalTables = [GameTables.Personal, GameTables.Learnsets];
         allSpecies = Enumerable.Range(1, Session.Current.Personal.Length - 1) // entry 0 is an empty placeholder
-            .Select(i => new ListEntryViewModel(Session, personalTables, i, Names.PersonalEntries[i]))
+            .Select(i => new ListEntryViewModel(Session, personalTables, i, Names.PersonalEntries[i], () => Sprites.ForPersonalEntry(i)))
             .ToList();
         allMoves = Enumerable.Range(1, Session.Current.Moves.Length - 1)
             .Select(i => new ListEntryViewModel(Session, [GameTables.Moves], i, Names.Moves[i]))
@@ -185,7 +189,7 @@ public partial class EditorViewModel : ObservableObject
     partial void OnSelectedSpeciesChanged(ListEntryViewModel? value)
     {
         if (value is not null && value.Id != SpeciesDetail?.Id)
-            SpeciesDetail = new SpeciesDetailViewModel(Session, Names, value.Id);
+            SpeciesDetail = new SpeciesDetailViewModel(Session, Names, value.Id, Sprites.ForPersonalEntry(value.Id));
     }
 
     partial void OnSelectedMoveChanged(ListEntryViewModel? value)

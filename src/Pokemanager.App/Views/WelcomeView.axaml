@@ -40,15 +40,6 @@
         <Button Grid.Column="1" Margin="6,0,0,0" Content="{x:Static r:Strings.Common_Browse}" Command="{Binding BrowseDumpCommand}" />
       </Grid>
 
-      <TextBlock Margin="0,8,0,0" Text="{x:Static r:Strings.Welcome_GameLanguage}" />
-      <ComboBox ItemsSource="{x:Static vm:WelcomeViewModel.Languages}" SelectedItem="{Binding Language}" MinWidth="220">
-        <ComboBox.ItemTemplate>
-          <DataTemplate x:DataType="vm:LanguageOption">
-            <TextBlock Text="{Binding Name}" />
-          </DataTemplate>
-        </ComboBox.ItemTemplate>
-      </ComboBox>
-
       <TextBlock Margin="0,8,0,0" Text="{x:Static r:Strings.Welcome_ProjectFile}" />
       <Grid ColumnDefinitions="*,Auto">
         <TextBox Text="{Binding ProjectPath}" />

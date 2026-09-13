@@ -42,9 +42,6 @@
   <data name="Welcome_DumpFolder" xml:space="preserve">
     <value>Carpeta del volcado (con el .3ds y sus carpetas romfs y exefs, con code.bin descomprimido)</value>
   </data>
-  <data name="Welcome_GameLanguage" xml:space="preserve">
-    <value>Idioma de los textos del juego</value>
-  </data>
   <data name="Welcome_ProjectFile" xml:space="preserve">
     <value>Archivo del proyecto</value>
   </data>
@@ -1355,5 +1352,17 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   </data>
   <data name="Trainer_Rotation" xml:space="preserve">
     <value>Rotación</value>
+  </data>
+  <data name="Log_ShowButton" xml:space="preserve">
+    <value>Ver log de la randomización (spoilers)…</value>
+  </data>
+  <data name="Log_ShowTip" xml:space="preserve">
+    <value>Abre el log completo de UPR ZX en otra ventana: iniciales, Pokémon salvajes, entrenadores y todos los cambios. Destripa la partida.</value>
+  </data>
+  <data name="Log_SpoilerHint" xml:space="preserve">
+    <value>Spoilers: este log muestra todo lo que ha cambiado el randomizer.</value>
+  </data>
+  <data name="Rnd_ShowSaveChanges" xml:space="preserve">
+    <value>Ver el detalle (spoilers: nuevas habilidades y stats)</value>
   </data>
 </root>

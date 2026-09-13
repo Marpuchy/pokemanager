@@ -152,6 +152,22 @@ Trainer tab extended like PKHeX's X/Y trainer editor (`SaveDocument`: Mega Evolu
 PR Video phrases, start/Hall of Fame dates (seconds since 2000-01-01), records with PKHeX names, Maison streaks,
 O-Power points and unlock-all, Friend Safari, fashion, Super Training, Poké Puffs, map position with a warning).
 
+### Layout, spoilers, language and sprites (2026-09-13)
+
+- **No spoilers unless asked:** the UPR log is no longer on the Randomizer page; "Show randomization log (spoilers)…"
+  opens `LogWindow`. The per-Pokémon save changes after a build are inside a collapsed expander.
+- **Responsive:** `Controls/AdaptiveColumnsPanel` puts cards (`Border.card`) in 1–3 columns depending on width; the
+  Randomizer build page is an action bar (enable + build button always visible) plus three cards.
+- **Language:** game texts follow the interface language (`Services/GameTextLanguage`), not `Project.Language` (kept
+  only for old files). The user's project had Spanish game text with an English UI. Default box names ("Caja 1") are
+  shown localized.
+- **Sprites — verified:** box icons are in `romfs/a/0/9/3` (945 LZ11 BCLIM, 40×30). Pixel data: `0x0002`, color count,
+  RGB5A1 palette, then 1 byte per pixel or a nibble **high first** for ≤16 colors (pk3DS uses `< 16`: wrong for 16), 8×8
+  Morton tiles. The icon index is **not** the species: `code.bin` (Pokémon X at file offset 0x43EA98, found by content)
+  has a 16-byte entry per species: default icon, female icon, pointer to per-form icons, pointer to a second per-form
+  list (shiny), counts. Pointers are addresses with base 0x100000. `Model/Data/PokemonIcons`, `App/Services/PokemonSprites`.
+  Examples: Pikachu 29, Charizard 9, Mega X 7, Mega Y 8, Unfezant ♂/♀ differ.
+
 Pending: live dashboard (RPC).
 
 ---

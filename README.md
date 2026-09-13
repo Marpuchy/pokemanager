@@ -26,7 +26,8 @@ The interface is in **English** by default; Spanish can be selected in **Setting
 dotnet run --project src/Pokemanager.App
 ```
 
-1. **New project:** dump folder, game text language and where to save the project `.json`.
+1. **New project:** dump folder and where to save the project `.json`. Game names (species, moves, items) are shown in
+   the interface language; Pokémon sprites are read from your own dump.
    Projects you create or open appear under **Recent projects** on the start page.
 2. **Settings…:** interface language, emulator (by default the one you used most recently), base ROM,
    bundled tools, cache and save backups.

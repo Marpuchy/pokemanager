@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Pokemanager.App.Resources;
@@ -9,26 +8,11 @@ using Pokemanager.Model.Projects;
 
 namespace Pokemanager.App.ViewModels;
 
-/// <summary>A language option shown with its own (native) name.</summary>
-public sealed record LanguageOption(GameLanguage Value, string Name);
-
 /// <summary>Start screen: recent projects, create a new one or open an existing one.</summary>
 public partial class WelcomeViewModel : ObservableObject
 {
     private readonly MainWindowViewModel main;
     private readonly IDialogs dialogs;
-
-    public static IReadOnlyList<LanguageOption> Languages { get; } =
-    [
-        new(GameLanguage.English, "English"),
-        new(GameLanguage.Spanish, "Español"),
-        new(GameLanguage.French, "Français"),
-        new(GameLanguage.Italian, "Italiano"),
-        new(GameLanguage.German, "Deutsch"),
-        new(GameLanguage.JapaneseKana, "日本語 (カナ)"),
-        new(GameLanguage.JapaneseKanji, "日本語 (漢字)"),
-        new(GameLanguage.Korean, "한국어"),
-    ];
 
     public ObservableCollection<RecentProjectItem> RecentProjects { get; } = [];
 
@@ -37,10 +21,6 @@ public partial class WelcomeViewModel : ObservableObject
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CreateCommand))]
     public partial string DumpDirectory { get; set; }
-
-    /// <summary>Game text language; defaults to the UI language.</summary>
-    [ObservableProperty]
-    public partial LanguageOption Language { get; set; }
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CreateCommand))]
@@ -55,7 +35,6 @@ public partial class WelcomeViewModel : ObservableObject
         this.dialogs = dialogs;
         DumpDirectory = Environment.GetEnvironmentVariable("POKEMANAGER_DUMP") ?? "";
         ProjectPath = SuggestProjectPath();
-        Language = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "es" ? Languages[1] : Languages[0];
         LoadRecentProjects();
     }
 
@@ -126,7 +105,7 @@ public partial class WelcomeViewModel : ObservableObject
         {
             string dump = Path.GetFullPath(DumpDirectory);
             // The base ROM is fixed when the project is created: randomized ROMs may appear in the same folder later.
-            new Project { DumpDirectory = dump, RomFile = Project.FindBaseRom(dump), Language = Language.Value }.Save(ProjectPath);
+            new Project { DumpDirectory = dump, RomFile = Project.FindBaseRom(dump), Language = GameTextLanguage.Current }.Save(ProjectPath);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {

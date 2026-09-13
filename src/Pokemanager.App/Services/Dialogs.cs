@@ -19,6 +19,9 @@ public interface IDialogs
 
     /// <summary>Asks for confirmation; <paramref name="question"/> keeps the state of its check boxes and input.</summary>
     Task<bool> AskAsync(QuestionViewModel question);
+
+    /// <summary>Opens the randomization log (spoilers) in its own window.</summary>
+    void ShowLog(RandomizerViewModel randomizer);
 }
 
 public sealed class Dialogs(Window owner) : IDialogs
@@ -65,4 +68,7 @@ public sealed class Dialogs(Window owner) : IDialogs
 
     public Task<bool> AskAsync(QuestionViewModel question) =>
         new QuestionWindow { DataContext = question }.ShowDialog<bool>(owner);
+
+    public void ShowLog(RandomizerViewModel randomizer) =>
+        new LogWindow { DataContext = randomizer }.Show(owner);
 }

@@ -42,9 +42,6 @@
   <data name="Welcome_DumpFolder" xml:space="preserve">
     <value>Dump folder (with the .3ds and its romfs and exefs folders, code.bin decompressed)</value>
   </data>
-  <data name="Welcome_GameLanguage" xml:space="preserve">
-    <value>Game text language</value>
-  </data>
   <data name="Welcome_ProjectFile" xml:space="preserve">
     <value>Project file</value>
   </data>
@@ -1355,5 +1352,17 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   </data>
   <data name="Trainer_Rotation" xml:space="preserve">
     <value>Rotation</value>
+  </data>
+  <data name="Log_ShowButton" xml:space="preserve">
+    <value>Show randomization log (spoilers)…</value>
+  </data>
+  <data name="Log_ShowTip" xml:space="preserve">
+    <value>Opens the full UPR ZX log in its own window: starters, wild Pokémon, trainers and every change. It spoils the game.</value>
+  </data>
+  <data name="Log_SpoilerHint" xml:space="preserve">
+    <value>Spoilers: this log shows everything the randomizer changed.</value>
+  </data>
+  <data name="Rnd_ShowSaveChanges" xml:space="preserve">
+    <value>Show the details (spoilers: new abilities and stats)</value>
   </data>
 </root>

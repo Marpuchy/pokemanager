@@ -2,23 +2,40 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Pokemanager.App.ViewModels"
              xmlns:r="using:Pokemanager.App.Resources"
+             xmlns:c="using:Pokemanager.App.Controls"
              x:Class="Pokemanager.App.Views.RandomizerView"
              x:DataType="vm:RandomizerViewModel">
   <TabControl x:Name="Tabs" Padding="0">
 
     <!-- ======================= Build ======================= -->
     <TabItem Header="{x:Static r:Strings.Rnd_Tab_Build}">
-      <Grid ColumnDefinitions="500,*">
-        <ScrollViewer Margin="0,0,8,0">
-          <StackPanel Margin="16,8" Spacing="6">
-            <CheckBox IsChecked="{Binding Enabled}" FontSize="15" FontWeight="SemiBold" Content="{x:Static r:Strings.Rnd_Enable}" />
-            <TextBlock Text="{Binding ToolsStatus}" TextWrapping="Wrap" Classes="hint" Classes.error="{Binding !ToolsReady}" />
+      <ScrollViewer>
+        <StackPanel Margin="14,10" Spacing="12">
+          <!-- Action bar: what to do, always visible without scrolling -->
+          <Border Classes="card">
+            <Grid ColumnDefinitions="*,Auto">
+              <StackPanel Spacing="2" VerticalAlignment="Center">
+                <CheckBox IsChecked="{Binding Enabled}" FontSize="15" FontWeight="SemiBold" Content="{x:Static r:Strings.Rnd_Enable}" />
+                <TextBlock Text="{Binding ToolsStatus}" TextWrapping="Wrap" Classes="hint" Classes.error="{Binding !ToolsReady}" />
+              </StackPanel>
+              <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <Button Margin="4" Content="{x:Static r:Strings.Log_ShowButton}" Command="{Binding ShowLogCommand}"
+                        IsEnabled="{Binding HasLog}" ToolTip.Tip="{x:Static r:Strings.Log_ShowTip}" />
+                <Button Margin="4" Classes="accent" MinWidth="220" Padding="16,9" FontWeight="SemiBold" HorizontalContentAlignment="Center"
+                        Content="{x:Static r:Strings.Rnd_BuildButton}" Command="{Binding RandomizeAndBuildCommand}" />
+              </WrapPanel>
+            </Grid>
+          </Border>
 
-            <TextBlock Classes="section" Text="{x:Static r:Strings.Rnd_BaseRom}" />
+          <c:AdaptiveColumnsPanel MinColumnWidth="360" MaxColumns="3" Spacing="12">
+          <!-- Card 1: base ROM, options and seed -->
+          <Border Classes="card">
+          <StackPanel Spacing="6">
+            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Rnd_BaseRom}" />
             <TextBlock Text="{Binding BaseRomText}" TextWrapping="Wrap" />
             <TextBlock Classes="hint" Text="{x:Static r:Strings.Rnd_BaseRomHint}" />
 
-            <TextBlock Classes="section" Text="{x:Static r:Strings.Rnd_OptionsAndSeed}" />
+            <TextBlock Classes="card-title" Margin="0,10,0,2" Text="{x:Static r:Strings.Rnd_OptionsAndSeed}" />
             <Grid ColumnDefinitions="*,Auto">
               <TextBlock Text="{Binding PresetText}" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
               <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
@@ -40,8 +57,13 @@
                 <Button Content="{x:Static r:Strings.Rnd_Export}" Command="{Binding ExportPokemonDataCommand}" />
               </StackPanel>
             </Grid>
+          </StackPanel>
+          </Border>
 
-            <TextBlock Classes="section" Text="{x:Static r:Strings.Rnd_OutputRom}" />
+          <!-- Card 2: output ROM -->
+          <Border Classes="card">
+          <StackPanel Spacing="6">
+            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Rnd_OutputRom}" />
             <StackPanel IsVisible="{Binding HasPreviousRom}" Spacing="2">
               <RadioButton GroupName="output" IsChecked="{Binding ReplacePrevious}" Content="{Binding PreviousRomText}" />
               <RadioButton GroupName="output" IsChecked="{Binding CreateNew}" Content="{x:Static r:Strings.Rnd_CreateNew}" />
@@ -51,8 +73,13 @@
             <TextBlock Classes="error" Text="{Binding OutputError}" IsVisible="{Binding OutputError, Converter={x:Static ObjectConverters.IsNotNull}}" />
             <TextBlock Classes="hint" Text="{Binding OutputPath}" TextWrapping="Wrap" />
             <TextBlock Classes="hint" Foreground="#E07B00" IsVisible="{Binding OutputExists}" Text="{x:Static r:Strings.Rnd_OutputExists}" />
+          </StackPanel>
+          </Border>
 
-            <TextBlock Classes="section" Text="{x:Static r:Strings.Rnd_YourSave}" />
+          <!-- Card 3: the save -->
+          <Border Classes="card">
+          <StackPanel Spacing="6">
+            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Rnd_YourSave}" />
             <TextBlock Text="{Binding SaveText}" TextWrapping="Wrap" />
             <TextBlock Classes="hint" Text="{Binding SaveTargetText}" TextWrapping="Wrap" />
             <CheckBox IsChecked="{Binding UpdateSave}" IsEnabled="{Binding HasSave}" Content="{x:Static r:Strings.Rnd_UpdateSave}" />
@@ -64,59 +91,31 @@
               <TextBlock Text="{Binding SaveWarning}" TextWrapping="Wrap" />
             </Border>
 
-            <Button Classes="accent" Margin="0,12,0,0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                    Content="{x:Static r:Strings.Rnd_BuildButton}" Command="{Binding RandomizeAndBuildCommand}" />
-
-            <TextBlock Classes="section" Text="{x:Static r:Strings.Rnd_SaveChanges}" IsVisible="{Binding SaveChangesSummary, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
-            <TextBlock Text="{Binding SaveChangesSummary}" TextWrapping="Wrap" />
-            <ItemsControl ItemsSource="{Binding SaveChanges}">
-              <ItemsControl.ItemTemplate>
-                <DataTemplate x:DataType="vm:SaveChangeLine">
-                  <TextBlock TextWrapping="Wrap" FontSize="12">
-                    <Run Text="{Binding Location}" Foreground="Gray" />
-                    <Run Text=" · " />
-                    <Run Text="{Binding Pokemon}" FontWeight="SemiBold" />
-                    <Run Text=": " />
-                    <Run Text="{Binding Description}" />
-                  </TextBlock>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
+            <StackPanel Spacing="4" IsVisible="{Binding SaveChangesSummary, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+              <TextBlock Classes="card-title" Margin="0,8,0,0" Text="{x:Static r:Strings.Rnd_SaveChanges}" />
+              <TextBlock Text="{Binding SaveChangesSummary}" TextWrapping="Wrap" />
+              <!-- The details reveal the new abilities and stats: only on request -->
+              <Expander Header="{x:Static r:Strings.Rnd_ShowSaveChanges}" HorizontalAlignment="Stretch" IsVisible="{Binding HasSaveChangeDetails}">
+                <ItemsControl ItemsSource="{Binding SaveChanges}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:SaveChangeLine">
+                      <TextBlock TextWrapping="Wrap" FontSize="12">
+                        <Run Text="{Binding Location}" Foreground="Gray" />
+                        <Run Text=" · " />
+                        <Run Text="{Binding Pokemon}" FontWeight="SemiBold" />
+                        <Run Text=": " />
+                        <Run Text="{Binding Description}" />
+                      </TextBlock>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </Expander>
+            </StackPanel>
           </StackPanel>
-        </ScrollViewer>
-
-        <!-- UPR log -->
-        <DockPanel Grid.Column="1" Margin="8">
-          <TextBlock DockPanel.Dock="Top" Classes="section" Margin="0,0,0,6" Text="{x:Static r:Strings.Log_Title}" />
-          <Grid DockPanel.Dock="Top" ColumnDefinitions="300,*">
-            <ComboBox ItemsSource="{Binding LogSections}" SelectedItem="{Binding SelectedLogSection}"
-                      HorizontalAlignment="Stretch" MaxDropDownHeight="420">
-              <ComboBox.ItemTemplate>
-                <DataTemplate x:DataType="x:String">
-                  <TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis" />
-                </DataTemplate>
-              </ComboBox.ItemTemplate>
-            </ComboBox>
-            <TextBox Grid.Column="1" Margin="6,0,0,0" Text="{Binding LogFilter}" PlaceholderText="{x:Static r:Strings.Log_SearchWatermark}" />
-          </Grid>
-          <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="0,4" Text="{Binding LogSummary}" />
-          <Border BorderThickness="1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
-            <ListBox ItemsSource="{Binding VisibleLog}" FontFamily="Cascadia Mono, Consolas, Menlo, monospace" FontSize="12">
-              <ListBox.ItemTemplate>
-                <DataTemplate x:DataType="x:String">
-                  <TextBlock Text="{Binding}" />
-                </DataTemplate>
-              </ListBox.ItemTemplate>
-              <ListBox.Styles>
-                <Style Selector="ListBoxItem">
-                  <Setter Property="Padding" Value="6,0" />
-                  <Setter Property="MinHeight" Value="0" />
-                </Style>
-              </ListBox.Styles>
-            </ListBox>
           </Border>
-        </DockPanel>
-      </Grid>
+          </c:AdaptiveColumnsPanel>
+        </StackPanel>
+      </ScrollViewer>
     </TabItem>
 
     <!-- ======================= Options ======================= -->

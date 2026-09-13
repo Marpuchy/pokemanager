@@ -19,6 +19,9 @@ public partial class SpeciesDetailViewModel : ObservableObject
     public int Id { get; }
     public string Title { get; }
 
+    /// <summary>Sprite from the dump, if any.</summary>
+    public Avalonia.Media.Imaging.Bitmap? Icon { get; }
+
     public IReadOnlyList<IntFieldViewModel> Stats { get; }
     public IReadOnlyList<ChoiceFieldViewModel> Types { get; }
     public IReadOnlyList<ChoiceFieldViewModel> Abilities { get; }
@@ -34,12 +37,13 @@ public partial class SpeciesDetailViewModel : ObservableObject
     public bool IsLearnsetModified => session.IsModified(GameTables.Learnsets, Id, GameTables.LevelUp);
     public bool IsModified => session.IsModified(P, Id) || session.IsModified(GameTables.Learnsets, Id);
 
-    public SpeciesDetailViewModel(EditorSession session, GameNames names, int id)
+    public SpeciesDetailViewModel(EditorSession session, GameNames names, int id, Avalonia.Media.Imaging.Bitmap? icon = null)
     {
         this.session = session;
         this.names = names;
         Id = id;
         Title = $"#{id:000} {names.PersonalEntries[id]}";
+        Icon = icon;
 
         IntFieldViewModel Int(string field, string label, int max = 255) => new(session, P, id, field, label, 0, max);
         ChoiceFieldViewModel Choice(string field, string label, IReadOnlyList<string> options) => new(session, P, id, field, label, options);

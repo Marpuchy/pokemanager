@@ -16,12 +16,15 @@ public partial class SlotViewModel(SaveEditorViewModel owner, SaveSlot slot) : O
     public SaveSlot Slot { get; } = slot;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Tooltip))]
     public partial string Name { get; set; } = "";
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Tooltip))]
     public partial string Detail { get; set; } = "";
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowEmptyMark))]
     public partial bool IsEmpty { get; set; } = true;
 
     [ObservableProperty]
@@ -30,8 +33,16 @@ public partial class SlotViewModel(SaveEditorViewModel owner, SaveSlot slot) : O
     [ObservableProperty]
     public partial bool HasProblem { get; set; }
 
+    [ObservableProperty]
+    public partial Avalonia.Media.Imaging.Bitmap? Icon { get; set; }
+
     [RelayCommand]
     private void Select() => owner.SelectSlot(Slot);
+
+    public string Tooltip => IsEmpty ? Name : $"{Name} · {Detail}";
+
+    /// <summary>Box slots show only the sprite; an empty one shows a dash.</summary>
+    public bool ShowEmptyMark => IsEmpty && !Slot.IsParty;
 }
 
 /// <summary>A problem line; clicking it selects the Pokémon it belongs to.</summary>
@@ -92,7 +103,12 @@ public partial class SaveEditorViewModel : ObservableObject
     public partial bool CanCreate { get; set; }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(NewSpeciesIcon))]
     public partial int NewSpecies { get; set; } = 1;
+
+    public Avalonia.Media.Imaging.Bitmap? NewSpeciesIcon => Sprites.For(NewSpecies);
+
+    public PokemonSprites Sprites => editor.Sprites;
 
     [ObservableProperty]
     public partial decimal? NewLevel { get; set; } = 5;
@@ -119,6 +135,15 @@ public partial class SaveEditorViewModel : ObservableObject
     {
         this.editor = editor;
         this.settings = settings;
+    }
+
+    /// <summary>The game names boxes "Box 1", "Caja 1"… in the save's language; those are shown in the interface language.</summary>
+    private static bool IsDefaultBoxName(string name, int box)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return true;
+        var match = System.Text.RegularExpressions.Regex.Match(name.Trim(), @"^(Box|BOX|Caja|CAJA|Boîte|BOÎTE|Scatola|SCATOLA|ボックス|박스)\s*(\d+)$");
+        return match.Success && int.Parse(match.Groups[2].Value) == box + 1;
     }
 
     public static string SlotLabel(SaveSlot slot) => slot.Box is { } box
@@ -151,14 +176,14 @@ public partial class SaveEditorViewModel : ObservableObject
         try
         {
             var doc = SaveDocument.Open(path, editor.Session.Current);
-            names = new SaveNames(editor.Names, editor.Session.Project.Language, doc.MaxSpecies);
+            names = new SaveNames(editor.Names, GameTextLanguage.Current, doc.MaxSpecies);
             Document = doc;
             HeaderText = string.Format(Strings.Save_Header, settings.EffectiveEmulatorName, doc.TrainerName, path, File.GetLastWriteTime(path));
             OnPropertyChanged(nameof(SpeciesChoices));
 
             BoxNames.Clear();
             for (int b = 0; b < doc.BoxCount; b++)
-                BoxNames.Add(string.IsNullOrWhiteSpace(doc.BoxName(b)) ? string.Format(Strings.Save_BoxN, b + 1) : doc.BoxName(b));
+                BoxNames.Add(IsDefaultBoxName(doc.BoxName(b), b) ? string.Format(Strings.Save_BoxN, b + 1) : doc.BoxName(b));
             PartySlots.Clear();
             for (int i = 0; i < SaveDocument.PartySize; i++)
                 PartySlots.Add(new SlotViewModel(this, new SaveSlot(null, i)));
@@ -269,12 +294,14 @@ public partial class SaveEditorViewModel : ObservableObject
             if (empty)
             {
                 s.Name = Strings.Save_Empty;
+                s.Icon = null;
                 s.Detail = "";
             }
             else
             {
                 var pk = Document.Get(s.Slot);
                 s.Name = pk.IsEgg ? Strings.Save_Egg : names.SpeciesName(pk.Species);
+                s.Icon = pk.IsEgg ? null : Sprites.For(pk.Species, pk.Form, pk.Gender == 1, pk.IsShiny);
                 s.Detail = string.Format(Strings.Save_SlotDetail, Document.Level(pk), pk.IsNicknamed ? pk.Nickname : "");
             }
             s.HasProblem = problemSlots.Contains(s.Slot);
@@ -500,10 +527,11 @@ public partial class SaveBagViewModel : ObservableObject
     }
 }
 
-public sealed class DexEntryViewModel(SaveDexViewModel owner, SaveDocument doc, ushort species, string name) : ObservableObject
+public sealed class DexEntryViewModel(SaveDexViewModel owner, SaveDocument doc, ushort species, string name, PokemonSprites sprites) : ObservableObject
 {
     public ushort Species { get; } = species;
     public string Number => $"#{Species:000}";
+    public Avalonia.Media.Imaging.Bitmap? Icon => sprites.For(Species);
     public string Name { get; } = name;
 
     public bool Seen
@@ -539,7 +567,7 @@ public partial class SaveDexViewModel : ObservableObject
     {
         this.owner = owner;
         this.doc = doc;
-        all = Enumerable.Range(1, doc.MaxSpecies).Select(s => new DexEntryViewModel(this, doc, (ushort)s, names.SpeciesName((ushort)s))).ToList();
+        all = Enumerable.Range(1, doc.MaxSpecies).Select(s => new DexEntryViewModel(this, doc, (ushort)s, names.SpeciesName((ushort)s), owner.Sprites)).ToList();
         ApplyFilter();
     }
 

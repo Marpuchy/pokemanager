@@ -394,10 +394,12 @@ public partial class RandomizerViewModel : ObservableObject
         if (save is null)
         {
             SaveChangesSummary = "";
+            OnPropertyChanged(nameof(HasSaveChangeDetails));
             return;
         }
         foreach (var c in save.Changes)
             SaveChanges.Add(new SaveChangeLine(Location(c.Slot), SpeciesName(c.Species), Describe(c)));
+        OnPropertyChanged(nameof(HasSaveChangeDetails));
         SaveChangesSummary = save.Changes.Count == 0
             ? string.Format(Strings.Rnd_SaveChecked, save.PokemonChecked)
             : string.Format(Strings.Rnd_SaveUpdatedSummary, save.Changes.Count, save.PokemonChecked, save.BackupPath);
@@ -419,6 +421,14 @@ public partial class RandomizerViewModel : ObservableObject
     private string AbilityName(int id) => id >= 0 && id < editor.Names.Abilities.Count ? editor.Names.Abilities[id] : id.ToString();
 
     // ------------------------------------------------------------------ log
+
+    /// <summary>There is a log of the current randomization. It is only shown on request: it spoils the whole game.</summary>
+    public bool HasLog => logLines.Length > 0;
+
+    public bool HasSaveChangeDetails => SaveChanges.Count > 0;
+
+    [RelayCommand]
+    private void ShowLog() => dialogs.ShowLog(this);
 
     partial void OnLogFilterChanged(string value) => ApplyLogFilter();
     partial void OnSelectedLogSectionChanged(string? value) => ApplyLogFilter();
@@ -443,6 +453,7 @@ public partial class RandomizerViewModel : ObservableObject
             LogSections.Add(header);
         SelectedLogSection = keep is not null && LogSections.Contains(keep) ? keep : AllSections;
         ApplyLogFilter();
+        OnPropertyChanged(nameof(HasLog));
     }
 
     private IEnumerable<string> SectionLines()
