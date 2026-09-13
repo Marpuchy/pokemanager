@@ -99,4 +99,7 @@
   <data name="Check_Blocked" xml:space="preserve">
     <value>No se ha escrito la partida: hay {0} problema(s) que romperían el juego. El primero: {1}</value>
   </data>
+  <data name="Check_ChangedOnDisk" xml:space="preserve">
+    <value>La partida ha cambiado en disco desde que se abrió (¿ha guardado el juego?). Recárgala antes de escribir para no perder progreso.</value>
+  </data>
 </root>

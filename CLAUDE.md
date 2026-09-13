@@ -122,7 +122,26 @@ adapted a test copy instead of the Citra save. Fixes and rules:
   randomization cache keeps the last 3 results.
 - E2E verified: editing Magneton atk to 190 with the user's seed → exactly 1 save change (44 → 117).
 
-Pending: **checking it inside the game** (the user: close Citra, open the project, "Adapt the save now"). Full save editor (phase B).
+The user confirmed in game that it works (2026-09-13).
+
+### Save editor, history and Pokémon data files (2026-09-13)
+
+User requests: a manual save editor inspired by PKHeX (phase B), a version history "in case the player randomizes the
+ROM by accident when they only wanted to change some things", and a `.rnqs`-like file for Pokémon data.
+
+| Piece | Implementation |
+|---|---|
+| Save editor | `Pokemanager.Save.SaveDocument` (in memory until written) + `SaveEditorViewModel`/`PokemonEditorViewModel`. Everything game-data dependent (abilities by number, EXP growth → level, gender ratio, forms, PP from the ROM's move table, party stats) uses `Session.Current`, **not PKHeX's vanilla tables**. `Check`/`Validate` = "safe for the game" (blocks `Write`); `LegalityAnalysis` is informative only. `Write` refuses when the file changed on disk since it was read (the game saved), backs up, writes atomically and verifies (shared `SaveWriter`). |
+| History | `Model/Projects/ProjectHistory`: `<project>.history/<timestamp>/{project.json, version.json, main}`. Kinds: Built, Manual, BeforeRestore, BeforeImport, BeforeSaveEdit. ROMs are not stored (reproducible). Consecutive identical config+kind replaces the newest; `Prune(40)` never deletes Manual. `RestoreInto` copies randomization (enabled, preset, seed) and edits only. Restore in the app: records BeforeRestore, reopens the session, optionally puts the version's save back (`SaveDocument.ReplaceFile`, with backup) and rebuilds (adapting the current save). Building with a different seed/preset/enabled than the newest Built version while a save exists asks first (`Guard_*`). Projects with a built ROM and no history get an initial Built version on open. |
+| Pokémon data | `Model/Edits/PokemonDataFile` (`.pkdata`, JSON `table → id → field → value`, magic `pokemanager-pokemon-data`). Scope Edits or All (every personal/learnset/move value). Import goes through `EditorSession.Set`, so values equal to the base do not become edits; unknown fields/ids are skipped and reported. |
+
+Verified end to end on the real dump with a copy of the user's save (headless harness, temp settings): edit and write
+Magneton (+1 level, EVs, move), EV total > 510 blocks writing, create Pikachu in an empty box slot, bag/trainer/Pokédex;
+build with seed 12345 asks first and changes 21 things in the save; restoring the first version rebuilds seed
+70696688520378 and Magneton's ability goes back (141 → 26); `.pkdata` export/import round-trips Magneton atk 190.
+PKHeX legality reports randomized Pokémon as illegal (EncInvalid, AbilityUnexpected), as expected.
+
+Pending: live dashboard (RPC).
 
 ---
 

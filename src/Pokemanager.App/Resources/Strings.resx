@@ -135,12 +135,6 @@
   <data name="Tab_AdvancedMoves" xml:space="preserve">
     <value>Advanced: Moves</value>
   </data>
-  <data name="SaveTab_Title" xml:space="preserve">
-    <value>Save editor — coming soon</value>
-  </data>
-  <data name="SaveTab_Body" xml:space="preserve">
-    <value>Here you will be able to edit your save (party and boxes, bag, trainer and Pokédex) with the emulator closed, with an automatic backup and a check that the game can load it.</value>
-  </data>
   <data name="Search_Watermark" xml:space="preserve">
     <value>Search by name or number</value>
   </data>
@@ -740,5 +734,488 @@
   </data>
   <data name="Dialog_ProjectType" xml:space="preserve">
     <value>Pokemanager project</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Tab_History" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="Bag_Add" xml:space="preserve">
+    <value>Add item</value>
+  </data>
+  <data name="Bag_Sort" xml:space="preserve">
+    <value>Sort by name</value>
+  </data>
+  <data name="Bag_Capacity" xml:space="preserve">
+    <value>{0} of {1} slots used</value>
+  </data>
+  <data name="Bag_Items" xml:space="preserve">
+    <value>Items</value>
+  </data>
+  <data name="Bag_KeyItems" xml:space="preserve">
+    <value>Key items</value>
+  </data>
+  <data name="Bag_TMs" xml:space="preserve">
+    <value>TMs and HMs</value>
+  </data>
+  <data name="Bag_Medicine" xml:space="preserve">
+    <value>Medicine</value>
+  </data>
+  <data name="Bag_Berries" xml:space="preserve">
+    <value>Berries</value>
+  </data>
+  <data name="Data_ImportButton" xml:space="preserve">
+    <value>Import Pokémon data…</value>
+  </data>
+  <data name="Data_ExportButton" xml:space="preserve">
+    <value>Export Pokémon data…</value>
+  </data>
+  <data name="Data_ImportShort" xml:space="preserve">
+    <value>Import .pkdata…</value>
+  </data>
+  <data name="Data_RandomizerRow" xml:space="preserve">
+    <value>Pokémon data (base stats, types, abilities, learnsets, moves):</value>
+  </data>
+  <data name="Data_Hint" xml:space="preserve">
+    <value>A .pkdata file keeps base stats, types, abilities, learnsets and moves, like a .rnqs keeps the randomizer options.</value>
+  </data>
+  <data name="Data_ExportTitle" xml:space="preserve">
+    <value>Export Pokémon data</value>
+  </data>
+  <data name="Data_ExportMessage" xml:space="preserve">
+    <value>By default only your changes are exported: applied to another project, everything else keeps that project's randomization. Include every value to pin all Pokémon and moves exactly as they are now.</value>
+  </data>
+  <data name="Data_ExportAll" xml:space="preserve">
+    <value>Include every value, not only my changes</value>
+  </data>
+  <data name="Data_ExportConfirm" xml:space="preserve">
+    <value>Export…</value>
+  </data>
+  <data name="Data_Exported" xml:space="preserve">
+    <value>Exported to {1} (values: {0})</value>
+  </data>
+  <data name="Data_Failed" xml:space="preserve">
+    <value>Could not use the Pokémon data file: {0}</value>
+  </data>
+  <data name="Data_ImportTitle" xml:space="preserve">
+    <value>Import Pokémon data</value>
+  </data>
+  <data name="Data_ImportMessage" xml:space="preserve">
+    <value>{0}
+From: {1}
+Contents: {2}, {3} values.{4}
+
+Values equal to this project's base are not stored as changes. The current state is saved in History first, so the import can be undone.</value>
+  </data>
+  <data name="Data_ScopeAll" xml:space="preserve">
+    <value>every value</value>
+  </data>
+  <data name="Data_ScopeEdits" xml:space="preserve">
+    <value>changes only</value>
+  </data>
+  <data name="Data_OtherGame" xml:space="preserve">
+    <value> It was made for Pokémon {0}; this project is Pokémon {1}.</value>
+  </data>
+  <data name="Data_Replace" xml:space="preserve">
+    <value>Replace my current changes (otherwise they are merged)</value>
+  </data>
+  <data name="Data_ImportConfirm" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="Data_Imported" xml:space="preserve">
+    <value>Imported. Now different from the base: {0} · already equal: {1} · skipped: {2}. Build the ROM to play with them.</value>
+  </data>
+  <data name="Dex_AllSeen" xml:space="preserve">
+    <value>Mark all seen</value>
+  </data>
+  <data name="Dex_AllCaught" xml:space="preserve">
+    <value>Mark all caught</value>
+  </data>
+  <data name="Dex_Seen" xml:space="preserve">
+    <value>Seen</value>
+  </data>
+  <data name="Dex_Caught" xml:space="preserve">
+    <value>Caught</value>
+  </data>
+  <data name="Dex_Count" xml:space="preserve">
+    <value>Seen {0} · caught {1} · of {2}</value>
+  </data>
+  <data name="Guard_Title" xml:space="preserve">
+    <value>Change the randomization of a game in progress?</value>
+  </data>
+  <data name="Guard_Message" xml:space="preserve">
+    <value>The seed or the options differ from the ROM you are playing. Building now creates a different game: the Pokémon you already have keep their species, but their base stats, abilities and learnsets change, and so do wild Pokémon and trainers.
+
+If you only wanted to tweak some Pokémon, cancel and put back the seed. The current version stays in History either way, so you can go back.</value>
+  </data>
+  <data name="Guard_Confirm" xml:space="preserve">
+    <value>Randomize anyway</value>
+  </data>
+  <data name="History_Title" xml:space="preserve">
+    <value>Version history</value>
+  </data>
+  <data name="History_Hint" xml:space="preserve">
+    <value>A version is saved every time you build the ROM, before restoring or importing, and before writing the save editor's changes. ROMs are not copied: the same version rebuilds the same ROM. Each version also keeps a copy of your save from that moment.</value>
+  </data>
+  <data name="History_RestoreButton" xml:space="preserve">
+    <value>Restore…</value>
+  </data>
+  <data name="History_SaveButton" xml:space="preserve">
+    <value>Save version now…</value>
+  </data>
+  <data name="History_DeleteButton" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="History_Folder" xml:space="preserve">
+    <value>Stored in {0}</value>
+  </data>
+  <data name="History_Empty" xml:space="preserve">
+    <value>No versions yet. One is saved the next time you build the ROM, or save one now.</value>
+  </data>
+  <data name="History_KindBuilt" xml:space="preserve">
+    <value>ROM built</value>
+  </data>
+  <data name="History_KindManual" xml:space="preserve">
+    <value>Saved by hand</value>
+  </data>
+  <data name="History_KindBeforeRestore" xml:space="preserve">
+    <value>Before restoring</value>
+  </data>
+  <data name="History_KindBeforeImport" xml:space="preserve">
+    <value>Before importing data</value>
+  </data>
+  <data name="History_KindBeforeSaveEdit" xml:space="preserve">
+    <value>Before editing the save</value>
+  </data>
+  <data name="History_Random" xml:space="preserve">
+    <value>seed {0}, preset {1}</value>
+  </data>
+  <data name="History_NotRandom" xml:space="preserve">
+    <value>not randomized</value>
+  </data>
+  <data name="History_WithSave" xml:space="preserve">
+    <value>save included</value>
+  </data>
+  <data name="History_Unreadable" xml:space="preserve">
+    <value>This version cannot be read: {0}</value>
+  </data>
+  <data name="History_SameAsNow" xml:space="preserve">
+    <value>Same as the project now</value>
+  </data>
+  <data name="History_Differs" xml:space="preserve">
+    <value>Differs from now: {0}</value>
+  </data>
+  <data name="History_DiffRandomization" xml:space="preserve">
+    <value>randomization on/off</value>
+  </data>
+  <data name="History_DiffSeed" xml:space="preserve">
+    <value>seed</value>
+  </data>
+  <data name="History_DiffPreset" xml:space="preserve">
+    <value>options</value>
+  </data>
+  <data name="History_DiffEdits" xml:space="preserve">
+    <value>advanced edits ({0})</value>
+  </data>
+  <data name="History_SaveTitle" xml:space="preserve">
+    <value>Save a version</value>
+  </data>
+  <data name="History_SaveMessage" xml:space="preserve">
+    <value>Saves the project as it is now (and a copy of your save), to come back to it later. Versions saved by hand are never deleted automatically.</value>
+  </data>
+  <data name="History_NotePlaceholder" xml:space="preserve">
+    <value>Note (optional), e.g. "before the 4th gym"</value>
+  </data>
+  <data name="History_SaveConfirm" xml:space="preserve">
+    <value>Save version</value>
+  </data>
+  <data name="History_Saved" xml:space="preserve">
+    <value>Version saved in History.</value>
+  </data>
+  <data name="History_Failed" xml:space="preserve">
+    <value>History: {0}</value>
+  </data>
+  <data name="History_RestoreTitle" xml:space="preserve">
+    <value>Restore this version?</value>
+  </data>
+  <data name="History_RestoreMessage" xml:space="preserve">
+    <value>The project goes back to the version of {0} ({1}): seed, randomizer options and manual changes. The current state is saved in History first.</value>
+  </data>
+  <data name="History_RestoreRebuild" xml:space="preserve">
+    <value>Build the ROM now and adapt my current save to it (keeps your progress)</value>
+  </data>
+  <data name="History_RestoreSave" xml:space="preserve">
+    <value>Also put back the save as it was on {0} (progress made since then is lost; the current save is backed up)</value>
+  </data>
+  <data name="History_RestoreSaveUnavailable" xml:space="preserve">
+    <value>This version has no copy of the save</value>
+  </data>
+  <data name="History_RestoreConfirm" xml:space="preserve">
+    <value>Restore</value>
+  </data>
+  <data name="History_Restored" xml:space="preserve">
+    <value>Version of {0} restored.{1}</value>
+  </data>
+  <data name="History_SaveRestored" xml:space="preserve">
+    <value> Save put back (backup of the replaced one: {0}).</value>
+  </data>
+  <data name="History_DeleteTitle" xml:space="preserve">
+    <value>Delete this version?</value>
+  </data>
+  <data name="History_DeleteMessage" xml:space="preserve">
+    <value>The version of {0} ({1}) and its copy of the save will be deleted.</value>
+  </data>
+  <data name="History_DeleteConfirm" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Pkm_None" xml:space="preserve">
+    <value>(none)</value>
+  </data>
+  <data name="Pkm_Main" xml:space="preserve">
+    <value>Main</value>
+  </data>
+  <data name="Pkm_Species" xml:space="preserve">
+    <value>Species</value>
+  </data>
+  <data name="Pkm_FormLabel" xml:space="preserve">
+    <value>Form</value>
+  </data>
+  <data name="Pkm_Form" xml:space="preserve">
+    <value>Form {0}</value>
+  </data>
+  <data name="Pkm_Nickname" xml:space="preserve">
+    <value>Nickname</value>
+  </data>
+  <data name="Pkm_Nicknamed" xml:space="preserve">
+    <value>Nicknamed</value>
+  </data>
+  <data name="Pkm_Level" xml:space="preserve">
+    <value>Level</value>
+  </data>
+  <data name="Pkm_Exp" xml:space="preserve">
+    <value>EXP {0}</value>
+  </data>
+  <data name="Pkm_Nature" xml:space="preserve">
+    <value>Nature</value>
+  </data>
+  <data name="Pkm_AbilityLabel" xml:space="preserve">
+    <value>Ability</value>
+  </data>
+  <data name="Pkm_Ability1" xml:space="preserve">
+    <value>1: {0}</value>
+  </data>
+  <data name="Pkm_Ability2" xml:space="preserve">
+    <value>2: {0}</value>
+  </data>
+  <data name="Pkm_AbilityHidden" xml:space="preserve">
+    <value>Hidden: {0}</value>
+  </data>
+  <data name="Pkm_HeldItem" xml:space="preserve">
+    <value>Held item</value>
+  </data>
+  <data name="Pkm_Gender" xml:space="preserve">
+    <value>Gender</value>
+  </data>
+  <data name="Pkm_Male" xml:space="preserve">
+    <value>Male</value>
+  </data>
+  <data name="Pkm_Female" xml:space="preserve">
+    <value>Female</value>
+  </data>
+  <data name="Pkm_Genderless" xml:space="preserve">
+    <value>Genderless</value>
+  </data>
+  <data name="Pkm_Shiny" xml:space="preserve">
+    <value>Shiny</value>
+  </data>
+  <data name="Pkm_Friendship" xml:space="preserve">
+    <value>Friendship</value>
+  </data>
+  <data name="Pkm_Ball" xml:space="preserve">
+    <value>Ball</value>
+  </data>
+  <data name="Pkm_OriginalTrainer" xml:space="preserve">
+    <value>Original trainer</value>
+  </data>
+  <data name="Pkm_Moves" xml:space="preserve">
+    <value>Moves</value>
+  </data>
+  <data name="Pkm_MoveN" xml:space="preserve">
+    <value>Move {0}</value>
+  </data>
+  <data name="Pkm_PPUps" xml:space="preserve">
+    <value>PP Ups</value>
+  </data>
+  <data name="Pkm_PP" xml:space="preserve">
+    <value>PP {0}/{1}</value>
+  </data>
+  <data name="Pkm_RestorePP" xml:space="preserve">
+    <value>Restore PP</value>
+  </data>
+  <data name="Pkm_LevelUpMoves" xml:space="preserve">
+    <value>Moves by level</value>
+  </data>
+  <data name="Pkm_LevelUpMovesTip" xml:space="preserve">
+    <value>Replaces the moves with the last four it learns by level in this ROM</value>
+  </data>
+  <data name="Pkm_Stats" xml:space="preserve">
+    <value>Stats</value>
+  </data>
+  <data name="Pkm_Base" xml:space="preserve">
+    <value>Base</value>
+  </data>
+  <data name="Pkm_Stat" xml:space="preserve">
+    <value>Stat</value>
+  </data>
+  <data name="Pkm_EvTotal" xml:space="preserve">
+    <value>EV total: {0} / {1}</value>
+  </data>
+  <data name="Pkm_MaxIvs" xml:space="preserve">
+    <value>All IVs 31</value>
+  </data>
+  <data name="Pkm_ClearEvs" xml:space="preserve">
+    <value>Clear EVs</value>
+  </data>
+  <data name="Pkm_StatsHint" xml:space="preserve">
+    <value>Base stats and stats come from the ROM you play (the randomized one), not from the original game.</value>
+  </data>
+  <data name="Pkm_Legality" xml:space="preserve">
+    <value>PKHeX legality</value>
+  </data>
+  <data name="Pkm_LegalityHint" xml:space="preserve">
+    <value>Only informative: PKHeX compares with the original game, so what the randomizer changes shows up as illegal. It does not block writing.</value>
+  </data>
+  <data name="Pkm_CheckLegality" xml:space="preserve">
+    <value>Check legality</value>
+  </data>
+  <data name="Pkm_LegalityValid" xml:space="preserve">
+    <value>PKHeX: legal.</value>
+  </data>
+  <data name="Pkm_LegalityInvalid" xml:space="preserve">
+    <value>PKHeX: not legal in the original game (expected with a randomized ROM).</value>
+  </data>
+  <data name="Save_Title" xml:space="preserve">
+    <value>Save editor</value>
+  </data>
+  <data name="Save_NotLoaded" xml:space="preserve">
+    <value>The save has not been read yet.</value>
+  </data>
+  <data name="Save_Header" xml:space="preserve">
+    <value>{0} save · trainer {1} · {2} · saved {3}</value>
+  </data>
+  <data name="Save_Unwritten" xml:space="preserve">
+    <value>unwritten changes</value>
+  </data>
+  <data name="Save_ReloadButton" xml:space="preserve">
+    <value>Reload from disk</value>
+  </data>
+  <data name="Save_WriteButton" xml:space="preserve">
+    <value>Write to save</value>
+  </data>
+  <data name="Save_WriteTip" xml:space="preserve">
+    <value>Close the emulator first. A backup is made and the file is checked after writing.</value>
+  </data>
+  <data name="Save_TabPokemon" xml:space="preserve">
+    <value>Pokémon</value>
+  </data>
+  <data name="Save_TabBag" xml:space="preserve">
+    <value>Bag</value>
+  </data>
+  <data name="Save_TabTrainer" xml:space="preserve">
+    <value>Trainer</value>
+  </data>
+  <data name="Save_TabDex" xml:space="preserve">
+    <value>Pokédex</value>
+  </data>
+  <data name="Save_Party" xml:space="preserve">
+    <value>Party</value>
+  </data>
+  <data name="Save_Boxes" xml:space="preserve">
+    <value>Box</value>
+  </data>
+  <data name="Save_BoxN" xml:space="preserve">
+    <value>Box {0}</value>
+  </data>
+  <data name="Save_Empty" xml:space="preserve">
+    <value>(empty)</value>
+  </data>
+  <data name="Save_Egg" xml:space="preserve">
+    <value>Egg</value>
+  </data>
+  <data name="Save_SlotDetail" xml:space="preserve">
+    <value>Lv. {0} {1}</value>
+  </data>
+  <data name="Save_NoProblems" xml:space="preserve">
+    <value>No problems: the game can load it.</value>
+  </data>
+  <data name="Save_ProblemsBlock" xml:space="preserve">
+    <value>{0} problem(s) would break the game; fix them to write the save.</value>
+  </data>
+  <data name="Save_RomWarning" xml:space="preserve">
+    <value>The project has changes that are not built into the ROM yet: stats and abilities shown follow the project, not the ROM you are playing.</value>
+  </data>
+  <data name="Save_CreateTitle" xml:space="preserve">
+    <value>Empty slot</value>
+  </data>
+  <data name="Save_CreateHint" xml:space="preserve">
+    <value>Create a Pokémon here. It gets your trainer data, a random nature and IVs, and its latest level-up moves in this ROM.</value>
+  </data>
+  <data name="Save_CreateButton" xml:space="preserve">
+    <value>Create Pokémon</value>
+  </data>
+  <data name="Save_DeleteButton" xml:space="preserve">
+    <value>Release</value>
+  </data>
+  <data name="Save_LastPartyPokemon" xml:space="preserve">
+    <value>The last Pokémon of the party cannot be removed.</value>
+  </data>
+  <data name="Save_ReloadTitle" xml:space="preserve">
+    <value>Discard unwritten changes?</value>
+  </data>
+  <data name="Save_ReloadMessage" xml:space="preserve">
+    <value>Reloading reads the save from disk again and discards the changes you have not written.</value>
+  </data>
+  <data name="Save_ReloadConfirm" xml:space="preserve">
+    <value>Discard and reload</value>
+  </data>
+  <data name="Save_Reloaded" xml:space="preserve">
+    <value>Save reloaded from disk.</value>
+  </data>
+  <data name="Save_ChangedOnDisk" xml:space="preserve">
+    <value>The save changed on disk since it was read (did the game save?). Reload it; your unwritten changes would overwrite that progress.</value>
+  </data>
+  <data name="Save_Written" xml:space="preserve">
+    <value>Save written: {0}. Backup: {1}</value>
+  </data>
+  <data name="Save_WriteFailed" xml:space="preserve">
+    <value>The save was not written: {0}</value>
+  </data>
+  <data name="Save_UnwrittenChanges" xml:space="preserve">
+    <value>The save editor has unwritten changes: write them or reload the save first.</value>
+  </data>
+  <data name="Trainer_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Trainer_IdLabel" xml:space="preserve">
+    <value>ID</value>
+  </data>
+  <data name="Trainer_Ids" xml:space="preserve">
+    <value>TID {0} · SID {1}</value>
+  </data>
+  <data name="Trainer_Money" xml:space="preserve">
+    <value>Money</value>
+  </data>
+  <data name="Trainer_BP" xml:space="preserve">
+    <value>Battle Points</value>
+  </data>
+  <data name="Trainer_PlayTime" xml:space="preserve">
+    <value>Play time</value>
+  </data>
+  <data name="Trainer_Badges" xml:space="preserve">
+    <value>Badges</value>
+  </data>
+  <data name="Trainer_Badge" xml:space="preserve">
+    <value>Badge {0}</value>
   </data>
 </root>

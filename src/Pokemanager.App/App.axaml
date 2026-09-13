@@ -15,6 +15,12 @@
     <DataTemplate DataType="vm:RandomizerViewModel">
       <views:RandomizerView />
     </DataTemplate>
+    <DataTemplate DataType="vm:SaveEditorViewModel">
+      <views:SaveEditorView />
+    </DataTemplate>
+    <DataTemplate DataType="vm:HistoryViewModel">
+      <views:HistoryView />
+    </DataTemplate>
   </Application.DataTemplates>
 
   <Application.Styles>
@@ -45,6 +51,10 @@
     <Style Selector="TextBlock.hint">
       <Setter Property="Opacity" Value="0.65" />
       <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <Style Selector="TextBlock.hint.current">
+      <Setter Property="Foreground" Value="#2E8B57" />
+      <Setter Property="Opacity" Value="1" />
     </Style>
   </Application.Styles>
 </Application>

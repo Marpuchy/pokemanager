@@ -1,0 +1,27 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Pokemanager.App.ViewModels"
+        x:Class="Pokemanager.App.Views.QuestionWindow"
+        x:DataType="vm:QuestionViewModel"
+        Title="{Binding Title}"
+        Width="560" SizeToContent="Height" CanResize="False"
+        WindowStartupLocation="CenterOwner">
+  <StackPanel Margin="20" Spacing="10">
+    <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" />
+    <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+    <TextBox x:Name="InputBox" Text="{Binding Input}" PlaceholderText="{Binding InputPlaceholder}" IsVisible="{Binding HasInput}" MaxLength="120" />
+    <ItemsControl ItemsSource="{Binding Checks}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate x:DataType="vm:DialogCheck">
+          <CheckBox IsChecked="{Binding IsChecked}" IsEnabled="{Binding IsEnabled}" Margin="0,2">
+            <TextBlock Text="{Binding Text}" TextWrapping="Wrap" />
+          </CheckBox>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+    <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right" Margin="0,8,0,0">
+      <Button Content="{Binding CancelText}" Click="OnCancel" IsCancel="True" />
+      <Button Classes="accent" Content="{Binding ConfirmText}" Click="OnConfirm" IsDefault="True" />
+    </StackPanel>
+  </StackPanel>
+</Window>

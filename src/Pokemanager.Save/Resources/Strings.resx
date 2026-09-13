@@ -99,4 +99,7 @@
   <data name="Check_Blocked" xml:space="preserve">
     <value>The save was not written: {0} problem(s) would break the game. First: {1}</value>
   </data>
+  <data name="Check_ChangedOnDisk" xml:space="preserve">
+    <value>The save changed on disk since it was opened (did the game save?). Reload it before writing so no progress is lost.</value>
+  </data>
 </root>

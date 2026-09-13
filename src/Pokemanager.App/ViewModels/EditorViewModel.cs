@@ -26,6 +26,9 @@ public partial class EditorViewModel : ObservableObject
     public string ProjectPath { get; }
     public GameDump Dump { get; }
     public RandomizerViewModel Randomizer { get; }
+    public HistoryViewModel History { get; }
+    public SaveEditorViewModel SaveEditor { get; }
+    public IDialogs Dialogs => dialogs;
 
     [ObservableProperty]
     public partial EditorSession Session { get; private set; }
@@ -100,6 +103,30 @@ public partial class EditorViewModel : ObservableObject
         }
 
         Randomizer = new RandomizerViewModel(this, dialogs, upr, settings);
+        History = new HistoryViewModel(this, dialogs, projectPath);
+        SaveEditor = new SaveEditorViewModel(this, settings);
+
+        // Projects built before the history existed: keep what is being played as the first version, so there is
+        // something to go back to before the next build.
+        var r = session.Project.Randomization;
+        if (History.IsEmpty && r.LastBuiltRom is { } rom && File.Exists(rom) && (!r.Enabled || r.InstalledSeed == r.Seed))
+            RecordVersion(VersionKind.Built, rom);
+    }
+
+    /// <summary>
+    /// The project no longer matches the last built ROM (unsaved or unbuilt changes), so data taken from the project may
+    /// not be what the game uses.
+    /// </summary>
+    public bool ProjectDiffersFromBuiltRom
+    {
+        get
+        {
+            var r = Session.Project.Randomization;
+            if (IsDirty || Randomizer.Options.HasChanges || (r.Enabled && r.InstalledSeed != r.Seed))
+                return true;
+            return History.History.List().FirstOrDefault(v => v.Kind == VersionKind.Built) is { } built
+                   && built.Fingerprint != ProjectHistory.Fingerprint(Session.Project);
+        }
     }
 
     // ------------------------------------------------------------------ advanced editor
@@ -207,7 +234,10 @@ public partial class EditorViewModel : ObservableObject
     /// emulators and, when requested, adapts the save to the new ROM.
     /// </summary>
     [RelayCommand(CanExecute = nameof(CanBuild))]
-    private async Task BuildRom()
+    private Task BuildRom() => BuildRomAsync(confirmRandomizationChange: true);
+
+    /// <param name="confirmRandomizationChange">Ask before changing the randomization of a game in progress.</param>
+    private async Task BuildRomAsync(bool confirmRandomizationChange)
     {
         var project = Session.Project;
         var r = project.Randomization;
@@ -217,6 +247,7 @@ public partial class EditorViewModel : ObservableObject
         if (Randomizer.OutputError is { } nameError) { SetStatus(nameError, error: true); return; }
         if (Randomizer.OutputPath is not { } output) { SetStatus(Strings.Status_NoOutput, error: true); return; }
         if (r.Enabled && !r.IsReady) { SetStatus(Strings.Status_NoSeed, error: true); return; }
+        if (SaveEditor.IsDirty) { SetStatus(Strings.Save_UnwrittenChanges, error: true); return; }
 
         string? savePath = r.UpdateSave ? Randomizer.SavePath : null;
         if (savePath is not null && File.Exists(savePath) && EmulatorBlocking() is { } blocking)
@@ -224,6 +255,9 @@ public partial class EditorViewModel : ObservableObject
             SetStatus(blocking, error: true);
             return;
         }
+
+        if (confirmRandomizationChange && !await ConfirmRandomizationChangeAsync())
+            return;
 
         IsBusy = true;
         try
@@ -260,6 +294,8 @@ public partial class EditorViewModel : ObservableObject
             r.InstalledSeed = random?.Seed;
             await SaveAsync();
             Randomizer.OnBuilt(random, saveResult);
+            RecordVersion(VersionKind.Built, built.RomPath);
+            SaveEditor.OnRomChanged();
 
             string what = random is null ? Strings.Status_NotRandomized : string.Format(Strings.Status_Seed, random.Seed);
             string mods = removedMods > 0 ? string.Format(Strings.Status_ModsRemoved, removedMods) : "";
@@ -281,6 +317,210 @@ public partial class EditorViewModel : ObservableObject
         {
             IsBusy = false;
         }
+    }
+
+    /// <summary>
+    /// When a save exists and the randomization (enabled, seed or preset) differs from the last built ROM, the build
+    /// would change the Pokémon of a game in progress: ask first, and remind that History can bring it back.
+    /// </summary>
+    private async Task<bool> ConfirmRandomizationChangeAsync()
+    {
+        var r = Session.Project.Randomization;
+        if (!Randomizer.HasSave || r.LastBuiltRom is null)
+            return true;
+
+        await Randomizer.CommitOptionsAsync();
+        bool changed;
+        if (History.History.List().FirstOrDefault(v => v.Kind == VersionKind.Built) is { } built)
+        {
+            try
+            {
+                var previous = History.History.LoadProject(built).Randomization;
+                changed = previous.Enabled != r.Enabled
+                          || (r.Enabled && (previous.Seed != r.Seed || !(previous.Preset ?? []).AsSpan().SequenceEqual(r.Preset ?? [])));
+            }
+            catch (Exception ex) when (ex is IOException or InvalidDataException or System.Text.Json.JsonException)
+            {
+                changed = r.Enabled && r.InstalledSeed != r.Seed;
+            }
+        }
+        else
+        {
+            changed = r.Enabled && r.InstalledSeed is not null && r.InstalledSeed != r.Seed;
+        }
+        if (!changed)
+            return true;
+
+        var question = new QuestionViewModel(Strings.Guard_Title, Strings.Guard_Message, Strings.Guard_Confirm, Strings.Common_Cancel, []);
+        return await dialogs.AskAsync(question);
+    }
+
+    private void RecordVersion(VersionKind kind, string? romPath)
+    {
+        try
+        {
+            History.History.Record(Session.Project, kind, romPath: romPath, savePath: Randomizer.SavePath);
+            History.History.Prune();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            SetStatus(string.Format(Strings.History_Failed, ex.Message), error: true);
+        }
+        History.Refresh();
+    }
+
+    /// <summary>Puts back a version of the history: its randomization and edits, optionally its save, and rebuilds.</summary>
+    public async Task RestoreVersionAsync(ProjectVersion version, bool restoreSave, bool rebuild)
+    {
+        if (IsBusy)
+            return;
+        if (SaveEditor.IsDirty) { SetStatus(Strings.Save_UnwrittenChanges, error: true); return; }
+
+        Project snapshot;
+        try
+        {
+            snapshot = History.History.LoadProject(version);
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or System.Text.Json.JsonException)
+        {
+            SetStatus(string.Format(Strings.History_Unreadable, ex.Message), error: true);
+            return;
+        }
+
+        string? savePath = Randomizer.SavePath;
+        string? saveCopy = restoreSave ? History.History.SaveFile(version) : null;
+        if (restoreSave)
+        {
+            if (saveCopy is null || savePath is null) { SetStatus(Strings.History_RestoreSaveUnavailable, error: true); return; }
+            if (EmulatorBlocking() is { } blocking) { SetStatus(blocking, error: true); return; }
+        }
+
+        try
+        {
+            await Randomizer.CommitOptionsAsync();
+            History.History.Record(Session.Project, VersionKind.BeforeRestore, romPath: Session.Project.Randomization.LastBuiltRom, savePath: savePath);
+
+            ProjectHistory.RestoreInto(Session.Project, snapshot);
+            ReopenSession();
+            await Randomizer.OnProjectReplacedAsync();
+            MarkDirty();
+            if (!await SaveAsync())
+                return;
+
+            string saveNote = "";
+            if (saveCopy is not null && savePath is not null)
+            {
+                string backups = Path.Combine(AppSettings.BackupRoot, settings.EffectiveEmulatorName);
+                string backup = await Task.Run(() => SaveDocument.ReplaceFile(savePath, saveCopy, backups));
+                saveNote = string.Format(Strings.History_SaveRestored, backup);
+            }
+
+            Randomizer.RefreshSave();
+            SaveEditor.OnRomChanged();
+            History.Refresh();
+            SetStatus(string.Format(Strings.History_Restored, version.CreatedAt.ToString("g"), saveNote));
+
+            if (rebuild)
+                await BuildRomAsync(confirmRandomizationChange: false);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SaveUpdateException or UprException or InvalidDataException)
+        {
+            SetStatus(string.Format(Strings.History_Failed, ex.Message), error: true);
+        }
+    }
+
+    /// <summary>Reopens the session after the project's edits or randomization were replaced wholesale.</summary>
+    private void ReopenSession()
+    {
+        var project = Session.Project;
+        string? randomRomFs = project.Randomization.Enabled && upr.TryGetCached(project, project.Randomization.Preset) is { } cached
+            ? Path.Combine(cached.TitleDirectory, "romfs")
+            : null;
+        Session.Changed -= OnSessionChanged;
+        Session = EditorSession.Open(project, randomRomFs);
+        Names = new GameNames(Dump, Session.Original);
+        LoadLists();
+        OnPropertyChanged(nameof(EditCountText));
+    }
+
+    // ------------------------------------------------------------------ Pokémon data files
+
+    private string DataDescription()
+    {
+        var r = Session.Project.Randomization;
+        string random = r.Enabled
+            ? string.Format(Strings.History_Random, r.Seed, r.PresetName ?? Strings.Rnd_PresetDefaults)
+            : Strings.History_NotRandom;
+        return $"Pokémon {Dump.Title} · {random} · {EditCountText}";
+    }
+
+    [RelayCommand]
+    private async Task ExportPokemonData()
+    {
+        var all = new DialogCheck(Strings.Data_ExportAll);
+        var question = new QuestionViewModel(Strings.Data_ExportTitle, Strings.Data_ExportMessage, Strings.Data_ExportConfirm, Strings.Common_Cancel, [all]);
+        if (!await dialogs.AskAsync(question))
+            return;
+
+        string suggested = Path.GetFileNameWithoutExtension(ProjectPath) + (all.IsChecked ? " - all" : " - changes") + "." + PokemonDataFile.Extension;
+        if (await dialogs.PickSaveFileAsync(Strings.Data_ExportTitle, suggested, PokemonDataFile.Extension) is not { } path)
+            return;
+        try
+        {
+            var file = all.IsChecked
+                ? PokemonDataFile.FromCurrent(Session, Dump.Title, DataDescription())
+                : PokemonDataFile.FromEdits(Session, Dump.Title, DataDescription());
+            await Task.Run(() => file.Save(path));
+            SetStatus(string.Format(Strings.Data_Exported, file.ValueCount, path));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            SetStatus(string.Format(Strings.Data_Failed, ex.Message), error: true);
+        }
+    }
+
+    [RelayCommand]
+    private async Task ImportPokemonData()
+    {
+        if (await dialogs.PickOpenFileAsync(Strings.Data_ImportTitle, ["*." + PokemonDataFile.Extension]) is not { } path)
+            return;
+        PokemonDataFile file;
+        try
+        {
+            file = await Task.Run(() => PokemonDataFile.Load(path));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException)
+        {
+            SetStatus(string.Format(Strings.Data_Failed, ex.Message), error: true);
+            return;
+        }
+
+        string scope = file.Scope == PokemonDataScope.All ? Strings.Data_ScopeAll : Strings.Data_ScopeEdits;
+        string game = file.Game is { } g && g != Dump.Title ? string.Format(Strings.Data_OtherGame, g, Dump.Title) : "";
+        var replace = new DialogCheck(Strings.Data_Replace, isChecked: false, isEnabled: Session.Project.Edits.Count > 0);
+        var question = new QuestionViewModel(Strings.Data_ImportTitle,
+            string.Format(Strings.Data_ImportMessage, Path.GetFileName(path), file.Description ?? "—", scope, file.ValueCount, game),
+            Strings.Data_ImportConfirm, Strings.Common_Cancel, [replace]);
+        if (!await dialogs.AskAsync(question))
+            return;
+
+        try
+        {
+            History.History.Record(Session.Project, VersionKind.BeforeImport, romPath: Session.Project.Randomization.LastBuiltRom);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            SetStatus(string.Format(Strings.History_Failed, ex.Message), error: true);
+            return;
+        }
+
+        Session.Changed -= OnSessionChanged;
+        var result = file.ApplyTo(Session, Dump.Title, replace.IsChecked);
+        LoadLists(); // subscribes again and refreshes every list entry
+        MarkDirty();
+        History.Refresh();
+        SetStatus(string.Format(Strings.Data_Imported, result.Applied, result.SameAsBase, result.Skipped.Count)
+                  + (result.Skipped.Count > 0 ? " " + result.Skipped[0] : ""), error: result.Skipped.Count > 0 && result.Applied == 0);
     }
 
     private string? EmulatorBlocking() =>
@@ -315,6 +555,7 @@ public partial class EditorViewModel : ObservableObject
             return;
         }
         if (EmulatorBlocking() is { } blocking) { SetStatus(blocking, error: true); return; }
+        if (SaveEditor.IsDirty) { SetStatus(Strings.Save_UnwrittenChanges, error: true); return; }
 
         UprResult? random = null;
         if (r.Enabled && (random = upr.TryGetCached(Session.Project, r.Preset)) is null)
@@ -329,6 +570,7 @@ public partial class EditorViewModel : ObservableObject
             ReloadBaseIfNeeded(random is null ? null : Path.Combine(random.TitleDirectory, "romfs"));
             var result = await ApplySaveUpdateAsync(savePath);
             Randomizer.OnBuilt(null, result);
+            SaveEditor.OnRomChanged();
             SetStatus(result.Changes.Count == 0
                 ? string.Format(Strings.Status_SaveAlreadyAdapted, result.PokemonChecked)
                 : string.Format(Strings.Status_SaveAdapted, Path.GetFileName(r.LastBuiltRom), result.Changes.Count, result.BackupPath));

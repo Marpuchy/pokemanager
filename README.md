@@ -8,8 +8,8 @@ The application never modifies your base ROM or dump: randomized ROMs are create
 and can always be regenerated from `dump + project`. The repository contains no game data; each user
 provides their own decrypted dump.
 
-> Status: **randomizer complete** (editable options, new ROM, save adapted to it). Full save editor
-> (phase B) still to do.
+> Status: **randomizer**, **save editor**, **version history** and **Pokémon data files** working. Live
+> dashboard still to do.
 
 The interface is in **English** by default; Spanish can be selected in **Settings → Language**.
 
@@ -41,7 +41,21 @@ dotnet run --project src/Pokemanager.App
      afterwards. The emulator of that save must be closed. **Adapt the save now** does the same without
      rebuilding.
 5. Open the `.cxi` in the emulator.
-6. **Advanced:** manual Pokémon and move edits on top of the randomization; they are included in the built ROM.
+6. **Save file:** a PKHeX-style editor for the emulator save (close the emulator to write):
+   - party and boxes: species, form, nickname, level, nature, ability, held item, gender, shiny, friendship, ball,
+     original trainer, moves and PP Ups, IVs and EVs; create Pokémon in empty slots or release them;
+   - bag pockets, trainer data (name, money, Battle Points, play time, badges) and Pokédex seen/caught;
+   - stats, abilities, growth rates, gender ratios and PP come from **the ROM you play** (the randomized one);
+   - "safe for the game" problems (out-of-range values, more than 510 EVs, duplicated moves…) block writing; PKHeX
+     legality is only informative, since a randomized game always looks illegal to it;
+   - writing makes a backup, refuses if the game saved the file meanwhile, and verifies the result.
+7. **History:** a version is kept every time the ROM is built, before restoring or importing, and before writing save
+   edits — the configuration that rebuilds the ROM plus a copy of the save. **Restore** puts a version back, rebuilds the
+   ROM and adapts your current save (or puts that version's save back). Building with a different seed or options while a
+   save exists asks first. Stored next to the project in `<project>.history/`.
+8. **Advanced:** manual Pokémon and move edits on top of the randomization; they are included in the built ROM.
+   **Export/Import Pokémon data** saves them as a `.pkdata` file — the counterpart of a `.rnqs` for base stats, types,
+   abilities, learnsets and moves — either your changes only or every value.
 
 Same options + same seed = same game: a ROM made earlier with UPR ZX can be reproduced from its preset and
 the seed in its log.

@@ -70,22 +70,32 @@
       <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Classes.error="{Binding StatusIsError}" />
     </Border>
 
-    <TabControl Padding="0">
+    <TabControl x:Name="MainTabs" Padding="0">
       <!-- ================= Randomizer ================= -->
       <TabItem Header="{x:Static r:Strings.Tab_Randomizer}">
         <ContentControl Content="{Binding Randomizer}" />
       </TabItem>
 
-      <!-- ================= Save file (phase B) ================= -->
-      <TabItem Header="{x:Static r:Strings.Tab_Save}">
-        <StackPanel Margin="24" Spacing="8" MaxWidth="700" HorizontalAlignment="Left">
-          <TextBlock Classes="section" Text="{x:Static r:Strings.SaveTab_Title}" />
-          <TextBlock Classes="hint" Text="{x:Static r:Strings.SaveTab_Body}" />
-        </StackPanel>
+      <!-- ================= Save file ================= -->
+      <TabItem x:Name="SaveTab" Header="{x:Static r:Strings.Tab_Save}">
+        <ContentControl Content="{Binding SaveEditor}" />
+      </TabItem>
+
+      <!-- ================= History ================= -->
+      <TabItem x:Name="HistoryTab" Header="{x:Static r:Strings.Tab_History}">
+        <ContentControl Content="{Binding History}" />
       </TabItem>
 
       <!-- ================= Advanced: Pokémon ================= -->
       <TabItem Header="{x:Static r:Strings.Tab_AdvancedPokemon}">
+        <DockPanel>
+        <Border DockPanel.Dock="Top" Padding="8,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <Button Content="{x:Static r:Strings.Data_ImportButton}" Command="{Binding ImportPokemonDataCommand}" />
+            <Button Content="{x:Static r:Strings.Data_ExportButton}" Command="{Binding ExportPokemonDataCommand}" />
+            <TextBlock Classes="hint" VerticalAlignment="Center" Text="{x:Static r:Strings.Data_Hint}" />
+          </StackPanel>
+        </Border>
         <Grid ColumnDefinitions="300,*">
           <DockPanel Margin="8">
             <TextBox DockPanel.Dock="Top" Text="{Binding SpeciesFilter}" PlaceholderText="{x:Static r:Strings.Search_Watermark}" Margin="0,0,0,6" />
@@ -169,6 +179,7 @@
             </ContentControl.ContentTemplate>
           </ContentControl>
         </Grid>
+        </DockPanel>
       </TabItem>
 
       <!-- ================= Advanced: Moves ================= -->

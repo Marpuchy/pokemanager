@@ -107,6 +107,36 @@ public sealed class SaveDocumentTests : IDisposable
     }
 
     [Fact]
+    public void Write_RefusedWhenTheGameSavedMeanwhile()
+    {
+        var doc = Open();
+        doc.TrainerName = "Mine";
+        var other = new SAV6XY { OT = "Game" };
+        File.WriteAllBytes(doc.SavePath, other.Write().ToArray()); // the emulator saved
+
+        Assert.True(doc.ChangedOnDisk());
+        Assert.Throws<SaveUpdateException>(() => doc.Write(Path.Combine(dir, "backups")));
+        Assert.Equal("Game", SaveDocument.Open(doc.SavePath, GameData.Load(romfs.RomFs)).TrainerName);
+    }
+
+    [Fact]
+    public void ReplaceFile_BacksUpCurrentAndRejectsNonSaves()
+    {
+        var doc = Open();
+        doc.Write(Path.Combine(dir, "backups"));
+        string copy = Path.Combine(dir, "copy");
+        File.WriteAllBytes(copy, new SAV6XY { OT = "Old" }.Write().ToArray());
+        string junk = Path.Combine(dir, "junk");
+        File.WriteAllBytes(junk, new byte[100]);
+
+        string backup = SaveDocument.ReplaceFile(doc.SavePath, copy, Path.Combine(dir, "backups"));
+
+        Assert.Equal("Old", SaveDocument.Open(doc.SavePath, GameData.Load(romfs.RomFs)).TrainerName);
+        Assert.Equal("Test", SaveDocument.Open(backup, GameData.Load(romfs.RomFs)).TrainerName);
+        Assert.Throws<SaveUpdateException>(() => SaveDocument.ReplaceFile(doc.SavePath, junk, Path.Combine(dir, "backups")));
+    }
+
+    [Fact]
     public void Write_TrainerBagDex_BackupAndReread()
     {
         var doc = Open();

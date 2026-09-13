@@ -16,6 +16,9 @@ public interface IDialogs
     Task<string?> PickSaveFileAsync(string title, string suggestedName, string extension = "json");
 
     Task ShowSettingsAsync(SettingsViewModel viewModel);
+
+    /// <summary>Asks for confirmation; <paramref name="question"/> keeps the state of its check boxes and input.</summary>
+    Task<bool> AskAsync(QuestionViewModel question);
 }
 
 public sealed class Dialogs(Window owner) : IDialogs
@@ -59,4 +62,7 @@ public sealed class Dialogs(Window owner) : IDialogs
 
     public Task ShowSettingsAsync(SettingsViewModel viewModel) =>
         new SettingsWindow { DataContext = viewModel }.ShowDialog(owner);
+
+    public Task<bool> AskAsync(QuestionViewModel question) =>
+        new QuestionWindow { DataContext = question }.ShowDialog<bool>(owner);
 }

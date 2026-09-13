@@ -34,6 +34,10 @@ public partial class RandomizerViewModel : ObservableObject
 
     public UprOptionsViewModel Options { get; }
 
+    /// <summary>Pokémon data files (.pkdata), the counterpart of the .rnqs for base stats, types and the rest.</summary>
+    public IAsyncRelayCommand ImportPokemonDataCommand => editor.ImportPokemonDataCommand;
+    public IAsyncRelayCommand ExportPokemonDataCommand => editor.ExportPokemonDataCommand;
+
     public ObservableCollection<string> VisibleLog { get; } = [];
     public ObservableCollection<string> LogSections { get; } = [];
     public ObservableCollection<SaveChangeLine> SaveChanges { get; } = [];
@@ -250,6 +254,22 @@ public partial class RandomizerViewModel : ObservableObject
         OnPropertyChanged(nameof(OutputPath));
         OnPropertyChanged(nameof(OutputError));
         OnPropertyChanged(nameof(OutputExists));
+    }
+
+    /// <summary>The project's randomization was replaced (a version restored): show the new seed, preset and log.</summary>
+    public async Task OnProjectReplacedAsync()
+    {
+        if (Settings.Seed > 0)
+            SeedText = Settings.Seed.ToString();
+        OnPropertyChanged(nameof(Enabled));
+        OnPropertyChanged(nameof(PresetText));
+        bool wasLoaded = Options.IsLoaded;
+        Options.Fail(Strings.Rnd_ReloadingOptions);
+        if (wasLoaded)
+            await LoadOptionsAsync();
+        if (upr.TryGetCached(Project, Settings.Preset) is { } cached)
+            LoadLog(cached.LogPath);
+        RefreshSave();
     }
 
     // ------------------------------------------------------------------ options

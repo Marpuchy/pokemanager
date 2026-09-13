@@ -34,22 +34,41 @@ public sealed class SaveDocument
     /// <summary>Something changed since opening or the last write.</summary>
     public bool IsDirty { get; private set; }
 
-    private SaveDocument(string savePath, SAV6XY sav, GameData rom)
+    /// <summary>The bytes that were on disk when opened (or last written), to notice if the game saved meanwhile.</summary>
+    private byte[] diskBytes;
+
+    private SaveDocument(string savePath, SAV6XY sav, GameData rom, byte[] diskBytes)
     {
         SavePath = savePath;
         this.sav = sav;
         Rom = rom;
         bag = sav.Inventory;
+        this.diskBytes = diskBytes;
     }
 
     /// <exception cref="SaveUpdateException">Not an X/Y save or damaged checksums.</exception>
     public static SaveDocument Open(string savePath, GameData rom)
     {
+        byte[] bytes = File.ReadAllBytes(savePath);
         var sav = SaveUpdater.Load(savePath) as SAV6XY
                   ?? throw new SaveUpdateException(string.Format(Strings.Save_NotXY, savePath));
         if (!sav.ChecksumsValid)
             throw new SaveUpdateException(Strings.Save_BadChecksums);
-        return new SaveDocument(savePath, sav, rom);
+        return new SaveDocument(savePath, sav, rom, bytes);
+    }
+
+    /// <summary>The file on disk is no longer what was opened (the game or another tool saved it).</summary>
+    public bool ChangedOnDisk() => !File.Exists(SavePath) || !File.ReadAllBytes(SavePath).AsSpan().SequenceEqual(diskBytes);
+
+    /// <summary>
+    /// Replaces a save with a stored copy (for example one kept in the project history), after checking the copy is a
+    /// valid X/Y save. The current file is backed up first.
+    /// </summary>
+    /// <returns>Path of the backup of the replaced save.</returns>
+    public static string ReplaceFile(string savePath, string copyPath, string backupRoot)
+    {
+        byte[] copy = File.ReadAllBytes(copyPath);
+        return SaveWriter.Write(savePath, copy, backupRoot);
     }
 
     /// <summary>The ROM changed (another build): stats and options follow it from now on.</summary>
@@ -516,13 +535,15 @@ public sealed class SaveDocument
     /// </summary>
     public SaveWriteResult Write(string backupRoot)
     {
-        var bagCopy = bag;
-        bagCopy.CopyTo(sav);
+        bag.CopyTo(sav);
         if (Validate() is { Count: > 0 } problems)
             throw new SaveUpdateException(string.Format(Strings.Check_Blocked, problems.Count, problems[0].Message));
+        if (ChangedOnDisk())
+            throw new SaveUpdateException(Strings.Check_ChangedOnDisk);
 
         byte[] updated = sav.Write().ToArray();
         string backup = SaveWriter.Write(SavePath, updated, backupRoot);
+        diskBytes = updated;
         IsDirty = false;
         return new SaveWriteResult(SavePath, backup);
     }

@@ -33,6 +33,13 @@
             </Grid>
             <TextBlock Classes="error" Text="{Binding SeedError}" IsVisible="{Binding SeedError, Converter={x:Static ObjectConverters.IsNotNull}}" />
             <TextBlock Classes="hint" Text="{x:Static r:Strings.Rnd_SeedHint}" />
+            <Grid ColumnDefinitions="*,Auto" Margin="0,6,0,0">
+              <TextBlock Text="{x:Static r:Strings.Data_RandomizerRow}" VerticalAlignment="Center" TextWrapping="Wrap" />
+              <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                <Button Content="{x:Static r:Strings.Data_ImportShort}" Command="{Binding ImportPokemonDataCommand}" />
+                <Button Content="{x:Static r:Strings.Rnd_Export}" Command="{Binding ExportPokemonDataCommand}" />
+              </StackPanel>
+            </Grid>
 
             <TextBlock Classes="section" Text="{x:Static r:Strings.Rnd_OutputRom}" />
             <StackPanel IsVisible="{Binding HasPreviousRom}" Spacing="2">
