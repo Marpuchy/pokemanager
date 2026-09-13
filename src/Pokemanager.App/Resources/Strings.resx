@@ -1365,4 +1365,58 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Rnd_ShowSaveChanges" xml:space="preserve">
     <value>Show the details (spoilers: new abilities and stats)</value>
   </data>
+  <data name="Editor_Play" xml:space="preserve">
+    <value>▶ Play</value>
+  </data>
+  <data name="Editor_PlayTip" xml:space="preserve">
+    <value>Opens the emulator with the built ROM loaded</value>
+  </data>
+  <data name="Play_BuildFirst" xml:space="preserve">
+    <value>There is no built ROM yet: build it first.</value>
+  </data>
+  <data name="Play_AlreadyRunning" xml:space="preserve">
+    <value>The emulator is already open ({0}).</value>
+  </data>
+  <data name="Play_NoProgram" xml:space="preserve">
+    <value>The emulator program was not found. Choose it in Settings → Emulator.</value>
+  </data>
+  <data name="Play_OutdatedTitle" xml:space="preserve">
+    <value>The ROM does not include your latest changes</value>
+  </data>
+  <data name="Play_OutdatedMessage" xml:space="preserve">
+    <value>The project has changes (seed, options or advanced edits) that are not in the built ROM yet. Build the ROM to play with them, or play the last built ROM as it is.</value>
+  </data>
+  <data name="Play_Anyway" xml:space="preserve">
+    <value>Play the last ROM</value>
+  </data>
+  <data name="Play_Started" xml:space="preserve">
+    <value>Opening {1} in {0}…</value>
+  </data>
+  <data name="Play_Failed" xml:space="preserve">
+    <value>Could not start {0}: {1}</value>
+  </data>
+  <data name="Set_ProgramLabel" xml:space="preserve">
+    <value>Emulator program (used by ▶ Play)</value>
+  </data>
+  <data name="Set_Program" xml:space="preserve">
+    <value>{0} — {1} ({2})</value>
+  </data>
+  <data name="Set_ProgramChosen" xml:space="preserve">
+    <value>chosen</value>
+  </data>
+  <data name="Set_ProgramDetected" xml:space="preserve">
+    <value>detected</value>
+  </data>
+  <data name="Set_ProgramNotFound" xml:space="preserve">
+    <value>Not found: choose the program (citra-qt, azahar…).</value>
+  </data>
+  <data name="Set_ProgramBrowse" xml:space="preserve">
+    <value>Choose…</value>
+  </data>
+  <data name="Set_ProgramDetect" xml:space="preserve">
+    <value>Detect automatically</value>
+  </data>
+  <data name="Set_PickProgram" xml:space="preserve">
+    <value>Choose the emulator program</value>
+  </data>
 </root>

@@ -71,7 +71,7 @@ public partial class EditorViewModel : ObservableObject
     public partial bool StatusIsError { get; set; }
 
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(BuildRomCommand), nameof(AdaptSaveCommand))]
+    [NotifyCanExecuteChangedFor(nameof(BuildRomCommand), nameof(AdaptSaveCommand), nameof(PlayCommand))]
     public partial bool IsBusy { get; set; }
 
     public string GameText => string.Format(Strings.Editor_GameText, Dump.Title, Dump.Title.TitleIdHex(), Session.Project.DumpDirectory);
@@ -525,6 +525,50 @@ public partial class EditorViewModel : ObservableObject
         History.Refresh();
         SetStatus(string.Format(Strings.Data_Imported, result.Applied, result.SameAsBase, result.Skipped.Count)
                   + (result.Skipped.Count > 0 ? " " + result.Skipped[0] : ""), error: result.Skipped.Count > 0 && result.Applied == 0);
+    }
+
+    // ------------------------------------------------------------------ play
+
+    private bool CanPlay() => !IsBusy;
+
+    /// <summary>
+    /// Opens the emulator with the built ROM. Warns first when the project has changes the ROM does not include, and
+    /// refuses while the save editor has unwritten changes (the game would overwrite them, or they would overwrite the game).
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(CanPlay))]
+    private async Task Play()
+    {
+        var r = Session.Project.Randomization;
+        string? rom = r.LastBuiltRom is { } built && File.Exists(built)
+            ? built
+            : !r.Enabled && Session.Project.Edits.Count == 0 ? Session.Project.ResolveRomFile() : null;
+        if (rom is null) { SetStatus(Strings.Play_BuildFirst, error: true); return; }
+        if (SaveEditor.IsDirty) { SetStatus(Strings.Save_UnwrittenChanges, error: true); return; }
+        if (EmulatorUserFolders.RunningEmulators(settings.EffectiveEmulatorName) is { Count: > 0 } running)
+        {
+            SetStatus(string.Format(Strings.Play_AlreadyRunning, string.Join(", ", running)), error: true);
+            return;
+        }
+
+        string? exe = await Task.Run(() => settings.EffectiveEmulatorExecutable(rom, Session.Project.DumpDirectory));
+        if (exe is null) { SetStatus(Strings.Play_NoProgram, error: true); return; }
+
+        if (ProjectDiffersFromBuiltRom && r.LastBuiltRom is not null)
+        {
+            var question = new QuestionViewModel(Strings.Play_OutdatedTitle, Strings.Play_OutdatedMessage, Strings.Play_Anyway, Strings.Common_Cancel, []);
+            if (!await dialogs.AskAsync(question))
+                return;
+        }
+
+        try
+        {
+            EmulatorExecutables.Launch(exe, rom);
+            SetStatus(string.Format(Strings.Play_Started, EmulatorExecutables.NameOf(exe), Path.GetFileName(rom)));
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or IOException or InvalidOperationException)
+        {
+            SetStatus(string.Format(Strings.Play_Failed, exe, ex.Message), error: true);
+        }
     }
 
     private string? EmulatorBlocking() =>

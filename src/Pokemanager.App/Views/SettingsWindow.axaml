@@ -9,7 +9,7 @@
         WindowStartupLocation="CenterOwner">
   <ScrollViewer>
     <StackPanel Margin="20" Spacing="6">
-      <TextBlock Text="{x:Static r:Strings.Set_Title}" FontSize="22" FontWeight="SemiBold" />
+      <TextBlock Text="{x:Static r:Strings.Set_Title}" FontSize="16" FontWeight="SemiBold" />
 
       <TextBlock Classes="section" Text="{x:Static r:Strings.Set_Language}" />
       <ComboBox ItemsSource="{x:Static vm:SettingsViewModel.UiLanguages}" SelectedItem="{Binding SelectedLanguage}" MinWidth="200">
@@ -35,6 +35,13 @@
       </Grid>
       <TextBlock Text="{Binding EffectiveText}" TextWrapping="Wrap" />
       <TextBlock Classes="hint" Text="{Binding SaveText}" />
+      <TextBlock Margin="0,8,0,0" Text="{x:Static r:Strings.Set_ProgramLabel}" />
+      <Grid ColumnDefinitions="*,Auto,Auto">
+        <TextBlock Text="{Binding ExecutableText}" TextWrapping="Wrap" VerticalAlignment="Center" />
+        <Button Grid.Column="1" Margin="6,0,0,0" Content="{x:Static r:Strings.Set_ProgramBrowse}" Command="{Binding BrowseExecutableCommand}" />
+        <Button Grid.Column="2" Margin="6,0,0,0" Content="{x:Static r:Strings.Set_ProgramDetect}" Command="{Binding DetectExecutableCommand}"
+                IsVisible="{Binding HasChosenExecutable}" />
+      </Grid>
 
       <StackPanel IsVisible="{Binding HasProject}" Spacing="6">
         <TextBlock Classes="section" Text="{x:Static r:Strings.Set_CurrentProject}" />

@@ -15,13 +15,14 @@
           <Border Classes="card">
             <Grid ColumnDefinitions="*,Auto">
               <StackPanel Spacing="2" VerticalAlignment="Center">
-                <CheckBox IsChecked="{Binding Enabled}" FontSize="15" FontWeight="SemiBold" Content="{x:Static r:Strings.Rnd_Enable}" />
+                <CheckBox IsChecked="{Binding Enabled}" FontSize="12" FontWeight="SemiBold" Content="{x:Static r:Strings.Rnd_Enable}" />
                 <TextBlock Text="{Binding ToolsStatus}" TextWrapping="Wrap" Classes="hint" Classes.error="{Binding !ToolsReady}" />
               </StackPanel>
               <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
                 <Button Margin="4" Content="{x:Static r:Strings.Log_ShowButton}" Command="{Binding ShowLogCommand}"
                         IsEnabled="{Binding HasLog}" ToolTip.Tip="{x:Static r:Strings.Log_ShowTip}" />
-                <Button Margin="4" Classes="accent" MinWidth="220" Padding="16,9" FontWeight="SemiBold" HorizontalContentAlignment="Center"
+                <Button Margin="4" Padding="14,6" Content="{x:Static r:Strings.Editor_Play}" Command="{Binding PlayCommand}" ToolTip.Tip="{x:Static r:Strings.Editor_PlayTip}" />
+                <Button Margin="4" Classes="accent" MinWidth="200" Padding="14,6" HorizontalContentAlignment="Center"
                         Content="{x:Static r:Strings.Rnd_BuildButton}" Command="{Binding RandomizeAndBuildCommand}" />
               </WrapPanel>
             </Grid>
@@ -136,7 +137,7 @@
               <Style Selector="ListBoxItem">
                 <Setter Property="Padding" Value="12,6" />
                 <Setter Property="Margin" Value="0,0,4,4" />
-                <Setter Property="CornerRadius" Value="14" />
+                <Setter Property="CornerRadius" Value="0" />
               </Style>
             </ListBox.Styles>
             <ListBox.ItemTemplate>

@@ -7,7 +7,7 @@
   <ScrollViewer>
     <StackPanel MaxWidth="720" Margin="32" Spacing="6" HorizontalAlignment="Center">
       <Grid ColumnDefinitions="*,Auto">
-        <TextBlock Text="Pokemanager" FontSize="28" FontWeight="SemiBold" />
+        <TextBlock Text="Pokemanager" FontSize="20" FontWeight="SemiBold" />
         <Button Grid.Column="1" Content="{x:Static r:Strings.Welcome_Settings}" Command="{Binding OpenSettingsCommand}" VerticalAlignment="Center" />
       </Grid>
       <TextBlock Classes="hint" Text="{x:Static r:Strings.Welcome_Subtitle}" />

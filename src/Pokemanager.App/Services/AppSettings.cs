@@ -28,6 +28,37 @@ public sealed class AppSettings
     /// <summary>Emulator user folder chosen in Settings. Null: the most recently used emulator.</summary>
     public string? EmulatorUserDirectory { get; set; }
 
+    /// <summary>Emulator program chosen in Settings, used by "Play". Null: detected.</summary>
+    public string? EmulatorExecutable { get; set; }
+
+    /// <summary>
+    /// Emulator program to play with: the chosen one, or a detected one — preferably of the same emulator as the user folder
+    /// in use (Citra's program for Citra's save).
+    /// </summary>
+    public string? EffectiveEmulatorExecutable(params string?[] hints)
+    {
+        if (EmulatorExecutable is { } chosen && File.Exists(chosen))
+            return chosen;
+
+        string name = EffectiveEmulatorName;
+        string key = name + "|" + string.Join("|", hints);
+        lock (DetectedPrograms)
+        {
+            if (DetectedPrograms.TryGetValue(key, out string? cached) && (cached is null || File.Exists(cached)))
+                return cached;
+        }
+
+        var configHints = EmulatorUserFolders.Detect().SelectMany(e => EmulatorExecutables.ConfigHints(e.Path));
+        var found = EmulatorExecutables.Detect(hints.Concat(configHints));
+        string? path = (found.FirstOrDefault(e => e.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) ?? found.FirstOrDefault())?.Path;
+        lock (DetectedPrograms)
+            DetectedPrograms[key] = path;
+        return path;
+    }
+
+    /// <summary>Detection results of this session: searching folders takes a moment.</summary>
+    private static readonly Dictionary<string, string?> DetectedPrograms = [];
+
     /// <summary>
     /// File these settings were loaded from. Only settings coming from <see cref="Load"/> are written to disk:
     /// settings created with <c>new</c> (tests, previews) never touch the user's file.

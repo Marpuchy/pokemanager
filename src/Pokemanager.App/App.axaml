@@ -3,7 +3,7 @@
              xmlns:vm="using:Pokemanager.App.ViewModels"
              xmlns:views="using:Pokemanager.App.Views"
              x:Class="Pokemanager.App.App"
-             RequestedThemeVariant="Default">
+             RequestedThemeVariant="Light">
 
   <Application.DataTemplates>
     <DataTemplate DataType="vm:WelcomeViewModel">
@@ -24,20 +24,22 @@
   </Application.DataTemplates>
 
   <Application.Styles>
-    <FluentTheme />
+    <FluentTheme DensityStyle="Compact" />
+    <StyleInclude Source="avares://Pokemanager.App/Styles/ClassicTheme.axaml" />
 
-    <!-- Cards of the responsive pages -->
+    <!-- Group boxes of the responsive pages (WinForms GroupBox look) -->
     <Style Selector="Border.card">
-      <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundBaseLowBrush}" />
+      <Setter Property="Background" Value="White" />
+      <Setter Property="BorderBrush" Value="#D5DFE5" />
       <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="8" />
-      <Setter Property="Padding" Value="14,10" />
+      <Setter Property="CornerRadius" Value="3" />
+      <Setter Property="Padding" Value="10,6,10,8" />
     </Style>
     <Style Selector="TextBlock.card-title">
-      <Setter Property="FontSize" Value="15" />
+      <Setter Property="FontSize" Value="12" />
       <Setter Property="FontWeight" Value="SemiBold" />
-      <Setter Property="Margin" Value="0,2,0,2" />
+      <Setter Property="Foreground" Value="#1C3A70" />
+      <Setter Property="Margin" Value="0,0,0,2" />
     </Style>
 
     <!-- Pixel-art sprites: scale without blurring -->
@@ -55,9 +57,10 @@
       <Setter Property="Margin" Value="0,0,8,0" />
     </Style>
     <Style Selector="TextBlock.section">
-      <Setter Property="FontSize" Value="15" />
+      <Setter Property="FontSize" Value="12" />
       <Setter Property="FontWeight" Value="SemiBold" />
-      <Setter Property="Margin" Value="0,12,0,6" />
+      <Setter Property="Foreground" Value="#1C3A70" />
+      <Setter Property="Margin" Value="0,10,0,4" />
     </Style>
     <Style Selector="TextBlock.dot">
       <Setter Property="Foreground" Value="#E07B00" />
@@ -68,7 +71,7 @@
       <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
     <Style Selector="TextBlock.hint">
-      <Setter Property="Opacity" Value="0.65" />
+      <Setter Property="Foreground" Value="#6D6D6D" />
       <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
     <Style Selector="TextBlock.hint.current">

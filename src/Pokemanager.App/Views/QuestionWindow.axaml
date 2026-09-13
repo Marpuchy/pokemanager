@@ -7,7 +7,7 @@
         Width="560" SizeToContent="Height" CanResize="False"
         WindowStartupLocation="CenterOwner">
   <StackPanel Margin="20" Spacing="10">
-    <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" />
+    <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap" />
     <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
     <TextBox x:Name="InputBox" Text="{Binding Input}" PlaceholderText="{Binding InputPlaceholder}" IsVisible="{Binding HasInput}" MaxLength="120" />
     <ItemsControl ItemsSource="{Binding Checks}">

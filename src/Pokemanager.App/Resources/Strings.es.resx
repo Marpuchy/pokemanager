@@ -1365,4 +1365,58 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Rnd_ShowSaveChanges" xml:space="preserve">
     <value>Ver el detalle (spoilers: nuevas habilidades y stats)</value>
   </data>
+  <data name="Editor_Play" xml:space="preserve">
+    <value>▶ Jugar</value>
+  </data>
+  <data name="Editor_PlayTip" xml:space="preserve">
+    <value>Abre el emulador con la ROM creada cargada</value>
+  </data>
+  <data name="Play_BuildFirst" xml:space="preserve">
+    <value>Aún no hay ROM creada: créala primero.</value>
+  </data>
+  <data name="Play_AlreadyRunning" xml:space="preserve">
+    <value>El emulador ya está abierto ({0}).</value>
+  </data>
+  <data name="Play_NoProgram" xml:space="preserve">
+    <value>No se ha encontrado el programa del emulador. Elígelo en Ajustes → Emulador.</value>
+  </data>
+  <data name="Play_OutdatedTitle" xml:space="preserve">
+    <value>La ROM no incluye tus últimos cambios</value>
+  </data>
+  <data name="Play_OutdatedMessage" xml:space="preserve">
+    <value>El proyecto tiene cambios (semilla, opciones o retoques avanzados) que aún no están en la ROM creada. Crea la ROM para jugar con ellos, o juega con la última ROM tal como está.</value>
+  </data>
+  <data name="Play_Anyway" xml:space="preserve">
+    <value>Jugar con la última ROM</value>
+  </data>
+  <data name="Play_Started" xml:space="preserve">
+    <value>Abriendo {1} en {0}…</value>
+  </data>
+  <data name="Play_Failed" xml:space="preserve">
+    <value>No se ha podido abrir {0}: {1}</value>
+  </data>
+  <data name="Set_ProgramLabel" xml:space="preserve">
+    <value>Programa del emulador (lo usa ▶ Jugar)</value>
+  </data>
+  <data name="Set_Program" xml:space="preserve">
+    <value>{0} — {1} ({2})</value>
+  </data>
+  <data name="Set_ProgramChosen" xml:space="preserve">
+    <value>elegido</value>
+  </data>
+  <data name="Set_ProgramDetected" xml:space="preserve">
+    <value>detectado</value>
+  </data>
+  <data name="Set_ProgramNotFound" xml:space="preserve">
+    <value>No encontrado: elige el programa (citra-qt, azahar…).</value>
+  </data>
+  <data name="Set_ProgramBrowse" xml:space="preserve">
+    <value>Elegir…</value>
+  </data>
+  <data name="Set_ProgramDetect" xml:space="preserve">
+    <value>Detectar automáticamente</value>
+  </data>
+  <data name="Set_PickProgram" xml:space="preserve">
+    <value>Elige el programa del emulador</value>
+  </data>
 </root>

@@ -168,6 +168,20 @@ O-Power points and unlock-all, Friend Safari, fashion, Super Training, Poké Puf
   list (shiny), counts. Pointers are addresses with base 0x100000. `Model/Data/PokemonIcons`, `App/Services/PokemonSprites`.
   Examples: Pikachu 29, Charizard 9, Mega X 7, Mega Y 8, Unfezant ♂/♀ differ.
 
+### Classic look and ▶ Play (2026-09-13)
+
+- `Styles/ClassicTheme.axaml` on top of `FluentTheme DensityStyle="Compact"`, Light variant: PKHeX/UPR ZX look (grey
+  window, white tab pages, square 23 px controls, WinForms-style tabs, blue selection, 12 px Segoe UI, `Border.card` as
+  group boxes). **Fluent template values set with TemplateBinding/local values (e.g. TabItem `PART_SelectedPipe`
+  visibility and height) cannot be overridden by styles**: use `Opacity` or the theme resource
+  (`TabItemHeaderSelectedPipeFill`). Template-part selectors (`/template/ ContentPresenter#PART_ContentPresenter`) do work.
+- ▶ Play (`EditorViewModel.Play`): opens the last built ROM in the emulator program. `Bridge/EmulatorExecutables`
+  detects it among running processes, usual install folders and hints: the ROM folder and the folders the emulator
+  remembers in `qt-config.ini` (`Paths\gamedirs\N\path`, `romsPath`, `recentFiles`), each with its parent (never a drive
+  root), one level deep. Verified: finds the user's portable `D:\citra\citra-windows-msvc-20240303-0ff3440\citra-qt.exe`
+  from `gamedirs` `D:/citra/roms` in ~25 ms. Can be chosen in Settings (`AppSettings.EmulatorExecutable`). Warns when the
+  project has unbuilt changes; refuses with unwritten save edits or the emulator already open.
+
 Pending: live dashboard (RPC).
 
 ---

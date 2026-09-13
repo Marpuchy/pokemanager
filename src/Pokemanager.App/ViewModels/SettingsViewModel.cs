@@ -120,6 +120,41 @@ public partial class SettingsViewModel : ObservableObject
         OnPropertyChanged(nameof(SaveText));
     }
 
+    /// <summary>Program used by "Play", with how it was found.</summary>
+    public string ExecutableText
+    {
+        get
+        {
+            string? path = settings.EffectiveEmulatorExecutable(project?.ResolveRomFile(), project?.DumpDirectory);
+            if (path is null)
+                return Strings.Set_ProgramNotFound;
+            string how = settings.EmulatorExecutable is { } chosen && File.Exists(chosen) ? Strings.Set_ProgramChosen : Strings.Set_ProgramDetected;
+            return string.Format(Strings.Set_Program, EmulatorExecutables.NameOf(path), path, how);
+        }
+    }
+
+    public bool HasChosenExecutable => settings.EmulatorExecutable is not null;
+
+    [RelayCommand]
+    private async Task BrowseExecutable()
+    {
+        if (await dialogs.PickOpenFileAsync(Strings.Set_PickProgram, OperatingSystem.IsWindows() ? ["*.exe"] : ["*"]) is not { } path)
+            return;
+        settings.EmulatorExecutable = path;
+        settings.Save();
+        OnPropertyChanged(nameof(ExecutableText));
+        OnPropertyChanged(nameof(HasChosenExecutable));
+    }
+
+    [RelayCommand]
+    private void DetectExecutable()
+    {
+        settings.EmulatorExecutable = null;
+        settings.Save();
+        OnPropertyChanged(nameof(ExecutableText));
+        OnPropertyChanged(nameof(HasChosenExecutable));
+    }
+
     [RelayCommand]
     private async Task BrowseBaseRom()
     {

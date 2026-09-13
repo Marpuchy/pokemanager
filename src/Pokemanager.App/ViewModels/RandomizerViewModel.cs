@@ -37,6 +37,7 @@ public partial class RandomizerViewModel : ObservableObject
     /// <summary>Pokémon data files (.pkdata), the counterpart of the .rnqs for base stats, types and the rest.</summary>
     public IAsyncRelayCommand ImportPokemonDataCommand => editor.ImportPokemonDataCommand;
     public IAsyncRelayCommand ExportPokemonDataCommand => editor.ExportPokemonDataCommand;
+    public IAsyncRelayCommand PlayCommand => editor.PlayCommand;
 
     public ObservableCollection<string> VisibleLog { get; } = [];
     public ObservableCollection<string> LogSections { get; } = [];
