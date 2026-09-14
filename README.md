@@ -23,6 +23,8 @@ and **PKHeX** (the save file), for games played on a 3DS emulator such as Citra 
 - **Adapt a save in progress** when the ROM changes (new seed, new options), with backups and verification.
 - **Keep a history** of versions to go back when a build goes wrong, and share Pokémon data as `.pkdata` files.
 - **Locke tools:** lives, badges or island trials read from the save, and a reward roulette that puts items in your bag.
+- **Play online with friends:** rooms joined with a code, no server, where everyone sees the others' party and boxes live,
+  with a profile (name, color, trainer sprite).
 - Interface in **English** and **Spanish**.
 
 The application never modifies your ROM, and the repository contains no game data: each user provides their own
@@ -63,8 +65,13 @@ Your data lives outside the program folder, so updating or uninstalling keeps it
    Everything else adapts to the game: data formats, save editor options, badges or trials, sprites and the randomizer
    options (totem Pokémon in Generation 7). Game names (species, moves, items) are shown in the interface language.
    Projects you create or open appear under **Recent projects** on the start page.
-2. **Settings…:** interface language, emulator (by default the one you used most recently), base ROM,
-   bundled tools, cache and save backups.
+1. **Multiplayer** (card under the project list): choose the project whose save you share, then **Create room** and send
+   the invite code, or paste a friend's code and **Join**. The room shows every player with their profile; selecting one
+   shows their party and boxes, updated each time they save in the game. The host can hide parties or boxes. Routers are
+   opened automatically when possible (UPnP / NAT-PMP, STUN); otherwise the guest gets an answer code for the host to
+   accept. The room stays open while you manage projects and closes with the app.
+2. **Settings…:** your multiplayer **profile** (name, color, trainer sprite or own picture), interface language, emulator (by
+   default the one you used most recently), base ROM, bundled tools, cache and save backups.
 3. **Randomizer → Options:** every UPR ZX option, grouped as in UPR. A `.rnqs` preset can be
    imported/exported.
 4. **Randomizer → Build:** seed and ROM name. **Randomize and build ROM**:
