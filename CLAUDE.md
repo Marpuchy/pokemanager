@@ -281,6 +281,29 @@ app hosting on copies of the Ultra Sun project/save and a second session joining
 Windows Firewall asks the first time the app listens (allow it).
 
 Pending: relay through another player, host migration, live dashboard (RPC).
+
+### Battles between players (2026-09-14) — phase 1 of 4 done: simulator with each ROM's data
+
+User request: battles between room players using **each player's own ROM data** (randomized stats/types/moves). Decisions:
+**Pokémon Showdown's simulator run locally** (npm `pokemon-showdown` 0.11.11, MIT, Node.js), not the public server (it cannot
+take custom data) and not an own C# engine (far too big). Everything is **chosen by the players before each battle** (levels,
+mechanics generation, megas, Z-moves, clauses…); the team is each player's **party**. Plan: (1) simulator + ROM data, (2)
+challenge flow in the room: the host runs the simulator and relays choices, (3) battle screen, (4) spectators/replays/animations.
+Bundling for the installer is pending: prune to `dist/{sim,data,lib,config}` (~104 MB, data 92 MB) + a Node runtime (~66 MB).
+
+| Piece | Implementation |
+|---|---|
+| Launcher | `battle/pokemanager-battle.js` (`battle/package.json`, `npm install` there; `node_modules/` ignored). JSON lines on stdin/stdout: `start` (rules, two teams, seed), `choose` (side, Showdown choice), `forfeit`; out `update`, `side` (requests/errors), `end`, `invalid`, `error`. |
+| ROM data per side | A rule of our own, `Pokemanager ROM Data`, in `Dex.data.Rulesets`: `onModifySpecies` returns a clone with the side's base stats/types (key species num + form index in `formeOrder`, so megas and formes use the ROM too), `onModifyType`/`onModifyMove`/`onModifyPriority` apply the side's move type, power, accuracy, category and priority only where the ROM differs from vanilla and the move did not change itself (Hidden Power, Weather Ball…), `onBegin` sets PP (and HP when not healing). No renamed species: protocol names stay canonical. |
+| Ids | Showdown's `num` = game id for species, moves, abilities, items; natures and types converted from game order; form = index in `formeOrder`. |
+| Rules | `BattleRules` → `gen6/gen7customgame@@@…`: Sleep Clause Mod, Species Clause, `Item Clause = 1` (needs a value in this version), OHKO, Evasion Moves, Baton Pass, Z-Move Clause, `-Mega`, `!Team Preview`, Endless Battle always. **Level is set on the sets** (Showdown's Adjust Level only acts in its validator). **Clauses/bans are validator rules**: the launcher runs `TeamValidator` first and answers `invalid` with Showdown's problems instead of starting. |
+| C# | `Pokemanager.Battle`: `BattleTeam.FromParty(SaveDocument)` (mons with IVs/EVs/PP/ability/item + ROM `BattleSpecies` for every form and `BattleMove` data), `ShowdownTools.Locate` (bundled `tools/node` or PATH; `battle/` upwards), `ShowdownBattle` (process, `Received` events). |
+
+**Verified:** 12 Pokémon of the user's real Ultra Sun party with the original ROM and the randomized ROM: Showdown's stats equal
+the game formula for all (that randomization did not change stats/types/moves). With data changed in memory for one side only
+(species → pure Water, base HP 200/Spe 5; a move → Grass 90): that side's HP 450, its lead moved second, the same move was
+"resisted" for p1 (Fire) and "super effective" for p2 (Grass); random battle ran 47 turns to a winner. Tests: team building,
+three rule sets start with matching stats (Gen 6 + level 50, many clauses), Species Clause refuses a team.
 ---
 
 ## 3. pk3DS — how to reuse it

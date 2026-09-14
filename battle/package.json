@@ -1,0 +1,9 @@
+{
+  "name": "pokemanager-battle",
+  "private": true,
+  "description": "Pokémon Showdown's battle simulator (MIT) run locally by Pokemanager, with the data of each player's ROM.",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "pokemon-showdown": "0.11.11"
+  }
+}

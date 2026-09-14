@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/Pokemanager.App/Pokemanager.App.csproj" />
+    <Project Path="src/Pokemanager.Battle/Pokemanager.Battle.csproj" />
     <Project Path="src/Pokemanager.Bridge/Pokemanager.Bridge.csproj" />
     <Project Path="src/Pokemanager.Formats/Pokemanager.Formats.csproj" />
     <Project Path="src/Pokemanager.Model/Pokemanager.Model.csproj" />

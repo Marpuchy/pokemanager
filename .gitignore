@@ -17,3 +17,6 @@ TestResults/
 
 ## Installer build output (build/build-installer.ps1)
 /artifacts/
+
+## Battle simulator dependencies (npm install in battle/)
+node_modules/
