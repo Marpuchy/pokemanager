@@ -594,4 +594,31 @@
   <data name="Tweak_RETAIN_ALT_FORMES" xml:space="preserve">
     <value>No revertir formas temporales</value>
   </data>
+  <data name="Group_Totems" xml:space="preserve">
+    <value>Pokémon dominantes, aliados y auras</value>
+  </data>
+  <data name="Opt_TotemPokemonMod" xml:space="preserve">
+    <value>Pokémon dominantes</value>
+  </data>
+  <data name="Opt_AllyPokemonMod" xml:space="preserve">
+    <value>Pokémon aliados (llamados por los dominantes)</value>
+  </data>
+  <data name="Opt_AuraMod" xml:space="preserve">
+    <value>Auras de los dominantes (mejoras de estadísticas)</value>
+  </data>
+  <data name="Opt_RandomizeTotemHeldItems" xml:space="preserve">
+    <value>Objetos equipados aleatorios para los dominantes</value>
+  </data>
+  <data name="Opt_AllowTotemAltFormes" xml:space="preserve">
+    <value>Permitir formas alternativas como dominantes</value>
+  </data>
+  <data name="Opt_TotemLevelsModified" xml:space="preserve">
+    <value>Cambiar el nivel de los dominantes</value>
+  </data>
+  <data name="Opt_TotemLevelModifier" xml:space="preserve">
+    <value>Cambio de nivel de los dominantes (%)</value>
+  </data>
+  <data name="Choice_SAME_STRENGTH" xml:space="preserve">
+    <value>Misma fuerza</value>
+  </data>
 </root>

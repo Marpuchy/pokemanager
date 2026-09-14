@@ -1,6 +1,7 @@
 # Pokemanager
 
-Editor + randomizer + live dashboard for Pokémon X/Y (3DS), on a 3DS emulator (Citra / Azahar).
+Editor + randomizer + live dashboard for the 3DS Pokémon games (X/Y, ORAS, Sun/Moon, Ultra Sun/Ultra Moon), on a 3DS
+emulator (Citra / Azahar). It started X/Y-only; see "Every 3DS Pokémon game" in section 2.
 
 This document started as the handover of an earlier research session. Everything marked
 **verified** was read directly from the pk3DS and Azahar source code, or measured on real data — not taken from forums.
@@ -210,6 +211,32 @@ slot selected (`EditorViewModel.PendingSaveSlot`, handled in `EditorView` on `Da
   **not always square** (55×77 is stored as 64×128): `DecodeBclim` sizes the pixel data as NextPow2(w)×NextPow2(h).
 - `POKEMANAGER_DATA` moves `AppSettings.DataRoot` (cache + save backups). **Harnesses that write a save must set it**: a
   harness run had put a backup of a test copy into the real `save-backups` folder (removed; nothing was pruned).
+
+### Every 3DS Pokémon game and projects from a ROM (2026-09-14)
+
+User request: detect the game from the chosen ROM and adapt settings, badges/trials and Pokémon to it; keep the game data in
+Documents\Pokemanager, created automatically, so only the ROM has to be chosen. **The original X/Y-only design above
+(dump folder with `romfs`/`exefs`, file-count detection) is superseded for new projects; old projects still open.**
+
+| Piece | Implementation |
+|---|---|
+| Games | `Model/Dump/GameTitle`: X, Y, OmegaRuby, AlphaSapphire, Sun, Moon, UltraSun, UltraMoon → title ID, family (XY/ORAS/SM/USUM), generation, pk3DS version (SN/MN/US/UM exact, so Sun/Moon need no `encdata` file), `Layout()` (archives) and `Milestones()`. |
+| ROM reading | `Model/Dump/RomReader`: reads single files from a decrypted NCSD (`.3ds/.cci`) or NCCH (`.cxi`) without extracting: NCSD partition 0, NCCH program ID 0x118, flags 0x18F bit 2 = no crypto (encrypted ROMs are refused with a message), ExeFS (`.code` BLZ-decompressed when the exheader says so), RomFS IVFC level 3 directory/file tables. |
+| Import | `GameImporter.Import(rom, Documents\Pokemanager\Games)`: copies personal, moves, levelup, evolution, game text in every language (8 in Gen 6, 10 in Gen 7), the icon archive and the badge/trial image archive (first candidate that has them), `code.bin`, `icon.bin`, `exheader.bin` and writes `pokemanager-game.json` (game, source ROM path/size/date). Reused when the same ROM file is imported again. X 23 MB, ORAS 28 MB, USUM 45 MB, in 0.2–0.3 s. `GameDump.Open` trusts the manifest; folders without one use the old X/Y inspection. |
+| Data | `GameData.Load(layers, game)`: personal 0x40 XY / 0x50 ORAS / 0x54 Gen 7 (all `PersonalInfoXY` subclasses), moves one file each in X/Y and a `"WD"` mini archive elsewhere (`Move6`/`Move7`), `Learnset6` for all. `ModBuilder` repacks with the source GARC's version (VER_4/VER_6) and padding, and the mini archive for moves. |
+| Archives (verified X, AS/OR, UM) | personal/move/levelup: XY `a/2/1/8,2,4`; ORAS `a/1/9/5`, `a/1/8/9`, `a/1/9/1`; Gen 7 `a/0/1/7`, `a/0/1/1`, `a/0/1/3`. Icons: XY `a/0/9/3` (945, BCLIM 40×30), ORAS `a/0/9/1` (974), USUM `a/0/6/2` (1154, **BFLIM** 64×32, orientation 4 = rotated). The species→icon table in `code.bin` is found by the same 16-byte-entry search in every game (808 species in USUM). Badges: ORAS `a/1/0/9` file 0 darc `badge_01..08`. Trials: USUM `a/2/4/2` file 4 = ALYT with a SARC, `Shiren_Stamp_00..03` (Tapu seals, ETC1A4 256×256). **Sun/Moon archives are not verified** (no ROM available): candidates are tried and missing images are simply not shown. |
+| Images | `DecodeBclim` also reads BFLIM (format/orientation at footer 0x22/0x23) and ETC1/ETC1A4 (4×4 blocks, four per 8×8 tile in Z order, block = little-endian u64, colors/flags high, indexes low column-major; alpha nibbles column-major). `MilestoneIcons` reads darc and SARC. |
+| Save | `SaveDocument` works on `SaveFile`/`PKM`: SAV6XY, SAV6AO, SAV7SM, SAV7USUM (size fallbacks 0x65600/0x76000/0x6BE00/0x6CC00 for saves PKHeX does not detect). Milestones: Gen 6 `Badges` bits 0–7; Gen 7 `Misc.Stamps` bits 1–5 (PKHeX `Stamp7`: Melemele…Poni trial, island challenge). Game-only options flagged (`HasGen6Extras` Maison/O-Power/Super Training/Puffs, `HasXYExtras` Friend Safari/fashion, `HasSayings`, `HasPosition`, `HasZMoves`). Stat formula counts Hyper Training (Gen 7) as IV 31. **Gen 7 bags keep used-up items with count 0** (written by the game): only Gen 6 rejects count 0. |
+| Randomizer | The launcher tries `Gen6RomHandler` then `Gen7RomHandler`; packing already goes through `Abstract3DSRomHandler`. Totem/ally/aura options are a "Totems" group shown only for Generation 7. |
+| App | New project = ROM + name (`WelcomeViewModel`): detection on selection, warning when the ROM has a `.log` next to it, import off the UI thread, project in `Documents\Pokemanager\Projects`. `POKEMANAGER_DOCUMENTS` moves `Documents\Pokemanager` (**harnesses must set it**, like `POKEMANAGER_DATA`). Locke roulette interval and preview use the game's milestones (5 in Gen 7); trainer tab shows badges or trials and hides what the game lacks. |
+
+Verified on the user's real ROMs and copies of their saves (headless harness, Documents/data redirected to G:):
+- Ultra Moon (`ULRandomNico.cxi`): project created in 1.7 s; preview with 6 party sprites and trials 2/5 (Melemele, Akala seals);
+  roulette claim wrote 2 Rare Candies (328 → 330); UPR ZX Gen 7 randomization 10 s, edits on top, 3.5 GB `.cxi` packed in
+  41 s and re-read with both the randomization and the edits; the save with the ROM it was played on: **53 Pokémon, 0 ability
+  or stat changes** (formula matches the game in Gen 7).
+- Alpha Sapphire: badges 0/8 with the Hoenn badge images; save + `pokmeonzaAlexAlba.cxi` 0 changes, + another AS ROM only the 2
+  expected ability changes. Omega Ruby and X import and read correctly; the encrypted `PokemonPEv2.3ds` is refused.
 
 Pending: live dashboard (RPC).
 

@@ -9,12 +9,9 @@ namespace Pokemanager.App.Services;
 /// <summary>Badge roulette prizes: how they read and how they get into the game.</summary>
 public static class LockeRewards
 {
-    /// <summary>Kalos gym badges, in order, with the type of their gym (for the color).</summary>
-    public static IReadOnlyList<(string Name, int Type)> Badges =>
-    [
-        (Strings.Badge_1, 6), (Strings.Badge_2, 5), (Strings.Badge_3, 1), (Strings.Badge_4, 11),
-        (Strings.Badge_5, 12), (Strings.Badge_6, 17), (Strings.Badge_7, 13), (Strings.Badge_8, 14),
-    ];
+    /// <summary>Name of a milestone of the game (badge or trial), or its number when out of range.</summary>
+    public static string MilestoneName(GameTitle game, int index) =>
+        game.Milestones() is var m && index >= 0 && index < m.Count ? m[index].Name : $"#{index + 1}";
 
     public static string Describe(LockePrize prize, IReadOnlyList<string> itemNames) => prize.Kind switch
     {

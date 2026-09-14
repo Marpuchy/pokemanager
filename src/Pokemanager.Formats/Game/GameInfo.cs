@@ -16,8 +16,8 @@ public class GameInfo
             case GameVersion.ORASDEMO:
             case GameVersion.ORAS: LoadAO(); break;
             case GameVersion.SMDEMO:
-            case GameVersion.SM: LoadSM(); break;
-            case GameVersion.USUM: LoadUSUM(); break;
+            case GameVersion.SM or GameVersion.SN or GameVersion.MN: LoadSM(); break;
+            case GameVersion.USUM or GameVersion.US or GameVersion.UM: LoadUSUM(); break;
         }
     }
 

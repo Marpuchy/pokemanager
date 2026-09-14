@@ -18,6 +18,7 @@ public static class ProjectLoader
         {
             var project = Project.Load(path);
             var dump = GameDump.Open(project.RomFsPath, project.ExeFsPath, GameTextLanguage.Current);
+            project.Game = dump.Title; // projects from before other games were supported did not store it
             string? randomRomFs = upr.TryGetCached(project, project.Randomization.Preset) is { } cached
                 ? System.IO.Path.Combine(cached.TitleDirectory, "romfs")
                 : null;

@@ -102,4 +102,7 @@
   <data name="Check_ChangedOnDisk" xml:space="preserve">
     <value>La partida ha cambiado en disco desde que se abrió (¿ha guardado el juego?). Recárgala antes de escribir para no perder progreso.</value>
   </data>
+  <data name="Save_NotSupported" xml:space="preserve">
+    <value>La partida no es de un juego compatible ({0}). Pokemanager edita partidas de Pokémon X, Y, Rubí Omega, Zafiro Alfa, Sol, Luna, Ultrasol y Ultraluna.</value>
+  </data>
 </root>

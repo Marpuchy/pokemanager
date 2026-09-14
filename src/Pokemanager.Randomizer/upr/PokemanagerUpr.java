@@ -25,6 +25,7 @@ import com.dabomstew.pkrandom.Settings;
 import com.dabomstew.pkrandom.ctr.NCCH;
 import com.dabomstew.pkrandom.romhandlers.Abstract3DSRomHandler;
 import com.dabomstew.pkrandom.romhandlers.Gen6RomHandler;
+import com.dabomstew.pkrandom.romhandlers.Gen7RomHandler;
 import com.dabomstew.pkrandom.romhandlers.RomHandler;
 
 import java.io.ByteArrayOutputStream;
@@ -252,8 +253,12 @@ public class PokemanagerUpr {
 
     private static RomHandler loadRom(String romPath) {
         String rom = new File(romPath).getAbsolutePath();
-        RomHandler.Factory factory = new Gen6RomHandler.Factory();
-        if (!factory.isLoadable(rom)) fail("The ROM is not a Generation 6 game UPR ZX can load: " + rom);
+        // X/Y and ORAS load with the Gen 6 handler, Sun/Moon and Ultra Sun/Ultra Moon with the Gen 7 one.
+        RomHandler.Factory factory = null;
+        for (RomHandler.Factory candidate : new RomHandler.Factory[]{new Gen6RomHandler.Factory(), new Gen7RomHandler.Factory()}) {
+            if (candidate.isLoadable(rom)) { factory = candidate; break; }
+        }
+        if (factory == null) fail("The ROM is not a 3DS Pokemon game UPR ZX can load: " + rom);
         RomHandler handler = factory.create(RandomSource.instance());
         if (!handler.loadRom(rom)) fail("UPR ZX could not load the ROM: " + rom);
         return handler;

@@ -1,12 +1,12 @@
 # Pokemanager
 
-Randomizer and save editor for Pokémon X/Y (3DS), meant to be played on a 3DS emulator (Citra, Azahar).
+Randomizer and save editor for the Pokémon games of the 3DS — **X, Y, Omega Ruby, Alpha Sapphire, Sun, Moon, Ultra Sun
+and Ultra Moon** — meant to be played on a 3DS emulator (Citra, Azahar).
 It brings together in one application what is usually done with Universal Pokémon Randomizer ZX (the ROM)
 and PKHeX (the save file).
 
-The application never modifies your base ROM or dump: randomized ROMs are created as new files next to it
-and can always be regenerated from `dump + project`. The repository contains no game data; each user
-provides their own decrypted dump.
+The application never modifies your ROM: randomized ROMs are created as new files next to it and can always be
+regenerated from `ROM + project`. The repository contains no game data; each user provides their own decrypted ROM.
 
 > Status: **randomizer**, **save editor**, **version history** and **Pokémon data files** working. Live
 > dashboard still to do.
@@ -16,8 +16,7 @@ The interface is in **English** by default; Spanish can be selected in **Setting
 ## Requirements
 
 - .NET 10 SDK and Java 11 or later.
-- A decrypted Pokémon X or Y dump: the `.3ds` plus its extracted `romfs` and `exefs` folders
-  (`code.bin` decompressed), all in the same folder.
+- A decrypted ROM (`.3ds`, `.cci` or `.cxi`) of one of the supported games. Nothing has to be extracted by hand.
 - Universal Pokémon Randomizer ZX and PKHeX.Core **are bundled** (see [tools/README.md](tools/README.md)).
 
 ## Usage
@@ -29,12 +28,16 @@ dotnet run --project src/Pokemanager.App
 0. **Start screen:** your projects on the left. Selecting one shows, read only, its ROM and the team of its save
    (sprite, name, level, held item); clicking a Pokémon shows its stats, IVs, EVs, moves and ability. **Manage** (on each
    project, on the preview and on the Pokémon) opens the full editor described below.
-   For Nuzlocke-style runs the preview also shows the **8 gym badges** read from the save (with the game's own badge images, taken from your dump) and the **lives** left
+   For Nuzlocke-style runs the preview also shows the progression read from the save — the **8 gym badges** in X/Y and
+   ORAS, the **grand trials** and the island challenge in Sun/Moon and Ultra Sun/Ultra Moon, with the game's own images —
+   and the **lives** left
    (− / + to lose or recover one). Clicking an earned badge spins its **roulette** once: items and money go straight into
    the save (emulator closed; a history version and a backup are made first), an extra life adds to the count. A prize won
    while the emulator was open stays pending on the badge (!) until it is claimed.
-1. **New project:** dump folder and where to save the project `.json`. Game names (species, moves, items) are shown in
-   the interface language; Pokémon sprites are read from your own dump.
+1. **New project:** choose the ROM. The game is recognized from the ROM itself, only the data Pokemanager reads is copied
+   (20–50 MB) to `Documents\Pokemanager\Games\<ROM name>`, and the project is saved in `Documents\Pokemanager\Projects`.
+   Everything else adapts to the game: data formats, save editor options, badges or trials, sprites and the randomizer
+   options (totem Pokémon in Generation 7). Game names (species, moves, items) are shown in the interface language.
    Projects you create or open appear under **Recent projects** on the start page.
 2. **Settings…:** interface language, emulator (by default the one you used most recently), base ROM,
    bundled tools, cache and save backups.
@@ -115,6 +118,7 @@ Tests use Microsoft Testing Platform (`global.json`) and xUnit v3. Tests that ne
 | `POKEMANAGER_DUMP` | Folder with the `.3ds`, `romfs` and `exefs` |
 | `POKEMANAGER_UPR_PRESET` | A `.rnqs` preset |
 | `POKEMANAGER_SAVE` | A Pokémon X/Y `main` save file (only a temporary copy is read) |
+| `POKEMANAGER_TEST_ROMS` | Decrypted ROMs of any supported games, separated by `;` (imported into a temporary folder) |
 
 ```
 $env:POKEMANAGER_DUMP = "G:\pokemanager-dump"        # PowerShell

@@ -361,18 +361,23 @@
         <Border Classes="card" IsVisible="{Binding ShowNewProject}" VerticalAlignment="Top">
           <StackPanel Spacing="6" MaxWidth="720" HorizontalAlignment="Left">
             <TextBlock Classes="card-title" Text="{x:Static r:Strings.Welcome_NewProject}" />
-            <TextBlock Text="{x:Static r:Strings.Welcome_DumpFolder}" />
+            <TextBlock Classes="hint" Text="{x:Static r:Strings.Welcome_NewProjectHint}" />
+            <TextBlock Margin="0,6,0,0" Text="{x:Static r:Strings.Welcome_RomFile}" />
             <Grid ColumnDefinitions="*,Auto">
-              <TextBox Text="{Binding DumpDirectory}" PlaceholderText="G:\pokemanager-dump" />
-              <Button Grid.Column="1" Margin="6,0,0,0" Content="{x:Static r:Strings.Common_Browse}" Command="{Binding BrowseDumpCommand}" />
+              <TextBox Text="{Binding RomPath}" PlaceholderText="D:\roms\Pokemon Ultra Moon.3ds" />
+              <Button Grid.Column="1" Margin="6,0,0,0" Content="{x:Static r:Strings.Common_Browse}" Command="{Binding BrowseRomCommand}" />
             </Grid>
-            <TextBlock Margin="0,8,0,0" Text="{x:Static r:Strings.Welcome_ProjectFile}" />
-            <Grid ColumnDefinitions="*,Auto">
-              <TextBox Text="{Binding ProjectPath}" />
-              <Button Grid.Column="1" Margin="6,0,0,0" Content="{x:Static r:Strings.Common_Browse}" Command="{Binding BrowseProjectCommand}" />
-            </Grid>
+            <TextBlock Text="{Binding DetectedGame}" FontWeight="SemiBold" Foreground="#2E8B57"
+                       IsVisible="{Binding DetectedGame, Converter={x:Static ObjectConverters.IsNotNull}}" />
+            <TextBlock Classes="hint" Foreground="#B35C00" Text="{x:Static r:Strings.Welcome_RomRandomized}" IsVisible="{Binding RomLooksRandomized}" />
+            <TextBlock Margin="0,8,0,0" Text="{x:Static r:Strings.Welcome_ProjectName}" />
+            <TextBox Text="{Binding ProjectName}" MaxWidth="400" HorizontalAlignment="Left" MinWidth="300" />
+            <TextBlock Classes="hint" Text="{Binding ProjectFileText}" TextWrapping="Wrap" />
+            <TextBlock Classes="hint" Text="{Binding GamesFolderText}" TextWrapping="Wrap" />
             <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,12,0,0">
               <Button Classes="accent" Content="{x:Static r:Strings.Welcome_Create}" Command="{Binding CreateCommand}" />
+              <ProgressBar IsIndeterminate="True" Width="100" IsVisible="{Binding IsCreating}" VerticalAlignment="Center" />
+              <TextBlock Classes="hint" VerticalAlignment="Center" Text="{Binding CreateStatus}" />
             </StackPanel>
           </StackPanel>
         </Border>

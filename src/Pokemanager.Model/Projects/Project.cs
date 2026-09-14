@@ -53,6 +53,9 @@ public sealed class Project
     /// <summary>Folder that contains <c>romfs</c> and <c>exefs</c>.</summary>
     public required string DumpDirectory { get; set; }
 
+    /// <summary>The game (older projects were always X/Y and did not store it; the dump then tells).</summary>
+    public GameTitle Game { get; set; } = GameTitle.X;
+
     /// <summary>Decrypted ROM (.3ds/.cxi) used by the randomizer. Null: looked up in <see cref="DumpDirectory"/>.</summary>
     public string? RomFile { get; set; }
 
@@ -107,7 +110,7 @@ public sealed class Project
     public void Save(string path)
     {
         var file = new ProjectFile(CurrentFormat, DumpDirectory, RomFile, Language, EmulatorUserDirectory, Randomization,
-            Edits.All.Select(e => new EditEntry(e.Table, e.Id, e.Field, e.Value)).ToList(), Locke);
+            Edits.All.Select(e => new EditEntry(e.Table, e.Id, e.Field, e.Value)).ToList(), Locke, Game);
 
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
         string tmp = path + ".tmp";
@@ -130,6 +133,7 @@ public sealed class Project
             EmulatorUserDirectory = file.EmulatorUserDirectory,
             Randomization = file.Randomization ?? new RandomizationSettings(), // format 1 did not have it
             Locke = file.Locke ?? new LockeSettings(), // added later in format 2
+            Game = file.Game ?? GameTitle.X, // added with other games; earlier projects were X/Y
         };
         foreach (var e in file.Edits ?? [])
             project.Edits.Set(e.Table, e.Id, e.Field, e.Value);
@@ -144,7 +148,8 @@ public sealed class Project
         string? EmulatorUserDirectory,
         RandomizationSettings? Randomization,
         List<EditEntry>? Edits,
-        LockeSettings? Locke = null);
+        LockeSettings? Locke = null,
+        GameTitle? Game = null);
 
     private sealed record EditEntry(string Table, int Id, string Field, JsonNode Value);
 }

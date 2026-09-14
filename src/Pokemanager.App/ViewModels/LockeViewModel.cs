@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Pokemanager.App.Resources;
 using Pokemanager.App.Services;
+using Pokemanager.Model.Dump;
 using Pokemanager.Model.Projects;
 
 namespace Pokemanager.App.ViewModels;
@@ -112,14 +113,23 @@ public sealed partial class LockeViewModel : ObservableObject
     private void RefreshSpins()
     {
         Spins.Clear();
-        var badges = LockeRewards.Badges;
         foreach (var spin in Locke.Spins.OrderBy(s => s.Badge))
-            Spins.Add(new SpinRowViewModel(this, spin, spin.Badge < badges.Count ? badges[spin.Badge].Name : $"#{spin.Badge + 1}",
+            Spins.Add(new SpinRowViewModel(this, spin, LockeRewards.MilestoneName(Game, spin.Badge),
                 LockeRewards.Describe(spin.Prize, ItemNames)));
         OnPropertyChanged(nameof(HasSpins));
     }
 
     public bool HasSpins => Spins.Count > 0;
+
+    private GameTitle Game => editor.Session.Project.Game;
+
+    /// <summary>Badges (Gen 6) or trials (Gen 7) of the game: the roulette interval goes up to this.</summary>
+    public int MilestoneCount => Game.Milestones().Count;
+
+    public string IntervalHint => Game.HasBadges() ? Strings.Locke_IntervalHint : Strings.Locke_IntervalHintTrials;
+    public string IntervalFirstLabel => Game.HasBadges() ? Strings.Locke_IntervalFirst : Strings.Locke_IntervalFirstTrial;
+    public string IntervalLastLabel => Game.HasBadges() ? Strings.Locke_IntervalLast : Strings.Locke_IntervalLastTrial;
+    public string IntervalEveryLabel => Game.HasBadges() ? Strings.Locke_IntervalEvery : Strings.Locke_IntervalEveryTrials;
 
     public decimal? MaxLives
     {
@@ -163,19 +173,19 @@ public sealed partial class LockeViewModel : ObservableObject
     public decimal? RouletteFirst
     {
         get => Locke.RouletteFirst;
-        set { if (value is { } v && (int)v != Locke.RouletteFirst) { Locke.RouletteFirst = (int)Math.Clamp(v, 1, LockeSettings.BadgeCount); IntervalChanged(); } }
+        set { if (value is { } v && (int)v != Locke.RouletteFirst) { Locke.RouletteFirst = (int)Math.Clamp(v, 1, MilestoneCount); IntervalChanged(); } }
     }
 
     public decimal? RouletteLast
     {
-        get => Locke.RouletteLast;
-        set { if (value is { } v && (int)v != Locke.RouletteLast) { Locke.RouletteLast = (int)Math.Clamp(v, 1, LockeSettings.BadgeCount); IntervalChanged(); } }
+        get => Math.Min(Locke.RouletteLast, MilestoneCount);
+        set { if (value is { } v && (int)v != Locke.RouletteLast) { Locke.RouletteLast = (int)Math.Clamp(v, 1, MilestoneCount); IntervalChanged(); } }
     }
 
     public decimal? RouletteEvery
     {
         get => Locke.RouletteEvery;
-        set { if (value is { } v && (int)v != Locke.RouletteEvery) { Locke.RouletteEvery = (int)Math.Clamp(v, 1, LockeSettings.BadgeCount); IntervalChanged(); } }
+        set { if (value is { } v && (int)v != Locke.RouletteEvery) { Locke.RouletteEvery = (int)Math.Clamp(v, 1, MilestoneCount); IntervalChanged(); } }
     }
 
     /// <summary>Which badges get a roulette with the current interval.</summary>
@@ -183,8 +193,8 @@ public sealed partial class LockeViewModel : ObservableObject
     {
         get
         {
-            var badges = LockeRewards.Badges;
-            var names = Enumerable.Range(0, LockeSettings.BadgeCount).Where(Locke.HasRoulette).Select(i => badges[i].Name).ToList();
+            var milestones = Game.Milestones();
+            var names = Enumerable.Range(0, milestones.Count).Where(Locke.HasRoulette).Select(i => milestones[i].Name).ToList();
             return names.Count == 0 ? Strings.Locke_IntervalNone : string.Format(Strings.Locke_IntervalBadges, string.Join(", ", names));
         }
     }

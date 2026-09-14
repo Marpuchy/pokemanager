@@ -28,13 +28,13 @@ public partial class UprOptionsViewModel : ObservableObject
 
     public UprOptionsViewModel(Action markDirty) => this.markDirty = markDirty;
 
-    public void Load(UprSettingsDescription description, IReadOnlySet<string> availableTweaks)
+    public void Load(UprSettingsDescription description, IReadOnlySet<string> availableTweaks, int generation)
     {
         Groups.Clear();
         byName.Clear();
         var groups = UprOptionCatalog.Groups.ToDictionary(g => g, g => new UprOptionGroupViewModel(g));
 
-        foreach (var option in description.Options.Where(o => !UprOptionCatalog.Hidden.Contains(o.Name)))
+        foreach (var option in description.Options.Where(o => !UprOptionCatalog.IsHidden(o.Name, generation)))
         {
             var info = UprOptionCatalog.Describe(option.Name);
             var vm = new UprOptionViewModel(this, option, info);

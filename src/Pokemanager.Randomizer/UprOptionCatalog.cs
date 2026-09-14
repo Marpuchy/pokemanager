@@ -8,8 +8,8 @@ public sealed record UprOptionInfo(string Group, string? DependsOn = null, int M
 
 /// <summary>
 /// Grouping of the UPR ZX options, in the order of its tabs. Labels come from the resources (<c>Opt_*</c>,
-/// <c>Choice_*</c>, <c>Group_*</c>, <c>Tweak_*</c>). Options that do not apply to X/Y (Totem, ally and aura Pokémon
-/// belong to Sun/Moon) are hidden.
+/// <c>Choice_*</c>, <c>Group_*</c>, <c>Tweak_*</c>). Totem, ally and aura Pokémon only exist in Sun/Moon and Ultra
+/// Sun/Ultra Moon, so that group is hidden for Generation 6 games.
 /// </summary>
 public static class UprOptionCatalog
 {
@@ -22,15 +22,16 @@ public static class UprOptionCatalog
     public const string TmsTutors = "TmsTutors";
     public const string Items = "Items";
     public const string Misc = "Misc";
+    public const string Totems = "Totems";
 
-    public static IReadOnlyList<string> Groups { get; } = [Traits, Evolutions, Starters, Moves, Trainers, Wild, TmsTutors, Items, Misc];
+    public static IReadOnlyList<string> Groups { get; } = [Traits, Evolutions, Starters, Moves, Trainers, Wild, Totems, TmsTutors, Items, Misc];
 
-    /// <summary>Options never shown: from other games or not meaningfully editable here.</summary>
-    public static IReadOnlySet<string> Hidden { get; } = new HashSet<string>
-    {
-        "TotemPokemonMod", "AllyPokemonMod", "AuraMod", "RandomizeTotemHeldItems", "TotemLevelsModified",
-        "TotemLevelModifier", "AllowTotemAltFormes", "LimitPokemon",
-    };
+    /// <summary>Options never shown: not meaningfully editable here.</summary>
+    public static IReadOnlySet<string> Hidden { get; } = new HashSet<string> { "LimitPokemon" };
+
+    /// <summary>Whether an option is hidden for a game of <paramref name="generation"/> (6 or 7).</summary>
+    public static bool IsHidden(string name, int generation) =>
+        Hidden.Contains(name) || (generation < 7 && Describe(name).Group == Totems);
 
     public static IReadOnlyDictionary<string, UprOptionInfo> Options { get; } = new Dictionary<string, UprOptionInfo>
     {
@@ -178,6 +179,15 @@ public static class UprOptionCatalog
         ["GuaranteeXItems"] = new(Items, "ShopItemsMod"),
         ["PickupItemsMod"] = new(Items),
         ["BanBadRandomPickupItems"] = new(Items, "PickupItemsMod"),
+
+        // ---- Totem, ally and aura Pokémon (Generation 7)
+        ["TotemPokemonMod"] = new(Totems),
+        ["AllyPokemonMod"] = new(Totems),
+        ["AuraMod"] = new(Totems),
+        ["RandomizeTotemHeldItems"] = new(Totems),
+        ["AllowTotemAltFormes"] = new(Totems, "TotemPokemonMod"),
+        ["TotemLevelsModified"] = new(Totems),
+        ["TotemLevelModifier"] = new(Totems, "TotemLevelsModified", -50, 50),
 
         // ---- General
         ["BanIrregularAltFormes"] = new(Misc),

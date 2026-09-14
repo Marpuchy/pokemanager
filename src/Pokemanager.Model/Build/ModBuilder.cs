@@ -16,14 +16,15 @@ public static class ModBuilder
     public static IReadOnlyDictionary<string, byte[]> BuildEdits(EditorSession session)
     {
         var edits = session.Project.Edits;
+        var layout = session.Current.Layout;
         var outputs = new Dictionary<string, byte[]>();
 
         if (EditedIds(edits, GameTables.Personal) is { Count: > 0 } personalIds)
-            outputs["romfs/" + GameData.PersonalGarc] = BuildPersonal(session, personalIds);
+            outputs["romfs/" + layout.Personal] = BuildPersonal(session, personalIds);
         if (EditedIds(edits, GameTables.Moves) is { Count: > 0 } moveIds)
-            outputs["romfs/" + GameData.MoveGarc] = BuildGarc(session, GameData.MoveGarc, moveIds, id => session.Current.Moves[id].Write());
+            outputs["romfs/" + layout.Moves] = BuildMoves(session, moveIds);
         if (EditedIds(edits, GameTables.Learnsets) is { Count: > 0 } learnsetIds)
-            outputs["romfs/" + GameData.LevelUpGarc] = BuildGarc(session, GameData.LevelUpGarc, learnsetIds, id => session.Current.Learnsets[id].Write());
+            outputs["romfs/" + layout.LevelUp] = BuildGarc(session, layout.LevelUp, learnsetIds, id => session.Current.Learnsets[id].Write());
 
         return outputs;
     }
@@ -34,18 +35,40 @@ public static class ModBuilder
     /// <summary>Personal: edited individual entries plus the concatenated table in the last file.</summary>
     private static byte[] BuildPersonal(EditorSession session, HashSet<int> ids)
     {
-        byte[][] files = GameData.ReadFiles(session.Layers, GameData.PersonalGarc);
+        string path = session.Current.Layout.Personal;
+        var garc = ReadGarc(session, path);
+        byte[][] files = garc.Files;
         foreach (int id in ids)
             files[id] = session.Current.Personal[id].Write().ToArray();
         files[^1] = files[..^1].SelectMany(f => f).ToArray();
-        return GARC.PackGARC(files, GARC.VER_4, 4).Data;
+        return GARC.PackGARC(files, garc.Version, garc.ContentPadding).Data;
     }
 
-    private static byte[] BuildGarc(EditorSession session, string garc, HashSet<int> ids, Func<int, byte[]> write)
+    /// <summary>Moves: edited files, or the edited entries of the "WD" mini archive repacked into its single file.</summary>
+    private static byte[] BuildMoves(EditorSession session, HashSet<int> ids)
     {
-        byte[][] files = GameData.ReadFiles(session.Layers, garc);
+        var layout = session.Current.Layout;
+        if (!layout.MovesPacked)
+            return BuildGarc(session, layout.Moves, ids, id => session.Current.Moves[id].Write());
+
+        var garc = ReadGarc(session, layout.Moves);
+        byte[][] files = garc.Files;
+        byte[][] moves = Mini.UnpackMini(files[0], "WD");
+        foreach (int id in ids)
+            moves[id] = session.Current.Moves[id].Write().ToArray();
+        files[0] = Mini.PackMini(moves, "WD");
+        return GARC.PackGARC(files, garc.Version, garc.ContentPadding).Data;
+    }
+
+    private static byte[] BuildGarc(EditorSession session, string path, HashSet<int> ids, Func<int, byte[]> write)
+    {
+        var garc = ReadGarc(session, path);
+        byte[][] files = garc.Files;
         foreach (int id in ids)
             files[id] = write(id).ToArray();
-        return GARC.PackGARC(files, GARC.VER_4, 4).Data;
+        return GARC.PackGARC(files, garc.Version, garc.ContentPadding).Data;
     }
+
+    private static GARC.MemGARC ReadGarc(EditorSession session, string path) =>
+        new(File.ReadAllBytes(session.Layers.Resolve(path)));
 }

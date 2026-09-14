@@ -6,6 +6,7 @@ using Pokemanager.App.Resources;
 using Pokemanager.App.Services;
 using Pokemanager.Bridge;
 using Pokemanager.Model.Projects;
+using Pokemanager.Model.Dump;
 using Pokemanager.Save;
 
 namespace Pokemanager.App.ViewModels;
@@ -171,7 +172,7 @@ public partial class SaveEditorViewModel : ObservableObject
 
         string? path = editor.Randomizer.SavePath;
         if (path is null) { Message = Strings.Rnd_NoEmulator; return; }
-        if (!File.Exists(path)) { Message = string.Format(Strings.Rnd_NoSave, editor.Dump.Title, settings.EffectiveEmulatorName); return; }
+        if (!File.Exists(path)) { Message = string.Format(Strings.Rnd_NoSave, editor.Dump.Title.DisplayName(), settings.EffectiveEmulatorName); return; }
 
         try
         {
@@ -195,7 +196,7 @@ public partial class SaveEditorViewModel : ObservableObject
             RebuildBoxSlots();
 
             Bag = new SaveBagViewModel(this, doc, names);
-            Trainer = new SaveTrainerViewModel(this, doc, names);
+            Trainer = new SaveTrainerViewModel(this, doc, names, editor.Dump.Title.Milestones());
             Dex = new SaveDexViewModel(this, doc, names);
             RefreshSlots();
             RefreshProblems();

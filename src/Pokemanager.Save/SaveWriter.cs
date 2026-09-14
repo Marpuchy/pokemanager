@@ -9,8 +9,9 @@ internal static class SaveWriter
     /// <returns>Path of the backup.</returns>
     public static string Write(string savePath, byte[] updated, string backupRoot)
     {
-        var reread = (SaveUtil.GetSaveFile(updated) ?? (updated.Length == SaveUpdater.SizeXY ? new SAV6XY(updated) : null)) as SAV6XY
-                     ?? throw new SaveUpdateException(Strings.Save_CannotReread);
+        var reread = SaveUpdater.Parse(updated) is { } parsed && SaveUpdater.IsSupported(parsed)
+            ? parsed
+            : throw new SaveUpdateException(Strings.Save_CannotReread);
         if (!reread.ChecksumsValid)
             throw new SaveUpdateException(Strings.Save_ModifiedBadChecksums);
 

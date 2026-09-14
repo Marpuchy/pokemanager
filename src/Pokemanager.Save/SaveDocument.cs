@@ -13,9 +13,10 @@ public sealed record SaveProblem(SaveSlot? Slot, string Message);
 public sealed record SaveWriteResult(string SavePath, string BackupPath);
 
 /// <summary>
-/// An X/Y save opened for editing, in memory until <see cref="Write"/>. Everything that depends on the game data
-/// (abilities, growth rate, gender ratio, forms, stats, PP) is taken from the ROM being played — the randomized one —
-/// not from PKHeX's tables of the original game.
+/// A save of a 3DS Pokémon game (X/Y, Omega Ruby/Alpha Sapphire, Sun/Moon, Ultra Sun/Ultra Moon) opened for editing, in
+/// memory until <see cref="Write"/>. Everything that depends on the game data (abilities, growth rate, gender ratio,
+/// forms, stats, PP) is taken from the ROM being played — the randomized one — not from PKHeX's tables of the original
+/// game. Trainer data that only some games have is exposed with a <c>Has…</c> flag.
 /// </summary>
 public sealed class SaveDocument
 {
@@ -25,8 +26,8 @@ public sealed class SaveDocument
     public const int MaxNameLength = 12;
     public const int MaxPlayedHours = 999;
 
-    private readonly SAV6XY sav;
-    private readonly PlayerBag6XY bag;
+    private readonly SaveFile sav;
+    private readonly PlayerBag bag;
 
     public string SavePath { get; }
     public GameData Rom { get; private set; }
@@ -37,24 +38,31 @@ public sealed class SaveDocument
     /// <summary>The bytes that were on disk when opened (or last written), to notice if the game saved meanwhile.</summary>
     private byte[] diskBytes;
 
-    private SaveDocument(string savePath, SAV6XY sav, GameData rom, byte[] diskBytes)
+    private SaveDocument(string savePath, SaveFile sav, PlayerBag bag, GameData rom, byte[] diskBytes)
     {
         SavePath = savePath;
         this.sav = sav;
+        this.bag = bag;
         Rom = rom;
-        bag = sav.Inventory;
         this.diskBytes = diskBytes;
     }
 
-    /// <exception cref="SaveUpdateException">Not an X/Y save or damaged checksums.</exception>
+    /// <exception cref="SaveUpdateException">Not a supported save or damaged checksums.</exception>
     public static SaveDocument Open(string savePath, GameData rom)
     {
         byte[] bytes = File.ReadAllBytes(savePath);
-        var sav = SaveUpdater.Load(savePath) as SAV6XY
-                  ?? throw new SaveUpdateException(string.Format(Strings.Save_NotXY, savePath));
+        var sav = SaveUpdater.Load(savePath);
+        PlayerBag bag = sav switch
+        {
+            SAV6XY xy => xy.Inventory,
+            SAV6AO ao => ao.Inventory,
+            SAV7SM sm => sm.Inventory,
+            SAV7USUM usum => usum.Inventory,
+            _ => throw new SaveUpdateException(string.Format(Strings.Save_NotSupported, sav.GetType().Name)),
+        };
         if (!sav.ChecksumsValid)
             throw new SaveUpdateException(Strings.Save_BadChecksums);
-        return new SaveDocument(savePath, sav, rom, bytes);
+        return new SaveDocument(savePath, sav, bag, rom, bytes);
     }
 
     /// <summary>The file on disk is no longer what was opened (the game or another tool saved it).</summary>
@@ -62,7 +70,7 @@ public sealed class SaveDocument
 
     /// <summary>
     /// Replaces a save with a stored copy (for example one kept in the project history), after checking the copy is a
-    /// valid X/Y save. The current file is backed up first.
+    /// valid save. The current file is backed up first.
     /// </summary>
     /// <returns>Path of the backup of the replaced save.</returns>
     public static string ReplaceFile(string savePath, string copyPath, string backupRoot)
@@ -75,6 +83,17 @@ public sealed class SaveDocument
     public void UseRom(GameData rom) => Rom = rom;
 
     public void MarkDirty() => IsDirty = true;
+
+    /// <summary>6 or 7.</summary>
+    public int Generation => sav.Generation;
+
+    /// <summary>The game version the save belongs to (PKHeX).</summary>
+    public GameVersion Version => sav.Version;
+
+    // Typed access to the game-specific blocks.
+    private SAV6XY? XY => sav as SAV6XY;
+    private SAV6AO? AO => sav as SAV6AO;
+    private SAV7? Gen7 => sav as SAV7;
 
     // ------------------------------------------------------------------ trainer
 
@@ -105,8 +124,17 @@ public sealed class SaveDocument
 
     public int BattlePoints
     {
-        get => sav.BP;
-        set { value = Math.Clamp(value, 0, MaxBattlePoints); if (sav.BP != value) { sav.BP = value; MarkDirty(); } }
+        get => XY?.BP ?? AO?.BP ?? (int)(Gen7?.Misc.BP ?? 0);
+        set
+        {
+            value = Math.Clamp(value, 0, MaxBattlePoints);
+            if (BattlePoints == value)
+                return;
+            if (XY is { } xy) xy.BP = value;
+            else if (AO is { } ao) ao.BP = value;
+            else if (Gen7 is { } g7) g7.Misc.BP = (uint)value;
+            MarkDirty();
+        }
     }
 
     public int PlayedHours
@@ -127,13 +155,38 @@ public sealed class SaveDocument
         set { value = Math.Clamp(value, 0, 59); if (sav.PlayedSeconds != value) { sav.PlayedSeconds = value; MarkDirty(); } }
     }
 
-    public bool GetBadge(int index) => (sav.Badges & (1 << index)) != 0;
+    // ------------------------------------------------------------------ progression: badges (Gen 6) or trials (Gen 7)
 
-    public void SetBadge(int index, bool value)
+    /// <summary>Milestones the save tracks: 8 gym badges in Gen 6; in Gen 7 the four grand trials and the island challenge.</summary>
+    public int MilestoneCount => Generation == 6 ? 8 : 5;
+
+    /// <summary>Gen 6: badge bits 0–7. Gen 7: trainer stamps 1–5 (Melemele … Poni trials, island challenge completed).</summary>
+    public bool GetMilestone(int index) => Generation == 6
+        ? ((XY?.Badges ?? AO!.Badges) & (1 << index)) != 0
+        : (Gen7!.Misc.Stamps & (1u << (index + 1))) != 0;
+
+    public void SetMilestone(int index, bool value)
     {
-        int badges = value ? sav.Badges | (1 << index) : sav.Badges & ~(1 << index);
-        if (badges != sav.Badges) { sav.Badges = badges; MarkDirty(); }
+        if (GetMilestone(index) == value)
+            return;
+        if (Generation == 6)
+        {
+            int badges = XY?.Badges ?? AO!.Badges;
+            badges = value ? badges | (1 << index) : badges & ~(1 << index);
+            if (XY is { } xy) xy.Badges = badges; else AO!.Badges = badges;
+        }
+        else
+        {
+            uint bit = 1u << (index + 1);
+            Gen7!.Misc.Stamps = value ? Gen7.Misc.Stamps | bit : Gen7.Misc.Stamps & ~bit;
+        }
+        MarkDirty();
     }
+
+    /// <summary>A gym badge is a milestone (kept for the badge editor).</summary>
+    public bool GetBadge(int index) => GetMilestone(index);
+
+    public void SetBadge(int index, bool value) => SetMilestone(index, value);
 
     // ------------------------------------------------------------------ more trainer data (PKHeX's trainer editor)
 
@@ -141,18 +194,44 @@ public sealed class SaveDocument
     public const int VivillonPatterns = 20;
     private static readonly DateTime Epoch = new(2000, 1, 1);
 
-    /// <summary>The Mega Ring: Pokémon can Mega Evolve in battle.</summary>
+    /// <summary>The Mega Ring (Gen 6) or Key Stone (Gen 7): Pokémon can Mega Evolve in battle.</summary>
     public bool MegaEvolutionUnlocked
     {
-        get => sav.Status.IsMegaEvolutionUnlocked;
-        set { if (sav.Status.IsMegaEvolutionUnlocked != value) { sav.Status.IsMegaEvolutionUnlocked = value; MarkDirty(); } }
+        get => XY?.Status.IsMegaEvolutionUnlocked ?? AO?.Status.IsMegaEvolutionUnlocked ?? Gen7!.MyStatus.MegaUnlocked;
+        set
+        {
+            if (MegaEvolutionUnlocked == value)
+                return;
+            if (XY is { } xy) xy.Status.IsMegaEvolutionUnlocked = value;
+            else if (AO is { } ao) ao.Status.IsMegaEvolutionUnlocked = value;
+            else Gen7!.MyStatus.MegaUnlocked = value;
+            MarkDirty();
+        }
+    }
+
+    public bool HasZMoves => Gen7 is not null;
+
+    /// <summary>The Z-Ring (Gen 7): Z-Moves can be used.</summary>
+    public bool ZMovesUnlocked
+    {
+        get => Gen7?.MyStatus.ZMoveUnlocked ?? false;
+        set { if (Gen7 is { } g7 && g7.MyStatus.ZMoveUnlocked != value) { g7.MyStatus.ZMoveUnlocked = value; MarkDirty(); } }
     }
 
     /// <summary>Vivillon pattern of the player's region (0–19).</summary>
     public int Vivillon
     {
-        get => sav.Vivillon;
-        set { value = Math.Clamp(value, 0, VivillonPatterns - 1); if (sav.Vivillon != value) { sav.Vivillon = value; MarkDirty(); } }
+        get => XY?.Vivillon ?? AO?.Vivillon ?? Gen7!.Misc.Vivillon;
+        set
+        {
+            value = Math.Clamp(value, 0, VivillonPatterns - 1);
+            if (Vivillon == value)
+                return;
+            if (XY is { } xy) xy.Vivillon = value;
+            else if (AO is { } ao) ao.Vivillon = value;
+            else Gen7!.Misc.Vivillon = value;
+            MarkDirty();
+        }
     }
 
     public int BoxesUnlocked
@@ -161,23 +240,28 @@ public sealed class SaveDocument
         set { value = Math.Clamp(value, 1, sav.BoxCount); if (sav.BoxesUnlocked != value) { sav.BoxesUnlocked = value; MarkDirty(); } }
     }
 
+    /// <summary>PR Video phrases (Generation 6).</summary>
+    public bool HasSayings => Generation == 6;
+
+    private MyStatus6? Status6 => XY?.Status ?? AO?.Status;
+
     /// <summary>PR Video phrases 1–5.</summary>
-    public string GetSaying(int index) => index switch
+    public string GetSaying(int index) => Status6 is not { } status ? "" : index switch
     {
-        0 => sav.Status.Saying1, 1 => sav.Status.Saying2, 2 => sav.Status.Saying3, 3 => sav.Status.Saying4, _ => sav.Status.Saying5,
+        0 => status.Saying1, 1 => status.Saying2, 2 => status.Saying3, 3 => status.Saying4, _ => status.Saying5,
     };
 
     public void SetSaying(int index, string value)
     {
-        if (value.Length > MaxSayingLength || GetSaying(index) == value)
+        if (Status6 is not { } status || value.Length > MaxSayingLength || GetSaying(index) == value)
             return;
         switch (index)
         {
-            case 0: sav.Status.Saying1 = value; break;
-            case 1: sav.Status.Saying2 = value; break;
-            case 2: sav.Status.Saying3 = value; break;
-            case 3: sav.Status.Saying4 = value; break;
-            default: sav.Status.Saying5 = value; break;
+            case 0: status.Saying1 = value; break;
+            case 1: status.Saying2 = value; break;
+            case 2: status.Saying3 = value; break;
+            case 3: status.Saying4 = value; break;
+            default: status.Saying5 = value; break;
         }
         MarkDirty();
     }
@@ -185,67 +269,102 @@ public sealed class SaveDocument
     /// <summary>When the adventure started.</summary>
     public DateTime GameStarted
     {
-        get => Epoch.AddSeconds(sav.GameTime.SecondsToStart);
-        set { uint s = ToSeconds(value); if (sav.GameTime.SecondsToStart != s) { sav.GameTime.SecondsToStart = s; MarkDirty(); } }
+        get => Epoch.AddSeconds(sav.SecondsToStart);
+        set { uint s = ToSeconds(value); if (sav.SecondsToStart != s) { sav.SecondsToStart = s; MarkDirty(); } }
     }
 
     /// <summary>First entry into the Hall of Fame; null while the league has not been beaten.</summary>
     public DateTime? HallOfFame
     {
-        get => sav.GameTime.SecondsToFame == 0 ? null : Epoch.AddSeconds(sav.GameTime.SecondsToFame);
-        set { uint s = value is { } d ? ToSeconds(d) : 0; if (sav.GameTime.SecondsToFame != s) { sav.GameTime.SecondsToFame = s; MarkDirty(); } }
+        get => sav.SecondsToFame == 0 ? null : Epoch.AddSeconds(sav.SecondsToFame);
+        set { uint s = value is { } d ? ToSeconds(d) : 0; if (sav.SecondsToFame != s) { sav.SecondsToFame = s; MarkDirty(); } }
     }
 
-    public DateTime? LastSaved => sav.Played.LastSavedDate;
+    public DateTime? LastSaved => (XY?.Played ?? AO?.Played ?? Gen7?.Played)?.LastSavedDate;
 
     private static uint ToSeconds(DateTime date) => (uint)Math.Clamp((date - Epoch).TotalSeconds, 0, uint.MaxValue);
 
-    /// <summary>Game records (steps, battles…): (id, PKHeX name) for the ones PKHeX knows.</summary>
-    public static IReadOnlyList<(int Id, string Name)> RecordNames { get; } =
-        RecordLists.RecordList_6.OrderBy(r => r.Key).Select(r => (r.Key, r.Value)).ToList();
+    /// <summary>Game records (steps, battles…): (id, PKHeX name) for the ones PKHeX knows in this generation.</summary>
+    public IReadOnlyList<(int Id, string Name)> RecordNames =>
+        (Generation == 6 ? RecordLists.RecordList_6 : RecordLists.RecordList_7).OrderBy(r => r.Key).Select(r => (r.Key, r.Value)).ToList();
 
-    public int GetRecord(int id) => sav.GetRecord(id);
-    public int GetRecordMax(int id) => sav.GetRecordMax(id);
+    private RecordBlock6? RecordBlock => sav switch
+    {
+        SAV6XY xy => xy.Records,
+        SAV6AO ao => ao.Records,
+        SAV7 s7 => s7.Records,
+        _ => null,
+    };
+
+    public int GetRecord(int id) => RecordBlock?.GetRecord(id) ?? 0;
+    public int GetRecordMax(int id) => RecordBlock?.GetRecordMax(id) ?? 0;
 
     public void SetRecord(int id, int value)
     {
-        value = Math.Clamp(value, 0, sav.GetRecordMax(id));
-        if (sav.GetRecord(id) != value) { sav.SetRecord(id, value); MarkDirty(); }
+        if (RecordBlock is not { } records)
+            return;
+        value = Math.Clamp(value, 0, records.GetRecordMax(id));
+        if (records.GetRecord(id) != value) { records.SetRecord(id, value); MarkDirty(); }
     }
+
+    /// <summary>Battle Maison, O-Powers, Super Training and Poké Puffs (Generation 6).</summary>
+    public bool HasGen6Extras => Generation == 6;
+
+    /// <summary>Friend Safari and fashion items (X/Y only).</summary>
+    public bool HasXYExtras => XY is not null;
 
     /// <summary>Battle Maison styles in PKHeX order.</summary>
     public static IReadOnlyList<BattleStyle6> MaisonStyles { get; } =
         [BattleStyle6.Single, BattleStyle6.Double, BattleStyle6.Triple, BattleStyle6.Rotation, BattleStyle6.Multi];
 
-    public int GetMaison(BattleStyle6 style, bool current, bool super) => sav.Maison.GetMaisonStat(style, current, super);
+    private MaisonBlock? Maison => XY?.Maison ?? AO?.Maison;
+
+    public int GetMaison(BattleStyle6 style, bool current, bool super) => Maison?.GetMaisonStat(style, current, super) ?? 0;
 
     public void SetMaison(BattleStyle6 style, bool current, bool super, int value)
     {
         ushort v = (ushort)Math.Clamp(value, 0, ushort.MaxValue);
-        if (sav.Maison.GetMaisonStat(style, current, super) != v) { sav.Maison.SetMaisonStat(style, current, super, v); MarkDirty(); }
+        if (Maison is { } maison && maison.GetMaisonStat(style, current, super) != v) { maison.SetMaisonStat(style, current, super, v); MarkDirty(); }
     }
+
+    private OPower6? OPower => XY?.OPower ?? AO?.OPower;
 
     public int OPowerPoints
     {
-        get => sav.OPower.Points;
-        set { byte v = (byte)Math.Clamp(value, 0, 255); if (sav.OPower.Points != v) { sav.OPower.Points = v; MarkDirty(); } }
+        get => OPower?.Points ?? 0;
+        set { byte v = (byte)Math.Clamp(value, 0, 255); if (OPower is { } o && o.Points != v) { o.Points = v; MarkDirty(); } }
     }
 
-    public void UnlockAllOPowers() { sav.OPower.UnlockAll(); MarkDirty(); }
-    public void UnlockAllFriendSafari() { sav.UnlockAllFriendSafariSlots(); MarkDirty(); }
-    public void UnlockAllFashion() { sav.Fashion.UnlockAllAccessories(); MarkDirty(); }
-    public void UnlockAllSuperTraining() { sav.SuperTrain.UnlockAllStages(dist: true); MarkDirty(); }
-    public void FillPokePuffs() { sav.Puff.MaxCheat(special: false); MarkDirty(); }
-    public int PokePuffCount => sav.Puff.PuffCount;
+    public void UnlockAllOPowers() { if (OPower is { } o) { o.UnlockAll(); MarkDirty(); } }
+    public void UnlockAllFriendSafari() { if (XY is { } xy) { xy.UnlockAllFriendSafariSlots(); MarkDirty(); } }
+    public void UnlockAllFashion() { if (XY is { } xy) { xy.Fashion.UnlockAllAccessories(); MarkDirty(); } }
+
+    public void UnlockAllSuperTraining()
+    {
+        if (XY is { } xy) xy.SuperTrain.UnlockAllStages(dist: true);
+        else if (AO is { } ao) ao.SuperTrain.UnlockAllStages(dist: true);
+        else return;
+        MarkDirty();
+    }
+
+    private Puff6? Puff => XY?.Puff ?? AO?.Puff;
+
+    public void FillPokePuffs() { if (Puff is { } p) { p.MaxCheat(special: false); MarkDirty(); } }
+    public int PokePuffCount => Puff?.PuffCount ?? 0;
+
+    /// <summary>Where the player is (Generation 6 only here).</summary>
+    public bool HasPosition => Generation == 6;
+
+    private Situation6? Situation => XY?.Situation ?? AO?.Situation;
 
     /// <summary>Where the player is: map number and coordinates. A wrong value can leave the player stuck.</summary>
-    public (int Map, float X, float Y, float Z, int Rotation) Position => (sav.Situation.M, sav.Situation.X, sav.Situation.Y, sav.Situation.Z, sav.Situation.R);
+    public (int Map, float X, float Y, float Z, int Rotation) Position => Situation is { } s ? (s.M, s.X, s.Y, s.Z, s.R) : (0, 0, 0, 0, 0);
 
     public void SetPosition(int map, float x, float y, float z, int rotation)
     {
-        if (Position == (map, x, y, z, rotation))
+        if (Situation is not { } situation || Position == (map, x, y, z, rotation))
             return;
-        (sav.Situation.M, sav.Situation.X, sav.Situation.Y, sav.Situation.Z, sav.Situation.R) = (map, x, y, z, rotation);
+        (situation.M, situation.X, situation.Y, situation.Z, situation.R) = (map, x, y, z, rotation);
         MarkDirty();
     }
 
@@ -256,10 +375,10 @@ public sealed class SaveDocument
     public const int PartySize = 6;
     public int PartyCount => sav.PartyCount;
 
-    public string BoxName(int box) => sav.GetBoxName(box);
+    public string BoxName(int box) => sav is IBoxDetailName names ? names.GetBoxName(box) : $"Box {box + 1}";
 
     /// <summary>A copy of the Pokémon in the slot (species 0 when empty). Changes apply with <see cref="Set"/>.</summary>
-    public PK6 Get(SaveSlot slot) => (PK6)(slot.Box is { } box
+    public PKM Get(SaveSlot slot) => (slot.Box is { } box
         ? sav.GetBoxSlotAtIndex(box, slot.Slot)
         : slot.Slot < sav.PartyCount ? sav.GetPartySlotAtIndex(slot.Slot) : sav.BlankPKM).Clone();
 
@@ -269,7 +388,7 @@ public sealed class SaveDocument
     /// Stores the Pokémon. Party slots are filled in order (a Pokémon placed after the last one goes right after it);
     /// party stats are recalculated with the ROM.
     /// </summary>
-    public SaveSlot Set(SaveSlot slot, PK6 pk)
+    public SaveSlot Set(SaveSlot slot, PKM pk)
     {
         pk = pk.Clone();
         Normalize(pk, slot.IsParty);
@@ -305,9 +424,9 @@ public sealed class SaveDocument
     }
 
     /// <summary>A new Pokémon of the trainer: level, ability 1, the latest level-up moves and a random nature and IVs.</summary>
-    public PK6 Create(ushort species, int level)
+    public PKM Create(ushort species, int level)
     {
-        var pk = new PK6();
+        var pk = sav.BlankPKM;
         EntityTemplates.TemplateFields(pk, sav);
         pk.Species = species;
         pk.Form = 0;
@@ -323,7 +442,7 @@ public sealed class SaveDocument
         pk.AbilityNumber = 1;
         pk.Language = sav.Language;
         pk.IsNicknamed = false;
-        pk.Nickname = SpeciesName.GetSpeciesNameGeneration(species, sav.Language, 6);
+        pk.Nickname = SpeciesName.GetSpeciesNameGeneration(species, sav.Language, (byte)sav.Generation);
 
         var personal = Personal(species, 0);
         if (personal is not null)
@@ -427,7 +546,7 @@ public sealed class SaveDocument
     /// Makes the Pokémon consistent with the ROM after an edit: ability from its ability number, gender allowed by the
     /// species, current PP within the maximum, and party stats and level.
     /// </summary>
-    public void Normalize(PK6 pk, bool isParty)
+    public void Normalize(PKM pk, bool isParty)
     {
         if (pk.Species == 0)
             return;
@@ -451,7 +570,7 @@ public sealed class SaveDocument
         pk.Move4_PP = Math.Min(pk.Move4_PP, MaxPP(pk.Move4, pk.Move4_PPUps));
 
         if (!pk.IsNicknamed)
-            pk.Nickname = SpeciesName.GetSpeciesNameGeneration(pk.Species, pk.Language, 6);
+            pk.Nickname = SpeciesName.GetSpeciesNameGeneration(pk.Species, pk.Language, (byte)sav.Generation);
 
         if (isParty)
         {
@@ -553,7 +672,8 @@ public sealed class SaveDocument
             {
                 if (!legal.Contains(item.Index))
                     problems.Add(new SaveProblem(null, string.Format(Strings.Check_BagItem, item.Index, pouch.Type)));
-                else if (item.Count <= 0 || item.Count > pouch.MaxCount)
+                // Gen 7 keeps used-up items in the bag with count 0 (the game writes them); Gen 6 removes them.
+                else if (item.Count < (Generation == 6 ? 1 : 0) || item.Count > pouch.MaxCount)
                     problems.Add(new SaveProblem(null, string.Format(Strings.Check_BagCount, item.Index, item.Count, pouch.MaxCount)));
             }
         }
@@ -647,13 +767,9 @@ public sealed class SaveDocument
     {
         if (GetSeen(species) == value)
             return;
-        if (value)
-            sav.Zukan.SetSeen(species, true);
-        else
-        {
-            sav.Zukan.SetCaught(species, false);
-            sav.Zukan.ClearSeen(species);
-        }
+        if (!value)
+            sav.SetCaught(species, false);
+        sav.SetSeen(species, value);
         MarkDirty();
     }
 
@@ -662,15 +778,8 @@ public sealed class SaveDocument
         if (GetCaught(species) == value)
             return;
         if (value)
-        {
-            sav.Zukan.SetSeen(species, true);
-            sav.Zukan.SetCaught(species, true);
-            sav.Zukan.SetLanguageFlag(species, (LanguageID)sav.Language, true);
-        }
-        else
-        {
-            sav.Zukan.SetCaught(species, false);
-        }
+            sav.SetSeen(species, true);
+        sav.SetCaught(species, value);
         MarkDirty();
     }
 

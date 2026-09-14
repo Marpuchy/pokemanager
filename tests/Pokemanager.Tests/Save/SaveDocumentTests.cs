@@ -141,7 +141,7 @@ public sealed class SaveDocumentTests : IDisposable
         Assert.Equal(50, reread.OPowerPoints);
         Assert.True(reread.PokePuffCount > 0);
         Assert.Equal((157, 100.5f, 0f, -20f, 0), reread.Position);
-        Assert.NotEmpty(SaveDocument.RecordNames);
+        Assert.NotEmpty(reread.RecordNames);
     }
 
     [Fact]

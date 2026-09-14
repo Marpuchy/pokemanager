@@ -93,4 +93,118 @@
   <data name="Data_NewerFormat" xml:space="preserve">
     <value>El archivo de datos usa el formato {0}; esta versión solo entiende hasta el {1}.</value>
   </data>
+  <data name="Rom_NotA3dsRom" xml:space="preserve">
+    <value>{0} no es una ROM de 3DS (.3ds, .cci o .cxi).</value>
+  </data>
+  <data name="Rom_Encrypted" xml:space="preserve">
+    <value>{0} está cifrada. Pokemanager necesita una ROM descifrada (por ejemplo, volcada con GodMode9 como «decrypted»).</value>
+  </data>
+  <data name="Rom_Damaged" xml:space="preserve">
+    <value>{0} parece dañada: no se ha podido leer su sistema de archivos.</value>
+  </data>
+  <data name="Dump_FileMissing" xml:space="preserve">
+    <value>Falta {0} en la carpeta del juego. Vuelve a crear el proyecto desde la ROM para recuperarlo.</value>
+  </data>
+  <data name="Game_X" xml:space="preserve">
+    <value>Pokémon X</value>
+  </data>
+  <data name="Game_Y" xml:space="preserve">
+    <value>Pokémon Y</value>
+  </data>
+  <data name="Game_OmegaRuby" xml:space="preserve">
+    <value>Pokémon Rubí Omega</value>
+  </data>
+  <data name="Game_AlphaSapphire" xml:space="preserve">
+    <value>Pokémon Zafiro Alfa</value>
+  </data>
+  <data name="Game_Sun" xml:space="preserve">
+    <value>Pokémon Sol</value>
+  </data>
+  <data name="Game_Moon" xml:space="preserve">
+    <value>Pokémon Luna</value>
+  </data>
+  <data name="Game_UltraSun" xml:space="preserve">
+    <value>Pokémon Ultrasol</value>
+  </data>
+  <data name="Game_UltraMoon" xml:space="preserve">
+    <value>Pokémon Ultraluna</value>
+  </data>
+  <data name="Badge_Bug" xml:space="preserve">
+    <value>Medalla Insecto</value>
+  </data>
+  <data name="Badge_Cliff" xml:space="preserve">
+    <value>Medalla Muro</value>
+  </data>
+  <data name="Badge_Rumble" xml:space="preserve">
+    <value>Medalla Lucha</value>
+  </data>
+  <data name="Badge_Plant" xml:space="preserve">
+    <value>Medalla Planta</value>
+  </data>
+  <data name="Badge_Voltage" xml:space="preserve">
+    <value>Medalla Voltio</value>
+  </data>
+  <data name="Badge_Fairy" xml:space="preserve">
+    <value>Medalla Hada</value>
+  </data>
+  <data name="Badge_Psychic" xml:space="preserve">
+    <value>Medalla Psique</value>
+  </data>
+  <data name="Badge_Iceberg" xml:space="preserve">
+    <value>Medalla Iceberg</value>
+  </data>
+  <data name="Badge_Stone" xml:space="preserve">
+    <value>Medalla Piedra</value>
+  </data>
+  <data name="Badge_Knuckle" xml:space="preserve">
+    <value>Medalla Puño</value>
+  </data>
+  <data name="Badge_Dynamo" xml:space="preserve">
+    <value>Medalla Dinamo</value>
+  </data>
+  <data name="Badge_Heat" xml:space="preserve">
+    <value>Medalla Calor</value>
+  </data>
+  <data name="Badge_Balance" xml:space="preserve">
+    <value>Medalla Equilibrio</value>
+  </data>
+  <data name="Badge_Feather" xml:space="preserve">
+    <value>Medalla Pluma</value>
+  </data>
+  <data name="Badge_Mind" xml:space="preserve">
+    <value>Medalla Mente</value>
+  </data>
+  <data name="Badge_Rain" xml:space="preserve">
+    <value>Medalla Lluvia</value>
+  </data>
+  <data name="Trial_Melemele" xml:space="preserve">
+    <value>Gran prueba de Melemele</value>
+  </data>
+  <data name="Trial_Akala" xml:space="preserve">
+    <value>Gran prueba de Akala</value>
+  </data>
+  <data name="Trial_Ulaula" xml:space="preserve">
+    <value>Gran prueba de Ula'ula</value>
+  </data>
+  <data name="Trial_Poni" xml:space="preserve">
+    <value>Gran prueba de Poni</value>
+  </data>
+  <data name="Trial_Champion" xml:space="preserve">
+    <value>Recorrido insular completado</value>
+  </data>
+  <data name="Import_UnsupportedGame" xml:space="preserve">
+    <value>{0} no es un juego compatible (ID de título {1}). Pokemanager funciona con Pokémon X, Y, Rubí Omega, Zafiro Alfa, Sol, Luna, Ultrasol y Ultraluna.</value>
+  </data>
+  <data name="Import_MissingFile" xml:space="preserve">
+    <value>{0} no contiene {1}: puede estar dañada o modificada.</value>
+  </data>
+  <data name="Import_Looking" xml:space="preserve">
+    <value>Leyendo la ROM…</value>
+  </data>
+  <data name="Import_Copying" xml:space="preserve">
+    <value>Copiando datos del juego {0} ({1}/{2})…</value>
+  </data>
+  <data name="Import_Code" xml:space="preserve">
+    <value>Extrayendo code.bin…</value>
+  </data>
 </root>

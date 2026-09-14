@@ -89,6 +89,19 @@ public sealed class AppSettings
     /// <summary>Save backups made before modifying a save.</summary>
     public static string BackupRoot => Path.Combine(DataRoot, "save-backups");
 
+    /// <summary>
+    /// <c>Documents\Pokemanager</c>: the user's projects and the game data imported from their ROMs.
+    /// <c>POKEMANAGER_DOCUMENTS</c> moves it (tests and harnesses must not use the real one).
+    /// </summary>
+    public static string DocumentsRoot => Environment.GetEnvironmentVariable("POKEMANAGER_DOCUMENTS") is { Length: > 0 } custom
+        ? custom
+        : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Pokemanager");
+
+    /// <summary>One folder per imported ROM, with only the files Pokemanager reads.</summary>
+    public static string GamesRoot => Path.Combine(DocumentsRoot, "Games");
+
+    public static string ProjectsRoot => Path.Combine(DocumentsRoot, "Projects");
+
     public static string DefaultFilePath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Pokemanager", "settings.json");
 

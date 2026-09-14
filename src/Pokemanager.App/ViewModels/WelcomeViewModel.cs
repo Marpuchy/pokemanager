@@ -18,13 +18,38 @@ public partial class WelcomeViewModel : ObservableObject
 
     public bool HasRecentProjects => RecentProjects.Count > 0;
 
+    /// <summary>The decrypted ROM the new project is made from.</summary>
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CreateCommand))]
-    public partial string DumpDirectory { get; set; }
+    public partial string RomPath { get; set; } = "";
+
+    /// <summary>Name of the new project (its file in Documents\Pokemanager\Projects).</summary>
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(CreateCommand))]
+    [NotifyPropertyChangedFor(nameof(ProjectFileText))]
+    public partial string ProjectName { get; set; } = "";
+
+    /// <summary>"Pokémon Ultra Moon" once the ROM is recognized.</summary>
+    [ObservableProperty]
+    public partial string? DetectedGame { get; set; }
+
+    /// <summary>The chosen ROM already has a randomizer log next to it.</summary>
+    [ObservableProperty]
+    public partial bool RomLooksRandomized { get; set; }
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CreateCommand))]
-    public partial string ProjectPath { get; set; }
+    public partial bool IsCreating { get; set; }
+
+    [ObservableProperty]
+    public partial string? CreateStatus { get; set; }
+
+    private GameTitle? detectedTitle;
+    private string lastSuggestedName = "";
+
+    public string ProjectFileText => string.Format(Strings.Welcome_ProjectWillBe, ProjectFilePath(ProjectName.Trim()));
+
+    public string GamesFolderText => string.Format(Strings.Welcome_GameDataWillBe, AppSettings.GamesRoot);
 
     [ObservableProperty]
     public partial string? Error { get; set; }
@@ -58,8 +83,6 @@ public partial class WelcomeViewModel : ObservableObject
     {
         this.main = main;
         this.dialogs = dialogs;
-        DumpDirectory = Environment.GetEnvironmentVariable("POKEMANAGER_DUMP") ?? "";
-        ProjectPath = SuggestProjectPath();
         LoadRecentProjects();
         ShowNewProject = RecentProjects.Count == 0;
         SelectedProject = RecentProjects.FirstOrDefault(p => string.Equals(p.Path, main.Settings.LastProject, StringComparison.OrdinalIgnoreCase))
@@ -123,16 +146,7 @@ public partial class WelcomeViewModel : ObservableObject
         ShowNewProject = true;
     }
 
-    /// <summary>Documents/Pokemanager/pokemon-x.json, or pokemon-x2.json… if it already exists.</summary>
-    private static string SuggestProjectPath()
-    {
-        string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Pokemanager");
-        string path = Path.Combine(dir, "pokemon-x.json");
-        for (int i = 2; File.Exists(path); i++)
-            path = Path.Combine(dir, $"pokemon-x{i}.json");
-        return path;
-    }
-
+    private static string ProjectFilePath(string name) => Path.Combine(AppSettings.ProjectsRoot, name + ".json");
 
     internal void Forget(RecentProjectItem item)
     {
@@ -148,55 +162,94 @@ public partial class WelcomeViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task BrowseDump()
+    private async Task BrowseRom()
     {
-        if (await dialogs.PickFolderAsync(Strings.Welcome_PickDumpTitle, DumpDirectory) is { } path)
-            DumpDirectory = path;
+        if (await dialogs.PickOpenFileAsync(Strings.Welcome_PickRomTitle, ["*.3ds", "*.cci", "*.cxi"]) is { } path)
+            RomPath = path;
     }
 
-    [RelayCommand]
-    private async Task BrowseProject()
+    /// <summary>Recognizes the game as soon as a ROM is chosen, and names the project after the ROM.</summary>
+    partial void OnRomPathChanged(string value)
     {
-        if (await dialogs.PickSaveFileAsync(Strings.Welcome_SaveProjectTitle, Path.GetFileName(ProjectPath)) is { } path)
-            ProjectPath = path;
+        Error = null;
+        DetectedGame = null;
+        detectedTitle = null;
+        RomLooksRandomized = false;
+        if (string.IsNullOrWhiteSpace(value) || !File.Exists(value))
+            return;
+        try
+        {
+            detectedTitle = GameImporter.Detect(value);
+            DetectedGame = string.Format(Strings.Welcome_Detected, detectedTitle.Value.DisplayName());
+            RomLooksRandomized = File.Exists(value + ".log");
+            string suggested = Path.GetFileNameWithoutExtension(value);
+            if (ProjectName.Length == 0 || ProjectName == lastSuggestedName)
+                ProjectName = suggested;
+            lastSuggestedName = suggested;
+        }
+        catch (Exception ex) when (ex is RomReadException or IOException or UnauthorizedAccessException)
+        {
+            Error = ex.Message;
+        }
+        CreateCommand.NotifyCanExecuteChanged();
     }
 
     [RelayCommand]
     private async Task OpenSettings() =>
         await dialogs.ShowSettingsAsync(new SettingsViewModel(main.Settings, main.Upr, dialogs, null, GameTitle.X));
 
-    private bool CanCreate() => !string.IsNullOrWhiteSpace(DumpDirectory) && !string.IsNullOrWhiteSpace(ProjectPath);
+    private bool CanCreate() => !IsCreating && detectedTitle is not null && !string.IsNullOrWhiteSpace(ProjectName);
 
+    /// <summary>
+    /// Imports the ROM's game data into Documents\Pokemanager\Games (reusing it if that ROM was already imported),
+    /// creates the project in Documents\Pokemanager\Projects and opens it.
+    /// </summary>
     [RelayCommand(CanExecute = nameof(CanCreate))]
-    private void Create()
+    private async Task Create()
     {
         Error = null;
-        var inspection = DumpInspector.Inspect(Path.Combine(DumpDirectory, "romfs"), Path.Combine(DumpDirectory, "exefs"));
-        if (!inspection.IsValid)
+        string name = ProjectName.Trim();
+        if (name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
         {
-            Error = Strings.Welcome_DumpInvalid + "\n- " + string.Join("\n- ", inspection.Problems);
+            Error = Strings.Welcome_NameInvalid;
+            return;
+        }
+        string projectPath = ProjectFilePath(name);
+        if (File.Exists(projectPath))
+        {
+            Error = string.Format(Strings.Welcome_ProjectExists, projectPath);
             return;
         }
 
-        if (File.Exists(ProjectPath))
-        {
-            Error = string.Format(Strings.Welcome_ProjectExists, ProjectPath);
-            return;
-        }
-
+        string rom = Path.GetFullPath(RomPath);
+        IsCreating = true;
         try
         {
-            string dump = Path.GetFullPath(DumpDirectory);
-            // The base ROM is fixed when the project is created: randomized ROMs may appear in the same folder later.
-            new Project { DumpDirectory = dump, RomFile = Project.FindBaseRom(dump), Language = GameTextLanguage.Current }.Save(ProjectPath);
+            var progress = new Progress<string>(text => CreateStatus = text);
+            var loaded = await Task.Run(() =>
+            {
+                Directory.CreateDirectory(AppSettings.GamesRoot);
+                var imported = GameImporter.Import(rom, AppSettings.GamesRoot, progress);
+                // The base ROM is fixed when the project is created: randomized ROMs may appear in the same folder later.
+                new Project { DumpDirectory = imported.Directory, RomFile = rom, Game = imported.Game, Language = GameTextLanguage.Current }
+                    .Save(projectPath);
+                return ProjectLoader.Load(projectPath, main.Upr);
+            });
+            main.Manage(loaded);
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        catch (Exception ex) when (ex is RomReadException or IOException or UnauthorizedAccessException)
         {
             Error = string.Format(Strings.Welcome_CreateFailed, ex.Message);
-            return;
         }
-
-        Error = main.OpenProject(ProjectPath);
+        catch (ProjectLoadException ex)
+        {
+            Error = ex.Message;
+        }
+        finally
+        {
+            IsCreating = false;
+            CreateStatus = null;
+        }
     }
 
     [RelayCommand]

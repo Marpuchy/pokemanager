@@ -44,7 +44,7 @@ public sealed class EditorSession
         var layers = randomizedRomFs is null
             ? new RomFsLayers(project.RomFsPath)
             : new RomFsLayers(randomizedRomFs, project.RomFsPath);
-        var session = new EditorSession(project, layers, GameData.Load(layers), GameData.Load(layers));
+        var session = new EditorSession(project, layers, GameData.Load(layers, project.Game), GameData.Load(layers, project.Game));
         var errors = new List<string>();
         foreach (var edit in project.Edits.All)
         {

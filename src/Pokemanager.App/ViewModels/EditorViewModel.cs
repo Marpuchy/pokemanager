@@ -80,7 +80,7 @@ public partial class EditorViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(BuildRomCommand), nameof(AdaptSaveCommand), nameof(PlayCommand))]
     public partial bool IsBusy { get; set; }
 
-    public string GameText => string.Format(Strings.Editor_GameText, Dump.Title, Dump.Title.TitleIdHex(), Session.Project.DumpDirectory);
+    public string GameText => string.Format(Strings.Editor_GameText, Dump.Title.DisplayName(), Dump.Title.TitleIdHex(), Session.Project.DumpDirectory);
     public string EditCountText => Session.Project.Edits.Count == 1 ? Strings.Editor_EditCountOne : string.Format(Strings.Editor_EditCount, Session.Project.Edits.Count);
     public string DirtyText => IsDirty ? Strings.Editor_Unsaved : Strings.Editor_Saved;
     public string EmulatorText => string.Format(Strings.Editor_Emulator, settings.EffectiveEmulatorName);
@@ -462,7 +462,7 @@ public partial class EditorViewModel : ObservableObject
         string random = r.Enabled
             ? string.Format(Strings.History_Random, r.Seed, r.PresetName ?? Strings.Rnd_PresetDefaults)
             : Strings.History_NotRandom;
-        return $"Pokémon {Dump.Title} · {random} · {EditCountText}";
+        return $"{Dump.Title.DisplayName()} · {random} · {EditCountText}";
     }
 
     [RelayCommand]
@@ -507,7 +507,7 @@ public partial class EditorViewModel : ObservableObject
         }
 
         string scope = file.Scope == PokemonDataScope.All ? Strings.Data_ScopeAll : Strings.Data_ScopeEdits;
-        string game = file.Game is { } g && g != Dump.Title ? string.Format(Strings.Data_OtherGame, g, Dump.Title) : "";
+        string game = file.Game is { } g && g != Dump.Title ? string.Format(Strings.Data_OtherGame, g.DisplayName(), Dump.Title.DisplayName()) : "";
         var replace = new DialogCheck(Strings.Data_Replace, isChecked: false, isEnabled: Session.Project.Edits.Count > 0);
         var question = new QuestionViewModel(Strings.Data_ImportTitle,
             string.Format(Strings.Data_ImportMessage, Path.GetFileName(path), file.Description ?? "—", scope, file.ValueCount, game),

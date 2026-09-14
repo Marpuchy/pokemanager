@@ -347,11 +347,12 @@
                     <TextBlock Classes="section" Text="{x:Static r:Strings.Trainer_Progress}" />
                     <CheckBox IsChecked="{Binding MegaEvolution}" Content="{x:Static r:Strings.Trainer_MegaEvolution}" />
                     <TextBlock Classes="hint" Margin="28,0,0,6" Text="{x:Static r:Strings.Trainer_MegaEvolutionHint}" />
-                    <TextBlock Margin="0,4,0,4" Text="{x:Static r:Strings.Trainer_Badges}" />
+                    <CheckBox IsChecked="{Binding ZMoves}" Content="{x:Static r:Strings.Trainer_ZMoves}" IsVisible="{Binding HasZMoves}" />
+                    <TextBlock Margin="0,4,0,4" Text="{Binding MilestonesTitle}" />
                     <ItemsControl ItemsSource="{Binding Badges}">
                       <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                          <UniformGrid Columns="4" />
+                          <UniformGrid Columns="2" />
                         </ItemsPanelTemplate>
                       </ItemsControl.ItemsPanel>
                       <ItemsControl.ItemTemplate>
@@ -399,9 +400,9 @@
                       <TextBlock Grid.Row="4" Grid.Column="1" Classes="hint" Text="{Binding LastSavedText}" />
                     </Grid>
 
-                    <TextBlock Classes="section" Text="{x:Static r:Strings.Trainer_Sayings}" />
-                    <TextBlock Classes="hint" Text="{x:Static r:Strings.Trainer_SayingsHint}" />
-                    <ItemsControl ItemsSource="{Binding Sayings}">
+                    <TextBlock Classes="section" Text="{x:Static r:Strings.Trainer_Sayings}" IsVisible="{Binding HasSayings}" />
+                    <TextBlock Classes="hint" Text="{x:Static r:Strings.Trainer_SayingsHint}" IsVisible="{Binding HasSayings}" />
+                    <ItemsControl ItemsSource="{Binding Sayings}" IsVisible="{Binding HasSayings}">
                       <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:SayingViewModel">
                           <Grid ColumnDefinitions="170,*" Margin="0,3">
@@ -438,7 +439,7 @@
             </TabItem>
 
             <!-- Battle Maison -->
-            <TabItem Header="{x:Static r:Strings.Trainer_TabMaison}">
+            <TabItem Header="{x:Static r:Strings.Trainer_TabMaison}" IsVisible="{Binding HasGen6Extras}">
               <StackPanel Margin="16,8" Spacing="6">
                 <TextBlock Classes="hint" Text="{x:Static r:Strings.Maison_Hint}" />
                 <Grid ColumnDefinitions="140,150,150,150,150" Margin="0,8,0,0">
@@ -473,26 +474,26 @@
                       <Setter Property="Margin" Value="0,5" />
                     </Style>
                   </Grid.Styles>
-                  <Button Grid.Row="0" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Trainer_UnlockOPowers}" Command="{Binding UnlockOPowersCommand}" />
-                  <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="12,5,0,5">
+                  <Button Grid.Row="0" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Trainer_UnlockOPowers}" Command="{Binding UnlockOPowersCommand}" IsVisible="{Binding HasGen6Extras}" />
+                  <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="12,5,0,5" IsVisible="{Binding HasGen6Extras}">
                     <TextBlock VerticalAlignment="Center" Text="{x:Static r:Strings.Trainer_OPowerPoints}" />
                     <NumericUpDown Value="{Binding OPowerPoints}" Minimum="0" Maximum="255" FormatString="0" ParsingNumberStyle="Integer" Width="130" />
                   </StackPanel>
-                  <Button Grid.Row="1" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Trainer_UnlockSafari}" Command="{Binding UnlockFriendSafariCommand}" />
-                  <TextBlock Grid.Row="1" Grid.Column="1" Classes="hint" Margin="12,0,0,0" VerticalAlignment="Center" Text="{x:Static r:Strings.Trainer_UnlockSafariHint}" />
-                  <Button Grid.Row="2" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Trainer_UnlockFashion}" Command="{Binding UnlockFashionCommand}" />
-                  <TextBlock Grid.Row="2" Grid.Column="1" Classes="hint" Margin="12,0,0,0" VerticalAlignment="Center" Text="{x:Static r:Strings.Trainer_UnlockFashionHint}" />
-                  <Button Grid.Row="3" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Trainer_UnlockSuperTraining}" Command="{Binding UnlockSuperTrainingCommand}" />
-                  <TextBlock Grid.Row="3" Grid.Column="1" Classes="hint" Margin="12,0,0,0" VerticalAlignment="Center" Text="{x:Static r:Strings.Trainer_UnlockSuperTrainingHint}" />
-                  <Button Grid.Row="4" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Trainer_FillPuffs}" Command="{Binding FillPuffsCommand}" />
-                  <TextBlock Grid.Row="4" Grid.Column="1" Classes="hint" Margin="12,0,0,0" VerticalAlignment="Center" Text="{Binding PuffText}" />
+                  <Button Grid.Row="1" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Trainer_UnlockSafari}" Command="{Binding UnlockFriendSafariCommand}" IsVisible="{Binding HasXYExtras}" />
+                  <TextBlock Grid.Row="1" Grid.Column="1" Classes="hint" Margin="12,0,0,0" VerticalAlignment="Center" Text="{x:Static r:Strings.Trainer_UnlockSafariHint}" IsVisible="{Binding HasXYExtras}" />
+                  <Button Grid.Row="2" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Trainer_UnlockFashion}" Command="{Binding UnlockFashionCommand}" IsVisible="{Binding HasXYExtras}" />
+                  <TextBlock Grid.Row="2" Grid.Column="1" Classes="hint" Margin="12,0,0,0" VerticalAlignment="Center" Text="{x:Static r:Strings.Trainer_UnlockFashionHint}" IsVisible="{Binding HasXYExtras}" />
+                  <Button Grid.Row="3" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Trainer_UnlockSuperTraining}" Command="{Binding UnlockSuperTrainingCommand}" IsVisible="{Binding HasGen6Extras}" />
+                  <TextBlock Grid.Row="3" Grid.Column="1" Classes="hint" Margin="12,0,0,0" VerticalAlignment="Center" Text="{x:Static r:Strings.Trainer_UnlockSuperTrainingHint}" IsVisible="{Binding HasGen6Extras}" />
+                  <Button Grid.Row="4" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Trainer_FillPuffs}" Command="{Binding FillPuffsCommand}" IsVisible="{Binding HasGen6Extras}" />
+                  <TextBlock Grid.Row="4" Grid.Column="1" Classes="hint" Margin="12,0,0,0" VerticalAlignment="Center" Text="{Binding PuffText}" IsVisible="{Binding HasGen6Extras}" />
                   <Button Grid.Row="5" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Trainer_UnlockBoxes}" Command="{Binding UnlockAllBoxesCommand}" />
                 </Grid>
               </StackPanel>
             </TabItem>
 
             <!-- Map position -->
-            <TabItem Header="{x:Static r:Strings.Trainer_TabMap}">
+            <TabItem Header="{x:Static r:Strings.Trainer_TabMap}" IsVisible="{Binding HasPosition}">
               <StackPanel Margin="16,8" Spacing="6" MaxWidth="640" HorizontalAlignment="Left">
                 <Border Padding="10" CornerRadius="4" Background="#26E07B00" BorderBrush="#E07B00" BorderThickness="1">
                   <TextBlock Text="{x:Static r:Strings.Trainer_MapWarning}" TextWrapping="Wrap" />

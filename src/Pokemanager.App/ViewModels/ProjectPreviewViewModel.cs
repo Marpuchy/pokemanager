@@ -25,7 +25,7 @@ public sealed record TypeChip(string Name, Avalonia.Media.IBrush Background, Ava
 /// <summary>A Pokémon of the party in the project preview. Nothing here can be edited.</summary>
 public sealed partial class PartyMemberViewModel : ObservableObject
 {
-    private readonly PK6 pk;
+    private readonly PKM pk;
     private readonly SaveDocument doc;
     private readonly SaveNames names;
     private readonly PokemonSprites sprites;
@@ -130,7 +130,7 @@ public sealed partial class BadgeItemViewModel(ProjectPreviewViewModel owner, in
     IReadOnlyList<string> itemNames, IconImage? image, bool hasRoulette) : ObservableObject
 {
     /// <summary>The badge as in the trainer card (grey and faded when not earned); null when the dump has no image.</summary>
-    public Bitmap? Icon => field ??= image is null ? null : PokemonSprites.ToBitmap(Earned ? image : BadgeIcons.Faded(image));
+    public Bitmap? Icon => field ??= image is null ? null : PokemonSprites.ToBitmap(Earned ? image : MilestoneIcons.Faded(image));
 
     public bool HasIcon => image is not null;
 
@@ -193,7 +193,8 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
 
     public ObservableCollection<BadgeItemViewModel> Badges { get; } = [];
 
-    public string BadgesText => string.Format(Strings.Locke_BadgesCount, Badges.Count(b => b.Earned), LockeSettings.BadgeCount);
+    public string BadgesText => string.Format(Loaded.Project.Game.HasBadges() ? Strings.Locke_BadgesCount : Strings.Locke_TrialsCount,
+        Badges.Count(b => b.Earned), Badges.Count);
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasSelection))]
@@ -212,7 +213,7 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
         var gameNames = new GameNames(loaded.Dump, loaded.Session.Original);
         itemNames = gameNames.Items;
 
-        GameText = string.Format(Strings.Preview_Game, loaded.Dump.Title, project.Edits.Count == 1
+        GameText = string.Format(Strings.Preview_Game, loaded.Dump.Title.DisplayName(), project.Edits.Count == 1
             ? Strings.Editor_EditCountOne
             : string.Format(Strings.Editor_EditCount, project.Edits.Count));
         RomText = r.LastBuiltRom is { } rom && File.Exists(rom)
@@ -231,7 +232,7 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
         }
         else if (!File.Exists(savePath))
         {
-            SaveMessage = string.Format(Strings.Rnd_NoSave, loaded.Dump.Title, settings.EffectiveEmulatorName);
+            SaveMessage = string.Format(Strings.Rnd_NoSave, loaded.Dump.Title.DisplayName(), settings.EffectiveEmulatorName);
         }
         else
         {
@@ -240,7 +241,7 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
                 doc = SaveDocument.Open(savePath, loaded.Session.Current);
                 var names = new SaveNames(gameNames, GameTextLanguage.Current, doc.MaxSpecies);
                 Sprites = PokemonSprites.Load(project, loaded.Session.Original);
-                TrainerText = string.Format(Strings.Preview_Trainer, doc.TrainerName, Enumerable.Range(0, 8).Count(doc.GetBadge), doc.Money,
+                TrainerText = string.Format(doc.Generation == 6 ? Strings.Preview_Trainer : Strings.Preview_TrainerTrials, doc.TrainerName, Enumerable.Range(0, doc.MilestoneCount).Count(doc.GetMilestone), doc.Money,
                     $"{doc.PlayedHours}:{doc.PlayedMinutes:00}", settings.EffectiveEmulatorName, File.GetLastWriteTime(savePath));
                 for (int i = 0; i < doc.PartyCount; i++)
                     Party.Add(new PartyMemberViewModel(doc, names, Sprites, new SaveSlot(null, i)));
@@ -252,11 +253,11 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
             }
         }
 
-        var badges = LockeRewards.Badges;
-        var badgeImages = BadgeIcons.Load(new RomFsLayers(project.RomFsPath));
-        for (int i = 0; i < LockeSettings.BadgeCount; i++)
-            Badges.Add(new BadgeItemViewModel(this, i, badges[i].Name, badges[i].Type, doc?.GetBadge(i) ?? false, project.Locke.SpinOf(i), itemNames,
-                badgeImages?[i], project.Locke.HasRoulette(i)));
+        var milestones = project.Game.Milestones();
+        var images = MilestoneIcons.Load(new RomFsLayers(project.RomFsPath), project.Game);
+        for (int i = 0; i < milestones.Count; i++)
+            Badges.Add(new BadgeItemViewModel(this, i, milestones[i].Name, milestones[i].Type, doc?.GetMilestone(i) ?? false, project.Locke.SpinOf(i), itemNames,
+                images?[i], project.Locke.HasRoulette(i)));
     }
 
     public PokemonSprites Sprites { get; } = PokemonSprites.Empty;

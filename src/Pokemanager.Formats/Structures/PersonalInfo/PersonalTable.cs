@@ -25,6 +25,7 @@ public class PersonalTable
             GameVersion.SMDEMO => PersonalInfoSM.SIZE,
             GameVersion.SM => PersonalInfoSM.SIZE,
             GameVersion.USUM => PersonalInfoSM.SIZE,
+            GameVersion.SN or GameVersion.MN or GameVersion.US or GameVersion.UM => PersonalInfoSM.SIZE,
             _ => 0,
         };
 
@@ -48,6 +49,7 @@ public class PersonalTable
             case GameVersion.SMDEMO:
             case GameVersion.SM:
             case GameVersion.USUM:
+            case GameVersion.SN or GameVersion.MN or GameVersion.US or GameVersion.UM:
                 for (int i = 0; i < d.Length; i++)
                     d[i] = new PersonalInfoSM(entries[i]);
                 break;

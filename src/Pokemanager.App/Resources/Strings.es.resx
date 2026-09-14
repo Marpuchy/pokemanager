@@ -25,7 +25,7 @@
     <value>No se pudo abrir {0}: {1}</value>
   </data>
   <data name="Welcome_Subtitle" xml:space="preserve">
-    <value>Randomizer y editor de partida para Pokémon X/Y. Tu ROM base nunca se modifica: las ROM randomizadas se crean como archivos nuevos a su lado.</value>
+    <value>Randomizer y editor de partida para los Pokémon de 3DS. Tu ROM nunca se modifica: las ROM randomizadas se crean como archivos nuevos a su lado.</value>
   </data>
   <data name="Welcome_Settings" xml:space="preserve">
     <value>Ajustes…</value>
@@ -97,7 +97,7 @@
     <value>Volver a la lista de proyectos</value>
   </data>
   <data name="Editor_GameText" xml:space="preserve">
-    <value>Pokémon {0} · {1} · {2}</value>
+    <value>{0} · {1} · {2}</value>
   </data>
   <data name="Editor_EditCountOne" xml:space="preserve">
     <value>1 retoque avanzado</value>
@@ -550,7 +550,7 @@
     <value>No se ha encontrado ningún emulador. Elígelo en Ajustes.</value>
   </data>
   <data name="Rnd_NoSave" xml:space="preserve">
-    <value>No hay partida de Pokémon {0} en {1}.</value>
+    <value>No hay partida de {0} en {1}.</value>
   </data>
   <data name="Rnd_SaveInfo" xml:space="preserve">
     <value>Partida de {0}: {1}, {2} en el equipo, guardada el {3:g}.</value>
@@ -812,7 +812,7 @@ Los valores iguales a la base de este proyecto no se guardan como cambios. Antes
     <value>solo cambios</value>
   </data>
   <data name="Data_OtherGame" xml:space="preserve">
-    <value> Se hizo para Pokémon {0}; este proyecto es Pokémon {1}.</value>
+    <value> Se hizo para {0}; este proyecto es {1}.</value>
   </data>
   <data name="Data_Replace" xml:space="preserve">
     <value>Sustituir mis cambios actuales (si no, se combinan)</value>
@@ -1432,7 +1432,7 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>Abrir el editor de partida en este Pokémon</value>
   </data>
   <data name="Preview_Game" xml:space="preserve">
-    <value>Pokémon {0} · {1}</value>
+    <value>{0} · {1}</value>
   </data>
   <data name="Preview_Rom" xml:space="preserve">
     <value>ROM: {0} (creada {1:g})</value>
@@ -1676,5 +1676,56 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   </data>
   <data name="Locke_IntervalNone" xml:space="preserve">
     <value>Con estos valores ninguna medalla tiene ruleta.</value>
+  </data>
+  <data name="Welcome_NewProjectHint" xml:space="preserve">
+    <value>Elige una ROM descifrada (.3ds, .cci o .cxi) de Pokémon X, Y, Rubí Omega, Zafiro Alfa, Sol, Luna, Ultrasol o Ultraluna. El juego se reconoce solo y solo se copian los datos que Pokemanager necesita; la ROM nunca se modifica.</value>
+  </data>
+  <data name="Welcome_RomFile" xml:space="preserve">
+    <value>ROM</value>
+  </data>
+  <data name="Welcome_PickRomTitle" xml:space="preserve">
+    <value>Elige la ROM del juego</value>
+  </data>
+  <data name="Welcome_Detected" xml:space="preserve">
+    <value>Detectado: {0}</value>
+  </data>
+  <data name="Welcome_RomRandomized" xml:space="preserve">
+    <value>Esta ROM tiene un log del randomizer al lado: ya está randomizada. Para empezar de cero, elige la ROM original.</value>
+  </data>
+  <data name="Welcome_ProjectName" xml:space="preserve">
+    <value>Nombre del proyecto</value>
+  </data>
+  <data name="Welcome_ProjectWillBe" xml:space="preserve">
+    <value>Se guardará en {0}</value>
+  </data>
+  <data name="Welcome_GameDataWillBe" xml:space="preserve">
+    <value>Los datos del juego van a {0}</value>
+  </data>
+  <data name="Welcome_NameInvalid" xml:space="preserve">
+    <value>El nombre del proyecto tiene caracteres que no se pueden usar en un nombre de archivo.</value>
+  </data>
+  <data name="Trainer_Trials" xml:space="preserve">
+    <value>Pruebas</value>
+  </data>
+  <data name="Trainer_ZMoves" xml:space="preserve">
+    <value>Pulsera Z (movimientos Z desbloqueados)</value>
+  </data>
+  <data name="Locke_TrialsCount" xml:space="preserve">
+    <value>Pruebas {0}/{1}</value>
+  </data>
+  <data name="Locke_IntervalHintTrials" xml:space="preserve">
+    <value>Qué pruebas dan ruleta: desde una prueba hasta otra, cada cierto número de pruebas.</value>
+  </data>
+  <data name="Locke_IntervalFirstTrial" xml:space="preserve">
+    <value>Desde la prueba</value>
+  </data>
+  <data name="Locke_IntervalLastTrial" xml:space="preserve">
+    <value>Hasta la prueba</value>
+  </data>
+  <data name="Locke_IntervalEveryTrials" xml:space="preserve">
+    <value>Cada (pruebas)</value>
+  </data>
+  <data name="Preview_TrainerTrials" xml:space="preserve">
+    <value>{0} · pruebas {1} · {2:N0} $ · {3} jugadas · partida de {4}, {5:g}</value>
   </data>
 </root>

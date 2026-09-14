@@ -25,7 +25,7 @@
     <value>Could not open {0}: {1}</value>
   </data>
   <data name="Welcome_Subtitle" xml:space="preserve">
-    <value>Randomizer and save editor for Pokémon X/Y. Your base ROM is never modified: randomized ROMs are created as new files next to it.</value>
+    <value>Randomizer and save editor for the Pokémon games of the 3DS. Your ROM is never modified: randomized ROMs are created as new files next to it.</value>
   </data>
   <data name="Welcome_Settings" xml:space="preserve">
     <value>Settings…</value>
@@ -97,7 +97,7 @@
     <value>Back to the project list</value>
   </data>
   <data name="Editor_GameText" xml:space="preserve">
-    <value>Pokémon {0} · {1} · {2}</value>
+    <value>{0} · {1} · {2}</value>
   </data>
   <data name="Editor_EditCountOne" xml:space="preserve">
     <value>1 advanced edit</value>
@@ -550,7 +550,7 @@
     <value>No emulator found. Choose it in Settings.</value>
   </data>
   <data name="Rnd_NoSave" xml:space="preserve">
-    <value>There is no Pokémon {0} save in {1}.</value>
+    <value>There is no {0} save in {1}.</value>
   </data>
   <data name="Rnd_SaveInfo" xml:space="preserve">
     <value>{0} save: {1}, {2} in the party, saved {3:g}.</value>
@@ -812,7 +812,7 @@ Values equal to this project's base are not stored as changes. The current state
     <value>changes only</value>
   </data>
   <data name="Data_OtherGame" xml:space="preserve">
-    <value> It was made for Pokémon {0}; this project is Pokémon {1}.</value>
+    <value> It was made for {0}; this project is {1}.</value>
   </data>
   <data name="Data_Replace" xml:space="preserve">
     <value>Replace my current changes (otherwise they are merged)</value>
@@ -1432,7 +1432,7 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
     <value>Open the save editor on this Pokémon</value>
   </data>
   <data name="Preview_Game" xml:space="preserve">
-    <value>Pokémon {0} · {1}</value>
+    <value>{0} · {1}</value>
   </data>
   <data name="Preview_Rom" xml:space="preserve">
     <value>ROM: {0} (built {1:g})</value>
@@ -1676,5 +1676,56 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   </data>
   <data name="Locke_IntervalNone" xml:space="preserve">
     <value>No badge gets a roulette with these values.</value>
+  </data>
+  <data name="Welcome_NewProjectHint" xml:space="preserve">
+    <value>Choose a decrypted ROM (.3ds, .cci or .cxi) of Pokémon X, Y, Omega Ruby, Alpha Sapphire, Sun, Moon, Ultra Sun or Ultra Moon. The game is recognized automatically and only the data Pokemanager needs is copied; the ROM is never modified.</value>
+  </data>
+  <data name="Welcome_RomFile" xml:space="preserve">
+    <value>ROM</value>
+  </data>
+  <data name="Welcome_PickRomTitle" xml:space="preserve">
+    <value>Choose the game ROM</value>
+  </data>
+  <data name="Welcome_Detected" xml:space="preserve">
+    <value>Detected: {0}</value>
+  </data>
+  <data name="Welcome_RomRandomized" xml:space="preserve">
+    <value>This ROM has a randomizer log next to it: it is already randomized. For a clean start, choose the original ROM.</value>
+  </data>
+  <data name="Welcome_ProjectName" xml:space="preserve">
+    <value>Project name</value>
+  </data>
+  <data name="Welcome_ProjectWillBe" xml:space="preserve">
+    <value>Saved as {0}</value>
+  </data>
+  <data name="Welcome_GameDataWillBe" xml:space="preserve">
+    <value>Game data goes to {0}</value>
+  </data>
+  <data name="Welcome_NameInvalid" xml:space="preserve">
+    <value>The project name has characters that cannot be used in a file name.</value>
+  </data>
+  <data name="Trainer_Trials" xml:space="preserve">
+    <value>Trials</value>
+  </data>
+  <data name="Trainer_ZMoves" xml:space="preserve">
+    <value>Z-Ring (Z-Moves unlocked)</value>
+  </data>
+  <data name="Locke_TrialsCount" xml:space="preserve">
+    <value>Trials {0}/{1}</value>
+  </data>
+  <data name="Locke_IntervalHintTrials" xml:space="preserve">
+    <value>Which trials give a roulette: from one trial to another, every so many trials.</value>
+  </data>
+  <data name="Locke_IntervalFirstTrial" xml:space="preserve">
+    <value>From trial</value>
+  </data>
+  <data name="Locke_IntervalLastTrial" xml:space="preserve">
+    <value>To trial</value>
+  </data>
+  <data name="Locke_IntervalEveryTrials" xml:space="preserve">
+    <value>Every (trials)</value>
+  </data>
+  <data name="Preview_TrainerTrials" xml:space="preserve">
+    <value>{0} · trials {1} · ${2:N0} · {3} played · {4} save, {5:g}</value>
   </data>
 </root>

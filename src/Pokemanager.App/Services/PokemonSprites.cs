@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Pokemanager.Model.Data;
+using Pokemanager.Model.Dump;
 using Pokemanager.Model.Projects;
 
 namespace Pokemanager.App.Services;
@@ -24,7 +25,7 @@ public sealed class PokemonSprites
         if (data is null)
             return;
         // Personal entries above the species count are alternate forms: FormStatsIndex says where each species' forms start.
-        for (int s = 1; s < Math.Min(PokemonIcons.SpeciesCount, data.Personal.Length); s++)
+        for (int s = 1; s < Math.Min(icons?.SpeciesCount ?? 0, data.Personal.Length); s++)
         {
             var p = data.Personal[s];
             if (p.FormStatsIndex <= 0)
@@ -36,7 +37,13 @@ public sealed class PokemonSprites
 
     public static PokemonSprites Load(Project project, GameData data)
     {
-        var icons = PokemonIcons.Load(new RomFsLayers(project.RomFsPath), Path.Combine(project.ExeFsPath, "code.bin"));
+        // Each game keeps its icons in a different archive; an imported game folder only has the one it uses.
+        var layers = new RomFsLayers(project.RomFsPath);
+        var layout = project.Game.Layout();
+        var icons = layout.Icons
+            .Where(garc => File.Exists(Path.Combine(project.RomFsPath, garc.Replace('/', Path.DirectorySeparatorChar))))
+            .Select(garc => PokemonIcons.Load(layers, Path.Combine(project.ExeFsPath, "code.bin"), garc, layout.SpeciesCount))
+            .FirstOrDefault(i => i is not null);
         return icons is null ? Empty : new PokemonSprites(icons, data);
     }
 
@@ -45,7 +52,7 @@ public sealed class PokemonSprites
 
     /// <summary>Icon of a personal table entry: a species, or an alternate form stored after the species.</summary>
     public Bitmap? ForPersonalEntry(int index) =>
-        formEntries.TryGetValue(index, out var f) ? For(f.Species, f.Form) : index < PokemonIcons.SpeciesCount ? For(index) : null;
+        formEntries.TryGetValue(index, out var f) ? For(f.Species, f.Form) : index < (icons?.SpeciesCount ?? 0) ? For(index) : null;
 
     public static Bitmap ToBitmap(IconImage image)
     {

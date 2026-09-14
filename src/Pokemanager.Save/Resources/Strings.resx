@@ -102,4 +102,7 @@
   <data name="Check_ChangedOnDisk" xml:space="preserve">
     <value>The save changed on disk since it was opened (did the game save?). Reload it before writing so no progress is lost.</value>
   </data>
+  <data name="Save_NotSupported" xml:space="preserve">
+    <value>The save is not from a supported game ({0}). Pokemanager edits Pokémon X, Y, Omega Ruby, Alpha Sapphire, Sun, Moon, Ultra Sun and Ultra Moon saves.</value>
+  </data>
 </root>

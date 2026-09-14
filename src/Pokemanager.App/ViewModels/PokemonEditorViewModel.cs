@@ -101,7 +101,7 @@ public partial class PokemonEditorViewModel : ObservableObject
     public SaveDocument Document { get; }
     public SaveNames Names { get; }
     public SaveSlot Slot { get; private set; }
-    public PK6 Pokemon { get; private set; }
+    public PKM Pokemon { get; private set; }
 
     public IReadOnlyList<StatRowViewModel> StatRows { get; }
     public IReadOnlyList<MoveSlotViewModel> MoveSlots { get; }
@@ -131,7 +131,7 @@ public partial class PokemonEditorViewModel : ObservableObject
     private bool refreshing;
 
     /// <summary>Applies a change to a copy, stores it in the document and refreshes everything shown.</summary>
-    public void Edit(Action<PK6> change, string? except = null)
+    public void Edit(Action<PKM> change, string? except = null)
     {
         if (refreshing)
             return;

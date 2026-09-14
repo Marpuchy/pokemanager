@@ -1,4 +1,5 @@
 using pk3DS.Core.CTR;
+using Pokemanager.Model.Dump;
 using pk3DS.Core.Structures;
 using pk3DS.Core.Structures.PersonalInfo;
 using Pokemanager.Model.Resources;
@@ -6,41 +7,67 @@ using Pokemanager.Model.Resources;
 namespace Pokemanager.Model.Data;
 
 /// <summary>
-/// Editable X/Y tables read directly from their GARCs. Each instance owns its copy of the bytes: modifying it does not
-/// affect the dump or other instances.
+/// Editable tables (personal, moves, learnsets) read directly from the game's GARCs. Each instance owns its copy of the
+/// bytes: modifying it does not affect the dump or other instances.
 /// </summary>
+/// <remarks>
+/// The formats differ by family: personal entries are 0x40 (X/Y), 0x50 (ORAS) or 0x54 bytes (Gen 7), all readable as
+/// <see cref="PersonalInfoXY"/>; moves are one file each in X/Y and a single "WD" mini archive elsewhere, with
+/// <see cref="Move6"/> in Gen 6 and <see cref="Move7"/> in Gen 7; learnsets share <see cref="Learnset6"/>.
+/// </remarks>
 public sealed class GameData
 {
+    /// <summary>X/Y paths, kept for existing callers; other games use <see cref="Layout"/>.</summary>
     public const string PersonalGarc = "a/2/1/8";
     public const string MoveGarc = "a/2/1/2";
     public const string LevelUpGarc = "a/2/1/4";
 
+    public GameTitle Title { get; }
+    public GameLayout Layout => Title.Layout();
     public PersonalInfoXY[] Personal { get; }
-    public Move6[] Moves { get; }
+    public Move[] Moves { get; }
     public Learnset6[] Learnsets { get; }
 
-    private GameData(PersonalInfoXY[] personal, Move6[] moves, Learnset6[] learnsets)
+    private GameData(GameTitle title, PersonalInfoXY[] personal, Move[] moves, Learnset6[] learnsets)
     {
+        Title = title;
         Personal = personal;
         Moves = moves;
         Learnsets = learnsets;
     }
 
-    public static GameData Load(string romFsPath) => Load(new RomFsLayers(romFsPath));
+    public static GameData Load(string romFsPath, GameTitle title = GameTitle.X) => Load(new RomFsLayers(romFsPath), title);
 
-    public static GameData Load(RomFsLayers layers) => new(
-        ReadPersonal(layers),
-        ReadFiles(layers, MoveGarc).Select(f => new Move6(f)).ToArray(),
-        ReadFiles(layers, LevelUpGarc).Select(f => new Learnset6(f)).ToArray());
+    public static GameData Load(RomFsLayers layers, GameTitle title = GameTitle.X)
+    {
+        var layout = title.Layout();
+        return new GameData(title,
+            ReadPersonal(layers, title),
+            ReadMoveFiles(layers, title).Select(f => title.Generation() == 6 ? (Move)new Move6(f) : new Move7(f)).ToArray(),
+            ReadFiles(layers, layout.LevelUp).Select(f => new Learnset6(f)).ToArray());
+    }
 
     /// <summary>
-    /// The personal GARC has one 0x40-byte entry per Pokémon or form and, as its last file, the concatenation of all
-    /// of them. The individual entries are the ones read.
+    /// The personal GARC has one entry per Pokémon or form and, as its last file, the concatenation of all of them. The
+    /// individual entries are the ones read.
     /// </summary>
-    private static PersonalInfoXY[] ReadPersonal(RomFsLayers layers)
+    private static PersonalInfoXY[] ReadPersonal(RomFsLayers layers, GameTitle title)
     {
-        byte[][] files = ReadFiles(layers, PersonalGarc);
-        return files[..^1].Select(f => new PersonalInfoXY(f)).ToArray();
+        byte[][] files = ReadFiles(layers, title.Layout().Personal);
+        return files[..^1].Select(f => title.Family() switch
+        {
+            GameFamily.XY => new PersonalInfoXY(f),
+            GameFamily.ORAS => (PersonalInfoXY)new PersonalInfoORAS(f),
+            _ => new PersonalInfoSM(f),
+        }).ToArray();
+    }
+
+    /// <summary>One byte array per move, unpacking the "WD" mini archive where the game uses one.</summary>
+    internal static byte[][] ReadMoveFiles(RomFsLayers layers, GameTitle title)
+    {
+        var layout = title.Layout();
+        byte[][] files = ReadFiles(layers, layout.Moves);
+        return layout.MovesPacked ? Mini.UnpackMini(files[0], "WD") : files;
     }
 
     internal static byte[][] ReadFiles(RomFsLayers layers, string garc) =>

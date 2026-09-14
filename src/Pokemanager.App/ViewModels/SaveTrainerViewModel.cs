@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using PKHeX.Core;
 using Pokemanager.App.Resources;
 using Pokemanager.App.Services;
+using Pokemanager.Model.Dump;
 using Pokemanager.Save;
 
 namespace Pokemanager.App.ViewModels;
@@ -15,15 +16,15 @@ public partial class SaveTrainerViewModel : ObservableObject
     private readonly SaveDocument doc;
     private readonly List<RecordRowViewModel> allRecords;
 
-    public SaveTrainerViewModel(SaveEditorViewModel owner, SaveDocument doc, SaveNames names)
+    public SaveTrainerViewModel(SaveEditorViewModel owner, SaveDocument doc, SaveNames names, IReadOnlyList<Milestone> milestones)
     {
         this.owner = owner;
         this.doc = doc;
         VivillonPatterns = names.VivillonPatterns;
-        Badges = Enumerable.Range(0, 8).Select(i => new BadgeViewModel(owner, doc, i)).ToList();
+        Badges = Enumerable.Range(0, Math.Min(doc.MilestoneCount, milestones.Count)).Select(i => new BadgeViewModel(owner, doc, i, milestones[i].Name)).ToList();
         Sayings = Enumerable.Range(0, 5).Select(i => new SayingViewModel(owner, doc, i)).ToList();
         Maison = SaveDocument.MaisonStyles.Select(s => new MaisonRowViewModel(owner, doc, s)).ToList();
-        allRecords = SaveDocument.RecordNames.Select(r => new RecordRowViewModel(owner, doc, r.Id, r.Name)).ToList();
+        allRecords = doc.RecordNames.Select(r => new RecordRowViewModel(owner, doc, r.Id, r.Name)).ToList();
         ApplyRecordFilter();
     }
 
@@ -78,6 +79,22 @@ public partial class SaveTrainerViewModel : ObservableObject
     }
 
     public IReadOnlyList<BadgeViewModel> Badges { get; }
+
+    /// <summary>"Badges" in Generation 6, "Trials" in Generation 7.</summary>
+    public string MilestonesTitle => doc.Generation == 6 ? Strings.Trainer_Badges : Strings.Trainer_Trials;
+
+    // What only some games have.
+    public bool HasSayings => doc.HasSayings;
+    public bool HasGen6Extras => doc.HasGen6Extras;
+    public bool HasXYExtras => doc.HasXYExtras;
+    public bool HasPosition => doc.HasPosition;
+    public bool HasZMoves => doc.HasZMoves;
+
+    public bool ZMoves
+    {
+        get => doc.ZMovesUnlocked;
+        set { if (value != doc.ZMovesUnlocked) { doc.ZMovesUnlocked = value; Changed(); } }
+    }
 
     public bool MegaEvolution
     {
@@ -252,9 +269,9 @@ public partial class SaveTrainerViewModel : ObservableObject
     }
 }
 
-public sealed class BadgeViewModel(SaveEditorViewModel owner, SaveDocument doc, int index) : ObservableObject
+public sealed class BadgeViewModel(SaveEditorViewModel owner, SaveDocument doc, int index, string name) : ObservableObject
 {
-    public string Label => string.Format(Strings.Trainer_Badge, index + 1);
+    public string Label => name;
 
     public bool IsChecked
     {

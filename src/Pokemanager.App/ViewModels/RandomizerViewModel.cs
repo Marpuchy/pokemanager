@@ -186,7 +186,7 @@ public partial class RandomizerViewModel : ObservableObject
             if (SavePath is not { } path)
                 return Strings.Rnd_NoEmulator;
             if (!File.Exists(path))
-                return string.Format(Strings.Rnd_NoSave, editor.Dump.Title, EmulatorName);
+                return string.Format(Strings.Rnd_NoSave, editor.Dump.Title.DisplayName(), EmulatorName);
             try
             {
                 var sav = SaveUpdater.Load(path);
@@ -292,7 +292,7 @@ public partial class RandomizerViewModel : ObservableObject
             var runner = new UprRunner(tools);
             var description = await runner.DescribeSettingsAsync(Settings.Preset);
             var available = BaseRom is { } rom ? await upr.AvailableTweaksAsync(rom) : new HashSet<string>();
-            Options.Load(description, available);
+            Options.Load(description, available, editor.Dump.Title.Generation());
         }
         catch (Exception ex) when (ex is UprException or IOException or System.Text.Json.JsonException)
         {

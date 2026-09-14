@@ -675,6 +675,10 @@ public static class GARC
         public byte[] Data = data;
         public int FileCount => garc.fato.EntryCount;
 
+        /// <summary>Pokemanager: GARC version (VER_4 or VER_6) and content padding, to repack with the same layout.</summary>
+        public int Version => garc.Version;
+        public int ContentPadding => (int)garc.ContentPadToNearest;
+
         // Returns an individual file
         public byte[] GetFile(int file, int subfile = 0)
         {

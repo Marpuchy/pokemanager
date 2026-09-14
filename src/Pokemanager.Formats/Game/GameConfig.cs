@@ -75,8 +75,28 @@ public class GameConfig
                 Variables = TextVariableCode.VariableCodes_SM;
                 GameText = TextReference.GameText_SMDEMO;
                 break;
+            // Pokemanager: the exact game is known from its title ID, so Sun/Moon and Ultra Sun/Ultra Moon do not need the
+            // encounter file (not extracted) to tell them apart.
             case GameVersion.SN:
+                Files = GARCReference.GARCReference_SN;
+                Variables = TextVariableCode.VariableCodes_SM;
+                GameText = TextReference.GameText_SM;
+                break;
             case GameVersion.MN:
+                Files = GARCReference.GARCReference_MN;
+                Variables = TextVariableCode.VariableCodes_SM;
+                GameText = TextReference.GameText_SM;
+                break;
+            case GameVersion.US:
+                Files = GARCReference.GARCReference_US;
+                Variables = TextVariableCode.VariableCodes_SM;
+                GameText = TextReference.GameText_USUM;
+                break;
+            case GameVersion.UM:
+                Files = GARCReference.GARCReference_UM;
+                Variables = TextVariableCode.VariableCodes_SM;
+                GameText = TextReference.GameText_USUM;
+                break;
             case GameVersion.SM:
                 Files = GARCReference.GARCReference_SN;
                 if (new FileInfo(Path.Combine(RomFS, GetGARCFileName("encdata"))).Length == 0)
@@ -84,8 +104,6 @@ public class GameConfig
                 Variables = TextVariableCode.VariableCodes_SM;
                 GameText = TextReference.GameText_SM;
                 break;
-            case GameVersion.US:
-            case GameVersion.UM:
             case GameVersion.USUM:
                 Files = GARCReference.GARCReference_US;
                 if (new FileInfo(Path.Combine(RomFS, GetGARCFileName("encdata"))).Length == 0)
@@ -263,8 +281,8 @@ public class GameConfig
 
     public bool XY => Version == GameVersion.XY;
     public bool ORAS => Version is GameVersion.ORAS or GameVersion.ORASDEMO;
-    public bool SM => Version is GameVersion.SM or GameVersion.SMDEMO;
-    public bool USUM => Version == GameVersion.USUM;
+    public bool SM => Version is GameVersion.SM or GameVersion.SMDEMO or GameVersion.SN or GameVersion.MN;
+    public bool USUM => Version is GameVersion.USUM or GameVersion.US or GameVersion.UM;
     public int MaxSpeciesID => XY || ORAS ? Legal.MaxSpeciesID_6 : SM ? Legal.MaxSpeciesID_7_SM : Legal.MaxSpeciesID_7_USUM;
     public int GARCVersion => XY || ORAS ? GARC.VER_4 : GARC.VER_6;
 

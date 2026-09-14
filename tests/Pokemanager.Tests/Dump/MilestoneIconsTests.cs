@@ -1,9 +1,10 @@
 using System.Text;
 using Pokemanager.Model.Data;
+using Pokemanager.Model.Dump;
 
 namespace Pokemanager.Tests.Dump;
 
-public class BadgeIconsTests
+public class MilestoneIconsTests
 {
     /// <summary>A tall RGBA8 BCLIM (8×12, stored as 8×16) decodes: textures are not always square.</summary>
     [Fact]
@@ -30,7 +31,7 @@ public class BadgeIconsTests
     {
         byte[] darc = BuildDarc(("badge_01.bclim", [1, 2, 3]), ("base.bclim", [9]));
 
-        var files = BadgeIcons.ReadDarc([0xAA, 0xBB, .. darc])!; // the archive may sit after a small header
+        var files = MilestoneIcons.ReadDarc([0xAA, 0xBB, .. darc])!; // the archive may sit after a small header
 
         Assert.Equal([1, 2, 3], files["badge_01.bclim"]);
         Assert.Equal([9], files["base.bclim"]);
@@ -43,7 +44,7 @@ public class BadgeIconsTests
         string? dump = Environment.GetEnvironmentVariable("POKEMANAGER_DUMP");
         Assert.SkipWhen(string.IsNullOrWhiteSpace(dump), "POKEMANAGER_DUMP is not set.");
 
-        var badges = BadgeIcons.Load(new RomFsLayers(Path.Combine(dump!, "romfs")))!;
+        var badges = MilestoneIcons.Load(new RomFsLayers(Path.Combine(dump!, "romfs")), GameTitle.X)!;
 
         // Measured on Pokémon X.
         Assert.Equal([(55, 64), (55, 77), (70, 45), (50, 55), (64, 64), (90, 34), (60, 60), (55, 60)],

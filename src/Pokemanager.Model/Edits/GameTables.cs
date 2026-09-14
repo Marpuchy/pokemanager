@@ -60,7 +60,7 @@ public static class GameTables
         new("escapeRate", p => p.EscapeRate, (p, v) => p.EscapeRate = v),
     ]);
 
-    public static readonly ITable MoveTable = new IntTable<Move6>(Moves, d => d.Moves,
+    public static readonly ITable MoveTable = new IntTable<Move>(Moves, d => d.Moves,
     [
         new("type", m => m.Type, (m, v) => m.Type = v),
         new("category", m => m.Category, (m, v) => m.Category = v),

@@ -26,9 +26,9 @@ public sealed record SaveUpdateResult(string SavePath, string? BackupPath, int P
 
 public sealed class SaveUpdateException(string message) : Exception(message);
 
-/// <summary>Adapts an X/Y save to another version of the ROM (for example, another randomizer seed).</summary>
+/// <summary>Adapts a save to another version of the ROM (for example, another randomizer seed).</summary>
 /// <remarks>
-/// In Generation 6 the save stores each Pokémon's ability and the party stats; the ROM only provides each species'
+/// In Generations 6 and 7 the save stores each Pokémon's ability and the party stats; the ROM only provides each species'
 /// base stats and possible abilities. So when the ROM changes:
 /// <list type="bullet">
 /// <item>each Pokémon gets the ability with the same number (1, 2 or hidden) in its species' new entry;</item>
@@ -45,15 +45,24 @@ public static class SaveUpdater
     /// Loads the save. If PKHeX auto-detection does not recognize it but it has the X/Y size (e.g. a freshly created
     /// save), it is opened as X/Y; checksums are still checked before modifying it.
     /// </summary>
-    public static SaveFile Load(string savePath)
+    public static SaveFile Load(string savePath) =>
+        Parse(File.ReadAllBytes(savePath)) ?? throw new SaveUpdateException(string.Format(Strings.Save_NotRecognized, savePath));
+
+    /// <summary>
+    /// PKHeX detection, or by exact size when it does not recognize the file (a save the game has not fully initialized):
+    /// X/Y 0x65600, Omega Ruby/Alpha Sapphire 0x76000, Sun/Moon 0x6BE00, Ultra Sun/Ultra Moon 0x6CC00.
+    /// </summary>
+    internal static SaveFile? Parse(byte[] data) => SaveUtil.GetSaveFile(data) ?? data.Length switch
     {
-        byte[] data = File.ReadAllBytes(savePath);
-        if (SaveUtil.GetSaveFile(data) is { } sav)
-            return sav;
-        if (data.Length == SizeXY)
-            return new SAV6XY(data);
-        throw new SaveUpdateException(string.Format(Strings.Save_NotRecognized, savePath));
-    }
+        SizeXY => new SAV6XY(data),
+        0x76000 => new SAV6AO(data),
+        0x6BE00 => new SAV7SM(data),
+        0x6CC00 => new SAV7USUM(data),
+        _ => null,
+    };
+
+    /// <summary>The 3DS games Pokemanager edits: X/Y, Omega Ruby/Alpha Sapphire, Sun/Moon, Ultra Sun/Ultra Moon.</summary>
+    public static bool IsSupported(SaveFile sav) => sav is SAV6XY or SAV6AO or SAV7SM or SAV7USUM;
 
     /// <summary>Computes the changes without writing anything.</summary>
     public static SaveUpdateResult Preview(string savePath, GameData rom) => Run(savePath, rom, backupRoot: null, write: false);
@@ -64,8 +73,8 @@ public static class SaveUpdater
     private static SaveUpdateResult Run(string savePath, GameData rom, string? backupRoot, bool write)
     {
         var sav = Load(savePath);
-        if (sav is not SAV6XY)
-            throw new SaveUpdateException(string.Format(Strings.Save_NotXY, sav.GetType().Name));
+        if (!IsSupported(sav))
+            throw new SaveUpdateException(string.Format(Strings.Save_NotSupported, sav.GetType().Name));
         if (!sav.ChecksumsValid)
             throw new SaveUpdateException(Strings.Save_BadChecksums);
 
@@ -162,8 +171,9 @@ public static class SaveUpdater
     internal static int AbilityIndex(int abilityNumber) => abilityNumber switch { 2 => 1, 4 => 2, _ => 0 };
 
     /// <summary>
-    /// Generation 6 formula. HP = ⌊(2B + IV + ⌊EV/4⌋)·L/100⌋ + L + 10;
-    /// others = ⌊(⌊(2B + IV + ⌊EV/4⌋)·L/100⌋ + 5)·nature⌋. Order: HP, Atk, Def, Spe, SpA, SpD.
+    /// Generation 6–7 formula. HP = ⌊(2B + IV + ⌊EV/4⌋)·L/100⌋ + L + 10;
+    /// others = ⌊(⌊(2B + IV + ⌊EV/4⌋)·L/100⌋ + 5)·nature⌋. Order: HP, Atk, Def, Spe, SpA, SpD. In Generation 7 a
+    /// Hyper Trained stat counts as IV 31.
     /// </summary>
     internal static int[] CalculateStats(PKM pk, pk3DS.Core.Structures.PersonalInfo.PersonalInfoXY personal)
     {
@@ -171,6 +181,13 @@ public static class SaveUpdater
         int level = Experience.GetLevel(pk.EXP, (byte)personal.EXPGrowth);
         int[] baseStats = [personal.HP, personal.ATK, personal.DEF, personal.SPE, personal.SPA, personal.SPD];
         int[] ivs = [pk.IV_HP, pk.IV_ATK, pk.IV_DEF, pk.IV_SPE, pk.IV_SPA, pk.IV_SPD];
+        if (pk is IHyperTrain ht)
+        {
+            bool[] trained = [ht.HT_HP, ht.HT_ATK, ht.HT_DEF, ht.HT_SPE, ht.HT_SPA, ht.HT_SPD];
+            for (int i = 0; i < 6; i++)
+                if (trained[i])
+                    ivs[i] = 31;
+        }
         int[] evs = [pk.EV_HP, pk.EV_ATK, pk.EV_DEF, pk.EV_SPE, pk.EV_SPA, pk.EV_SPD];
 
         var stats = new int[6];
@@ -196,8 +213,7 @@ public static class SaveUpdater
     /// <summary>Re-reads the new bytes: they must be a valid save with the expected abilities.</summary>
     private static void Verify(byte[] updated, GameData rom)
     {
-        var reread = (SaveUtil.GetSaveFile(updated) ?? (updated.Length == SizeXY ? new SAV6XY(updated) : null)) as SAV6XY
-                     ?? throw new SaveUpdateException(Strings.Save_CannotReread);
+        var reread = Parse(updated) ?? throw new SaveUpdateException(Strings.Save_CannotReread);
 
         foreach (var pk in reread.PartyData.Concat(reread.BoxData).Where(p => p.Species != 0))
         {

@@ -21,13 +21,19 @@ public sealed record IconImage(int Width, int Height, byte[] Rgba);
 /// </remarks>
 public sealed class PokemonIcons
 {
+    /// <summary>Icon archive of Pokémon X/Y; the other games keep theirs elsewhere (see <c>GameTitleExtensions</c>).</summary>
     public const string Garc = "a/0/9/3";
-    public const int SpeciesCount = 722;
+
+    /// <summary>Species 0–721 (X/Y and ORAS).</summary>
+    public const int SpeciesCountGen6 = 722;
     private const int EntrySize = 16;
     private const uint CodeBase = 0x100000;
 
     private readonly GARC.MemGARC garc;
     private readonly IconEntry[] entries;
+
+    /// <summary>Species in the table (species 0 included).</summary>
+    public int SpeciesCount => entries.Length;
     private readonly Dictionary<int, IconImage?> cache = [];
 
     public int Count => garc.FileCount;
@@ -42,12 +48,12 @@ public sealed class PokemonIcons
     }
 
     /// <summary>Null when the dump has no icon archive or the species table cannot be found in <c>code.bin</c>.</summary>
-    public static PokemonIcons? Load(RomFsLayers layers, string codeBinPath)
+    public static PokemonIcons? Load(RomFsLayers layers, string codeBinPath, string garcPath = Garc, int speciesCount = SpeciesCountGen6)
     {
         try
         {
-            var garc = new GARC.MemGARC(File.ReadAllBytes(layers.Resolve(Garc)));
-            var entries = ReadTable(File.ReadAllBytes(codeBinPath), garc.FileCount);
+            var garc = new GARC.MemGARC(File.ReadAllBytes(layers.Resolve(garcPath)));
+            var entries = ReadTable(File.ReadAllBytes(codeBinPath), garc.FileCount, speciesCount);
             return entries is null ? null : new PokemonIcons(garc, entries);
         }
         catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException or IOException or InvalidDataException)
@@ -76,23 +82,23 @@ public sealed class PokemonIcons
     /// Finds the species icon table: an array of 16-byte entries whose first two fields are icon indexes that start
     /// 0, 1, 2 (egg placeholder, Bulbasaur, Ivysaur) and stay inside the archive, with valid form pointers.
     /// </summary>
-    private static IconEntry[]? ReadTable(byte[] code, int iconCount)
+    private static IconEntry[]? ReadTable(byte[] code, int iconCount, int speciesCount)
     {
-        for (int o = 0; o + (EntrySize * SpeciesCount) <= code.Length; o += 4)
+        for (int o = 0; o + (EntrySize * speciesCount) <= code.Length; o += 4)
         {
             if (U16(code, o + EntrySize) != 1 || U16(code, o + (2 * EntrySize)) != 2 || U16(code, o + 2) != 0 || U16(code, o) != 0)
                 continue;
-            var table = TryRead(code, o, iconCount);
+            var table = TryRead(code, o, iconCount, speciesCount);
             if (table is not null)
                 return table;
         }
         return null;
     }
 
-    private static IconEntry[]? TryRead(byte[] code, int offset, int iconCount)
+    private static IconEntry[]? TryRead(byte[] code, int offset, int iconCount, int speciesCount)
     {
-        var table = new IconEntry[SpeciesCount];
-        for (int s = 0; s < SpeciesCount; s++)
+        var table = new IconEntry[speciesCount];
+        for (int s = 0; s < speciesCount; s++)
         {
             int o = offset + (EntrySize * s);
             int def = U16(code, o), female = U16(code, o + 2);
@@ -160,19 +166,25 @@ public sealed class PokemonIcons
         return image;
     }
 
-    /// <summary>Decodes a BCLIM (palette, RGBA8, RGBA4, RGB5A1, RGB565, LA4, L8, A8).</summary>
+    /// <summary>
+    /// Decodes a BCLIM (Gen 6) or a 3DS BFLIM (Gen 7) (palette, RGBA8, RGBA4, RGB5A1, RGB565, LA4, L8, A8, ETC1, ETC1A4). Both end in a
+    /// 0x28-byte footer with the size at 0x1C; BCLIM has format and orientation at 0x20/0x21, BFLIM an alignment first
+    /// and them at 0x22/0x23 (same values: orientation 4 = rotated 90°, verified on Ultra Moon's icons).
+    /// </summary>
     public static IconImage? DecodeBclim(byte[] data)
     {
         const int footerSize = 0x28;
         if (data.Length < footerSize)
             return null;
         int footer = data.Length - footerSize;
-        if (BitConverter.ToUInt32(data, footer) != 0x4D494C43) // "CLIM"
+        uint magic = BitConverter.ToUInt32(data, footer);
+        bool flim = magic == 0x4D494C46; // "FLIM"
+        if (magic != 0x4D494C43 && !flim) // "CLIM"
             return null;
         int width = BitConverter.ToUInt16(data, footer + 0x1C);
         int height = BitConverter.ToUInt16(data, footer + 0x1E);
-        var format = (ClimFormat)data[footer + 0x20];
-        var orientation = (ClimOrientation)data[footer + 0x21];
+        var format = (ClimFormat)data[footer + (flim ? 0x22 : 0x20)];
+        var orientation = (ClimOrientation)data[footer + (flim ? 0x23 : 0x21)];
         // Textures need not be square (a 55×77 image is stored as 64×128).
         var pixels = DecodePixels(data.AsSpan(0, footer), format, NextPow2(width) * NextPow2(height));
         if (pixels is null)
@@ -208,6 +220,9 @@ public sealed class PokemonIcons
     /// <returns>ARGB values, or null for unsupported formats.</returns>
     private static uint[]? DecodePixels(ReadOnlySpan<byte> data, ClimFormat format, int count)
     {
+        if (format is ClimFormat.ETC1 or ClimFormat.ETC1A4)
+            return DecodeEtc1(data, count, format == ClimFormat.ETC1A4);
+
         var pixels = new uint[count];
         if (data.Length >= 4 && BitConverter.ToUInt16(data) == 2)
         {
@@ -261,6 +276,75 @@ public sealed class PokemonIcons
         }
         return pixels;
     }
+
+    private static readonly int[,] Etc1Modifiers = { { 2, 8 }, { 5, 17 }, { 9, 29 }, { 13, 42 }, { 18, 60 }, { 24, 80 }, { 33, 106 }, { 47, 183 } };
+
+    /// <summary>
+    /// ETC1 and ETC1A4 as the 3DS stores them: 4×4 blocks, four per 8×8 tile in Z order, each an ETC1 block read as a
+    /// little-endian 64-bit value (colors and flags in the high half, pixel indexes in the low half, column-major), preceded
+    /// for ETC1A4 by 64 bits of 4-bit alpha, also column-major. Returned in the same Morton order as the other formats.
+    /// </summary>
+    private static uint[]? DecodeEtc1(ReadOnlySpan<byte> data, int count, bool alpha)
+    {
+        int blockBytes = alpha ? 16 : 8;
+        int tiles = count / 64;
+        if (data.Length < tiles * 4 * blockBytes)
+            return null;
+        var pixels = new uint[count];
+        for (int i = 0; i < count; i++)
+        {
+            Morton((uint)i & 0x3F, out uint x, out uint y);
+            int block = ((i >> 6) * 4) + ((int)(y >> 2) * 2) + (int)(x >> 2);
+            var bytes = data.Slice(block * blockBytes, blockBytes);
+            int px = (int)(x & 3), py = (int)(y & 3), bit = (px * 4) + py;
+            byte a = 0xFF;
+            if (alpha)
+            {
+                a = (byte)(0x11 * ((BitConverter.ToUInt64(bytes) >> (bit * 4)) & 0xF));
+                bytes = bytes[8..];
+            }
+            ulong v = BitConverter.ToUInt64(bytes);
+            uint high = (uint)(v >> 32), low = (uint)v;
+            bool flip = (high & 1) != 0, diff = (high & 2) != 0;
+            bool second = flip ? py >= 2 : px >= 2;
+            int table = (int)((high >> (second ? 2 : 5)) & 7);
+            int r, g, b;
+            if (diff)
+            {
+                r = Channel5((high >> 27) & 0x1F, (high >> 24) & 7, second);
+                g = Channel5((high >> 19) & 0x1F, (high >> 16) & 7, second);
+                b = Channel5((high >> 11) & 0x1F, (high >> 8) & 7, second);
+            }
+            else
+            {
+                r = (int)(0x11 * ((high >> (second ? 24 : 28)) & 0xF));
+                g = (int)(0x11 * ((high >> (second ? 16 : 20)) & 0xF));
+                b = (int)(0x11 * ((high >> (second ? 8 : 12)) & 0xF));
+            }
+            int index = (int)((((low >> (bit + 16)) & 1) << 1) | ((low >> bit) & 1));
+            int modifier = index switch
+            {
+                0 => Etc1Modifiers[table, 0],
+                1 => Etc1Modifiers[table, 1],
+                2 => -Etc1Modifiers[table, 0],
+                _ => -Etc1Modifiers[table, 1],
+            };
+            pixels[i] = Argb(a, Clamp(r + modifier), Clamp(g + modifier), Clamp(b + modifier));
+        }
+        return pixels;
+    }
+
+    /// <summary>Differential mode: base 5-bit color, plus a signed 3-bit delta for the second subblock.</summary>
+    private static int Channel5(uint baseValue, uint delta, bool second)
+    {
+        int c = (int)baseValue;
+        if (second)
+            c += delta >= 4 ? (int)delta - 8 : (int)delta;
+        c &= 0x1F;
+        return (c << 3) | (c >> 2);
+    }
+
+    private static byte Clamp(int v) => (byte)Math.Clamp(v, 0, 255);
 
     private static uint Pick(uint[] palette, int index) => index < palette.Length ? palette[index] : 0;
 
