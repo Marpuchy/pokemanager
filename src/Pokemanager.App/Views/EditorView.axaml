@@ -94,6 +94,11 @@
         <ContentControl Content="{Binding Locke}" />
       </TabItem>
 
+      <!-- ================= Multiplayer room ================= -->
+      <TabItem Header="{x:Static r:Strings.Tab_Room}">
+        <ContentControl Content="{Binding Room}" />
+      </TabItem>
+
       <!-- ================= Advanced: Pokémon ================= -->
       <TabItem Header="{x:Static r:Strings.Tab_AdvancedPokemon}">
         <DockPanel>

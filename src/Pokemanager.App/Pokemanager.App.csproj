@@ -28,6 +28,7 @@
     <ProjectReference Include="..\Pokemanager.Bridge\Pokemanager.Bridge.csproj" />
     <ProjectReference Include="..\Pokemanager.Randomizer\Pokemanager.Randomizer.csproj" />
     <ProjectReference Include="..\Pokemanager.Save\Pokemanager.Save.csproj" />
+    <ProjectReference Include="..\Pokemanager.Multiplayer\Pokemanager.Multiplayer.csproj" />
   </ItemGroup>
 
   <!-- UI text: English by default, Spanish in Strings.es.resx. Public so XAML can use {x:Static}. -->

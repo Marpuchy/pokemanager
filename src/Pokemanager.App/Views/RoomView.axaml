@@ -1,0 +1,198 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Pokemanager.App.ViewModels"
+             xmlns:r="using:Pokemanager.App.Resources"
+             xmlns:c="using:Pokemanager.App.Controls"
+             x:Class="Pokemanager.App.Views.RoomView"
+             x:DataType="vm:RoomViewModel">
+
+  <UserControl.DataTemplates>
+    <!-- A Pokémon of any player: sprite, name, detail and status -->
+    <DataTemplate DataType="vm:RoomMonViewModel">
+      <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,1" ToolTip.Tip="{Binding Tooltip}" Opacity="{Binding Faded}">
+        <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="40" Height="30" Margin="0,0,6,0" />
+        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+          <TextBlock TextTrimming="CharacterEllipsis">
+            <Run Text="{Binding Name}" FontWeight="SemiBold" />
+            <Run Text="  " />
+            <Run Text="{Binding StatusText}" Foreground="{Binding StatusBrush}" />
+          </TextBlock>
+          <TextBlock Classes="hint" FontSize="11" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap">
+            <Run Text="{Binding PlayerName}" />
+            <Run Text=" · " />
+            <Run Text="{Binding Detail}" />
+          </TextBlock>
+        </StackPanel>
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+          <Button Content="{x:Static r:Strings.Room_MarkDead}" Command="{Binding MarkDeadCommand}" IsVisible="{Binding CanMarkDead}" Padding="6,1" />
+          <Button Content="{x:Static r:Strings.Room_UndoDeath}" Command="{Binding UndoDeathCommand}" IsVisible="{Binding CanUndoDeath}" Padding="6,1" />
+          <Button Content="{x:Static r:Strings.Room_Unlink}" Command="{Binding UnlinkCommand}" IsVisible="{Binding CanUnlink}" Padding="6,1" />
+        </StackPanel>
+      </Grid>
+    </DataTemplate>
+    <DataTemplate DataType="vm:RoomLineViewModel">
+      <TextBlock Text="{Binding Text}" TextWrapping="Wrap" Margin="0,1" Classes.error="{Binding IsWarning}" />
+    </DataTemplate>
+  </UserControl.DataTemplates>
+
+  <ScrollViewer>
+    <StackPanel Margin="14,10" Spacing="12">
+
+      <!-- ================= No room yet ================= -->
+      <Border Classes="card" IsVisible="{Binding NoRoom}" MaxWidth="760" HorizontalAlignment="Left">
+        <StackPanel Spacing="8">
+          <TextBlock Classes="card-title" Text="{x:Static r:Strings.Room_NoneTitle}" />
+          <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_NoneHint}" />
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <Button Classes="accent" Content="{x:Static r:Strings.Room_Create}" Command="{Binding CreateCommand}" />
+            <Button Content="{x:Static r:Strings.Room_Join}" Command="{Binding JoinCommand}" />
+          </StackPanel>
+          <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_NetworkPending}" />
+        </StackPanel>
+      </Border>
+
+      <!-- ================= Room ================= -->
+      <Border Classes="card" IsVisible="{Binding HasRoom}">
+        <Grid ColumnDefinitions="*,Auto">
+          <StackPanel Spacing="2" VerticalAlignment="Center">
+            <TextBlock Text="{Binding RoomTitle}" FontSize="16" FontWeight="SemiBold" />
+            <TextBlock Classes="hint" Text="{Binding RoomSubtitle}" />
+          </StackPanel>
+          <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+            <ProgressBar IsIndeterminate="True" Width="60" IsVisible="{Binding IsBusy}" Margin="0,0,6,0" />
+            <Button Classes="accent" Content="{x:Static r:Strings.Room_Sync}" Command="{Binding SynchronizeCommand}"
+                    ToolTip.Tip="{x:Static r:Strings.Room_SyncTip}" Margin="0,0,6,0" />
+            <Button Content="{x:Static r:Strings.Room_Export}" Command="{Binding ExportCommand}" ToolTip.Tip="{x:Static r:Strings.Room_ExportTip}" Margin="0,0,6,0" />
+            <Button Content="{x:Static r:Strings.Room_Import}" Command="{Binding ImportCommand}" ToolTip.Tip="{x:Static r:Strings.Room_ImportTip}" Margin="0,0,6,0" />
+            <Button Content="{x:Static r:Strings.Room_Leave}" Command="{Binding LeaveCommand}" />
+          </WrapPanel>
+        </Grid>
+      </Border>
+
+      <c:AdaptiveColumnsPanel IsVisible="{Binding HasRoom}" MinColumnWidth="380" MaxColumns="3" Spacing="12">
+        <!-- Players -->
+        <StackPanel Spacing="12">
+          <ItemsControl ItemsSource="{Binding Players}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:RoomPlayerViewModel">
+                <Border Classes="card" Margin="0,0,0,12">
+                  <StackPanel Spacing="4">
+                    <TextBlock Classes="card-title" Text="{Binding Name}" />
+                    <TextBlock Classes="hint" Text="{Binding Subtitle}" />
+                    <TextBlock Text="{Binding LivesText}" Foreground="#D13438" FontSize="14" IsVisible="{Binding HasLives}" />
+                    <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_PartyEmpty}" IsVisible="{Binding !HasParty}" />
+                    <ItemsControl ItemsSource="{Binding Party}" />
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+
+          <Border Classes="card" IsVisible="{Binding HasLivesPool}">
+            <StackPanel Spacing="6">
+              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Room_LivesTitle}" />
+              <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_LivesHint}" />
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <Button Content="{x:Static r:Strings.Room_LoseLife}" Command="{Binding LoseLifeCommand}" />
+                <Button Content="{x:Static r:Strings.Room_GainLife}" Command="{Binding GainLifeCommand}" />
+              </StackPanel>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+
+        <!-- Notices and links -->
+        <StackPanel Spacing="12">
+          <Border Classes="card">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Room_NoticesTitle}" />
+              <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_NoNotices}" IsVisible="{Binding !HasNotices}" />
+              <ItemsControl ItemsSource="{Binding Notices}" />
+            </StackPanel>
+          </Border>
+
+          <Border Classes="card">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Room_LinksTitle}" />
+              <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_NoLinks}" IsVisible="{Binding !HasLinks}" />
+              <ItemsControl ItemsSource="{Binding Links}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:RoomLinkViewModel">
+                    <Border BorderBrush="#D5DFE5" BorderThickness="0,0,0,1" Padding="0,4" Opacity="{Binding Faded}">
+                      <StackPanel>
+                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="#1C3A70" />
+                        <ItemsControl ItemsSource="{Binding Members}" />
+                      </StackPanel>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+
+              <StackPanel Spacing="4" Margin="0,8,0,0" IsVisible="{Binding IsManualMatching}">
+                <TextBlock Classes="section" Text="{x:Static r:Strings.Room_ManualTitle}" />
+                <ComboBox ItemsSource="{Binding MyUnlinked}" SelectedItem="{Binding SelectedMine}" HorizontalAlignment="Stretch"
+                          PlaceholderText="{x:Static r:Strings.Room_ManualMine}" MaxDropDownHeight="360" />
+                <ComboBox ItemsSource="{Binding OthersUnlinked}" SelectedItem="{Binding SelectedOther}" HorizontalAlignment="Stretch"
+                          PlaceholderText="{x:Static r:Strings.Room_ManualOther}" MaxDropDownHeight="360" />
+                <Button Content="{x:Static r:Strings.Room_ManualLink}" Command="{Binding LinkSelectedCommand}" />
+              </StackPanel>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+
+        <!-- Rules and log -->
+        <StackPanel Spacing="12">
+          <Border Classes="card">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Room_RulesTitle}" />
+              <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_RulesGuest}" IsVisible="{Binding !CanEditRules}" />
+              <StackPanel Spacing="3" IsEnabled="{Binding CanEditRules}">
+                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                  <TextBlock Classes="field-label" Text="{x:Static r:Strings.Room_RulePreset}" />
+                  <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:RoomViewModel.PresetNames}" SelectedIndex="{Binding PresetIndex}" HorizontalAlignment="Stretch" Margin="0,2" />
+                  <TextBlock Grid.Row="1" Classes="field-label" Text="{x:Static r:Strings.Room_RuleMatching}" />
+                  <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{x:Static vm:RoomViewModel.MatchingNames}" SelectedIndex="{Binding MatchingIndex}" HorizontalAlignment="Stretch" Margin="0,2" />
+                  <TextBlock Grid.Row="2" Classes="field-label" Text="{x:Static r:Strings.Room_RuleDeath}" />
+                  <ComboBox Grid.Row="2" Grid.Column="1" ItemsSource="{x:Static vm:RoomViewModel.DeathNames}" SelectedIndex="{Binding DeathIndex}" HorizontalAlignment="Stretch" Margin="0,2" />
+                  <TextBlock Grid.Row="3" Classes="field-label" Text="{x:Static r:Strings.Room_RuleLives}" />
+                  <ComboBox Grid.Row="3" Grid.Column="1" ItemsSource="{x:Static vm:RoomViewModel.LivesNames}" SelectedIndex="{Binding LivesIndex}" HorizontalAlignment="Stretch" Margin="0,2" />
+                  <TextBlock Grid.Row="4" Classes="field-label" Text="{x:Static r:Strings.Room_RuleMaxLives}" />
+                  <NumericUpDown Grid.Row="4" Grid.Column="1" Value="{Binding MaxLives}" Minimum="0" Maximum="99" FormatString="0" ParsingNumberStyle="Integer" Width="130" HorizontalAlignment="Left" Margin="0,2" />
+                  <TextBlock Grid.Row="5" Classes="field-label" Text="{x:Static r:Strings.Room_RuleRoulette}" />
+                  <ComboBox Grid.Row="5" Grid.Column="1" ItemsSource="{x:Static vm:RoomViewModel.RouletteNames}" SelectedIndex="{Binding RouletteIndex}" HorizontalAlignment="Stretch" Margin="0,2" />
+                  <TextBlock Grid.Row="6" Classes="field-label" Text="{x:Static r:Strings.Room_RuleLevelCap}" />
+                  <ComboBox Grid.Row="6" Grid.Column="1" ItemsSource="{x:Static vm:RoomViewModel.LevelCapNames}" SelectedIndex="{Binding LevelCapIndex}" HorizontalAlignment="Stretch" Margin="0,2" />
+                  <TextBlock Grid.Row="7" Classes="field-label" Text="{x:Static r:Strings.Room_RuleLevelCaps}" />
+                  <TextBox Grid.Row="7" Grid.Column="1" Text="{Binding LevelCaps, UpdateSourceTrigger=LostFocus}" PlaceholderText="12, 20, 30…" Margin="0,2" />
+                </Grid>
+                <TextBlock Classes="section" Text="{x:Static r:Strings.Room_RulesClauses}" />
+                <CheckBox Content="{x:Static r:Strings.Room_RuleFirstEncounter}" IsChecked="{Binding FirstEncounterOnly}" />
+                <CheckBox Content="{x:Static r:Strings.Room_RuleSubAreas}" IsChecked="{Binding MergeSubAreas}" />
+                <CheckBox Content="{x:Static r:Strings.Room_RuleDupes}" IsChecked="{Binding DupesClause}" />
+                <CheckBox Content="{x:Static r:Strings.Room_RuleShiny}" IsChecked="{Binding ShinyClause}" />
+                <CheckBox Content="{x:Static r:Strings.Room_RuleEggs}" IsChecked="{Binding EggsCount}" />
+                <CheckBox Content="{x:Static r:Strings.Room_RuleRace}" IsChecked="{Binding RaceForLocations}" />
+                <CheckBox Content="{x:Static r:Strings.Room_RuleUniqueTypes}" IsChecked="{Binding UniquePrimaryTypes}" />
+                <CheckBox Content="{x:Static r:Strings.Room_RuleDeathCostsLife}" IsChecked="{Binding DeathCostsLife}" />
+                <TextBlock Classes="section" Text="{x:Static r:Strings.Room_RulesDetection}" />
+                <CheckBox Content="{x:Static r:Strings.Room_RuleFainted}" IsChecked="{Binding DetectFainted}" />
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <CheckBox Content="{x:Static r:Strings.Room_RuleGraveyard}" IsChecked="{Binding DetectGraveyard}" />
+                  <NumericUpDown Value="{Binding GraveyardBox}" Minimum="0" Maximum="32" FormatString="0" ParsingNumberStyle="Integer" Width="110"
+                                 ToolTip.Tip="{x:Static r:Strings.Room_RuleGraveyardTip}" />
+                </StackPanel>
+                <CheckBox Content="{x:Static r:Strings.Room_RuleReleased}" IsChecked="{Binding DetectReleased}" />
+              </StackPanel>
+            </StackPanel>
+          </Border>
+
+          <Border Classes="card">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Room_LogTitle}" />
+              <ItemsControl ItemsSource="{Binding Log}" />
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </c:AdaptiveColumnsPanel>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

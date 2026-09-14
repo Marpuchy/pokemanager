@@ -254,7 +254,36 @@ Verified on the user's real ROMs and copies of their saves (headless harness, Do
   `release.yml` on a `v*` tag runs tests + the installer script (Temurin 21 JDK) and publishes the release with
   `docs/release-notes.md`. Version comes from the tag (`Directory.Build.props` has the default) and shows in the window title.
 
-Pending: live dashboard (RPC).
+### Multiplayer Locke (2026-09-14) — phase 1 of 4: model and rules, no network yet
+
+User request: dual/soul-link Lockes with **2 or more players**, several modes, everything configurable, **each player keeps
+their own seed/ROM** (nothing about the ROM is shared), players are **always on different networks** and **no server and nothing
+the user has to install or configure** (no VPN, no manual port forwarding). Agreed plan: (1) model + rules, (2) direct
+connection + protocol + encryption + offline queue, (3) NAT traversal: UPnP/NAT-PMP/PCP, IPv6, public STUN, UDP hole punching,
+invite code (and an answer code when needed), relaying through another reachable player, (4) UI. Star topology: the host is the
+authority on the event order. Both behind CGNAT/symmetric NAT cannot connect without a relay: say so, don't promise 100 %.
+
+| Piece | Implementation |
+|---|---|
+| Project | `Pokemanager.Multiplayer` (references Save). |
+| Rules | `LinkRules`: matching None/ByLocation/InOrder (different games)/Manual, `MergeSubAreas`, race for locations, first encounter, dupes, shiny, eggs, death spread KillLinked/Notify/None, death detection flags (fainted in party, graveyard box — -1 = last box —, released), unique primary types, lives Off/Individual/Shared + death costs a life, roulette PerPlayer/EveryoneOnAnyMilestone/TeamSpin, level cap Off/OwnProgress/SlowestPlayer, `Teams` (empty = everyone linked; players outside every team play alone). Presets SoulLink, SoulLinkDifferentGames, SharedNuzlocke, Race. |
+| Room | `LinkRoom` JSON (magic `pokemanager-link-room`): rules, append-only `Events` (deduplicated by Guid — what the network will replicate), local player id, `LastSnapshot` (local only). |
+| State | `RoomState.Build(rules, events)` replays everything: changing rules re-judges the whole run identically for everyone. `DeathUndone` / `ManualUnlink` remove the events they cancel before the replay. Doomed Pokémon and notices (MustRetire, LinkedDied, SecondEncounter, LocationClaimed, DuplicatePrimaryType, OverLevelCap, NoLivesLeft) are derived at the end. Retiring a Pokémon whose link already died does not cost a life. |
+| Detection | `SaveSnapshot.Read(SaveDocument)` (identity = encryption constant, owned = OT name + TID + SID, primary type from the played ROM) and `SaveSync.Detect(previous, current)`: the first sync reports the run in met-date order; later only what became true (captured, updated, fainted, graveyard, released, milestone) + `SaveSynced` (party). |
+
+**Verified on a copy of the user's real Ultra Sun save** (Marpuchy, 90 Pokémon, 4/5 trials): 89 captures, 1 not owned, 4 milestones,
+room file 80 KB reloads 95/95 events. **Gen 7 splits one route into several met location ids** (Route 1 = 8, Route 1 (Hau'oli
+Outskirts) = 6, Route 1 (Trainers' School) = 230), so linking by id was wrong: events carry `Area` = the **English** PKHeX name
+without the parenthesised sub-area (language-neutral across players); 54 ids → 50 areas on that save.
+
+**UI brought forward (user asked to see rooms):** editor tab **Multiplayer** (`RoomViewModel` / `RoomView`), room file
+`<project>.room.json`. Create (reads the save read-only, first sync), join with a file, synchronize, export/import room files
+(the stopgap until the network: the host's file also brings the rules), leave; players with party and lives, notices (actions
+first), links (deaths first), manual link, mark dead / undo / unlink, rules editable by the host only, log. Location names are
+localized at display time from the player's game + location id (PKHeX has every game's names). Verified with a headless
+screenshot on copies of the Ultra Sun project and save plus a simulated second player.
+
+Pending: phases 2–3 of multiplayer (network), roulette integration with `RouletteMode`, team editing UI, live dashboard (RPC).
 
 ---
 

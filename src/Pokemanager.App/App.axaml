@@ -24,6 +24,9 @@
     <DataTemplate DataType="vm:LockeViewModel">
       <views:LockeView />
     </DataTemplate>
+    <DataTemplate DataType="vm:RoomViewModel">
+      <views:RoomView />
+    </DataTemplate>
   </Application.DataTemplates>
 
   <Application.Styles>

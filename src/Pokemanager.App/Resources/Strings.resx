@@ -1728,4 +1728,400 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Preview_TrainerTrials" xml:space="preserve">
     <value>{0} · trials {1} · ${2:N0} · {3} played · {4} save, {5:g}</value>
   </data>
+  <data name="Tab_Room" xml:space="preserve">
+    <value>Multiplayer</value>
+  </data>
+  <data name="Room_MonDetail" xml:space="preserve">
+    <value>{0} · Lv. {1} · {2}</value>
+  </data>
+  <data name="Room_StatusAlive" xml:space="preserve">
+    <value>alive</value>
+  </data>
+  <data name="Room_StatusDoomed" xml:space="preserve">
+    <value>must be retired</value>
+  </data>
+  <data name="Room_StatusDead" xml:space="preserve">
+    <value>dead</value>
+  </data>
+  <data name="Room_Title" xml:space="preserve">
+    <value>Room: {0}</value>
+  </data>
+  <data name="Room_Subtitle" xml:space="preserve">
+    <value>{0} players · {1} · your save last synchronized {2}</value>
+  </data>
+  <data name="Room_YouHost" xml:space="preserve">
+    <value>you are the host</value>
+  </data>
+  <data name="Room_YouGuest" xml:space="preserve">
+    <value>you are a guest</value>
+  </data>
+  <data name="Room_NeverSynced" xml:space="preserve">
+    <value>never</value>
+  </data>
+  <data name="Room_Unreadable" xml:space="preserve">
+    <value>The room file {0} could not be read: {1}</value>
+  </data>
+  <data name="Room_PlayerSubtitle" xml:space="preserve">
+    <value>{0} · milestones {1}/{2} · {3} captures, {4} dead · synchronized {5}</value>
+  </data>
+  <data name="Room_You" xml:space="preserve">
+    <value>{0} (you)</value>
+  </data>
+  <data name="Room_Host" xml:space="preserve">
+    <value>host</value>
+  </data>
+  <data name="Room_LinkOrder" xml:space="preserve">
+    <value>Capture no. {0}</value>
+  </data>
+  <data name="Room_LinkManual" xml:space="preserve">
+    <value>Manual link</value>
+  </data>
+  <data name="Room_NoticeMustRetire" xml:space="preserve">
+    <value>{0}: {1} must be retired because {2} ({3}) died.</value>
+  </data>
+  <data name="Room_NoticeLinkedDied" xml:space="preserve">
+    <value>{0}: {2} ({3}), linked with {1}, died.</value>
+  </data>
+  <data name="Room_NoticeSecondEncounter" xml:space="preserve">
+    <value>{0}: {1} is a second capture in {2}.</value>
+  </data>
+  <data name="Room_NoticeClaimed" xml:space="preserve">
+    <value>{0}: {1} was caught in {2}, already claimed by {3}.</value>
+  </data>
+  <data name="Room_NoticeDuplicateType" xml:space="preserve">
+    <value>{0}: {1} repeats the primary type {2} in the party.</value>
+  </data>
+  <data name="Room_NoticeLevelCap" xml:space="preserve">
+    <value>{0}: {1} is above the level cap ({2}).</value>
+  </data>
+  <data name="Room_NoticeNoLives" xml:space="preserve">
+    <value>{0}: no lives left.</value>
+  </data>
+  <data name="Room_LogJoined" xml:space="preserve">
+    <value>{0} joined the room ({1}).</value>
+  </data>
+  <data name="Room_LogCaptured" xml:space="preserve">
+    <value>{0} caught {1} in {2}.</value>
+  </data>
+  <data name="Room_LogDied" xml:space="preserve">
+    <value>{0}: {1} died ({2}).</value>
+  </data>
+  <data name="Room_LogUndone" xml:space="preserve">
+    <value>{0}: the death of {1} was undone.</value>
+  </data>
+  <data name="Room_LogMilestone" xml:space="preserve">
+    <value>{0} earned {1}.</value>
+  </data>
+  <data name="Room_LogLives" xml:space="preserve">
+    <value>{0}: {1} lives ({2}).</value>
+  </data>
+  <data name="Room_LogLinked" xml:space="preserve">
+    <value>{0} linked {1} with {2}.</value>
+  </data>
+  <data name="Room_LogUnlinked" xml:space="preserve">
+    <value>{0} unlinked {1}.</value>
+  </data>
+  <data name="Room_LogRoulette" xml:space="preserve">
+    <value>{0} spun the roulette: {1}.</value>
+  </data>
+  <data name="Room_CauseFainted" xml:space="preserve">
+    <value>fainted in the party</value>
+  </data>
+  <data name="Room_CauseGraveyard" xml:space="preserve">
+    <value>moved to the graveyard box</value>
+  </data>
+  <data name="Room_CauseReleased" xml:space="preserve">
+    <value>released</value>
+  </data>
+  <data name="Room_CauseManual" xml:space="preserve">
+    <value>marked by hand</value>
+  </data>
+  <data name="Room_NoSave" xml:space="preserve">
+    <value>There is no save of this game in the emulator yet: play and save once before creating or joining a room.</value>
+  </data>
+  <data name="Room_SaveFailed" xml:space="preserve">
+    <value>The save could not be read: {0}</value>
+  </data>
+  <data name="Room_CreateTitle" xml:space="preserve">
+    <value>Create a room</value>
+  </data>
+  <data name="Room_CreateMessage" xml:space="preserve">
+    <value>Your save is read (never modified) and what you already have becomes your first captures. Then share the room with Export.</value>
+  </data>
+  <data name="Room_CreateConfirm" xml:space="preserve">
+    <value>Create</value>
+  </data>
+  <data name="Room_NamePlaceholder" xml:space="preserve">
+    <value>Room name</value>
+  </data>
+  <data name="Room_Created" xml:space="preserve">
+    <value>Room {0} created. Export it and send the file to the other players.</value>
+  </data>
+  <data name="Room_JoinTitle" xml:space="preserve">
+    <value>Join a room with the file you were sent</value>
+  </data>
+  <data name="Room_Joined" xml:space="preserve">
+    <value>You joined {0}. Export the room and send it back so the others see you.</value>
+  </data>
+  <data name="Room_Synced" xml:space="preserve">
+    <value>Save synchronized: {0} new events.</value>
+  </data>
+  <data name="Room_SyncedNothing" xml:space="preserve">
+    <value>Save synchronized: nothing new since last time.</value>
+  </data>
+  <data name="Room_ExportTitle" xml:space="preserve">
+    <value>Export the room</value>
+  </data>
+  <data name="Room_Exported" xml:space="preserve">
+    <value>Room exported to {0}. Send this file to the other players.</value>
+  </data>
+  <data name="Room_ImportTitle" xml:space="preserve">
+    <value>Import another player&apos;s room file</value>
+  </data>
+  <data name="Room_ImportFailed" xml:space="preserve">
+    <value>Room file error: {0}</value>
+  </data>
+  <data name="Room_OtherRoom" xml:space="preserve">
+    <value>That file is from another room ({0}).</value>
+  </data>
+  <data name="Room_Imported" xml:space="preserve">
+    <value>{0} new events imported. {1}</value>
+  </data>
+  <data name="Room_ImportedRules" xml:space="preserve">
+    <value>The host&apos;s rules were applied.</value>
+  </data>
+  <data name="Room_LeaveTitle" xml:space="preserve">
+    <value>Leave the room</value>
+  </data>
+  <data name="Room_LeaveMessage" xml:space="preserve">
+    <value>The room file of this project is deleted. Your save is not touched. The other players keep their copies.</value>
+  </data>
+  <data name="Room_LeaveConfirm" xml:space="preserve">
+    <value>Leave</value>
+  </data>
+  <data name="Room_LivesByHand" xml:space="preserve">
+    <value>by hand</value>
+  </data>
+  <data name="Room_PresetCustom" xml:space="preserve">
+    <value>Choose a preset…</value>
+  </data>
+  <data name="Room_PresetSoulLink" xml:space="preserve">
+    <value>Soul Link</value>
+  </data>
+  <data name="Room_PresetSoulLinkGames" xml:space="preserve">
+    <value>Soul Link, different games</value>
+  </data>
+  <data name="Room_PresetShared" xml:space="preserve">
+    <value>Shared Nuzlocke</value>
+  </data>
+  <data name="Room_PresetRace" xml:space="preserve">
+    <value>Race</value>
+  </data>
+  <data name="Room_MatchNone" xml:space="preserve">
+    <value>Not linked</value>
+  </data>
+  <data name="Room_MatchLocation" xml:space="preserve">
+    <value>Same location</value>
+  </data>
+  <data name="Room_MatchOrder" xml:space="preserve">
+    <value>Capture order</value>
+  </data>
+  <data name="Room_MatchManual" xml:space="preserve">
+    <value>By hand</value>
+  </data>
+  <data name="Room_DeathKill" xml:space="preserve">
+    <value>Linked ones die too</value>
+  </data>
+  <data name="Room_DeathNotify" xml:space="preserve">
+    <value>Only notify</value>
+  </data>
+  <data name="Room_DeathNone" xml:space="preserve">
+    <value>Nothing</value>
+  </data>
+  <data name="Room_LivesOff" xml:space="preserve">
+    <value>No lives</value>
+  </data>
+  <data name="Room_LivesIndividual" xml:space="preserve">
+    <value>Each player</value>
+  </data>
+  <data name="Room_LivesShared" xml:space="preserve">
+    <value>Shared by the team</value>
+  </data>
+  <data name="Room_RoulettePerPlayer" xml:space="preserve">
+    <value>Each player for their own milestones</value>
+  </data>
+  <data name="Room_RouletteEveryone" xml:space="preserve">
+    <value>Everyone when anyone earns one</value>
+  </data>
+  <data name="Room_RouletteTeam" xml:space="preserve">
+    <value>One spin for the team</value>
+  </data>
+  <data name="Room_CapOff" xml:space="preserve">
+    <value>No level cap</value>
+  </data>
+  <data name="Room_CapOwn" xml:space="preserve">
+    <value>From your own milestones</value>
+  </data>
+  <data name="Room_CapSlowest" xml:space="preserve">
+    <value>From the slowest player</value>
+  </data>
+  <data name="Room_NoneTitle" xml:space="preserve">
+    <value>Multiplayer Locke</value>
+  </data>
+  <data name="Room_NoneHint" xml:space="preserve">
+    <value>Play a Locke with friends, each one with their own game and seed: captures linked by location or order (Soul Link), deaths that spread, shared lives and rules, notices when a rule is broken. Create a room if you are the host, or join with the room file another player sent you.</value>
+  </data>
+  <data name="Room_Create" xml:space="preserve">
+    <value>Create room…</value>
+  </data>
+  <data name="Room_Join" xml:space="preserve">
+    <value>Join with a file…</value>
+  </data>
+  <data name="Room_NetworkPending" xml:space="preserve">
+    <value>For now rooms are shared by sending the room file (Export / Import). Connecting directly over the internet is coming next.</value>
+  </data>
+  <data name="Room_Sync" xml:space="preserve">
+    <value>Synchronize my save</value>
+  </data>
+  <data name="Room_SyncTip" xml:space="preserve">
+    <value>Reads your emulator save (without modifying it) and records captures, deaths and milestones since last time.</value>
+  </data>
+  <data name="Room_Export" xml:space="preserve">
+    <value>Export…</value>
+  </data>
+  <data name="Room_ExportTip" xml:space="preserve">
+    <value>Saves the room to a file to send to the other players.</value>
+  </data>
+  <data name="Room_Import" xml:space="preserve">
+    <value>Import…</value>
+  </data>
+  <data name="Room_ImportTip" xml:space="preserve">
+    <value>Adds what another player exported. The host&apos;s file also updates the rules.</value>
+  </data>
+  <data name="Room_Leave" xml:space="preserve">
+    <value>Leave</value>
+  </data>
+  <data name="Room_PartyEmpty" xml:space="preserve">
+    <value>No party yet: synchronize the save.</value>
+  </data>
+  <data name="Room_LivesTitle" xml:space="preserve">
+    <value>Lives</value>
+  </data>
+  <data name="Room_LivesHint" xml:space="preserve">
+    <value>For what the save cannot tell, such as a whiteout.</value>
+  </data>
+  <data name="Room_LoseLife" xml:space="preserve">
+    <value>− Lose a life</value>
+  </data>
+  <data name="Room_GainLife" xml:space="preserve">
+    <value>+ Add a life</value>
+  </data>
+  <data name="Room_NoticesTitle" xml:space="preserve">
+    <value>Notices</value>
+  </data>
+  <data name="Room_NoNotices" xml:space="preserve">
+    <value>Everything follows the rules.</value>
+  </data>
+  <data name="Room_LinksTitle" xml:space="preserve">
+    <value>Links</value>
+  </data>
+  <data name="Room_NoLinks" xml:space="preserve">
+    <value>No linked captures yet.</value>
+  </data>
+  <data name="Room_ManualTitle" xml:space="preserve">
+    <value>Link by hand</value>
+  </data>
+  <data name="Room_ManualMine" xml:space="preserve">
+    <value>One of your captures</value>
+  </data>
+  <data name="Room_ManualOther" xml:space="preserve">
+    <value>A capture of another player</value>
+  </data>
+  <data name="Room_ManualLink" xml:space="preserve">
+    <value>Link</value>
+  </data>
+  <data name="Room_MarkDead" xml:space="preserve">
+    <value>Dead</value>
+  </data>
+  <data name="Room_UndoDeath" xml:space="preserve">
+    <value>Undo</value>
+  </data>
+  <data name="Room_Unlink" xml:space="preserve">
+    <value>Unlink</value>
+  </data>
+  <data name="Room_RulesTitle" xml:space="preserve">
+    <value>Rules</value>
+  </data>
+  <data name="Room_RulesGuest" xml:space="preserve">
+    <value>Only the host can change the rules.</value>
+  </data>
+  <data name="Room_RulePreset" xml:space="preserve">
+    <value>Preset</value>
+  </data>
+  <data name="Room_RuleMatching" xml:space="preserve">
+    <value>Link captures</value>
+  </data>
+  <data name="Room_RuleDeath" xml:space="preserve">
+    <value>When one dies</value>
+  </data>
+  <data name="Room_RuleLives" xml:space="preserve">
+    <value>Lives</value>
+  </data>
+  <data name="Room_RuleMaxLives" xml:space="preserve">
+    <value>Lives per pool</value>
+  </data>
+  <data name="Room_RuleRoulette" xml:space="preserve">
+    <value>Roulette</value>
+  </data>
+  <data name="Room_RuleLevelCap" xml:space="preserve">
+    <value>Level cap</value>
+  </data>
+  <data name="Room_RuleLevelCaps" xml:space="preserve">
+    <value>Caps per milestone</value>
+  </data>
+  <data name="Room_RulesClauses" xml:space="preserve">
+    <value>Clauses</value>
+  </data>
+  <data name="Room_RuleFirstEncounter" xml:space="preserve">
+    <value>Only the first capture of each location</value>
+  </data>
+  <data name="Room_RuleSubAreas" xml:space="preserve">
+    <value>Sub-areas count as the same location</value>
+  </data>
+  <data name="Room_RuleDupes" xml:space="preserve">
+    <value>Dupes clause (repeated species do not use the location)</value>
+  </data>
+  <data name="Room_RuleShiny" xml:space="preserve">
+    <value>Shiny clause (shinies are free and never linked)</value>
+  </data>
+  <data name="Room_RuleEggs" xml:space="preserve">
+    <value>Hatched eggs count as captures</value>
+  </data>
+  <data name="Room_RuleRace" xml:space="preserve">
+    <value>Race: the first player to catch on a location claims it</value>
+  </data>
+  <data name="Room_RuleUniqueTypes" xml:space="preserve">
+    <value>No repeated primary types in the party</value>
+  </data>
+  <data name="Room_RuleDeathCostsLife" xml:space="preserve">
+    <value>Each death costs a life</value>
+  </data>
+  <data name="Room_RulesDetection" xml:space="preserve">
+    <value>What counts as a death</value>
+  </data>
+  <data name="Room_RuleFainted" xml:space="preserve">
+    <value>Fainted (0 HP) in the party when synchronizing</value>
+  </data>
+  <data name="Room_RuleGraveyard" xml:space="preserve">
+    <value>Placed in the graveyard box</value>
+  </data>
+  <data name="Room_RuleGraveyardTip" xml:space="preserve">
+    <value>Box number; 0 = the last box of the save.</value>
+  </data>
+  <data name="Room_RuleReleased" xml:space="preserve">
+    <value>Released (disappeared from the save)</value>
+  </data>
+  <data name="Room_LogTitle" xml:space="preserve">
+    <value>Log</value>
+  </data>
 </root>
