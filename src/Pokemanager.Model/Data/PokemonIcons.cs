@@ -173,8 +173,8 @@ public sealed class PokemonIcons
         int height = BitConverter.ToUInt16(data, footer + 0x1E);
         var format = (ClimFormat)data[footer + 0x20];
         var orientation = (ClimOrientation)data[footer + 0x21];
-        int size = Math.Max(NextPow2(width), NextPow2(height));
-        var pixels = DecodePixels(data.AsSpan(0, footer), format, size * size);
+        // Textures need not be square (a 55×77 image is stored as 64×128).
+        var pixels = DecodePixels(data.AsSpan(0, footer), format, NextPow2(width) * NextPow2(height));
         if (pixels is null)
             return null;
 

@@ -56,6 +56,19 @@
               <Setter Property="Background" Value="{Binding $parent[Button].Background}" />
               <Setter Property="BorderBrush" Value="#0B1E40" />
             </Style>
+            <!-- With the game's badge image: no circle, only a frame on hover or when a prize is pending -->
+            <Style Selector="Button.badge.icon">
+              <Setter Property="Width" Value="52" />
+              <Setter Property="Height" Value="52" />
+              <Setter Property="CornerRadius" Value="6" />
+              <Setter Property="BorderBrush" Value="Transparent" />
+            </Style>
+            <Style Selector="Button.badge.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+              <Setter Property="Background" Value="#E3EEFA" />
+            </Style>
+            <Style Selector="Button.badge.icon:pressed /template/ ContentPresenter#PART_ContentPresenter">
+              <Setter Property="Background" Value="#CCE0F5" />
+            </Style>
             <Style Selector="Button.badge.pending">
               <Setter Property="BorderBrush" Value="#E07B00" />
             </Style>
@@ -72,9 +85,12 @@
                 <ItemsControl.ItemTemplate>
                   <DataTemplate x:DataType="vm:BadgeItemViewModel">
                     <Panel Margin="0,0,6,0" ToolTip.Tip="{Binding Tooltip}">
-                      <Button Classes="badge" Classes.pending="{Binding IsPending}" Background="{Binding Background}"
+                      <Button Classes="badge" Classes.icon="{Binding HasIcon}" Classes.pending="{Binding IsPending}" Background="{Binding Background}"
                               Command="{Binding SpinCommand}" IsEnabled="{Binding CanSpin}">
-                        <TextBlock Text="{Binding Number}" FontSize="15" FontWeight="Bold" Foreground="{Binding Foreground}" />
+                        <Panel>
+                          <Image Source="{Binding Icon}" IsVisible="{Binding HasIcon}" Width="44" Height="44" Stretch="Uniform" />
+                          <TextBlock Text="{Binding Number}" FontSize="15" FontWeight="Bold" Foreground="{Binding Foreground}" IsVisible="{Binding !HasIcon}" />
+                        </Panel>
                       </Button>
                       <Border IsVisible="{Binding HasMark}" Width="17" Height="17" CornerRadius="9" Background="White"
                               BorderBrush="#9A9A9A" BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" IsHitTestVisible="False">

@@ -47,6 +47,17 @@ public sealed class PokemonSprites
     public Bitmap? ForPersonalEntry(int index) =>
         formEntries.TryGetValue(index, out var f) ? For(f.Species, f.Form) : index < PokemonIcons.SpeciesCount ? For(index) : null;
 
+    public static Bitmap ToBitmap(IconImage image)
+    {
+        var writeable = new WriteableBitmap(new PixelSize(image.Width, image.Height), new Vector(96, 96), PixelFormat.Rgba8888, AlphaFormat.Unpremul);
+        using (var buffer = writeable.Lock())
+        {
+            for (int y = 0; y < image.Height; y++)
+                System.Runtime.InteropServices.Marshal.Copy(image.Rgba, y * image.Width * 4, buffer.Address + (y * buffer.RowBytes), image.Width * 4);
+        }
+        return writeable;
+    }
+
     private Bitmap? Bitmap(int index)
     {
         if (icons is null || index <= 0)
@@ -59,15 +70,7 @@ public sealed class PokemonSprites
 
         Bitmap? bitmap = null;
         if (icons.Get(index) is { } image)
-        {
-            var writeable = new WriteableBitmap(new PixelSize(image.Width, image.Height), new Vector(96, 96), PixelFormat.Rgba8888, AlphaFormat.Unpremul);
-            using (var buffer = writeable.Lock())
-            {
-                for (int y = 0; y < image.Height; y++)
-                    System.Runtime.InteropServices.Marshal.Copy(image.Rgba, y * image.Width * 4, buffer.Address + (y * buffer.RowBytes), image.Width * 4);
-            }
-            bitmap = writeable;
-        }
+            bitmap = ToBitmap(image);
 
         lock (bitmaps)
             bitmaps[index] = bitmap;

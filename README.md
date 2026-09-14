@@ -29,7 +29,7 @@ dotnet run --project src/Pokemanager.App
 0. **Start screen:** your projects on the left. Selecting one shows, read only, its ROM and the team of its save
    (sprite, name, level, held item); clicking a Pokémon shows its stats, IVs, EVs, moves and ability. **Manage** (on each
    project, on the preview and on the Pokémon) opens the full editor described below.
-   For Nuzlocke-style runs the preview also shows the **8 gym badges** read from the save and the **lives** left
+   For Nuzlocke-style runs the preview also shows the **8 gym badges** read from the save (with the game's own badge images, taken from your dump) and the **lives** left
    (− / + to lose or recover one). Clicking an earned badge spins its **roulette** once: items and money go straight into
    the save (emulator closed; a history version and a backup are made first), an extra life adds to the count. A prize won
    while the emulator was open stays pending on the badge (!) until it is claimed.

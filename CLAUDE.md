@@ -204,6 +204,10 @@ slot selected (`EditorViewModel.PendingSaveSlot`, handled in `EditorView` on `Da
   with the save editor's safety: emulator closed, BeforeSaveEdit history version, backup, verification.
 - Verified headless on a copy of the user's save (1 badge): Rare Candy 754 → 757, money pending then claimed
   52 860 → 62 860, extra life 3/5 → 4/5.
+- **Badge icons — verified:** the trainer card layout `a/1/1/3` file 0 (LZ11) is a darc with `badge_01.bclim` …
+  `badge_08.bclim` (RGBA8; 55×64, 55×77, 70×45, 50×55, 64×64, 90×34, 60×60, 55×60) and ETC1A4 `badge_0N_base`
+  silhouettes. `Model/Data/BadgeIcons` (darc reader); unearned badges are drawn greyed and faded. BCLIM textures are
+  **not always square** (55×77 is stored as 64×128): `DecodeBclim` sizes the pixel data as NextPow2(w)×NextPow2(h).
 - `POKEMANAGER_DATA` moves `AppSettings.DataRoot` (cache + save backups). **Harnesses that write a save must set it**: a
   harness run had put a backup of a test copy into the real `save-backups` folder (removed; nothing was pruned).
 

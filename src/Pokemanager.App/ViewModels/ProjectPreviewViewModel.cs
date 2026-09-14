@@ -7,6 +7,7 @@ using Pokemanager.App.Resources;
 using Pokemanager.App.Services;
 using Pokemanager.Bridge;
 using Pokemanager.Model.Dump;
+using Pokemanager.Model.Data;
 using Pokemanager.Model.Projects;
 using Pokemanager.Save;
 
@@ -126,14 +127,19 @@ public sealed partial class PartyMemberViewModel : ObservableObject
 
 /// <summary>A gym badge in the preview: earned or not (from the save), and its roulette.</summary>
 public sealed partial class BadgeItemViewModel(ProjectPreviewViewModel owner, int index, string name, int type, bool earned, LockeSpin? spin,
-    IReadOnlyList<string> itemNames) : ObservableObject
+    IReadOnlyList<string> itemNames, IconImage? image) : ObservableObject
 {
+    /// <summary>The badge as in the trainer card (grey and faded when not earned); null when the dump has no image.</summary>
+    public Bitmap? Icon => field ??= image is null ? null : PokemonSprites.ToBitmap(Earned ? image : BadgeIcons.Faded(image));
+
+    public bool HasIcon => image is not null;
+
     public int Index { get; } = index;
     public string Name { get; } = name;
     public string Number => (Index + 1).ToString();
     public bool Earned { get; } = earned;
 
-    public Avalonia.Media.IBrush Background => Earned ? TypeColors.Background(type) : new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#DADADA"));
+    public Avalonia.Media.IBrush Background => HasIcon ? Avalonia.Media.Brushes.Transparent : Earned ? TypeColors.Background(type) : new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#DADADA"));
     public Avalonia.Media.IBrush Foreground => Earned ? TypeColors.Foreground(type) : new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#8A8A8A"));
 
     /// <summary>✓ prize given · ! prize won but not in the save yet · empty otherwise.</summary>
@@ -246,8 +252,10 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
         }
 
         var badges = LockeRewards.Badges;
+        var badgeImages = BadgeIcons.Load(new RomFsLayers(project.RomFsPath));
         for (int i = 0; i < LockeSettings.BadgeCount; i++)
-            Badges.Add(new BadgeItemViewModel(this, i, badges[i].Name, badges[i].Type, doc?.GetBadge(i) ?? false, project.Locke.SpinOf(i), itemNames));
+            Badges.Add(new BadgeItemViewModel(this, i, badges[i].Name, badges[i].Type, doc?.GetBadge(i) ?? false, project.Locke.SpinOf(i), itemNames,
+                badgeImages?[i]));
     }
 
     public PokemonSprites Sprites { get; } = PokemonSprites.Empty;
