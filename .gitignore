@@ -14,3 +14,6 @@ TestResults/
 *.cxi
 /romfs/
 /exefs/
+
+## Installer build output (build/build-installer.ps1)
+/artifacts/

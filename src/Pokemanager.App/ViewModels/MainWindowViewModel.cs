@@ -29,7 +29,12 @@ public partial class MainWindowViewModel : ObservableObject
         CurrentPage = new WelcomeViewModel(this, dialogs);
     }
 
-    public string Title => CurrentPage is EditorViewModel e ? string.Format(Strings.Main_TitleWithProject, Path.GetFileName(e.ProjectPath)) : "Pokemanager";
+    /// <summary>Version of the application (from the build: <c>Directory.Build.props</c> or the release tag).</summary>
+    public static string Version { get; } = typeof(MainWindowViewModel).Assembly.GetName().Version is { } v ? $"{v.Major}.{v.Minor}.{v.Build}" : "";
+
+    public string Title => CurrentPage is EditorViewModel e
+        ? string.Format(Strings.Main_TitleWithProject, Path.GetFileName(e.ProjectPath))
+        : $"Pokemanager {Version}";
 
     partial void OnCurrentPageChanged(ObservableObject value) => OnPropertyChanged(nameof(Title));
 

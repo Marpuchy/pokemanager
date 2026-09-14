@@ -1,4 +1,5 @@
 <Window xmlns="https://github.com/avaloniaui"
+        Icon="avares://Pokemanager.App/Assets/pokemanager.ico"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Pokemanager.App.ViewModels"
         x:Class="Pokemanager.App.Views.MainWindow"

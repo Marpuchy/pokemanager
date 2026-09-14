@@ -1,29 +1,53 @@
-# Pokemanager
+<p align="center">
+  <img src="src/Pokemanager.App/Assets/pokemanager.png" width="96" alt="Pokemanager icon" />
+</p>
 
-Randomizer and save editor for the Pokémon games of the 3DS — **X, Y, Omega Ruby, Alpha Sapphire, Sun, Moon, Ultra Sun
-and Ultra Moon** — meant to be played on a 3DS emulator (Citra, Azahar).
-It brings together in one application what is usually done with Universal Pokémon Randomizer ZX (the ROM)
-and PKHeX (the save file).
+<h1 align="center">Pokemanager</h1>
 
-The application never modifies your ROM: randomized ROMs are created as new files next to it and can always be
-regenerated from `ROM + project`. The repository contains no game data; each user provides their own decrypted ROM.
+<p align="center">
+  Randomizer, save editor and Nuzlocke companion for the Pokémon games of the Nintendo 3DS.<br/>
+  <b>X · Y · Omega Ruby · Alpha Sapphire · Sun · Moon · Ultra Sun · Ultra Moon</b>
+</p>
 
-> Status: **randomizer**, **save editor**, **version history** and **Pokémon data files** working. Live
-> dashboard still to do.
+<p align="center">
+  <a href="https://github.com/Marpuchy/pokemanager/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/Marpuchy/pokemanager?label=download"></a>
+  <a href="https://github.com/Marpuchy/pokemanager/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Marpuchy/pokemanager/actions/workflows/ci.yml/badge.svg?branch=main"></a>
+  <a href="LICENSE.md"><img alt="License: GPL-3.0" src="https://img.shields.io/badge/license-GPL--3.0-blue"></a>
+</p>
 
-The interface is in **English** by default; Spanish can be selected in **Settings → Language**.
+Pokemanager brings together in one application what is usually done with **Universal Pokémon Randomizer ZX** (the ROM)
+and **PKHeX** (the save file), for games played on a 3DS emulator such as Citra or Azahar.
 
-## Requirements
+- **Randomize** with every UPR ZX option and a reproducible seed; the result is a new ROM next to yours.
+- **Edit your save** like in PKHeX — Pokémon, bag, trainer, Pokédex — using the stats and abilities of the ROM you play.
+- **Adapt a save in progress** when the ROM changes (new seed, new options), with backups and verification.
+- **Keep a history** of versions to go back when a build goes wrong, and share Pokémon data as `.pkdata` files.
+- **Locke tools:** lives, badges or island trials read from the save, and a reward roulette that puts items in your bag.
+- Interface in **English** and **Spanish**.
 
-- .NET 10 SDK and Java 11 or later.
-- A decrypted ROM (`.3ds`, `.cci` or `.cxi`) of one of the supported games. Nothing has to be extracted by hand.
-- Universal Pokémon Randomizer ZX and PKHeX.Core **are bundled** (see [tools/README.md](tools/README.md)).
+The application never modifies your ROM, and the repository contains no game data: each user provides their own
+**decrypted** ROM.
+
+## Download and install (Windows)
+
+1. Download **`PokemanagerApp-win-Setup.exe`** from the [latest release](https://github.com/Marpuchy/pokemanager/releases/latest).
+2. Run it. It installs for your user (no administrator rights) and adds **Pokemanager** to the desktop and Start menu.
+3. Open Pokemanager → **New project…** → choose your ROM → **Create project**.
+
+Everything is bundled: .NET, a Java runtime for UPR ZX, UPR ZX itself and PKHeX.Core. Windows SmartScreen may warn because
+the installer is not code-signed (*More info → Run anyway*). A portable `.zip` is published next to the installer, and
+Pokemanager can be uninstalled from *Settings → Apps* like any other program.
+
+Your data lives outside the program folder, so updating or uninstalling keeps it:
+
+| What | Where |
+|---|---|
+| Projects | `Documents\Pokemanager\Projects` |
+| Game data copied from your ROMs (20–50 MB each) | `Documents\Pokemanager\Games` |
+| Save backups and randomizer cache | `%LOCALAPPDATA%\Pokemanager` |
+| Settings | `%APPDATA%\Pokemanager\settings.json` |
 
 ## Usage
-
-```
-dotnet run --project src/Pokemanager.App
-```
 
 0. **Start screen:** your projects on the left. Selecting one shows, read only, its ROM and the team of its save
    (sprite, name, level, held item); clicking a Pokémon shows its stats, IVs, EVs, moves and ability. **Manage** (on each
@@ -103,7 +127,16 @@ src/Pokemanager.App         Avalonia interface (strings in Resources/Strings.res
 tests/Pokemanager.Tests     tests (xUnit v3)
 ```
 
-## Build and test
+## Build from source
+
+Requirements: .NET 10 SDK and Java 11 or later (a JDK 17+ to build the installer).
+
+```
+dotnet run --project src/Pokemanager.App
+```
+
+### Tests
+
 
 ```
 dotnet build
@@ -125,6 +158,21 @@ $env:POKEMANAGER_DUMP = "G:\pokemanager-dump"        # PowerShell
 $env:POKEMANAGER_UPR_PRESET = "D:\citra\roms\alex.rnqs"
 dotnet test --solution Pokemanager.slnx
 ```
+
+### Installer
+
+```
+./build/build-installer.ps1 -Version 1.0.0
+```
+
+Publishes the app self-contained, compiles the UPR ZX launcher, builds a trimmed Java runtime with `jlink` and packs a
+per-user installer with [Velopack](https://velopack.io) into `artifacts/installer`. Pushing a `v*` tag runs the same
+script on GitHub Actions and publishes the release.
+
+## Branches
+
+- **`main`** — stable: what the latest release is built from.
+- **`dev`** — ongoing work, merged into `main` for each release.
 
 ## Translations
 

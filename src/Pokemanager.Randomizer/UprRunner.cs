@@ -114,7 +114,13 @@ public sealed class UprRunner(UprTools tools)
             StandardOutputEncoding = Encoding.UTF8,
             StandardErrorEncoding = Encoding.UTF8,
         };
-        foreach (string arg in new[] { "-Xmx4096M", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8", "-cp", tools.JarPath, LauncherPath })
+        // The installer compiles the launcher (PokemanagerUpr.class next to the .java), so the bundled runtime needs no
+        // compiler; a development build runs the source file with Java's source launcher.
+        string launcherDir = Path.GetDirectoryName(LauncherPath)!;
+        string[] launcher = File.Exists(Path.Combine(launcherDir, "PokemanagerUpr.class"))
+            ? ["-cp", tools.JarPath + Path.PathSeparator + launcherDir, "PokemanagerUpr"]
+            : ["-cp", tools.JarPath, LauncherPath];
+        foreach (string arg in new[] { "-Xmx4096M", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8" }.Concat(launcher))
             psi.ArgumentList.Add(arg);
         foreach (string arg in arguments)
             psi.ArgumentList.Add(arg);

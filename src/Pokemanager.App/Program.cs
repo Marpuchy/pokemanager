@@ -1,6 +1,7 @@
 using System.Globalization;
 using Avalonia;
 using Pokemanager.App.Services;
+using Velopack;
 
 namespace Pokemanager.App;
 
@@ -9,6 +10,8 @@ internal static class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        // Installer hooks (install, update, uninstall): must run before anything else. Does nothing when not installed.
+        VelopackApp.Build().Run();
         ApplyLanguage(AppSettings.Load().UiLanguage);
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }

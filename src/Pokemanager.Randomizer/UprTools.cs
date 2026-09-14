@@ -6,7 +6,10 @@ namespace Pokemanager.Randomizer;
 /// <summary>Java and the Universal Pokémon Randomizer ZX jar, ready to use.</summary>
 public sealed record UprTools(string JavaPath, int JavaMajorVersion, string JarPath);
 
-/// <summary>Locates Java (11 or later, for the source-file launcher) and the UPR ZX bundled with the app.</summary>
+/// <summary>
+/// Locates Java (11 or later) and the UPR ZX bundled with the app. The installer ships a trimmed Java runtime in
+/// <c>&lt;app&gt;/tools/java</c>, which is preferred; a development build uses the Java installed on the system.
+/// </summary>
 public static partial class UprLocator
 {
     public const int MinimumJava = 11;
@@ -18,6 +21,9 @@ public static partial class UprLocator
     public static UprTools? Find() =>
         FindJava() is { } java && File.Exists(BundledJar) ? new UprTools(java.Path, java.Major, BundledJar) : null;
 
+    /// <summary>Java runtime bundled by the installer (<c>jlink</c>): <c>&lt;app&gt;/tools/java/bin/java</c>.</summary>
+    public static string BundledJava => Path.Combine(AppContext.BaseDirectory, "tools", "java", "bin", OperatingSystem.IsWindows() ? "java.exe" : "java");
+
     /// <summary>
     /// Looks for a usable Java: <c>JAVA_HOME</c>, installed JDKs and <c>java</c> on the PATH. Returns the highest version
     /// that meets the minimum, or null.
@@ -25,6 +31,8 @@ public static partial class UprLocator
     public static (string Path, int Major)? FindJava()
     {
         string exe = OperatingSystem.IsWindows() ? "java.exe" : "java";
+        if (File.Exists(BundledJava) && ReadJavaMajor(BundledJava) is var bundled and >= MinimumJava)
+            return (BundledJava, bundled);
         var candidates = new List<string>();
 
         if (Environment.GetEnvironmentVariable("JAVA_HOME") is { Length: > 0 } home)

@@ -3,5 +3,8 @@
     <LangVersion>latest</LangVersion>
     <NeutralLanguage>en</NeutralLanguage>
     <Product>Pokemanager</Product>
+    <Version>1.0.0</Version>
+    <Authors>Marpuchy</Authors>
+    <Copyright>GPL-3.0</Copyright>
   </PropertyGroup>
 </Project>

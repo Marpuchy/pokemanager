@@ -238,6 +238,22 @@ Verified on the user's real ROMs and copies of their saves (headless harness, Do
 - Alpha Sapphire: badges 0/8 with the Hoenn badge images; save + `pokmeonzaAlexAlba.cxi` 0 changes, + another AS ROM only the 2
   expected ability changes. Omega Ruby and X import and read correctly; the encrypted `PokemonPEv2.3ds` is refused.
 
+### Installer, GitHub and branches (2026-09-14)
+
+- **Branches: `main` is the stable, public branch (releases are built from it). From now on all work goes to `dev`**, merged
+  into `main` for a release, until the user says otherwise.
+- Installer: `build/build-installer.ps1 -Version X.Y.Z` → `dotnet publish` self-contained win-x64, `javac --release 17` of
+  the UPR launcher into `<app>/upr` (the runner uses the `.class` when present, the source launcher otherwise), `jlink` runtime
+  in `<app>/tools/java` (jdeps modules + `jdk.charsets,jdk.zipfs,jdk.localedata`, 58 MB; preferred by `UprLocator`), then
+  Velopack `vpk pack` (local tool in `dotnet-tools.json`) → `artifacts/installer/PokemanagerApp-win-Setup.exe` (~102 MB) and a
+  portable zip. **Pack id `PokemanagerApp`, not `Pokemanager`**: Velopack installs to `%LOCALAPPDATA%\<packId>` and deletes it on
+  uninstall, and `%LOCALAPPDATA%\Pokemanager` holds the save backups. `Program.Main` calls `VelopackApp.Build().Run()` first.
+- Verified locally: silent install → desktop and Start menu shortcuts, the installed app opens ("Pokemanager 1.0.0"),
+  the bundled Java randomizes Ultra Moon without any system JDK, silent uninstall removes the app and keeps the backups.
+- GitHub (public repo `Marpuchy/pokemanager`): `.github/workflows/ci.yml` builds and tests on push/PR to main and dev;
+  `release.yml` on a `v*` tag runs tests + the installer script (Temurin 21 JDK) and publishes the release with
+  `docs/release-notes.md`. Version comes from the tag (`Directory.Build.props` has the default) and shows in the window title.
+
 Pending: live dashboard (RPC).
 
 ---

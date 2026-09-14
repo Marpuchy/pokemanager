@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build
+        run: dotnet build Pokemanager.slnx -c Release
+
+      # Tests that need a real ROM, dump or save are skipped (no game data in the repository).
+      - name: Test
+        run: dotnet test --solution Pokemanager.slnx -c Release --no-build
