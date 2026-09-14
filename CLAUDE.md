@@ -254,37 +254,33 @@ Verified on the user's real ROMs and copies of their saves (headless harness, Do
   `release.yml` on a `v*` tag runs tests + the installer script (Temurin 21 JDK) and publishes the release with
   `docs/release-notes.md`. Version comes from the tag (`Directory.Build.props` has the default) and shows in the window title.
 
-### Multiplayer Locke (2026-09-14) — phase 1 of 4: model and rules, no network yet
+### Multiplayer rooms (2026-09-14) — live over the internet, no server
 
-User request: dual/soul-link Lockes with **2 or more players**, several modes, everything configurable, **each player keeps
-their own seed/ROM** (nothing about the ROM is shared), players are **always on different networks** and **no server and nothing
-the user has to install or configure** (no VPN, no manual port forwarding). Agreed plan: (1) model + rules, (2) direct
-connection + protocol + encryption + offline queue, (3) NAT traversal: UPnP/NAT-PMP/PCP, IPv6, public STUN, UDP hole punching,
-invite code (and an answer code when needed), relaying through another reachable player, (4) UI. Star topology: the host is the
-authority on the event order. Both behind CGNAT/symmetric NAT cannot connect without a relay: say so, don't promise 100 %.
+**Redesign (user, same day) — overrides the rules engine committed in `207987a`:** no automatic Locke rules (links, deaths,
+lives, notices: players manage them as they like). What they want: **join another player's room without files, by code; live
+updates; see the other players' party and boxes unless the room's rules say otherwise.** Players are always on different networks;
+no server and nothing for the user to set up. The removed engine (LinkRules/RoomState/SaveSync…) is in git history.
 
 | Piece | Implementation |
 |---|---|
-| Project | `Pokemanager.Multiplayer` (references Save). |
-| Rules | `LinkRules`: matching None/ByLocation/InOrder (different games)/Manual, `MergeSubAreas`, race for locations, first encounter, dupes, shiny, eggs, death spread KillLinked/Notify/None, death detection flags (fainted in party, graveyard box — -1 = last box —, released), unique primary types, lives Off/Individual/Shared + death costs a life, roulette PerPlayer/EveryoneOnAnyMilestone/TeamSpin, level cap Off/OwnProgress/SlowestPlayer, `Teams` (empty = everyone linked; players outside every team play alone). Presets SoulLink, SoulLinkDifferentGames, SharedNuzlocke, Race. |
-| Room | `LinkRoom` JSON (magic `pokemanager-link-room`): rules, append-only `Events` (deduplicated by Guid — what the network will replicate), local player id, `LastSnapshot` (local only). |
-| State | `RoomState.Build(rules, events)` replays everything: changing rules re-judges the whole run identically for everyone. `DeathUndone` / `ManualUnlink` remove the events they cancel before the replay. Doomed Pokémon and notices (MustRetire, LinkedDied, SecondEncounter, LocationClaimed, DuplicatePrimaryType, OverLevelCap, NoLivesLeft) are derived at the end. Retiring a Pokémon whose link already died does not cost a life. |
-| Detection | `SaveSnapshot.Read(SaveDocument)` (identity = encryption constant, owned = OT name + TID + SID, primary type from the played ROM) and `SaveSync.Detect(previous, current)`: the first sync reports the run in met-date order; later only what became true (captured, updated, fainted, graveyard, released, milestone) + `SaveSynced` (party). |
+| Transport | **LiteNetLib 2.1.4** (MIT, NuGet): UDP, reliable ordered, fragmented. Star: the host's app is the hub and relays. `RoomSession` runs its own loop thread (work queue + `PollEvents`), raises `Changed` there; UI marshals with `Dispatcher.UIThread.Post`. |
+| Codes | `InviteCode`: `PM-…` = version, 10-byte secret, endpoints (v4/v6 + port), 2-byte SHA-256 checksum, Crockford base32 in groups of 5 (~60 chars). `PMR-…` answer = 4-byte room tag + the guest's endpoints. Typos are rejected. |
+| Security | Connection key and AES-GCM key derived with HKDF from the secret; messages JSON → Brotli → AES-GCM (`MessageCodec`). |
+| Reachability | Before LiteNetLib binds the port: **STUN** on that same socket (Google/Cloudflare). Then **UPnP** (SSDP + SOAP AddPortMapping, 2 h lease, fallback 0; removed on dispose, renewed every 30 min) or **NAT-PMP**. Endpoints offered: mapped public, STUN, LAN IPv4, global IPv6. Guest connects to all; if nothing after 8 s → `WaitingForAnswer` and shows its answer code; the host pastes it and sends unconnected packets to those endpoints for 45 s (**hole punching**) while the guest keeps retrying. Both behind symmetric NAT/CGNAT: no way without a relay (not implemented). |
+| Protocol | `Hello` (guest) → `Welcome` (room, rules, players) + stored snapshots; `PlayerJoined`/`PlayerLeft`; `SnapshotShared`; `RulesChanged` (guests re-share; host re-filters what it holds). `RoomRules(ShareParty, ShareBoxes)` applied by the sender, the host relay and on rule changes. |
+| Data | `TrainerSnapshot.Read(SaveDocument)`: trainer, game, milestones, money, time, party and every box (species, form, gender, shiny, egg, nickname, level, item, ability, nature, moves, stats HP/Atk/Def/Spe/SpA/SpD and types from the played ROM, current HP in the party). Viewer names ids in its own language. |
+| Live | `SaveWatcher`: FileSystemWatcher + 0.5 s poll of size/write time, fires after 1.5 s quiet → re-read the save (read-only) and publish. **Live = every in-game save**; unsaved battle state would need the emulator RPC. |
+| App | **On the start screen, not in the editor** (user, same day): a Multiplayer card under the project list (avatar, profile name, room summary) opens the room on the right side. `RoomViewModel` belongs to `MainWindowViewModel` and lives with the app (opening a project keeps the room; window closing calls `CloseForExit`, which also removes the router mapping). The shared save is the one of the project selected when the room starts (`SelectedProject` provider from the welcome page). Last room kept in `AppSettings.Room` (player id, host secret + port so the invite code survives restarts, or the guest's invite, project path). Look copied from the project preview: type-colored party cards, detail header, moves colored by the owner's ROM types with PP, boxes as type-colored tiles. |
+| Profile | `AppSettings.Profile` (name — empty = save trainer name —, Showdown trainer sprite, own picture reduced to ≤96 px PNG ≤64 KB, accent color), edited in **Settings**; sent as `PlayerProfile` in `Hello`/`PlayerJoined`, live changes with `ProfileChanged` (protocol 2). `TrainerSprites`: index scraped from `play.pokemonshowdown.com/sprites/trainers/` (~1500, cached a week), search by words, PNGs downloaded on demand into `<data>/trainer-sprites`. `AvatarViewModel` (image → sprite → initials on the color) is an app-wide DataTemplate. |
 
-**Verified on a copy of the user's real Ultra Sun save** (Marpuchy, 90 Pokémon, 4/5 trials): 89 captures, 1 not owned, 4 milestones,
-room file 80 KB reloads 95/95 events. **Gen 7 splits one route into several met location ids** (Route 1 = 8, Route 1 (Hau'oli
-Outskirts) = 6, Route 1 (Trainers' School) = 230), so linking by id was wrong: events carry `Area` = the **English** PKHeX name
-without the parenthesised sub-area (language-neutral across players); 54 ids → 50 areas on that save.
+**Verified:** 3 sessions over real UDP on one computer (tests): joins, live relay, late joiner gets earlier saves, hiding/showing
+boxes, leave detection; answer code requested when the host is unreachable; codec rejects other rooms and tampering. On the user's
+network (laptop, 2026-09-14): STUN works (public 79.117.103.22), **no UPnP/NAT-PMP answer from the router** → friends elsewhere will
+likely need the answer-code step unless UPnP is enabled; the NAT did not always keep the local port. Headless screenshot with the
+app hosting on copies of the Ultra Sun project/save and a second session joining over UDP.
+Windows Firewall asks the first time the app listens (allow it).
 
-**UI brought forward (user asked to see rooms):** editor tab **Multiplayer** (`RoomViewModel` / `RoomView`), room file
-`<project>.room.json`. Create (reads the save read-only, first sync), join with a file, synchronize, export/import room files
-(the stopgap until the network: the host's file also brings the rules), leave; players with party and lives, notices (actions
-first), links (deaths first), manual link, mark dead / undo / unlink, rules editable by the host only, log. Location names are
-localized at display time from the player's game + location id (PKHeX has every game's names). Verified with a headless
-screenshot on copies of the Ultra Sun project and save plus a simulated second player.
-
-Pending: phases 2–3 of multiplayer (network), roulette integration with `RouletteMode`, team editing UI, live dashboard (RPC).
-
+Pending: relay through another player, host migration, live dashboard (RPC).
 ---
 
 ## 3. pk3DS — how to reuse it

@@ -14,4 +14,8 @@
     <ProjectReference Include="..\Pokemanager.Save\Pokemanager.Save.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="LiteNetLib" Version="2.1.4" />
+  </ItemGroup>
+
 </Project>

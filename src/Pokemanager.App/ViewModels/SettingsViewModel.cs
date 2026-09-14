@@ -55,6 +55,9 @@ public partial class SettingsViewModel : ObservableObject
         Emulators = options;
         SelectedEmulator = options.FirstOrDefault(o => string.Equals(o.Path, settings.EmulatorUserDirectory, StringComparison.OrdinalIgnoreCase)) ?? options[0];
         SelectedLanguage = UiLanguages.FirstOrDefault(l => l.Code == settings.UiLanguage) ?? UiLanguages[0];
+        ProfileAvatar = new AvatarViewModel(new Multiplayer.PlayerProfile(settings.Profile.Name.Trim().Length > 0 ? settings.Profile.Name : "?",
+            settings.Profile.Sprite, SafeImage(settings.Profile.Image), settings.Profile.Color));
+        _ = SearchSpritesAsync("");
         initialized = true;
     }
 
@@ -74,6 +77,12 @@ public partial class SettingsViewModel : ObservableObject
         settings.UiLanguage = value.Code;
         settings.Save();
         LanguageChanged = true;
+    }
+
+    private static byte[]? SafeImage(string? base64)
+    {
+        try { return base64 is null ? null : Convert.FromBase64String(base64); }
+        catch (FormatException) { return null; }
     }
 
     public string EffectiveText => string.Format(Strings.Set_Using, settings.EffectiveEmulatorName, settings.EffectiveEmulatorDirectory ?? Strings.Set_NotFound);
@@ -190,3 +199,147 @@ public partial class SettingsViewModel : ObservableObject
 }
 
 public sealed record EmulatorOption(string? Path, string Label);
+
+/// <summary>A trainer sprite offered in the profile picker; its picture downloads in the background.</summary>
+public sealed partial class SpriteOption : ObservableObject
+{
+    private readonly SettingsViewModel owner;
+
+    public SpriteOption(SettingsViewModel owner, string name)
+    {
+        this.owner = owner;
+        Name = name;
+        _ = LoadAsync();
+    }
+
+    public string Name { get; }
+
+    [ObservableProperty]
+    public partial Avalonia.Media.Imaging.Bitmap? Image { get; private set; }
+
+    private async Task LoadAsync()
+    {
+        var bitmap = await TrainerSprites.GetAsync(Name);
+        Avalonia.Threading.Dispatcher.UIThread.Post(() => Image = bitmap);
+    }
+
+    [RelayCommand]
+    private void Choose() => owner.ChooseSprite(Name);
+}
+
+public sealed record ColorOption(string Hex)
+{
+    public Avalonia.Media.IBrush Brush { get; } = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse(Hex));
+}
+
+public partial class SettingsViewModel
+{
+    // ------------------------------------------------------------------ profile (multiplayer)
+
+    public static IReadOnlyList<ColorOption> ProfileColors { get; } =
+    [
+        new("#1C3A70"), new("#0078D7"), new("#2E8B57"), new("#7AC74C"), new("#E0A800"), new("#EE8130"),
+        new("#D13438"), new("#D685AD"), new("#A33EA1"), new("#6F35FC"), new("#705746"), new("#4A4A4A"),
+    ];
+
+    private ProfileSettings Profile => settings.Profile;
+
+    public string ProfileName
+    {
+        get => Profile.Name;
+        set
+        {
+            if (Profile.Name == value)
+                return;
+            Profile.Name = value;
+            ProfileSaved();
+        }
+    }
+
+    [ObservableProperty]
+    public partial AvatarViewModel ProfileAvatar { get; private set; } = null!;
+
+    public string ProfileSpriteText => Profile.Image is not null
+        ? Strings.Profile_UsingImage
+        : Profile.Sprite is { } s ? string.Format(Strings.Profile_UsingSprite, s) : Strings.Profile_NoPicture;
+
+    public bool HasCustomImage => Profile.Image is not null;
+
+    public System.Collections.ObjectModel.ObservableCollection<SpriteOption> SpriteResults { get; } = [];
+
+    [ObservableProperty]
+    public partial string SpriteQuery { get; set; } = "";
+
+    [ObservableProperty]
+    public partial string SpriteStatus { get; private set; } = "";
+
+    private int searchVersion;
+
+    private void ProfileSaved()
+    {
+        settings.Save();
+        ProfileAvatar = new AvatarViewModel(new Multiplayer.PlayerProfile(
+            Profile.Name.Trim().Length > 0 ? Profile.Name : "?", Profile.Sprite,
+            SafeImage(Profile.Image), Profile.Color));
+        OnPropertyChanged(nameof(ProfileSpriteText));
+        OnPropertyChanged(nameof(HasCustomImage));
+    }
+
+    partial void OnSpriteQueryChanged(string value) => _ = SearchSpritesAsync(value);
+
+    public async Task SearchSpritesAsync(string query)
+    {
+        int version = ++searchVersion;
+        await Task.Delay(250); // typing
+        if (version != searchVersion)
+            return;
+        SpriteStatus = Strings.Profile_Searching;
+        var found = await TrainerSprites.SearchAsync(query, limit: 48);
+        if (version != searchVersion)
+            return;
+        SpriteResults.Clear();
+        foreach (string name in found)
+            SpriteResults.Add(new SpriteOption(this, name));
+        SpriteStatus = found.Count == 0
+            ? (await TrainerSprites.IndexAsync()).Count == 0 ? Strings.Profile_Offline : Strings.Profile_NoResults
+            : query.Trim().Length == 0 ? Strings.Profile_Featured : string.Format(Strings.Profile_Results, found.Count);
+    }
+
+    public void ChooseSprite(string name)
+    {
+        Profile.Sprite = name;
+        Profile.Image = null;
+        ProfileSaved();
+    }
+
+    [RelayCommand]
+    private void ChooseColor(ColorOption color)
+    {
+        Profile.Color = color.Hex;
+        ProfileSaved();
+    }
+
+    [RelayCommand]
+    private async Task ChooseImage()
+    {
+        if (await dialogs.PickOpenFileAsync(Strings.Profile_PickImage, ["*.png", "*.jpg", "*.jpeg", "*.bmp", "*.gif"]) is not { } path)
+            return;
+        if (TrainerSprites.ProfileImage(path) is { } bytes)
+        {
+            Profile.Image = Convert.ToBase64String(bytes);
+            ProfileSaved();
+            SpriteStatus = "";
+        }
+        else
+        {
+            SpriteStatus = Strings.Profile_BadImage;
+        }
+    }
+
+    [RelayCommand]
+    private void RemoveImage()
+    {
+        Profile.Image = null;
+        ProfileSaved();
+    }
+}

@@ -17,7 +17,9 @@ public partial class App : Application
         {
             var window = new MainWindow();
             var dialogs = new Dialogs(window);
-            window.DataContext = new MainWindowViewModel(dialogs, AppSettings.Load());
+            var main = new MainWindowViewModel(dialogs, AppSettings.Load());
+            window.DataContext = main;
+            window.Closing += (_, _) => main.Room.CloseForExit(); // tells the room and closes the router port
             desktop.MainWindow = window;
         }
 

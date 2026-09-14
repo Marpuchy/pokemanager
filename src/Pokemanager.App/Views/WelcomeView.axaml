@@ -314,8 +314,25 @@
     </Grid>
 
     <Grid ColumnDefinitions="360,*">
+      <DockPanel Margin="0,0,10,0">
+      <!-- ======================= Multiplayer: profile and room ======================= -->
+      <Border DockPanel.Dock="Bottom" Classes="card" Margin="0,8,0,0">
+        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
+          <ContentControl Content="{Binding Room.Avatar}" Width="46" Height="46" VerticalAlignment="Top" />
+          <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center" Spacing="1">
+            <TextBlock Classes="card-title" Margin="0" Text="{x:Static r:Strings.Room_NoneTitle}" />
+            <TextBlock Text="{Binding Room.ProfileName}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+            <TextBlock Classes="hint" FontSize="11" Text="{Binding Room.SummaryText}" TextWrapping="Wrap" />
+          </StackPanel>
+          <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="6" Margin="0,8,0,0">
+            <Button Classes="accent" Content="{x:Static r:Strings.Room_Open}" Command="{Binding OpenRoomCommand}" />
+            <Button Content="{x:Static r:Strings.Room_EditProfile}" Command="{Binding OpenSettingsCommand}" />
+          </StackPanel>
+        </Grid>
+      </Border>
+
       <!-- ======================= Project list ======================= -->
-      <Border Classes="card" Margin="0,0,10,0">
+      <Border Classes="card">
         <DockPanel>
           <TextBlock DockPanel.Dock="Top" Classes="card-title" Margin="0,0,0,6" Text="{x:Static r:Strings.Welcome_Recent}" />
           <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="6" Margin="0,8,0,0">
@@ -346,9 +363,11 @@
           </Grid>
         </DockPanel>
       </Border>
+      </DockPanel>
 
-      <!-- ======================= Right side: preview or new project ======================= -->
+      <!-- ======================= Right side: preview, new project or multiplayer ======================= -->
       <Grid Grid.Column="1">
+        <ContentControl Content="{Binding Room}" IsVisible="{Binding ShowRoom}" />
         <Grid IsVisible="{Binding ShowPreviewArea}">
           <TextBlock Classes="hint" Margin="8" Text="{x:Static r:Strings.Preview_Loading}" IsVisible="{Binding IsLoadingPreview}" />
           <TextBlock Classes="error" Margin="8" Text="{Binding PreviewError}"

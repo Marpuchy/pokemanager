@@ -6,193 +6,358 @@
              x:Class="Pokemanager.App.Views.RoomView"
              x:DataType="vm:RoomViewModel">
 
-  <UserControl.DataTemplates>
-    <!-- A Pokémon of any player: sprite, name, detail and status -->
-    <DataTemplate DataType="vm:RoomMonViewModel">
-      <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,1" ToolTip.Tip="{Binding Tooltip}" Opacity="{Binding Faded}">
-        <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="40" Height="30" Margin="0,0,6,0" />
-        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-          <TextBlock TextTrimming="CharacterEllipsis">
-            <Run Text="{Binding Name}" FontWeight="SemiBold" />
-            <Run Text="  " />
-            <Run Text="{Binding StatusText}" Foreground="{Binding StatusBrush}" />
-          </TextBlock>
-          <TextBlock Classes="hint" FontSize="11" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap">
-            <Run Text="{Binding PlayerName}" />
-            <Run Text=" · " />
-            <Run Text="{Binding Detail}" />
-          </TextBlock>
-        </StackPanel>
-        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-          <Button Content="{x:Static r:Strings.Room_MarkDead}" Command="{Binding MarkDeadCommand}" IsVisible="{Binding CanMarkDead}" Padding="6,1" />
-          <Button Content="{x:Static r:Strings.Room_UndoDeath}" Command="{Binding UndoDeathCommand}" IsVisible="{Binding CanUndoDeath}" Padding="6,1" />
-          <Button Content="{x:Static r:Strings.Room_Unlink}" Command="{Binding UnlinkCommand}" IsVisible="{Binding CanUnlink}" Padding="6,1" />
-        </StackPanel>
-      </Grid>
-    </DataTemplate>
-    <DataTemplate DataType="vm:RoomLineViewModel">
-      <TextBlock Text="{Binding Text}" TextWrapping="Wrap" Margin="0,1" Classes.error="{Binding IsWarning}" />
-    </DataTemplate>
-  </UserControl.DataTemplates>
+  <UserControl.Styles>
+    <Style Selector="TextBox.code">
+      <Setter Property="FontFamily" Value="Consolas, Menlo, monospace" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <!-- Cards colored by type, as in the project preview -->
+    <Style Selector="Button.member">
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Margin" Value="3" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style Selector="Button.member /template/ ContentPresenter#PART_ContentPresenter, Button.member:pointerover /template/ ContentPresenter#PART_ContentPresenter, Button.member:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="Border.member">
+      <Setter Property="BorderBrush" Value="#80000000" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="Padding" Value="6,4" />
+    </Style>
+    <Style Selector="Button.member:pointerover Border.member">
+      <Setter Property="BorderBrush" Value="#0078D7" />
+    </Style>
+    <Style Selector="Border.member.selected">
+      <Setter Property="BorderBrush" Value="#0078D7" />
+      <Setter Property="BorderThickness" Value="3" />
+      <Setter Property="Padding" Value="4,2" />
+    </Style>
+    <Style Selector="Border.slot">
+      <Setter Property="BorderBrush" Value="#40000000" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="Height" Value="46" />
+    </Style>
+    <Style Selector="Border.slot.empty">
+      <Setter Property="Background" Value="#F2F4F6" />
+      <Setter Property="BorderBrush" Value="#20000000" />
+    </Style>
+    <Style Selector="Button.member:pointerover Border.slot">
+      <Setter Property="BorderBrush" Value="#0078D7" />
+    </Style>
+    <Style Selector="Border.slot.selected">
+      <Setter Property="BorderBrush" Value="#0078D7" />
+      <Setter Property="BorderThickness" Value="3" />
+    </Style>
+  </UserControl.Styles>
 
-  <ScrollViewer>
-    <StackPanel Margin="14,10" Spacing="12">
+  <Grid>
+    <!-- ================= Not in a room ================= -->
+    <ScrollViewer IsVisible="{Binding NoSession}">
+      <StackPanel Spacing="8" MaxWidth="820" HorizontalAlignment="Left">
+        <Border Classes="card">
+          <Grid ColumnDefinitions="Auto,*">
+            <ContentControl Content="{Binding Avatar}" Width="64" Height="64" />
+            <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="2" VerticalAlignment="Center">
+              <TextBlock Text="{x:Static r:Strings.Room_NoneTitle}" FontSize="16" FontWeight="SemiBold" />
+              <TextBlock Text="{Binding ProfileName}" FontWeight="SemiBold" />
+              <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_NoneHint}" />
+            </StackPanel>
+          </Grid>
+        </Border>
 
-      <!-- ================= No room yet ================= -->
-      <Border Classes="card" IsVisible="{Binding NoRoom}" MaxWidth="760" HorizontalAlignment="Left">
-        <StackPanel Spacing="8">
-          <TextBlock Classes="card-title" Text="{x:Static r:Strings.Room_NoneTitle}" />
-          <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_NoneHint}" />
-          <StackPanel Orientation="Horizontal" Spacing="6">
-            <Button Classes="accent" Content="{x:Static r:Strings.Room_Create}" Command="{Binding CreateCommand}" />
-            <Button Content="{x:Static r:Strings.Room_Join}" Command="{Binding JoinCommand}" />
+        <TextBlock Text="{Binding SelectedProjectText}" FontWeight="SemiBold" Margin="4,0" TextWrapping="Wrap" />
+
+        <Border Classes="card" IsVisible="{Binding CanResume}">
+          <StackPanel Spacing="6">
+            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Room_ResumeTitle}" />
+            <Button Classes="accent" Content="{Binding ResumeText}" Command="{Binding ResumeCommand}" />
           </StackPanel>
-          <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_NetworkPending}" />
-        </StackPanel>
-      </Border>
+        </Border>
 
-      <!-- ================= Room ================= -->
-      <Border Classes="card" IsVisible="{Binding HasRoom}">
-        <Grid ColumnDefinitions="*,Auto">
-          <StackPanel Spacing="2" VerticalAlignment="Center">
-            <TextBlock Text="{Binding RoomTitle}" FontSize="16" FontWeight="SemiBold" />
-            <TextBlock Classes="hint" Text="{Binding RoomSubtitle}" />
-          </StackPanel>
-          <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
-            <ProgressBar IsIndeterminate="True" Width="60" IsVisible="{Binding IsBusy}" Margin="0,0,6,0" />
-            <Button Classes="accent" Content="{x:Static r:Strings.Room_Sync}" Command="{Binding SynchronizeCommand}"
-                    ToolTip.Tip="{x:Static r:Strings.Room_SyncTip}" Margin="0,0,6,0" />
-            <Button Content="{x:Static r:Strings.Room_Export}" Command="{Binding ExportCommand}" ToolTip.Tip="{x:Static r:Strings.Room_ExportTip}" Margin="0,0,6,0" />
-            <Button Content="{x:Static r:Strings.Room_Import}" Command="{Binding ImportCommand}" ToolTip.Tip="{x:Static r:Strings.Room_ImportTip}" Margin="0,0,6,0" />
-            <Button Content="{x:Static r:Strings.Room_Leave}" Command="{Binding LeaveCommand}" />
-          </WrapPanel>
-        </Grid>
-      </Border>
-
-      <c:AdaptiveColumnsPanel IsVisible="{Binding HasRoom}" MinColumnWidth="380" MaxColumns="3" Spacing="12">
-        <!-- Players -->
-        <StackPanel Spacing="12">
-          <ItemsControl ItemsSource="{Binding Players}">
-            <ItemsControl.ItemTemplate>
-              <DataTemplate x:DataType="vm:RoomPlayerViewModel">
-                <Border Classes="card" Margin="0,0,0,12">
-                  <StackPanel Spacing="4">
-                    <TextBlock Classes="card-title" Text="{Binding Name}" />
-                    <TextBlock Classes="hint" Text="{Binding Subtitle}" />
-                    <TextBlock Text="{Binding LivesText}" Foreground="#D13438" FontSize="14" IsVisible="{Binding HasLives}" />
-                    <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_PartyEmpty}" IsVisible="{Binding !HasParty}" />
-                    <ItemsControl ItemsSource="{Binding Party}" />
-                  </StackPanel>
-                </Border>
-              </DataTemplate>
-            </ItemsControl.ItemTemplate>
-          </ItemsControl>
-
-          <Border Classes="card" IsVisible="{Binding HasLivesPool}">
+        <c:AdaptiveColumnsPanel MinColumnWidth="330" MaxColumns="2" Spacing="8">
+          <Border Classes="card">
             <StackPanel Spacing="6">
-              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Room_LivesTitle}" />
-              <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_LivesHint}" />
-              <StackPanel Orientation="Horizontal" Spacing="6">
-                <Button Content="{x:Static r:Strings.Room_LoseLife}" Command="{Binding LoseLifeCommand}" />
-                <Button Content="{x:Static r:Strings.Room_GainLife}" Command="{Binding GainLifeCommand}" />
-              </StackPanel>
+              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Room_CreateTitle}" />
+              <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_CreateHint}" />
+              <TextBox Text="{Binding RoomName}" PlaceholderText="{x:Static r:Strings.Room_NamePlaceholder}" />
+              <Button Classes="accent" Content="{x:Static r:Strings.Room_Create}" Command="{Binding CreateCommand}" />
             </StackPanel>
           </Border>
-        </StackPanel>
-
-        <!-- Notices and links -->
-        <StackPanel Spacing="12">
           <Border Classes="card">
-            <StackPanel Spacing="4">
-              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Room_NoticesTitle}" />
-              <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_NoNotices}" IsVisible="{Binding !HasNotices}" />
-              <ItemsControl ItemsSource="{Binding Notices}" />
+            <StackPanel Spacing="6">
+              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Room_JoinTitle}" />
+              <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_JoinHint}" />
+              <TextBox Classes="code" Text="{Binding JoinCode}" PlaceholderText="PM-…" />
+              <Button Content="{x:Static r:Strings.Room_Join}" Command="{Binding JoinCommand}" />
             </StackPanel>
           </Border>
+        </c:AdaptiveColumnsPanel>
+        <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsBusy}" />
+        <TextBlock Text="{Binding Message}" TextWrapping="Wrap" Classes.error="{Binding MessageIsError}" Margin="4,0" />
+      </StackPanel>
+    </ScrollViewer>
 
-          <Border Classes="card">
-            <StackPanel Spacing="4">
-              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Room_LinksTitle}" />
-              <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_NoLinks}" IsVisible="{Binding !HasLinks}" />
-              <ItemsControl ItemsSource="{Binding Links}">
-                <ItemsControl.ItemTemplate>
-                  <DataTemplate x:DataType="vm:RoomLinkViewModel">
-                    <Border BorderBrush="#D5DFE5" BorderThickness="0,0,0,1" Padding="0,4" Opacity="{Binding Faded}">
-                      <StackPanel>
-                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="#1C3A70" />
-                        <ItemsControl ItemsSource="{Binding Members}" />
-                      </StackPanel>
-                    </Border>
-                  </DataTemplate>
-                </ItemsControl.ItemTemplate>
-              </ItemsControl>
-
-              <StackPanel Spacing="4" Margin="0,8,0,0" IsVisible="{Binding IsManualMatching}">
-                <TextBlock Classes="section" Text="{x:Static r:Strings.Room_ManualTitle}" />
-                <ComboBox ItemsSource="{Binding MyUnlinked}" SelectedItem="{Binding SelectedMine}" HorizontalAlignment="Stretch"
-                          PlaceholderText="{x:Static r:Strings.Room_ManualMine}" MaxDropDownHeight="360" />
-                <ComboBox ItemsSource="{Binding OthersUnlinked}" SelectedItem="{Binding SelectedOther}" HorizontalAlignment="Stretch"
-                          PlaceholderText="{x:Static r:Strings.Room_ManualOther}" MaxDropDownHeight="360" />
-                <Button Content="{x:Static r:Strings.Room_ManualLink}" Command="{Binding LinkSelectedCommand}" />
-              </StackPanel>
+    <!-- ================= In a room ================= -->
+    <DockPanel IsVisible="{Binding HasSession}">
+      <Border DockPanel.Dock="Top" Classes="card" Margin="0,0,0,8">
+        <StackPanel Spacing="6">
+          <Grid ColumnDefinitions="*,Auto">
+            <StackPanel Spacing="2">
+              <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="SemiBold" />
+              <TextBlock>
+                <Run Text="●" Foreground="{Binding StatusBrush}" />
+                <Run Text="{Binding StatusText}" />
+              </TextBlock>
+              <TextBlock Classes="hint" Text="{Binding ReachText}" />
+              <TextBlock Classes="hint">
+                <Run Text="{Binding SharedProjectText}" />
+                <Run Text=" " />
+                <Run Text="{Binding SharedText}" />
+              </TextBlock>
+              <TextBlock Text="{Binding Message}" TextWrapping="Wrap" Classes.error="{Binding MessageIsError}" />
             </StackPanel>
-          </Border>
-        </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Top">
+              <Button Content="{x:Static r:Strings.Room_ShareNow}" Command="{Binding ShareNowCommand}" ToolTip.Tip="{x:Static r:Strings.Room_ShareNowTip}" />
+              <Button Content="{x:Static r:Strings.Room_Leave}" Command="{Binding LeaveCommand}" />
+            </StackPanel>
+          </Grid>
 
-        <!-- Rules and log -->
-        <StackPanel Spacing="12">
-          <Border Classes="card">
+          <!-- Host: invite code, answers and rules -->
+          <Grid ColumnDefinitions="*,Auto" IsVisible="{Binding IsHost}">
             <StackPanel Spacing="4">
+              <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_InviteHint}" />
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBox Classes="code" Text="{Binding InviteText}" IsReadOnly="True" Margin="0,0,6,0" />
+                <Button Grid.Column="1" Content="{x:Static r:Strings.Room_Copy}" Click="CopyInvite" VerticalAlignment="Top" />
+              </Grid>
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBox Classes="code" Text="{Binding AnswerInput}" PlaceholderText="{x:Static r:Strings.Room_AnswerPlaceholder}" Margin="0,0,6,0" />
+                <Button Grid.Column="1" Content="{x:Static r:Strings.Room_AcceptAnswer}" Command="{Binding AcceptAnswerCommand}" VerticalAlignment="Top" />
+              </Grid>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Margin="16,0,0,0" Spacing="2">
               <TextBlock Classes="card-title" Text="{x:Static r:Strings.Room_RulesTitle}" />
-              <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_RulesGuest}" IsVisible="{Binding !CanEditRules}" />
-              <StackPanel Spacing="3" IsEnabled="{Binding CanEditRules}">
-                <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
-                  <TextBlock Classes="field-label" Text="{x:Static r:Strings.Room_RulePreset}" />
-                  <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:RoomViewModel.PresetNames}" SelectedIndex="{Binding PresetIndex}" HorizontalAlignment="Stretch" Margin="0,2" />
-                  <TextBlock Grid.Row="1" Classes="field-label" Text="{x:Static r:Strings.Room_RuleMatching}" />
-                  <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{x:Static vm:RoomViewModel.MatchingNames}" SelectedIndex="{Binding MatchingIndex}" HorizontalAlignment="Stretch" Margin="0,2" />
-                  <TextBlock Grid.Row="2" Classes="field-label" Text="{x:Static r:Strings.Room_RuleDeath}" />
-                  <ComboBox Grid.Row="2" Grid.Column="1" ItemsSource="{x:Static vm:RoomViewModel.DeathNames}" SelectedIndex="{Binding DeathIndex}" HorizontalAlignment="Stretch" Margin="0,2" />
-                  <TextBlock Grid.Row="3" Classes="field-label" Text="{x:Static r:Strings.Room_RuleLives}" />
-                  <ComboBox Grid.Row="3" Grid.Column="1" ItemsSource="{x:Static vm:RoomViewModel.LivesNames}" SelectedIndex="{Binding LivesIndex}" HorizontalAlignment="Stretch" Margin="0,2" />
-                  <TextBlock Grid.Row="4" Classes="field-label" Text="{x:Static r:Strings.Room_RuleMaxLives}" />
-                  <NumericUpDown Grid.Row="4" Grid.Column="1" Value="{Binding MaxLives}" Minimum="0" Maximum="99" FormatString="0" ParsingNumberStyle="Integer" Width="130" HorizontalAlignment="Left" Margin="0,2" />
-                  <TextBlock Grid.Row="5" Classes="field-label" Text="{x:Static r:Strings.Room_RuleRoulette}" />
-                  <ComboBox Grid.Row="5" Grid.Column="1" ItemsSource="{x:Static vm:RoomViewModel.RouletteNames}" SelectedIndex="{Binding RouletteIndex}" HorizontalAlignment="Stretch" Margin="0,2" />
-                  <TextBlock Grid.Row="6" Classes="field-label" Text="{x:Static r:Strings.Room_RuleLevelCap}" />
-                  <ComboBox Grid.Row="6" Grid.Column="1" ItemsSource="{x:Static vm:RoomViewModel.LevelCapNames}" SelectedIndex="{Binding LevelCapIndex}" HorizontalAlignment="Stretch" Margin="0,2" />
-                  <TextBlock Grid.Row="7" Classes="field-label" Text="{x:Static r:Strings.Room_RuleLevelCaps}" />
-                  <TextBox Grid.Row="7" Grid.Column="1" Text="{Binding LevelCaps, UpdateSourceTrigger=LostFocus}" PlaceholderText="12, 20, 30…" Margin="0,2" />
-                </Grid>
-                <TextBlock Classes="section" Text="{x:Static r:Strings.Room_RulesClauses}" />
-                <CheckBox Content="{x:Static r:Strings.Room_RuleFirstEncounter}" IsChecked="{Binding FirstEncounterOnly}" />
-                <CheckBox Content="{x:Static r:Strings.Room_RuleSubAreas}" IsChecked="{Binding MergeSubAreas}" />
-                <CheckBox Content="{x:Static r:Strings.Room_RuleDupes}" IsChecked="{Binding DupesClause}" />
-                <CheckBox Content="{x:Static r:Strings.Room_RuleShiny}" IsChecked="{Binding ShinyClause}" />
-                <CheckBox Content="{x:Static r:Strings.Room_RuleEggs}" IsChecked="{Binding EggsCount}" />
-                <CheckBox Content="{x:Static r:Strings.Room_RuleRace}" IsChecked="{Binding RaceForLocations}" />
-                <CheckBox Content="{x:Static r:Strings.Room_RuleUniqueTypes}" IsChecked="{Binding UniquePrimaryTypes}" />
-                <CheckBox Content="{x:Static r:Strings.Room_RuleDeathCostsLife}" IsChecked="{Binding DeathCostsLife}" />
-                <TextBlock Classes="section" Text="{x:Static r:Strings.Room_RulesDetection}" />
-                <CheckBox Content="{x:Static r:Strings.Room_RuleFainted}" IsChecked="{Binding DetectFainted}" />
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <CheckBox Content="{x:Static r:Strings.Room_RuleGraveyard}" IsChecked="{Binding DetectGraveyard}" />
-                  <NumericUpDown Value="{Binding GraveyardBox}" Minimum="0" Maximum="32" FormatString="0" ParsingNumberStyle="Integer" Width="110"
-                                 ToolTip.Tip="{x:Static r:Strings.Room_RuleGraveyardTip}" />
-                </StackPanel>
-                <CheckBox Content="{x:Static r:Strings.Room_RuleReleased}" IsChecked="{Binding DetectReleased}" />
-              </StackPanel>
+              <CheckBox Content="{x:Static r:Strings.Room_ShareParty}" IsChecked="{Binding ShareParty}" />
+              <CheckBox Content="{x:Static r:Strings.Room_ShareBoxes}" IsChecked="{Binding ShareBoxes}" />
             </StackPanel>
-          </Border>
+          </Grid>
 
-          <Border Classes="card">
-            <StackPanel Spacing="4">
-              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Room_LogTitle}" />
-              <ItemsControl ItemsSource="{Binding Log}" />
-            </StackPanel>
-          </Border>
+          <!-- Guest: answer code when the direct way failed -->
+          <StackPanel Spacing="4" IsVisible="{Binding ShowAnswer}">
+            <TextBlock Classes="error" Text="{x:Static r:Strings.Room_AnswerHint}" />
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBox Classes="code" Text="{Binding AnswerText}" IsReadOnly="True" Margin="0,0,6,0" />
+              <Button Grid.Column="1" Content="{x:Static r:Strings.Room_Copy}" Click="CopyAnswer" VerticalAlignment="Top" />
+            </Grid>
+          </StackPanel>
         </StackPanel>
-      </c:AdaptiveColumnsPanel>
-    </StackPanel>
-  </ScrollViewer>
+      </Border>
+
+      <Grid ColumnDefinitions="230,*">
+        <!-- Players -->
+        <Border Classes="card" Margin="0,0,8,0">
+          <DockPanel>
+            <TextBlock DockPanel.Dock="Top" Classes="card-title" Text="{x:Static r:Strings.Room_PlayersTitle}" Margin="0,0,0,4" />
+            <ListBox ItemsSource="{Binding Players}" SelectedItem="{Binding SelectedPlayer}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+              <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:RoomPlayerRow">
+                  <Grid ColumnDefinitions="Auto,*" Margin="0,3" Opacity="{Binding Faded}">
+                    <ContentControl Content="{Binding Avatar}" Width="40" Height="40" VerticalAlignment="Top" />
+                    <StackPanel Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center">
+                      <TextBlock TextTrimming="CharacterEllipsis">
+                        <Run Text="●" Foreground="{Binding OnlineBrush}" />
+                        <Run Text="{Binding Name}" FontWeight="SemiBold" />
+                      </TextBlock>
+                      <TextBlock Opacity="0.75" FontSize="11" Text="{Binding Subtitle}" TextWrapping="Wrap" />
+                    </StackPanel>
+                  </Grid>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </DockPanel>
+        </Border>
+
+        <!-- Selected player -->
+        <ScrollViewer Grid.Column="1">
+          <StackPanel Spacing="8">
+            <Border Classes="card" IsVisible="{Binding SelectedPlayer, Converter={x:Static ObjectConverters.IsNotNull}}">
+              <Grid ColumnDefinitions="Auto,*">
+                <ContentControl Content="{Binding ShownAvatar}" Width="56" Height="56" />
+                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center" Spacing="2">
+                  <TextBlock Text="{Binding ShownName}" FontSize="15" FontWeight="SemiBold" />
+                  <TextBlock Classes="hint" Text="{Binding TrainerText}" IsVisible="{Binding HasPlayerData}" TextWrapping="Wrap" />
+                  <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_NoSaveYet}" IsVisible="{Binding NoPlayerData}" />
+                </StackPanel>
+              </Grid>
+            </Border>
+
+            <!-- Party -->
+            <Border Classes="card" IsVisible="{Binding HasPlayerData}">
+              <StackPanel Spacing="4">
+                <TextBlock Classes="card-title" Text="{x:Static r:Strings.Preview_Team}" />
+                <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_PartyHidden}" IsVisible="{Binding PartyHidden}" />
+                <ItemsControl ItemsSource="{Binding Party}" IsVisible="{Binding HasParty}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <UniformGrid Columns="3" />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:RoomMonCard">
+                      <Button Classes="member" Command="{Binding SelectCommand}" ToolTip.Tip="{Binding Tooltip}">
+                        <Border Classes="member" Classes.selected="{Binding IsSelected}" Background="{Binding TypeBackground}">
+                          <Grid ColumnDefinitions="Auto,*">
+                            <Border Background="#40FFFFFF" CornerRadius="30" Width="68" Height="60">
+                              <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="80" Height="60" />
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center" Spacing="1">
+                              <TextBlock FontWeight="Bold" TextTrimming="CharacterEllipsis" Foreground="{Binding TypeForeground}">
+                                <Run Text="{Binding Name}" />
+                                <Run Text="{Binding GenderText}" />
+                              </TextBlock>
+                              <TextBlock Foreground="{Binding TypeForeground}" TextTrimming="CharacterEllipsis">
+                                <Run Text="{Binding LevelText}" />
+                                <Run Text="·" />
+                                <Run Text="{Binding SpeciesName}" />
+                              </TextBlock>
+                              <TextBlock Foreground="{Binding TypeForeground}" Text="{Binding ItemText}" TextTrimming="CharacterEllipsis" Opacity="0.9" />
+                              <ItemsControl ItemsSource="{Binding TypeChips}" Margin="0,2,0,0">
+                                <ItemsControl.ItemsPanel>
+                                  <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" Spacing="3" />
+                                  </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                              </ItemsControl>
+                            </StackPanel>
+                          </Grid>
+                        </Border>
+                      </Button>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </Border>
+
+            <!-- Selected Pokémon -->
+            <Border Classes="card" IsVisible="{Binding HasDetail}">
+              <ContentControl Content="{Binding Detail}">
+                <ContentControl.ContentTemplate>
+                  <DataTemplate x:DataType="vm:RoomMonDetail">
+                    <StackPanel Spacing="8">
+                      <Grid ColumnDefinitions="Auto,*">
+                        <Border Grid.ColumnSpan="2" Background="{Binding Card.TypeBackground}" CornerRadius="4" BorderBrush="#80000000" BorderThickness="1" />
+                        <Border Margin="6,4" Background="#40FFFFFF" CornerRadius="30" Width="68" Height="60">
+                          <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Card.Icon}" Width="80" Height="60" />
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center" Spacing="2">
+                          <TextBlock FontSize="14" FontWeight="Bold" Foreground="{Binding Card.TypeForeground}">
+                            <Run Text="{Binding Card.Name}" />
+                            <Run Text="{Binding Card.GenderText}" />
+                          </TextBlock>
+                          <TextBlock Foreground="{Binding Card.TypeForeground}">
+                            <Run Text="{Binding Card.SpeciesName}" />
+                            <Run Text=" · " />
+                            <Run Text="{Binding Card.LevelText}" />
+                          </TextBlock>
+                          <ItemsControl ItemsSource="{Binding Card.TypeChips}">
+                            <ItemsControl.ItemsPanel>
+                              <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="3" />
+                              </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                          </ItemsControl>
+                        </StackPanel>
+                      </Grid>
+
+                      <c:AdaptiveColumnsPanel MinColumnWidth="220" MaxColumns="3" Spacing="18">
+                        <StackPanel>
+                          <TextBlock Classes="card-title" Text="{x:Static r:Strings.Pkm_Stats}" />
+                          <ItemsControl ItemsSource="{Binding Stats}">
+                            <ItemsControl.ItemTemplate>
+                              <DataTemplate x:DataType="vm:RoomInfoLine">
+                                <Grid ColumnDefinitions="90,*" Margin="0,1">
+                                  <TextBlock Text="{Binding Label}" />
+                                  <TextBlock Grid.Column="1" Text="{Binding Value}" FontWeight="SemiBold" />
+                                </Grid>
+                              </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                          </ItemsControl>
+                        </StackPanel>
+
+                        <StackPanel>
+                          <TextBlock Classes="card-title" Text="{x:Static r:Strings.Pkm_Moves}" />
+                          <ItemsControl ItemsSource="{Binding Moves}">
+                            <ItemsControl.ItemTemplate>
+                              <DataTemplate x:DataType="vm:MoveLine">
+                                <Border Background="{Binding Background}" CornerRadius="4" Padding="8,4" Margin="0,2" BorderBrush="#40000000" BorderThickness="1">
+                                  <Grid ColumnDefinitions="*,Auto,Auto">
+                                    <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Type}" Foreground="{Binding Foreground}" FontSize="10" Opacity="0.85" Margin="8,0" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="2" Text="{Binding PP}" Foreground="{Binding Foreground}" VerticalAlignment="Center" />
+                                  </Grid>
+                                </Border>
+                              </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                          </ItemsControl>
+                        </StackPanel>
+
+                        <StackPanel>
+                          <TextBlock Classes="card-title" Text="{x:Static r:Strings.Pkm_Main}" />
+                          <ItemsControl ItemsSource="{Binding Info}">
+                            <ItemsControl.ItemTemplate>
+                              <DataTemplate x:DataType="vm:RoomInfoLine">
+                                <Grid ColumnDefinitions="100,*" Margin="0,1">
+                                  <TextBlock Classes="hint" Text="{Binding Label}" />
+                                  <TextBlock Grid.Column="1" Text="{Binding Value}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                </Grid>
+                              </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                          </ItemsControl>
+                        </StackPanel>
+                      </c:AdaptiveColumnsPanel>
+                    </StackPanel>
+                  </DataTemplate>
+                </ContentControl.ContentTemplate>
+              </ContentControl>
+            </Border>
+
+            <!-- Boxes -->
+            <Border Classes="card" IsVisible="{Binding HasPlayerData}">
+              <StackPanel Spacing="4">
+                <Grid ColumnDefinitions="*,Auto">
+                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Room_BoxesTitle}" VerticalAlignment="Center" />
+                  <ComboBox Grid.Column="1" ItemsSource="{Binding BoxNames}" SelectedIndex="{Binding SelectedBox}" Width="200"
+                            IsVisible="{Binding HasBoxes}" MaxDropDownHeight="400" />
+                </Grid>
+                <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_BoxesHidden}" IsVisible="{Binding BoxesHidden}" />
+                <ItemsControl ItemsSource="{Binding BoxSlots}" IsVisible="{Binding HasBoxes}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <UniformGrid Columns="6" />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:RoomMonCard">
+                      <Button Classes="member" Command="{Binding SelectCommand}" ToolTip.Tip="{Binding Tooltip}" IsHitTestVisible="{Binding !IsEmpty}">
+                        <Border Classes="slot" Classes.empty="{Binding IsEmpty}" Classes.selected="{Binding IsSelected}" Background="{Binding TypeBackground}">
+                          <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="53" Height="40" />
+                        </Border>
+                      </Button>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </ScrollViewer>
+      </Grid>
+    </DockPanel>
+  </Grid>
 </UserControl>

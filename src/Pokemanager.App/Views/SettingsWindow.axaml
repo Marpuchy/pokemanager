@@ -6,11 +6,58 @@
         x:Class="Pokemanager.App.Views.SettingsWindow"
         x:DataType="vm:SettingsViewModel"
         Title="{x:Static r:Strings.Set_Title}"
-        Width="760" Height="680" MinWidth="560" MinHeight="420"
+        Width="780" Height="820" MinWidth="560" MinHeight="420"
         WindowStartupLocation="CenterOwner">
   <ScrollViewer>
     <StackPanel Margin="20" Spacing="6">
       <TextBlock Text="{x:Static r:Strings.Set_Title}" FontSize="16" FontWeight="SemiBold" />
+
+      <!-- Profile: how the user appears in multiplayer rooms -->
+      <TextBlock Classes="section" Text="{x:Static r:Strings.Profile_Title}" />
+      <TextBlock Classes="hint" Text="{x:Static r:Strings.Profile_Hint}" />
+      <Grid ColumnDefinitions="Auto,*" Margin="0,4,0,0">
+        <ContentControl Content="{Binding ProfileAvatar}" Width="88" Height="88" VerticalAlignment="Top" />
+        <StackPanel Grid.Column="1" Margin="14,0,0,0" Spacing="6">
+          <TextBlock Text="{x:Static r:Strings.Profile_Name}" />
+          <TextBox Text="{Binding ProfileName}" PlaceholderText="{x:Static r:Strings.Profile_NamePlaceholder}" MaxLength="24" MaxWidth="320" HorizontalAlignment="Left" MinWidth="240" />
+          <TextBlock Text="{x:Static r:Strings.Profile_Color}" />
+          <ItemsControl ItemsSource="{x:Static vm:SettingsViewModel.ProfileColors}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <WrapPanel />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:ColorOption">
+                <Button Width="26" Height="26" Margin="0,0,4,0" Padding="0" CornerRadius="13" Background="{Binding Brush}" BorderBrush="#40000000" BorderThickness="1"
+                        Command="{Binding $parent[Window].((vm:SettingsViewModel)DataContext).ChooseColorCommand}" CommandParameter="{Binding}" />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <TextBlock Classes="hint" Text="{Binding ProfileSpriteText}" />
+        </StackPanel>
+      </Grid>
+      <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,6,0,0">
+        <TextBox Text="{Binding SpriteQuery}" PlaceholderText="{x:Static r:Strings.Profile_SearchPlaceholder}" />
+        <Button Grid.Column="1" Margin="6,0,0,0" Content="{x:Static r:Strings.Profile_ChooseImage}" Command="{Binding ChooseImageCommand}" />
+        <Button Grid.Column="2" Margin="6,0,0,0" Content="{x:Static r:Strings.Profile_RemoveImage}" Command="{Binding RemoveImageCommand}" IsVisible="{Binding HasCustomImage}" />
+      </Grid>
+      <TextBlock Classes="hint" Text="{Binding SpriteStatus}" />
+      <ItemsControl ItemsSource="{Binding SpriteResults}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <WrapPanel />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:SpriteOption">
+            <Button Width="72" Height="72" Margin="0,0,4,4" Padding="2" Command="{Binding ChooseCommand}" ToolTip.Tip="{Binding Name}">
+              <Image Source="{Binding Image}" Stretch="Uniform" RenderOptions.BitmapInterpolationMode="None" />
+            </Button>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+      <TextBlock Classes="hint" FontSize="11" Text="{x:Static r:Strings.Profile_Credit}" />
 
       <TextBlock Classes="section" Text="{x:Static r:Strings.Set_Language}" />
       <ComboBox ItemsSource="{x:Static vm:SettingsViewModel.UiLanguages}" SelectedItem="{Binding SelectedLanguage}" MinWidth="200">

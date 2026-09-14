@@ -1728,400 +1728,253 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Preview_TrainerTrials" xml:space="preserve">
     <value>{0} · pruebas {1} · {2:N0} $ · {3} jugadas · partida de {4}, {5:g}</value>
   </data>
-  <data name="Tab_Room" xml:space="preserve">
-    <value>Multijugador</value>
-  </data>
-  <data name="Room_MonDetail" xml:space="preserve">
-    <value>{0} · Nv. {1} · {2}</value>
-  </data>
-  <data name="Room_StatusAlive" xml:space="preserve">
-    <value>vivo</value>
-  </data>
-  <data name="Room_StatusDoomed" xml:space="preserve">
-    <value>debe retirarse</value>
-  </data>
-  <data name="Room_StatusDead" xml:space="preserve">
-    <value>muerto</value>
-  </data>
-  <data name="Room_Title" xml:space="preserve">
-    <value>Sala: {0}</value>
-  </data>
-  <data name="Room_Subtitle" xml:space="preserve">
-    <value>{0} jugadores · {1} · tu partida sincronizada por última vez: {2}</value>
-  </data>
-  <data name="Room_YouHost" xml:space="preserve">
-    <value>eres el anfitrión</value>
-  </data>
-  <data name="Room_YouGuest" xml:space="preserve">
-    <value>eres invitado</value>
-  </data>
-  <data name="Room_NeverSynced" xml:space="preserve">
-    <value>nunca</value>
-  </data>
-  <data name="Room_Unreadable" xml:space="preserve">
-    <value>No se ha podido leer el archivo de sala {0}: {1}</value>
-  </data>
-  <data name="Room_PlayerSubtitle" xml:space="preserve">
-    <value>{0} · hitos {1}/{2} · {3} capturas, {4} muertos · sincronizado {5}</value>
-  </data>
   <data name="Room_You" xml:space="preserve">
     <value>{0} (tú)</value>
+  </data>
+  <data name="Room_Online" xml:space="preserve">
+    <value>conectado</value>
+  </data>
+  <data name="Room_Offline" xml:space="preserve">
+    <value>desconectado</value>
   </data>
   <data name="Room_Host" xml:space="preserve">
     <value>anfitrión</value>
   </data>
-  <data name="Room_LinkOrder" xml:space="preserve">
-    <value>Captura n.º {0}</value>
+  <data name="Room_ResumeHost" xml:space="preserve">
+    <value>Reabrir la sala {0} (mismo código)</value>
   </data>
-  <data name="Room_LinkManual" xml:space="preserve">
-    <value>Vínculo manual</value>
+  <data name="Room_ResumeGuest" xml:space="preserve">
+    <value>Volver a unirse a {0}</value>
   </data>
-  <data name="Room_NoticeMustRetire" xml:space="preserve">
-    <value>{0}: {1} debe retirarse porque {2} ({3}) ha muerto.</value>
+  <data name="Room_Title" xml:space="preserve">
+    <value>Sala: {0}</value>
   </data>
-  <data name="Room_NoticeLinkedDied" xml:space="preserve">
-    <value>{0}: {2} ({3}), vinculado con {1}, ha muerto.</value>
+  <data name="Room_StatusHosting" xml:space="preserve">
+    <value>Sala abierta: los jugadores pueden unirse con el código</value>
   </data>
-  <data name="Room_NoticeSecondEncounter" xml:space="preserve">
-    <value>{0}: {1} es una segunda captura en {2}.</value>
+  <data name="Room_StatusConnected" xml:space="preserve">
+    <value>Conectado a la sala</value>
   </data>
-  <data name="Room_NoticeClaimed" xml:space="preserve">
-    <value>{0}: {1} se capturó en {2}, que ya había reclamado {3}.</value>
+  <data name="Room_StatusConnecting" xml:space="preserve">
+    <value>Conectando con el anfitrión…</value>
   </data>
-  <data name="Room_NoticeDuplicateType" xml:space="preserve">
-    <value>{0}: {1} repite el tipo principal {2} en el equipo.</value>
+  <data name="Room_StatusNeedsAnswer" xml:space="preserve">
+    <value>Los routers bloquean la conexión directa: envía tu código de respuesta al anfitrión</value>
   </data>
-  <data name="Room_NoticeLevelCap" xml:space="preserve">
-    <value>{0}: {1} supera el nivel máximo ({2}).</value>
+  <data name="Room_StatusReconnecting" xml:space="preserve">
+    <value>Conexión perdida, reconectando…</value>
   </data>
-  <data name="Room_NoticeNoLives" xml:space="preserve">
-    <value>{0}: sin vidas.</value>
+  <data name="Room_StatusClosed" xml:space="preserve">
+    <value>Sala cerrada</value>
   </data>
-  <data name="Room_LogJoined" xml:space="preserve">
-    <value>{0} se ha unido a la sala ({1}).</value>
+  <data name="Room_ReachMapped" xml:space="preserve">
+    <value>Puerto abierto en el router con {0}: accesible desde internet en {1}.</value>
   </data>
-  <data name="Room_LogCaptured" xml:space="preserve">
-    <value>{0} ha capturado a {1} en {2}.</value>
+  <data name="Room_ReachDoubleNat" xml:space="preserve">
+    <value>Puerto abierto con {0}, pero la dirección de tu router {1} no es pública (tu operador añade otro NAT): puede que tus amigos necesiten el código de respuesta.</value>
   </data>
-  <data name="Room_LogDied" xml:space="preserve">
-    <value>{0}: {1} ha muerto ({2}).</value>
+  <data name="Room_ReachStun" xml:space="preserve">
+    <value>Tu router no ha podido abrir el puerto automáticamente; dirección pública {0}. Si un amigo no puede entrar, le saldrá un código de respuesta para ti.</value>
   </data>
-  <data name="Room_LogUndone" xml:space="preserve">
-    <value>{0}: se ha deshecho la muerte de {1}.</value>
+  <data name="Room_ReachLocal" xml:space="preserve">
+    <value>No se ha encontrado dirección de internet: solo pueden unirse jugadores de tu red.</value>
   </data>
-  <data name="Room_LogMilestone" xml:space="preserve">
-    <value>{0} ha conseguido {1}.</value>
+  <data name="Room_NoCode" xml:space="preserve">
+    <value>Pega el código que te ha pasado el anfitrión.</value>
   </data>
-  <data name="Room_LogLives" xml:space="preserve">
-    <value>{0}: {1} vidas ({2}).</value>
+  <data name="Room_Starting" xml:space="preserve">
+    <value>Preparando la conexión (router y dirección pública)…</value>
   </data>
-  <data name="Room_LogLinked" xml:space="preserve">
-    <value>{0} ha vinculado a {1} con {2}.</value>
+  <data name="Room_Created" xml:space="preserve">
+    <value>Sala abierta. Copia el código y envíaselo a tus amigos.</value>
   </data>
-  <data name="Room_LogUnlinked" xml:space="preserve">
-    <value>{0} ha desvinculado a {1}.</value>
+  <data name="Room_Joining" xml:space="preserve">
+    <value>Uniéndose a la sala…</value>
   </data>
-  <data name="Room_LogRoulette" xml:space="preserve">
-    <value>{0} ha girado la ruleta: {1}.</value>
+  <data name="Room_BadCode" xml:space="preserve">
+    <value>Código no válido: {0}</value>
   </data>
-  <data name="Room_CauseFainted" xml:space="preserve">
-    <value>debilitado en el equipo</value>
+  <data name="Room_NetworkFailed" xml:space="preserve">
+    <value>No se ha podido preparar la conexión: {0}</value>
   </data>
-  <data name="Room_CauseGraveyard" xml:space="preserve">
-    <value>movido a la caja cementerio</value>
-  </data>
-  <data name="Room_CauseReleased" xml:space="preserve">
-    <value>liberado</value>
-  </data>
-  <data name="Room_CauseManual" xml:space="preserve">
-    <value>marcado a mano</value>
+  <data name="Room_Shared" xml:space="preserve">
+    <value>Tu partida se comparte en directo: enviada a las {0} ({1} en el equipo). Se vuelve a enviar cada vez que guardas en el juego.</value>
   </data>
   <data name="Room_NoSave" xml:space="preserve">
-    <value>Aún no hay partida guardada de este juego en el emulador: juega y guarda una vez antes de crear o unirte a una sala.</value>
+    <value>Aún no hay partida guardada de este juego en el emulador.</value>
   </data>
-  <data name="Room_SaveFailed" xml:space="preserve">
-    <value>No se ha podido leer la partida: {0}</value>
+  <data name="Room_AnswerAccepted" xml:space="preserve">
+    <value>Código de respuesta aceptado: abriendo paso a ese jugador (hasta 45 segundos).</value>
+  </data>
+  <data name="Room_Left" xml:space="preserve">
+    <value>Has salido de la sala.</value>
+  </data>
+  <data name="Room_NoSaveYet" xml:space="preserve">
+    <value>Aún no ha compartido su partida.</value>
+  </data>
+  <data name="Room_PlayerSubtitle" xml:space="preserve">
+    <value>{0} · hitos {1}/{2} · actualizado {3}</value>
+  </data>
+  <data name="Room_Trainer" xml:space="preserve">
+    <value>{0} · {1} · hitos {2}/{3} · {4:N0} $ · {5}:{6:00} jugadas · guardado {7:g}</value>
+  </data>
+  <data name="Room_Hp" xml:space="preserve">
+    <value>PS actuales</value>
+  </data>
+  <data name="Room_NoneTitle" xml:space="preserve">
+    <value>Multijugador</value>
+  </data>
+  <data name="Room_NoneHint" xml:space="preserve">
+    <value>Juega con amigos, cada uno con su juego y su semilla, y mirad en directo el equipo y las cajas de los demás. El anfitrión crea la sala y envía el código; los demás lo pegan. Sin servidor y sin configurar nada en el router.</value>
+  </data>
+  <data name="Room_ResumeTitle" xml:space="preserve">
+    <value>Última sala</value>
   </data>
   <data name="Room_CreateTitle" xml:space="preserve">
     <value>Crear una sala</value>
   </data>
-  <data name="Room_CreateMessage" xml:space="preserve">
-    <value>Se lee tu partida (sin modificarla) y lo que ya tienes pasa a ser tus primeras capturas. Después comparte la sala con Exportar.</value>
-  </data>
-  <data name="Room_CreateConfirm" xml:space="preserve">
-    <value>Crear</value>
+  <data name="Room_CreateHint" xml:space="preserve">
+    <value>Serás el anfitrión: deja la app abierta mientras jugáis para que los demás sigan conectados.</value>
   </data>
   <data name="Room_NamePlaceholder" xml:space="preserve">
     <value>Nombre de la sala</value>
   </data>
-  <data name="Room_Created" xml:space="preserve">
-    <value>Sala {0} creada. Expórtala y envía el archivo al resto de jugadores.</value>
+  <data name="Room_Create" xml:space="preserve">
+    <value>Crear sala</value>
   </data>
   <data name="Room_JoinTitle" xml:space="preserve">
-    <value>Unirse a una sala con el archivo que te han enviado</value>
+    <value>Unirse a una sala</value>
   </data>
-  <data name="Room_Joined" xml:space="preserve">
-    <value>Te has unido a {0}. Exporta la sala y devuélvesela para que los demás te vean.</value>
-  </data>
-  <data name="Room_Synced" xml:space="preserve">
-    <value>Partida sincronizada: {0} eventos nuevos.</value>
-  </data>
-  <data name="Room_SyncedNothing" xml:space="preserve">
-    <value>Partida sincronizada: nada nuevo desde la última vez.</value>
-  </data>
-  <data name="Room_ExportTitle" xml:space="preserve">
-    <value>Exportar la sala</value>
-  </data>
-  <data name="Room_Exported" xml:space="preserve">
-    <value>Sala exportada a {0}. Envía este archivo al resto de jugadores.</value>
-  </data>
-  <data name="Room_ImportTitle" xml:space="preserve">
-    <value>Importar el archivo de sala de otro jugador</value>
-  </data>
-  <data name="Room_ImportFailed" xml:space="preserve">
-    <value>Error con el archivo de sala: {0}</value>
-  </data>
-  <data name="Room_OtherRoom" xml:space="preserve">
-    <value>Ese archivo es de otra sala ({0}).</value>
-  </data>
-  <data name="Room_Imported" xml:space="preserve">
-    <value>{0} eventos nuevos importados. {1}</value>
-  </data>
-  <data name="Room_ImportedRules" xml:space="preserve">
-    <value>Se han aplicado las reglas del anfitrión.</value>
-  </data>
-  <data name="Room_LeaveTitle" xml:space="preserve">
-    <value>Salir de la sala</value>
-  </data>
-  <data name="Room_LeaveMessage" xml:space="preserve">
-    <value>Se borra el archivo de sala de este proyecto. Tu partida no se toca. Los demás jugadores conservan sus copias.</value>
-  </data>
-  <data name="Room_LeaveConfirm" xml:space="preserve">
-    <value>Salir</value>
-  </data>
-  <data name="Room_LivesByHand" xml:space="preserve">
-    <value>a mano</value>
-  </data>
-  <data name="Room_PresetCustom" xml:space="preserve">
-    <value>Elegir un preset…</value>
-  </data>
-  <data name="Room_PresetSoulLink" xml:space="preserve">
-    <value>Soul Link</value>
-  </data>
-  <data name="Room_PresetSoulLinkGames" xml:space="preserve">
-    <value>Soul Link, juegos distintos</value>
-  </data>
-  <data name="Room_PresetShared" xml:space="preserve">
-    <value>Nuzlocke compartido</value>
-  </data>
-  <data name="Room_PresetRace" xml:space="preserve">
-    <value>Carrera</value>
-  </data>
-  <data name="Room_MatchNone" xml:space="preserve">
-    <value>Sin vincular</value>
-  </data>
-  <data name="Room_MatchLocation" xml:space="preserve">
-    <value>Misma ruta</value>
-  </data>
-  <data name="Room_MatchOrder" xml:space="preserve">
-    <value>Orden de captura</value>
-  </data>
-  <data name="Room_MatchManual" xml:space="preserve">
-    <value>A mano</value>
-  </data>
-  <data name="Room_DeathKill" xml:space="preserve">
-    <value>Los vinculados mueren también</value>
-  </data>
-  <data name="Room_DeathNotify" xml:space="preserve">
-    <value>Solo avisar</value>
-  </data>
-  <data name="Room_DeathNone" xml:space="preserve">
-    <value>Nada</value>
-  </data>
-  <data name="Room_LivesOff" xml:space="preserve">
-    <value>Sin vidas</value>
-  </data>
-  <data name="Room_LivesIndividual" xml:space="preserve">
-    <value>Cada jugador</value>
-  </data>
-  <data name="Room_LivesShared" xml:space="preserve">
-    <value>Compartidas por el equipo</value>
-  </data>
-  <data name="Room_RoulettePerPlayer" xml:space="preserve">
-    <value>Cada uno por sus hitos</value>
-  </data>
-  <data name="Room_RouletteEveryone" xml:space="preserve">
-    <value>Todos cuando alguien consigue uno</value>
-  </data>
-  <data name="Room_RouletteTeam" xml:space="preserve">
-    <value>Una tirada para el equipo</value>
-  </data>
-  <data name="Room_CapOff" xml:space="preserve">
-    <value>Sin nivel máximo</value>
-  </data>
-  <data name="Room_CapOwn" xml:space="preserve">
-    <value>Según tus hitos</value>
-  </data>
-  <data name="Room_CapSlowest" xml:space="preserve">
-    <value>Según el jugador más atrasado</value>
-  </data>
-  <data name="Room_NoneTitle" xml:space="preserve">
-    <value>Locke multijugador</value>
-  </data>
-  <data name="Room_NoneHint" xml:space="preserve">
-    <value>Juega un Locke con amigos, cada uno con su juego y su semilla: capturas vinculadas por ruta u orden (Soul Link), muertes que se contagian, vidas y reglas compartidas, y avisos cuando se rompe una regla. Crea una sala si eres el anfitrión, o únete con el archivo de sala que te haya enviado otro jugador.</value>
-  </data>
-  <data name="Room_Create" xml:space="preserve">
-    <value>Crear sala…</value>
+  <data name="Room_JoinHint" xml:space="preserve">
+    <value>Pega el código que te ha enviado el anfitrión (PM-…).</value>
   </data>
   <data name="Room_Join" xml:space="preserve">
-    <value>Unirse con un archivo…</value>
+    <value>Unirse</value>
   </data>
-  <data name="Room_NetworkPending" xml:space="preserve">
-    <value>De momento las salas se comparten enviando el archivo de sala (Exportar / Importar). La conexión directa por internet llega a continuación.</value>
+  <data name="Room_ShareNow" xml:space="preserve">
+    <value>Enviar mi partida ahora</value>
   </data>
-  <data name="Room_Sync" xml:space="preserve">
-    <value>Sincronizar mi partida</value>
-  </data>
-  <data name="Room_SyncTip" xml:space="preserve">
-    <value>Lee la partida del emulador (sin modificarla) y registra capturas, muertes e hitos desde la última vez.</value>
-  </data>
-  <data name="Room_Export" xml:space="preserve">
-    <value>Exportar…</value>
-  </data>
-  <data name="Room_ExportTip" xml:space="preserve">
-    <value>Guarda la sala en un archivo para enviarlo al resto de jugadores.</value>
-  </data>
-  <data name="Room_Import" xml:space="preserve">
-    <value>Importar…</value>
-  </data>
-  <data name="Room_ImportTip" xml:space="preserve">
-    <value>Añade lo que ha exportado otro jugador. El archivo del anfitrión también actualiza las reglas.</value>
+  <data name="Room_ShareNowTip" xml:space="preserve">
+    <value>Se envía sola cada vez que el juego guarda; esto la envía al momento.</value>
   </data>
   <data name="Room_Leave" xml:space="preserve">
-    <value>Salir</value>
+    <value>Salir de la sala</value>
   </data>
-  <data name="Room_PartyEmpty" xml:space="preserve">
-    <value>Aún sin equipo: sincroniza la partida.</value>
+  <data name="Room_InviteHint" xml:space="preserve">
+    <value>Código de invitación: envíaselo a tus amigos.</value>
   </data>
-  <data name="Room_LivesTitle" xml:space="preserve">
-    <value>Vidas</value>
+  <data name="Room_Copy" xml:space="preserve">
+    <value>Copiar</value>
   </data>
-  <data name="Room_LivesHint" xml:space="preserve">
-    <value>Para lo que la partida no puede saber, como perder un combate.</value>
+  <data name="Room_AnswerPlaceholder" xml:space="preserve">
+    <value>Código de respuesta de un amigo (PMR-…), solo si no ha podido entrar</value>
   </data>
-  <data name="Room_LoseLife" xml:space="preserve">
-    <value>− Perder una vida</value>
-  </data>
-  <data name="Room_GainLife" xml:space="preserve">
-    <value>+ Añadir una vida</value>
-  </data>
-  <data name="Room_NoticesTitle" xml:space="preserve">
-    <value>Avisos</value>
-  </data>
-  <data name="Room_NoNotices" xml:space="preserve">
-    <value>Todo cumple las reglas.</value>
-  </data>
-  <data name="Room_LinksTitle" xml:space="preserve">
-    <value>Vínculos</value>
-  </data>
-  <data name="Room_NoLinks" xml:space="preserve">
-    <value>Aún no hay capturas vinculadas.</value>
-  </data>
-  <data name="Room_ManualTitle" xml:space="preserve">
-    <value>Vincular a mano</value>
-  </data>
-  <data name="Room_ManualMine" xml:space="preserve">
-    <value>Una de tus capturas</value>
-  </data>
-  <data name="Room_ManualOther" xml:space="preserve">
-    <value>Una captura de otro jugador</value>
-  </data>
-  <data name="Room_ManualLink" xml:space="preserve">
-    <value>Vincular</value>
-  </data>
-  <data name="Room_MarkDead" xml:space="preserve">
-    <value>Muerto</value>
-  </data>
-  <data name="Room_UndoDeath" xml:space="preserve">
-    <value>Deshacer</value>
-  </data>
-  <data name="Room_Unlink" xml:space="preserve">
-    <value>Desvincular</value>
+  <data name="Room_AcceptAnswer" xml:space="preserve">
+    <value>Aceptar</value>
   </data>
   <data name="Room_RulesTitle" xml:space="preserve">
-    <value>Reglas</value>
+    <value>Normas</value>
   </data>
-  <data name="Room_RulesGuest" xml:space="preserve">
-    <value>Solo el anfitrión puede cambiar las reglas.</value>
+  <data name="Room_ShareParty" xml:space="preserve">
+    <value>Los jugadores ven el equipo de los demás</value>
   </data>
-  <data name="Room_RulePreset" xml:space="preserve">
-    <value>Preset</value>
+  <data name="Room_ShareBoxes" xml:space="preserve">
+    <value>Los jugadores ven las cajas de los demás</value>
   </data>
-  <data name="Room_RuleMatching" xml:space="preserve">
-    <value>Vincular capturas</value>
+  <data name="Room_AnswerHint" xml:space="preserve">
+    <value>No se ha podido llegar al anfitrión directamente. Envíale este código de respuesta; cuando lo acepte te conectarás.</value>
   </data>
-  <data name="Room_RuleDeath" xml:space="preserve">
-    <value>Cuando uno muere</value>
+  <data name="Room_PartyHidden" xml:space="preserve">
+    <value>Las normas de la sala ocultan el equipo.</value>
   </data>
-  <data name="Room_RuleLives" xml:space="preserve">
-    <value>Vidas</value>
+  <data name="Room_BoxesTitle" xml:space="preserve">
+    <value>Cajas</value>
   </data>
-  <data name="Room_RuleMaxLives" xml:space="preserve">
-    <value>Vidas por grupo</value>
+  <data name="Room_BoxesHidden" xml:space="preserve">
+    <value>Las normas de la sala ocultan las cajas.</value>
   </data>
-  <data name="Room_RuleRoulette" xml:space="preserve">
-    <value>Ruleta</value>
+  <data name="Room_DefaultName" xml:space="preserve">
+    <value>Sala Pokémon</value>
   </data>
-  <data name="Room_RuleLevelCap" xml:space="preserve">
-    <value>Nivel máximo</value>
+  <data name="Room_ShareProject" xml:space="preserve">
+    <value>Partida que compartirás: {0} ({1}). Elige otro proyecto en la lista para cambiarla.</value>
   </data>
-  <data name="Room_RuleLevelCaps" xml:space="preserve">
-    <value>Niveles por hito</value>
+  <data name="Room_PickProject" xml:space="preserve">
+    <value>Elige primero un proyecto en la lista: su partida es la que compartes.</value>
   </data>
-  <data name="Room_RulesClauses" xml:space="preserve">
-    <value>Cláusulas</value>
+  <data name="Room_NotInRoom" xml:space="preserve">
+    <value>Sin sala</value>
   </data>
-  <data name="Room_RuleFirstEncounter" xml:space="preserve">
-    <value>Solo la primera captura de cada ruta</value>
+  <data name="Room_Summary" xml:space="preserve">
+    <value>{0} · {1} conectados · {2}</value>
   </data>
-  <data name="Room_RuleSubAreas" xml:space="preserve">
-    <value>Las subzonas cuentan como la misma ruta</value>
+  <data name="Room_SharingProject" xml:space="preserve">
+    <value>Compartiendo {0}.</value>
   </data>
-  <data name="Room_RuleDupes" xml:space="preserve">
-    <value>Cláusula de duplicados (las especies repetidas no gastan la ruta)</value>
+  <data name="Room_PlayersTitle" xml:space="preserve">
+    <value>Jugadores</value>
   </data>
-  <data name="Room_RuleShiny" xml:space="preserve">
-    <value>Cláusula shiny (los shiny son libres y no se vinculan)</value>
+  <data name="Room_Open" xml:space="preserve">
+    <value>Multijugador</value>
   </data>
-  <data name="Room_RuleEggs" xml:space="preserve">
-    <value>Los huevos eclosionados cuentan como captura</value>
+  <data name="Room_EditProfile" xml:space="preserve">
+    <value>Perfil…</value>
   </data>
-  <data name="Room_RuleRace" xml:space="preserve">
-    <value>Carrera: el primero en capturar en una ruta la reclama</value>
+  <data name="Profile_Title" xml:space="preserve">
+    <value>Perfil</value>
   </data>
-  <data name="Room_RuleUniqueTypes" xml:space="preserve">
-    <value>Sin tipos principales repetidos en el equipo</value>
+  <data name="Profile_Hint" xml:space="preserve">
+    <value>Cómo te ven los demás jugadores en las salas multijugador.</value>
   </data>
-  <data name="Room_RuleDeathCostsLife" xml:space="preserve">
-    <value>Cada muerte cuesta una vida</value>
+  <data name="Profile_Name" xml:space="preserve">
+    <value>Nombre</value>
   </data>
-  <data name="Room_RulesDetection" xml:space="preserve">
-    <value>Qué cuenta como muerte</value>
+  <data name="Profile_NamePlaceholder" xml:space="preserve">
+    <value>Vacío: el nombre de entrenador de tu partida</value>
   </data>
-  <data name="Room_RuleFainted" xml:space="preserve">
-    <value>Debilitado (0 PS) en el equipo al sincronizar</value>
+  <data name="Profile_Color" xml:space="preserve">
+    <value>Color</value>
   </data>
-  <data name="Room_RuleGraveyard" xml:space="preserve">
-    <value>Colocado en la caja cementerio</value>
+  <data name="Profile_UsingImage" xml:space="preserve">
+    <value>Imagen: tu propia imagen.</value>
   </data>
-  <data name="Room_RuleGraveyardTip" xml:space="preserve">
-    <value>Número de caja; 0 = la última caja de la partida.</value>
+  <data name="Profile_UsingSprite" xml:space="preserve">
+    <value>Imagen: sprite de entrenador &quot;{0}&quot;.</value>
   </data>
-  <data name="Room_RuleReleased" xml:space="preserve">
-    <value>Liberado (ya no está en la partida)</value>
+  <data name="Profile_NoPicture" xml:space="preserve">
+    <value>Sin imagen: se muestran tus iniciales.</value>
   </data>
-  <data name="Room_LogTitle" xml:space="preserve">
-    <value>Registro</value>
+  <data name="Profile_Searching" xml:space="preserve">
+    <value>Buscando…</value>
+  </data>
+  <data name="Profile_Offline" xml:space="preserve">
+    <value>No se ha podido descargar la lista de sprites (¿sin internet?). Puedes usar tu propia imagen.</value>
+  </data>
+  <data name="Profile_NoResults" xml:space="preserve">
+    <value>Ningún sprite coincide con esa búsqueda.</value>
+  </data>
+  <data name="Profile_Featured" xml:space="preserve">
+    <value>Algunos entrenadores. Busca más (p. ej. &quot;cynthia&quot;, &quot;ace gen7&quot;, &quot;swimmer&quot;).</value>
+  </data>
+  <data name="Profile_Results" xml:space="preserve">
+    <value>{0} sprites encontrados.</value>
+  </data>
+  <data name="Profile_PickImage" xml:space="preserve">
+    <value>Elige una imagen para tu perfil</value>
+  </data>
+  <data name="Profile_BadImage" xml:space="preserve">
+    <value>Ese archivo no se puede usar como imagen.</value>
+  </data>
+  <data name="Profile_SearchPlaceholder" xml:space="preserve">
+    <value>Buscar sprites de entrenador…</value>
+  </data>
+  <data name="Profile_ChooseImage" xml:space="preserve">
+    <value>Imagen propia…</value>
+  </data>
+  <data name="Profile_RemoveImage" xml:space="preserve">
+    <value>Quitar imagen</value>
+  </data>
+  <data name="Profile_Credit" xml:space="preserve">
+    <value>Sprites de entrenador: colección de Pokémon Showdown, se descargan al elegirlos. Pokémon es © Nintendo / Game Freak.</value>
   </data>
 </root>

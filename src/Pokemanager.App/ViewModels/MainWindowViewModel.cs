@@ -24,6 +24,7 @@ public partial class MainWindowViewModel : ObservableObject
         this.dialogs = dialogs;
         this.settings = settings;
         Upr = new UprService();
+        Room = new RoomViewModel(this);
 
         // Start on the project list: with several projects, the user picks which one to open.
         CurrentPage = new WelcomeViewModel(this, dialogs);
@@ -37,6 +38,9 @@ public partial class MainWindowViewModel : ObservableObject
         : $"Pokemanager {Version}";
 
     partial void OnCurrentPageChanged(ObservableObject value) => OnPropertyChanged(nameof(Title));
+
+    /// <summary>The multiplayer room: it lives with the app, whichever page is shown.</summary>
+    public RoomViewModel Room { get; }
 
     /// <summary>Opens a saved project in the editor. Returns the error to show, or null when it opened.</summary>
     public string? OpenProject(string path)

@@ -62,7 +62,24 @@ public partial class WelcomeViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(HasPreview))]
     public partial ProjectPreviewViewModel? Preview { get; set; }
 
-    public bool HasPreview => Preview is not null && !ShowNewProject;
+    public bool HasPreview => Preview is not null && !ShowNewProject && !ShowRoom;
+
+    /// <summary>The multiplayer room (app-wide); shown on the right instead of the preview.</summary>
+    public RoomViewModel Room => main.Room;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasPreview), nameof(ShowPreviewArea))]
+    public partial bool ShowRoom { get; set; }
+
+    [RelayCommand]
+    private void OpenRoom()
+    {
+        ShowNewProject = false;
+        ShowRoom = true;
+        Room.RefreshSelectedProject();
+    }
+
+    partial void OnPreviewChanged(ProjectPreviewViewModel? value) => Room.RefreshSelectedProject();
 
     [ObservableProperty]
     public partial bool IsLoadingPreview { get; set; }
@@ -75,7 +92,7 @@ public partial class WelcomeViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(HasPreview), nameof(ShowPreviewArea))]
     public partial bool ShowNewProject { get; set; }
 
-    public bool ShowPreviewArea => !ShowNewProject;
+    public bool ShowPreviewArea => !ShowNewProject && !ShowRoom;
 
     private int previewVersion;
 
@@ -83,6 +100,7 @@ public partial class WelcomeViewModel : ObservableObject
     {
         this.main = main;
         this.dialogs = dialogs;
+        main.Room.SelectedProject = () => Preview?.Loaded;
         LoadRecentProjects();
         ShowNewProject = RecentProjects.Count == 0;
         SelectedProject = RecentProjects.FirstOrDefault(p => string.Equals(p.Path, main.Settings.LastProject, StringComparison.OrdinalIgnoreCase))
@@ -101,6 +119,9 @@ public partial class WelcomeViewModel : ObservableObject
     {
         if (value is not null)
         {
+            // Before a room starts, picking a project only chooses the save to share; afterwards it shows its preview.
+            if (!(ShowRoom && Room.NoSession))
+                ShowRoom = false;
             ShowNewProject = false;
             _ = LoadPreviewAsync(value);
         }
@@ -143,6 +164,7 @@ public partial class WelcomeViewModel : ObservableObject
     private void NewProject()
     {
         SelectedProject = null;
+        ShowRoom = false;
         ShowNewProject = true;
     }
 
@@ -195,8 +217,11 @@ public partial class WelcomeViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task OpenSettings() =>
+    private async Task OpenSettings()
+    {
         await dialogs.ShowSettingsAsync(new SettingsViewModel(main.Settings, main.Upr, dialogs, null, GameTitle.X));
+        Room.ProfileChanged();
+    }
 
     private bool CanCreate() => !IsCreating && detectedTitle is not null && !string.IsNullOrWhiteSpace(ProjectName);
 

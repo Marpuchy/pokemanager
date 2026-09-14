@@ -27,6 +27,22 @@
     <DataTemplate DataType="vm:RoomViewModel">
       <views:RoomView />
     </DataTemplate>
+    <!-- Profile picture of a player: image, trainer sprite or initials on the accent color -->
+    <DataTemplate DataType="vm:AvatarViewModel">
+      <Border Background="{Binding Accent}" CornerRadius="999" ClipToBounds="True">
+        <Panel>
+          <TextBlock Text="{Binding Initials}" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding !HasImage}" />
+          <Border Background="#F0FFFFFF" Margin="2" CornerRadius="999" ClipToBounds="True" IsVisible="{Binding HasImage}">
+            <Image Source="{Binding Image}" Stretch="Uniform" RenderOptions.BitmapInterpolationMode="None" />
+          </Border>
+        </Panel>
+      </Border>
+    </DataTemplate>
+    <DataTemplate DataType="vm:TypeChip">
+      <Border Background="{Binding Background}" BorderBrush="#60000000" BorderThickness="1" CornerRadius="3" Padding="5,0">
+        <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground}" FontSize="10" FontWeight="SemiBold" />
+      </Border>
+    </DataTemplate>
   </Application.DataTemplates>
 
   <Application.Styles>

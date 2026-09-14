@@ -8,9 +8,46 @@ namespace Pokemanager.App.Services;
 /// <summary>A project opened at some point on this machine.</summary>
 public sealed record RecentProject(string Path, DateTime LastOpened);
 
+/// <summary>How the user appears in multiplayer rooms.</summary>
+public sealed class ProfileSettings
+{
+    /// <summary>Empty: the trainer name of the save, or the Windows user name.</summary>
+    public string Name { get; set; } = "";
+
+    /// <summary>Pokémon Showdown trainer sprite name.</summary>
+    public string? Sprite { get; set; } = "red";
+
+    /// <summary>Own picture (reduced PNG, base64) used instead of the sprite.</summary>
+    public string? Image { get; set; }
+
+    public string Color { get; set; } = "#1C3A70";
+}
+
+/// <summary>The last multiplayer room, to open or join it again.</summary>
+public sealed class RoomMemory
+{
+    public string PlayerId { get; set; } = Guid.NewGuid().ToString("N");
+    public string? RoomName { get; set; }
+    public bool IsHost { get; set; }
+
+    /// <summary>Host: the room secret (base64) and port, so the invite code survives a restart.</summary>
+    public string? Secret { get; set; }
+    public int Port { get; set; }
+
+    /// <summary>Guest: the invite code used.</summary>
+    public string? Invite { get; set; }
+
+    /// <summary>Project whose save was shared.</summary>
+    public string? ProjectPath { get; set; }
+}
+
 /// <summary>Pokemanager settings on this machine (not per project).</summary>
 public sealed class AppSettings
 {
+    public ProfileSettings Profile { get; set; } = new();
+
+    public RoomMemory Room { get; set; } = new();
+
     public const int MaxRecentProjects = 15;
     public const string DefaultLanguage = "en";
 
