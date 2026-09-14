@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Pokemanager.Save\Pokemanager.Save.csproj" />
+    <ProjectReference Include="..\Pokemanager.Battle\Pokemanager.Battle.csproj" />
   </ItemGroup>
 
   <ItemGroup>

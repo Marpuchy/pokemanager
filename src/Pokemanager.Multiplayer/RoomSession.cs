@@ -51,6 +51,9 @@ public sealed class RoomOptions
 
     /// <summary>How long a guest tries the direct way before asking for the answer code.</summary>
     public TimeSpan DirectConnectTimeout { get; init; } = TimeSpan.FromSeconds(8);
+
+    /// <summary>The battle simulator. Only the host's matters: it runs the battles of the room. Null: no battles.</summary>
+    public Pokemanager.Battle.ShowdownTools? Battles { get; init; }
 }
 
 /// <summary>
@@ -58,7 +61,7 @@ public sealed class RoomOptions
 /// what each guest shares to the others, filtered by the rules. Network work runs on its own loop; public methods can be
 /// called from any thread and <see cref="Changed"/> is raised on the network thread.
 /// </summary>
-public sealed class RoomSession : IAsyncDisposable
+public sealed partial class RoomSession : IAsyncDisposable
 {
     private readonly object gate = new();
     private readonly EventBasedNetListener listener = new();
@@ -365,6 +368,7 @@ public sealed class RoomSession : IAsyncDisposable
             {
                 SetPlayer(id, p => p with { Online = false });
                 Broadcast(new PlayerLeft(id), except: null);
+                PlayerLeftBattles(id);
                 RaiseChanged();
             }
         }
@@ -438,6 +442,9 @@ public sealed class RoomSession : IAsyncDisposable
                 SetPlayer(who, p => p with { Profile = clean });
                 Broadcast(new ProfileChanged(who, clean), except: peer);
                 break;
+            case var battleMessage when peerPlayers.TryGetValue(peer.Id, out string? from):
+                HostBattleMessage(from, battleMessage);
+                break;
         }
     }
 
@@ -489,6 +496,9 @@ public sealed class RoomSession : IAsyncDisposable
                 if (localSnapshot is { } own)
                     Send(hostPeer!, new SnapshotShared(LocalPlayerId, own.FilteredBy(Rules)));
                 break;
+            default:
+                ReceiveBattleMessage(message);
+                break;
         }
     }
 
@@ -528,6 +538,7 @@ public sealed class RoomSession : IAsyncDisposable
             try { await loop; }
             catch (OperationCanceledException) { }
         }
+        await DisposeBattlesAsync();
         net.Stop(true); // tells the peers, so they notice at once
         if (Mapping is { } mapping)
             await mapping.DisposeAsync();

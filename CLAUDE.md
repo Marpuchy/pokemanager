@@ -304,6 +304,28 @@ the game formula for all (that randomization did not change stats/types/moves). 
 (species → pure Water, base HP 200/Spe 5; a move → Grass 90): that side's HP 450, its lead moved second, the same move was
 "resisted" for p1 (Fire) and "super effective" for p2 (Grass); random battle ran 47 turns to a winner. Tests: team building,
 three rule sets start with matching stats (Gen 6 + level 50, many clauses), Species Clause refuses a team.
+
+**Phase 2 done — battles in the room (no UI yet).** `RoomSession.Battles.cs`, protocol 3. Player → host: `BattleChallenge`
+(id, opponent, first rules), `BattleRulesSet` (either player; clears both "ready"), `BattleReady` (team or null), `BattleCancel`
+(cancel or forfeit), `BattleChoice`. Host → players: `BattleState` (phase Proposed/Running/Finished/Cancelled, ready ids, winner
+player id, problems), `BattleLog` (lines already reduced with `ShowdownProtocol.ForSide`: `|split|pN` + exact line for that side +
+public line), `BattleRequest`. The host runs every battle of the room, also between two guests; its own player goes through the
+same handlers (`Deliver`). p1 = challenger. A team that breaks the rules sends the battle back to Proposed with the reasons; a player
+leaving forfeits (running) or cancels (proposed); a host without the simulator (`RoomOptions.Battles` null) refuses with a reason.
+The app host passes `ShowdownTools.Locate()`.
+**Found:** Custom Game is a `debug` format, so Showdown reports everyone's exact HP (`reportExactHP = !!format.debug`); the rule's
+`onBegin` sets `reportExactHP = false` / `reportPercentages = true`, plus `HP Percentage Mod`. Showdown also announces
+`-start … typechange` when a side's ROM types differ from vanilla (the UI can use it). Tests: two guests negotiate, a clause refuses,
+battle to the end over UDP with the same winner and turns for both, own exact HP vs opponent percentage; host battles and a guest
+leaving loses; a room without simulator refuses.
+
+**Next: in-game multiplayer through the emulator (researched, not built).** The user's Citra nightly
+(`citra-windows-msvc-20240303-0ff3440`) has `citra-room.exe` (`--room-name --port --password --max_members`, no announce without a
+token) and the SDL `citra.exe` accepts `-m nick:password@address:port <rom>` (joins at start); `citra-qt` has no such option (its
+Direct Connect keys are not in `qt-config.ini` until used). Plan: the host starts `citra-room` on localhost; the room traffic
+(ENet/UDP) is tunnelled through the Pokemanager room connection (already through NAT): the guest app listens on a local UDP port and
+the guest's emulator joins `127.0.0.1`. Expect trades to work; in-game battles between different randomized ROMs may desync (each
+console computes with its own data). Azahar not checked (not installed on this laptop).
 ---
 
 ## 3. pk3DS — how to reuse it

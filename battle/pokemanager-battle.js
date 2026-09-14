@@ -53,6 +53,9 @@ Dex.data.Rulesets.pokemanagerromdata = {
     return clone;
   },
   onBegin() {
+    // Custom Game is a debug format and reports everyone's exact HP: back to what a player sees in the game.
+    this.reportExactHP = false;
+    this.reportPercentages = true;
     for (const side of this.sides) {
       const team = rom[side.id];
       side.pokemon.forEach((pokemon, i) => {
@@ -141,7 +144,9 @@ function prepareTeam(dex, side, team) {
 
 /** The options chosen before the battle → a Showdown format with rules. */
 function formatOf(r) {
-  const list = ['Pokemanager ROM Data', 'Endless Battle Clause'];
+  // HP Percentage Mod: the opponent's HP is shown as a percentage (as the bar in the game); each player gets exact numbers
+  // for their own side through Showdown's split lines.
+  const list = ['Pokemanager ROM Data', 'Endless Battle Clause', 'HP Percentage Mod'];
   if (r.sleepClause) list.push('Sleep Clause Mod');
   if (r.speciesClause) list.push('Species Clause');
   if (r.itemClause) list.push('Item Clause = 1');

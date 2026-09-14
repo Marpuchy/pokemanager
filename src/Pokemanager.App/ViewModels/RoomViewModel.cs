@@ -348,17 +348,19 @@ public sealed partial class RoomViewModel : ObservableObject
             var save = await Task.Run(OpenSave);
             trainerName = save?.TrainerName;
             string roomName = RoomName.Trim().Length > 0 ? RoomName.Trim() : Strings.Room_DefaultName;
+            // The host runs the battles of the room: with the simulator found here, or none.
+            var battleTools = host ? await Task.Run(() => Pokemanager.Battle.ShowdownTools.Locate()) : null;
 
             async Task<RoomSession> Open(RoomOptions options) => host
                 ? await RoomSession.HostAsync(roomName, Memory.PlayerId, Profile(), new RoomRules(), options, secret)
                 : await RoomSession.JoinAsync(code!, Memory.PlayerId, Profile(), options);
             try
             {
-                session = await Open(new RoomOptions { Port = port });
+                session = await Open(new RoomOptions { Port = port, Battles = battleTools });
             }
             catch (System.Net.Sockets.SocketException) when (port != 0)
             {
-                session = await Open(new RoomOptions()); // the remembered port is taken: a new one (the code changes)
+                session = await Open(new RoomOptions { Battles = battleTools }); // the remembered port is taken: a new one (the code changes)
             }
             session.Changed += OnSessionChanged;
 

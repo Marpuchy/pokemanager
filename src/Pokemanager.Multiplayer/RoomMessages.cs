@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Pokemanager.Battle;
 
 namespace Pokemanager.Multiplayer;
 
@@ -14,6 +15,14 @@ namespace Pokemanager.Multiplayer;
 [JsonDerivedType(typeof(SnapshotShared), "snapshot")]
 [JsonDerivedType(typeof(RulesChanged), "rules")]
 [JsonDerivedType(typeof(ProfileChanged), "profile")]
+[JsonDerivedType(typeof(BattleChallenge), "battle-challenge")]
+[JsonDerivedType(typeof(BattleRulesSet), "battle-rules")]
+[JsonDerivedType(typeof(BattleReady), "battle-ready")]
+[JsonDerivedType(typeof(BattleCancel), "battle-cancel")]
+[JsonDerivedType(typeof(BattleChoice), "battle-choice")]
+[JsonDerivedType(typeof(BattleState), "battle-state")]
+[JsonDerivedType(typeof(BattleLog), "battle-log")]
+[JsonDerivedType(typeof(BattleRequest), "battle-request")]
 public abstract record RoomMessage;
 
 /// <summary>Guest → host, right after connecting.</summary>
@@ -30,6 +39,45 @@ public sealed record SnapshotShared(string PlayerId, TrainerSnapshot Snapshot) :
 
 public sealed record RulesChanged(RoomRules Rules) : RoomMessage;
 
+// ------------------------------------------------------------------ battles (the host runs the simulator)
+
+[JsonConverter(typeof(JsonStringEnumConverter<BattlePhase>))]
+public enum BattlePhase
+{
+    /// <summary>Challenged: the two players agree on the rules and get ready.</summary>
+    Proposed,
+    Running,
+    Finished,
+    Cancelled,
+}
+
+/// <summary>Player → host: challenge another player with a first proposal of rules.</summary>
+public sealed record BattleChallenge(string BattleId, string OpponentId, BattleRules Rules) : RoomMessage;
+
+/// <summary>Player → host: either player changes the rules of a proposed battle (both have to get ready again).</summary>
+public sealed record BattleRulesSet(string BattleId, BattleRules Rules) : RoomMessage;
+
+/// <summary>Player → host: ready with this team (their party), or no longer ready (null).</summary>
+public sealed record BattleReady(string BattleId, BattleTeam? Team) : RoomMessage;
+
+/// <summary>Player → host: cancel a proposed battle, or forfeit a running one.</summary>
+public sealed record BattleCancel(string BattleId) : RoomMessage;
+
+/// <summary>Player → host: a decision in Showdown's syntax ("move 1", "switch 3", "team 123456"…).</summary>
+public sealed record BattleChoice(string BattleId, string Choice) : RoomMessage;
+
+/// <summary>Host → the two players: where the battle stands.</summary>
+/// <param name="Winner">Player id of the winner; null for a tie or while it is not over.</param>
+/// <param name="Problems">Why it did not start or was cancelled (rules broken by a team, no simulator…).</param>
+public sealed record BattleState(string BattleId, string ChallengerId, string OpponentId, BattleRules Rules, List<string> Ready,
+    BattlePhase Phase, string? Winner, List<string>? Problems) : RoomMessage;
+
+/// <summary>Host → a player: new battle protocol lines, already reduced to what that player may see.</summary>
+public sealed record BattleLog(string BattleId, List<string> Lines) : RoomMessage;
+
+/// <summary>Host → a player: what they have to decide now (Showdown's request JSON).</summary>
+public sealed record BattleRequest(string BattleId, string Request) : RoomMessage;
+
 /// <summary>A player changed their name, sprite or color (guest → host → everyone).</summary>
 public sealed record ProfileChanged(string PlayerId, PlayerProfile Profile) : RoomMessage;
 
@@ -39,7 +87,7 @@ public sealed record ProfileChanged(string PlayerId, PlayerProfile Profile) : Ro
 /// </summary>
 public sealed class MessageCodec(byte[] secret)
 {
-    public const int Protocol = 2;
+    public const int Protocol = 3;
 
     private readonly byte[] key = HKDF.DeriveKey(HashAlgorithmName.SHA256, secret, 32, "pokemanager-room"u8.ToArray(), "encryption"u8.ToArray());
 
