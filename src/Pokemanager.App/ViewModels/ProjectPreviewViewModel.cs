@@ -127,7 +127,7 @@ public sealed partial class PartyMemberViewModel : ObservableObject
 
 /// <summary>A gym badge in the preview: earned or not (from the save), and its roulette.</summary>
 public sealed partial class BadgeItemViewModel(ProjectPreviewViewModel owner, int index, string name, int type, bool earned, LockeSpin? spin,
-    IReadOnlyList<string> itemNames, IconImage? image) : ObservableObject
+    IReadOnlyList<string> itemNames, IconImage? image, bool hasRoulette) : ObservableObject
 {
     /// <summary>The badge as in the trainer card (grey and faded when not earned); null when the dump has no image.</summary>
     public Bitmap? Icon => field ??= image is null ? null : PokemonSprites.ToBitmap(Earned ? image : BadgeIcons.Faded(image));
@@ -148,12 +148,13 @@ public sealed partial class BadgeItemViewModel(ProjectPreviewViewModel owner, in
     public Avalonia.Media.IBrush MarkBrush => new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse(IsPending ? "#E07B00" : "#2E8B57"));
     public bool IsPending => spin is { Claimed: false };
 
-    public bool CanSpin => Earned && (spin is null || !spin.Claimed);
+    /// <summary>A pending prize can always be claimed, even if the roulette interval changed since.</summary>
+    public bool CanSpin => Earned && (spin is { Claimed: false } || (spin is null && hasRoulette));
 
     public string Tooltip => !Earned
         ? string.Format(Strings.Locke_BadgeNotEarned, Name)
         : spin is null
-            ? string.Format(Strings.Locke_BadgeSpin, Name)
+            ? string.Format(hasRoulette ? Strings.Locke_BadgeSpin : Strings.Locke_BadgeNoRoulette, Name)
             : spin.Claimed
                 ? string.Format(Strings.Locke_BadgeDone, Name, LockeRewards.Describe(spin.Prize, itemNames))
                 : string.Format(Strings.Locke_BadgePending, Name, LockeRewards.Describe(spin.Prize, itemNames));
@@ -255,7 +256,7 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
         var badgeImages = BadgeIcons.Load(new RomFsLayers(project.RomFsPath));
         for (int i = 0; i < LockeSettings.BadgeCount; i++)
             Badges.Add(new BadgeItemViewModel(this, i, badges[i].Name, badges[i].Type, doc?.GetBadge(i) ?? false, project.Locke.SpinOf(i), itemNames,
-                badgeImages?[i]));
+                badgeImages?[i], project.Locke.HasRoulette(i)));
     }
 
     public PokemonSprites Sprites { get; } = PokemonSprites.Empty;

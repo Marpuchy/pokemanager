@@ -25,6 +25,22 @@
 
         <Border Classes="card">
           <StackPanel Spacing="6">
+            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Locke_IntervalTitle}" />
+            <TextBlock Classes="hint" Text="{x:Static r:Strings.Locke_IntervalHint}" />
+            <Grid ColumnDefinitions="170,*" RowDefinitions="Auto,Auto,Auto">
+              <TextBlock Classes="field-label" Text="{x:Static r:Strings.Locke_IntervalFirst}" />
+              <NumericUpDown Grid.Column="1" Value="{Binding RouletteFirst}" Minimum="1" Maximum="8" FormatString="0" ParsingNumberStyle="Integer" Width="130" HorizontalAlignment="Left" Margin="0,3" />
+              <TextBlock Grid.Row="1" Classes="field-label" Text="{x:Static r:Strings.Locke_IntervalLast}" />
+              <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding RouletteLast}" Minimum="1" Maximum="8" FormatString="0" ParsingNumberStyle="Integer" Width="130" HorizontalAlignment="Left" Margin="0,3" />
+              <TextBlock Grid.Row="2" Classes="field-label" Text="{x:Static r:Strings.Locke_IntervalEvery}" />
+              <NumericUpDown Grid.Row="2" Grid.Column="1" Value="{Binding RouletteEvery}" Minimum="1" Maximum="8" FormatString="0" ParsingNumberStyle="Integer" Width="130" HorizontalAlignment="Left" Margin="0,3" />
+            </Grid>
+            <TextBlock Text="{Binding RouletteBadgesText}" TextWrapping="Wrap" />
+          </StackPanel>
+        </Border>
+
+        <Border Classes="card">
+          <StackPanel Spacing="6">
             <TextBlock Classes="card-title" Text="{x:Static r:Strings.Locke_SpinsTitle}" />
             <TextBlock Classes="hint" Text="{x:Static r:Strings.Locke_SpinsEmpty}" IsVisible="{Binding !HasSpins}" />
             <ItemsControl ItemsSource="{Binding Spins}">

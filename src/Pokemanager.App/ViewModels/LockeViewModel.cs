@@ -158,6 +158,46 @@ public sealed partial class LockeViewModel : ObservableObject
         editor.MarkDirty();
     }
 
+    // ------------------------------------------------------------------ roulette interval
+
+    public decimal? RouletteFirst
+    {
+        get => Locke.RouletteFirst;
+        set { if (value is { } v && (int)v != Locke.RouletteFirst) { Locke.RouletteFirst = (int)Math.Clamp(v, 1, LockeSettings.BadgeCount); IntervalChanged(); } }
+    }
+
+    public decimal? RouletteLast
+    {
+        get => Locke.RouletteLast;
+        set { if (value is { } v && (int)v != Locke.RouletteLast) { Locke.RouletteLast = (int)Math.Clamp(v, 1, LockeSettings.BadgeCount); IntervalChanged(); } }
+    }
+
+    public decimal? RouletteEvery
+    {
+        get => Locke.RouletteEvery;
+        set { if (value is { } v && (int)v != Locke.RouletteEvery) { Locke.RouletteEvery = (int)Math.Clamp(v, 1, LockeSettings.BadgeCount); IntervalChanged(); } }
+    }
+
+    /// <summary>Which badges get a roulette with the current interval.</summary>
+    public string RouletteBadgesText
+    {
+        get
+        {
+            var badges = LockeRewards.Badges;
+            var names = Enumerable.Range(0, LockeSettings.BadgeCount).Where(Locke.HasRoulette).Select(i => badges[i].Name).ToList();
+            return names.Count == 0 ? Strings.Locke_IntervalNone : string.Format(Strings.Locke_IntervalBadges, string.Join(", ", names));
+        }
+    }
+
+    private void IntervalChanged()
+    {
+        OnPropertyChanged(nameof(RouletteFirst));
+        OnPropertyChanged(nameof(RouletteLast));
+        OnPropertyChanged(nameof(RouletteEvery));
+        OnPropertyChanged(nameof(RouletteBadgesText));
+        editor.MarkDirty();
+    }
+
     public string ChanceOf(PrizeRowViewModel row)
     {
         int total = Prizes.Sum(p => Math.Max(0, p.Prize.Weight));

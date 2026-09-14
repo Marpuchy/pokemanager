@@ -77,4 +77,16 @@ public sealed class LockeSettingsTests : IDisposable
         Assert.Equal((4, 0), (locke.MaxLives, locke.LivesLost));
         Assert.Equal(2, locke.Spins.Count);
     }
+
+    [Fact]
+    public void RouletteInterval_FromToEvery()
+    {
+        var locke = new LockeSettings();
+        Assert.All(Enumerable.Range(0, 8), b => Assert.True(locke.HasRoulette(b)));
+
+        locke.RouletteFirst = 2;
+        locke.RouletteEvery = 2;
+        locke.RouletteLast = 7;
+        Assert.Equal([1, 3, 5], Enumerable.Range(0, 8).Where(locke.HasRoulette)); // badges 2, 4, 6
+    }
 }

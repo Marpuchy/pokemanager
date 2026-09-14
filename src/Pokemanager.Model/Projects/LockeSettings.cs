@@ -43,6 +43,22 @@ public sealed class LockeSettings
 
     public List<LockePrize> Prizes { get; set; } = DefaultPrizes();
 
+    /// <summary>First badge (1-based) that has a roulette.</summary>
+    public int RouletteFirst { get; set; } = 1;
+
+    /// <summary>Last badge (1-based) that can have a roulette.</summary>
+    public int RouletteLast { get; set; } = BadgeCount;
+
+    /// <summary>A roulette every this many badges, counting from <see cref="RouletteFirst"/> (1 = every badge).</summary>
+    public int RouletteEvery { get; set; } = 1;
+
+    /// <summary>Whether badge <paramref name="badge"/> (0-based) gets a roulette with the interval settings.</summary>
+    public bool HasRoulette(int badge)
+    {
+        int number = badge + 1, first = Math.Max(1, RouletteFirst), every = Math.Max(1, RouletteEvery);
+        return number >= first && number <= RouletteLast && (number - first) % every == 0;
+    }
+
     public List<LockeSpin> Spins { get; set; } = [];
 
     public LockeSpin? SpinOf(int badge) => Spins.LastOrDefault(s => s.Badge == badge);
