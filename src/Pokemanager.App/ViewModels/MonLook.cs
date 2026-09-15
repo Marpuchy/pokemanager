@@ -65,6 +65,9 @@ public sealed record SheetStat(string Label, int Value, int? Base = null, int? I
     /// <summary>The bar shows the base stat (Showdown's colors) when known, else the stat against the highest one, in a neutral color.</summary>
     public double BarWidth => Base is { } b ? StatBars.Width(b, 110) : Math.Max(2, (double)Value / Math.Max(1, ScaleMax) * 110);
 
+    /// <summary>The same bar as a fraction of the available width (0–1), so it shrinks with narrow cards.</summary>
+    public double BarFraction => Base is { } b ? Math.Min(b, 200) / 200.0 : (double)Value / Math.Max(1, ScaleMax);
+
     public IBrush BarBrush => Base is { } b ? StatBars.Brush(b) : Neutral;
 
     private static readonly IBrush Neutral = new SolidColorBrush(Color.Parse("#5B8FD6"));
