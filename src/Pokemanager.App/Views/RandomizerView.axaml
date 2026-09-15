@@ -1,4 +1,4 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Pokemanager.App.ViewModels"
              xmlns:r="using:Pokemanager.App.Resources"
@@ -131,54 +131,42 @@
       <DockPanel DataContext="{Binding Options}" x:DataType="vm:UprOptionsViewModel">
         <TextBlock DockPanel.Dock="Top" Margin="16" Text="{Binding LoadStatus}" TextWrapping="Wrap" IsVisible="{Binding !IsLoaded}" />
 
-        <!-- Groups: a horizontal strip that wraps on narrow windows -->
-        <Border DockPanel.Dock="Top" Padding="10,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
-                IsVisible="{Binding IsLoaded}">
-          <ListBox ItemsSource="{Binding Groups}" SelectedItem="{Binding SelectedGroup}" Background="Transparent">
-            <ListBox.ItemsPanel>
-              <ItemsPanelTemplate>
-                <WrapPanel Orientation="Horizontal" />
-              </ItemsPanelTemplate>
-            </ListBox.ItemsPanel>
-            <ListBox.Styles>
-              <Style Selector="ListBoxItem">
-                <Setter Property="Padding" Value="12,6" />
-                <Setter Property="Margin" Value="0,0,4,4" />
-                <Setter Property="CornerRadius" Value="2" />
-              </Style>
-            </ListBox.Styles>
-            <ListBox.ItemTemplate>
-              <DataTemplate x:DataType="vm:UprOptionGroupViewModel">
-                <TextBlock Text="{Binding Name}" />
-              </DataTemplate>
-            </ListBox.ItemTemplate>
-          </ListBox>
-        </Border>
-
-        <!-- Options of the group, in columns across the width -->
-        <ScrollViewer IsVisible="{Binding IsLoaded}" HorizontalScrollBarVisibility="Disabled">
-          <ItemsControl Margin="16,10,16,10" ItemsSource="{Binding SelectedGroup.Items}">
-            <ItemsControl.ItemsPanel>
-              <ItemsPanelTemplate>
-                <c:ColumnFlowPanel MinColumnWidth="300" MaxColumns="5" ColumnSpacing="28" />
-              </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-              <DataTemplate x:DataType="vm:UprOptionViewModel">
-                <StackPanel Margin="0,3" Spacing="2" IsEnabled="{Binding IsEnabled}" ToolTip.Tip="{Binding Hint}">
-                  <CheckBox IsVisible="{Binding IsBool}" IsChecked="{Binding BoolValue}">
-                    <TextBlock Text="{Binding Label}" TextWrapping="Wrap" />
-                  </CheckBox>
-                  <TextBlock IsVisible="{Binding !IsBool}" Text="{Binding Label}" TextWrapping="Wrap" Margin="0,4,0,0" />
-                  <ComboBox IsVisible="{Binding IsChoice}" ItemsSource="{Binding ChoiceLabels}" SelectedIndex="{Binding ChoiceIndex}"
-                            HorizontalAlignment="Stretch" MaxDropDownHeight="400" />
-                  <NumericUpDown IsVisible="{Binding IsInt}" Value="{Binding IntValue}" Minimum="{Binding Min}" Maximum="{Binding Max}"
-                                 Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="150" HorizontalAlignment="Left" />
-                </StackPanel>
-              </DataTemplate>
-            </ItemsControl.ItemTemplate>
-          </ItemsControl>
-        </ScrollViewer>
+        <!-- Groups as side tabs, like the trainer page: one per row, never wrapped into a second strip -->
+        <TabControl TabStripPlacement="Left" Classes="wide-side" ItemsSource="{Binding Groups}" SelectedItem="{Binding SelectedGroup}" IsVisible="{Binding IsLoaded}">
+          <TabControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:UprOptionGroupViewModel">
+              <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Name}" />
+            </DataTemplate>
+          </TabControl.ItemTemplate>
+          <TabControl.ContentTemplate>
+            <DataTemplate x:DataType="vm:UprOptionGroupViewModel">
+              <!-- Options of the group, in columns across the width -->
+              <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl Margin="16,10,16,10" ItemsSource="{Binding Items}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <c:ColumnFlowPanel MinColumnWidth="300" MaxColumns="4" ColumnSpacing="28" />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:UprOptionViewModel">
+                      <StackPanel Margin="0,3" Spacing="2" IsEnabled="{Binding IsEnabled}" ToolTip.Tip="{Binding Hint}">
+                        <CheckBox IsVisible="{Binding IsBool}" IsChecked="{Binding BoolValue}">
+                          <TextBlock Text="{Binding Label}" TextWrapping="Wrap" />
+                        </CheckBox>
+                        <TextBlock IsVisible="{Binding !IsBool}" Text="{Binding Label}" TextWrapping="Wrap" Margin="0,4,0,0" />
+                        <ComboBox IsVisible="{Binding IsChoice}" ItemsSource="{Binding ChoiceLabels}" SelectedIndex="{Binding ChoiceIndex}"
+                                  HorizontalAlignment="Stretch" MaxDropDownHeight="400" />
+                        <NumericUpDown IsVisible="{Binding IsInt}" Value="{Binding IntValue}" Minimum="{Binding Min}" Maximum="{Binding Max}"
+                                       Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="150" HorizontalAlignment="Left" />
+                      </StackPanel>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
+            </DataTemplate>
+          </TabControl.ContentTemplate>
+        </TabControl>
       </DockPanel>
     </TabItem>
   </TabControl>

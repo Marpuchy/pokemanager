@@ -1,9 +1,10 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PKHeX.Core;
 using Pokemanager.App.Resources;
 using Pokemanager.App.Services;
+using Pokemanager.Model.Data;
 using Pokemanager.Model.Dump;
 using Pokemanager.Save;
 
@@ -16,19 +17,81 @@ public partial class SaveTrainerViewModel : ObservableObject
     private readonly SaveDocument doc;
     private readonly List<RecordRowViewModel> allRecords;
 
-    public SaveTrainerViewModel(SaveEditorViewModel owner, SaveDocument doc, SaveNames names, IReadOnlyList<Milestone> milestones)
+    private readonly GameTitle game;
+
+    public SaveTrainerViewModel(SaveEditorViewModel owner, SaveDocument doc, SaveNames names, GameTitle game, IconImage?[]? milestoneImages, AvatarViewModel avatar)
     {
         this.owner = owner;
         this.doc = doc;
+        this.game = game;
+        Avatar = avatar;
+        var milestones = game.Milestones();
         VivillonPatterns = names.VivillonPatterns;
-        Badges = Enumerable.Range(0, Math.Min(doc.MilestoneCount, milestones.Count)).Select(i => new BadgeViewModel(owner, doc, i, milestones[i].Name)).ToList();
+        Badges = Enumerable.Range(0, Math.Min(doc.MilestoneCount, milestones.Count))
+            .Select(i => new BadgeViewModel(this, doc, i, milestones[i].Name, milestoneImages is { } images && i < images.Length ? images[i] : null)).ToList();
         Sayings = Enumerable.Range(0, 5).Select(i => new SayingViewModel(owner, doc, i)).ToList();
         Maison = SaveDocument.MaisonStyles.Select(s => new MaisonRowViewModel(owner, doc, s)).ToList();
         allRecords = doc.RecordNames.Select(r => new RecordRowViewModel(owner, doc, r.Id, r.Name)).ToList();
         ApplyRecordFilter();
     }
 
+    /// <summary>The save editor refreshes the trainer card with every change (<see cref="RefreshCard"/>).</summary>
     private void Changed() => owner.Touch();
+
+    // ------------------------------------------------------------------ trainer card (read only, follows the edits)
+
+    public AvatarViewModel Avatar { get; }
+
+    public string CardTitle => string.Format(Strings.Trainer_CardTitle, game.DisplayName());
+
+    /// <summary>The card in the color of the game's box art.</summary>
+    public Avalonia.Media.IBrush CardBrush => field ??= new Avalonia.Media.LinearGradientBrush
+    {
+        StartPoint = new Avalonia.RelativePoint(0, 0, Avalonia.RelativeUnit.Relative),
+        EndPoint = new Avalonia.RelativePoint(1, 1, Avalonia.RelativeUnit.Relative),
+        GradientStops = { new(Avalonia.Media.Color.Parse(GameColor(game)), 0), new(Darker(Avalonia.Media.Color.Parse(GameColor(game))), 1) },
+    };
+
+    private static Avalonia.Media.Color Darker(Avalonia.Media.Color c) => Avalonia.Media.Color.FromRgb((byte)(c.R * 0.62), (byte)(c.G * 0.62), (byte)(c.B * 0.62));
+
+    private static string GameColor(GameTitle game) => game switch
+    {
+        GameTitle.X => "#2A5DB0", GameTitle.Y => "#C0392B", GameTitle.OmegaRuby => "#B8322A", GameTitle.AlphaSapphire => "#1F5FA8",
+        GameTitle.Sun => "#E07B20", GameTitle.Moon => "#5B3F9E", GameTitle.UltraSun => "#D9601F", GameTitle.UltraMoon => "#44349A",
+        _ => "#1C3A70",
+    };
+
+    public string CardName => doc.TrainerName;
+    public string CardId => doc.TrainerId.ToString("00000");
+    public string CardMoney => string.Format(Strings.Trainer_CardMoney, doc.Money);
+    public string CardPlayTime => $"{doc.PlayedHours}:{doc.PlayedMinutes:00}";
+    public string CardStarted => doc.GameStarted.ToString("d");
+    public string CardFame => doc.HallOfFame is { } fame ? fame.ToString("d") : "—";
+
+    public string CardDex
+    {
+        get
+        {
+            int seen = 0, caught = 0;
+            for (ushort s = 1; s <= doc.MaxSpecies; s++)
+            {
+                if (doc.GetSeen(s)) seen++;
+                if (doc.GetCaught(s)) caught++;
+            }
+            return string.Format(Strings.Trainer_CardDex, seen, caught);
+        }
+    }
+
+    public string CardMilestones => string.Format(doc.Generation == 6 ? Strings.Locke_BadgesCount : Strings.Locke_TrialsCount, Badges.Count(b => b.IsChecked), Badges.Count);
+
+    /// <summary>After an edit anywhere in the save (trainer page, Pokédex…).</summary>
+    public void RefreshCard()
+    {
+        foreach (string name in new[] { nameof(CardName), nameof(CardMoney), nameof(CardPlayTime), nameof(CardStarted), nameof(CardFame), nameof(CardDex), nameof(CardMilestones) })
+            OnPropertyChanged(name);
+    }
+
+    internal void BadgeChanged() => owner.Touch();
 
     // ------------------------------------------------------------------ general
 
@@ -294,15 +357,27 @@ public partial class SaveTrainerViewModel : ObservableObject
     }
 }
 
-public sealed class BadgeViewModel(SaveEditorViewModel owner, SaveDocument doc, int index, string name) : ObservableObject
+public sealed class BadgeViewModel(SaveTrainerViewModel owner, SaveDocument doc, int index, string name, IconImage? image) : ObservableObject
 {
     public string Label => name;
 
     public bool IsChecked
     {
         get => doc.GetBadge(index);
-        set { if (value != doc.GetBadge(index)) { doc.SetBadge(index, value); owner.Touch(); } }
+        set
+        {
+            if (value == doc.GetBadge(index))
+                return;
+            doc.SetBadge(index, value);
+            OnPropertyChanged(nameof(Icon));
+            owner.BadgeChanged();
+        }
     }
+
+    /// <summary>The game's badge or seal, faded while not earned (as on the trainer card of the project preview).</summary>
+    public Avalonia.Media.Imaging.Bitmap? Icon => image is null ? null : PokemonSprites.ToBitmap(IsChecked ? image : MilestoneIcons.Faded(image));
+
+    public bool HasIcon => image is not null;
 }
 
 public sealed class SayingViewModel(SaveEditorViewModel owner, SaveDocument doc, int index) : ObservableObject

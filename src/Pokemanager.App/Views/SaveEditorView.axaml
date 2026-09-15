@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Pokemanager.App.ViewModels"
              xmlns:r="using:Pokemanager.App.Resources"
+             xmlns:c="using:Pokemanager.App.Controls"
              x:Class="Pokemanager.App.Views.SaveEditorView"
              x:DataType="vm:SaveEditorViewModel">
 
@@ -11,96 +12,6 @@
       <Setter Property="Margin" Value="0,0,8,0" />
     </Style>
 
-    <!-- Buttons that only hold a drawn card or cell -->
-    <Style Selector="Button.plain">
-      <Setter Property="Padding" Value="0" />
-      <Setter Property="Margin" Value="3" />
-      <Setter Property="HorizontalAlignment" Value="Stretch" />
-      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-      <Setter Property="VerticalContentAlignment" Value="Stretch" />
-      <Setter Property="Background" Value="Transparent" />
-      <Setter Property="BorderThickness" Value="0" />
-    </Style>
-    <Style Selector="Button.plain /template/ ContentPresenter#PART_ContentPresenter, Button.plain:pointerover /template/ ContentPresenter#PART_ContentPresenter, Button.plain:pressed /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="Transparent" />
-    </Style>
-
-    <!-- Party: cards in the type colors -->
-    <Style Selector="Border.member">
-      <Setter Property="BorderBrush" Value="#80000000" />
-      <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="2" />
-      <Setter Property="Padding" Value="3,2" />
-      <Setter Property="Height" Value="50" />
-    </Style>
-    <Style Selector="Button.plain:pointerover Border.member">
-      <Setter Property="BorderBrush" Value="#0078D7" />
-    </Style>
-    <Style Selector="Border.member.empty">
-      <Setter Property="BorderBrush" Value="#30000000" />
-    </Style>
-    <Style Selector="Border.member.selected">
-      <Setter Property="BorderBrush" Value="#0078D7" />
-      <Setter Property="BorderThickness" Value="3" />
-      <Setter Property="Padding" Value="2,1" />
-    </Style>
-    <Style Selector="Border.member.problem">
-      <Setter Property="BorderBrush" Value="#D13438" />
-      <Setter Property="BorderThickness" Value="3" />
-      <Setter Property="Padding" Value="2,1" />
-    </Style>
-
-    <!-- Box: sprites on the wallpaper, as PKHeX -->
-    <Style Selector="Border.cell">
-      <Setter Property="CornerRadius" Value="2" />
-      <Setter Property="BorderThickness" Value="2" />
-      <Setter Property="BorderBrush" Value="Transparent" />
-      <Setter Property="Background" Value="#18FFFFFF" />
-      <Setter Property="Height" Value="44" />
-    </Style>
-    <Style Selector="Button.plain:pointerover Border.cell">
-      <Setter Property="Background" Value="#66FFFFFF" />
-      <Setter Property="BorderBrush" Value="#B0FFFFFF" />
-    </Style>
-    <Style Selector="Border.cell.selected">
-      <Setter Property="Background" Value="#90FFFFFF" />
-      <Setter Property="BorderBrush" Value="#0078D7" />
-    </Style>
-    <Style Selector="Border.cell.problem">
-      <Setter Property="Background" Value="#66D13438" />
-      <Setter Property="BorderBrush" Value="#D13438" />
-    </Style>
-
-    <!-- Detail header and number badges, as the advanced tabs -->
-    <Style Selector="Border.detail-header">
-      <Setter Property="CornerRadius" Value="2" />
-      <Setter Property="BorderBrush" Value="#40000000" />
-      <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="Padding" Value="12,8" />
-    </Style>
-    <Style Selector="Border.badge">
-      <Setter Property="Background" Value="#E6FFFFFF" />
-      <Setter Property="BorderBrush" Value="#30000000" />
-      <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="2" />
-      <Setter Property="Padding" Value="8,3" />
-      <Setter Property="MinWidth" Value="60" />
-    </Style>
-    <Style Selector="TextBlock.badge-label">
-      <Setter Property="FontSize" Value="10" />
-      <Setter Property="Foreground" Value="#5A6670" />
-      <Setter Property="HorizontalAlignment" Value="Center" />
-    </Style>
-    <Style Selector="TextBlock.badge-value">
-      <Setter Property="FontSize" Value="15" />
-      <Setter Property="FontWeight" Value="Bold" />
-      <Setter Property="Foreground" Value="#1A1A1A" />
-      <Setter Property="HorizontalAlignment" Value="Center" />
-    </Style>
-    <Style Selector="Border.card.detail">
-      <Setter Property="Margin" Value="0,0,8,8" />
-      <Setter Property="VerticalAlignment" Value="Top" />
-    </Style>
     <!-- Pokédex: seen / caught as small flags (grey outline off, filled on), rows with a rule between them -->
     <Style Selector="ToggleButton.flag">
       <Setter Property="Padding" Value="7,1" />
@@ -135,20 +46,6 @@
     </Style>
     <Style Selector="ToggleButton.flag:checked TextBlock, ListBoxItem:selected ToggleButton.flag:checked TextBlock">
       <Setter Property="Foreground" Value="White" />
-    </Style>
-    <Style Selector="Border.info-row">
-      <Setter Property="BorderBrush" Value="#EDF0F2" />
-      <Setter Property="BorderThickness" Value="0,0,0,1" />
-      <Setter Property="Padding" Value="0,5" />
-    </Style>
-    <Style Selector="Border.icon-circle">
-      <Setter Property="Background" Value="White" />
-      <Setter Property="BorderBrush" Value="#30000000" />
-      <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="999" />
-      <Setter Property="Width" Value="30" />
-      <Setter Property="Height" Value="30" />
-      <Setter Property="Margin" Value="0,0,6,0" />
     </Style>
   </UserControl.Styles>
 
@@ -190,51 +87,12 @@
                 <Border Classes="card" Margin="0,0,0,8" Padding="6,4,6,6">
                   <StackPanel>
                     <TextBlock Classes="card-title" Text="{x:Static r:Strings.Save_Party}" />
-                    <ItemsControl ItemsSource="{Binding PartySlots}">
+                    <ItemsControl ItemsSource="{Binding PartySlots}" ItemTemplate="{StaticResource PartyCard}">
                       <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                           <UniformGrid Columns="2" />
                         </ItemsPanelTemplate>
                       </ItemsControl.ItemsPanel>
-                      <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="vm:SlotViewModel">
-                          <Button Classes="plain" Command="{Binding SelectCommand}" ToolTip.Tip="{Binding Tooltip}">
-                            <Border Classes="member" Classes.empty="{Binding IsEmpty}" Classes.selected="{Binding IsSelected}" Classes.problem="{Binding HasProblem}"
-                                    Background="{Binding TypeBackground}">
-                              <Grid ColumnDefinitions="Auto,*">
-                                <Panel Width="52" Height="42">
-                                  <Border Background="#40FFFFFF" CornerRadius="2" IsVisible="{Binding !IsEmpty}" />
-                                  <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="52" Height="39" />
-                                  <TextBlock Text="🥚" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsEgg}" />
-                                  <Image Source="{Binding ItemIcon}" Width="20" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                                         RenderOptions.BitmapInterpolationMode="None" IsVisible="{Binding HasItem}" />
-                                </Panel>
-                                <!-- Two lines so the type chips always fit: name and level, then types -->
-                                <StackPanel Grid.Column="1" Margin="6,0,2,0" VerticalAlignment="Center" Spacing="3" IsVisible="{Binding !IsEmpty}">
-                                  <Grid ColumnDefinitions="*,Auto">
-                                    <TextBlock FontWeight="Bold" TextTrimming="CharacterEllipsis" Foreground="{Binding TypeForeground}">
-                                      <Run Text="{Binding Name}" />
-                                      <Run Text="{Binding GenderText}" />
-                                    </TextBlock>
-                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="3" Margin="4,0,0,0">
-                                      <TextBlock FontSize="11" Text="★" Foreground="#FFD700" FontWeight="Bold" VerticalAlignment="Center" IsVisible="{Binding IsShiny}" />
-                                      <TextBlock FontSize="11" Foreground="{Binding TypeForeground}" VerticalAlignment="Center" Text="{Binding LevelText}" />
-                                    </StackPanel>
-                                  </Grid>
-                                  <ItemsControl ItemsSource="{Binding TypeChips}">
-                                    <ItemsControl.ItemsPanel>
-                                      <ItemsPanelTemplate>
-                                        <StackPanel Orientation="Horizontal" Spacing="3" />
-                                      </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                  </ItemsControl>
-                                </StackPanel>
-                                <TextBlock Grid.Column="1" Classes="hint" VerticalAlignment="Center" Text="{Binding Name}" IsVisible="{Binding IsEmpty}" />
-                              </Grid>
-                            </Border>
-                          </Button>
-                        </DataTemplate>
-                      </ItemsControl.ItemTemplate>
                     </ItemsControl>
                   </StackPanel>
                 </Border>
@@ -258,47 +116,8 @@
                 </DockPanel>
               </Border>
 
-              <!-- Boxes: wallpaper of the box in the game, name with arrows, 6×5 slots (as PKHeX).
-                   The slots are drawn at their natural size and scaled down to the height left, so the last row is
-                   never cut (short windows, the ROM warning above); the header keeps its size. -->
-                <Border VerticalAlignment="Top" CornerRadius="2" BorderBrush="#60000000" BorderThickness="1" ClipToBounds="True" Background="#1C3A70">
-                  <Grid RowDefinitions="Auto,*">
-                    <Grid ColumnDefinitions="Auto,*,Auto" Margin="6">
-                      <Button Content="◀" Command="{Binding PreviousBoxCommand}" Width="36" ToolTip.Tip="{x:Static r:Strings.Save_PreviousBox}" />
-                      <ComboBox Grid.Column="1" Margin="6,0" ItemsSource="{Binding BoxNames}" SelectedIndex="{Binding SelectedBox}"
-                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" MaxDropDownHeight="400" FontWeight="SemiBold" />
-                      <Button Grid.Column="2" Content="▶" Command="{Binding NextBoxCommand}" Width="36" ToolTip.Tip="{x:Static r:Strings.Save_NextBox}" />
-                    </Grid>
-                    <Viewbox Grid.Row="1" Stretch="Uniform" StretchDirection="DownOnly" VerticalAlignment="Top" HorizontalAlignment="Center">
-                    <Panel Width="390" Height="248" ClipToBounds="True">
-                      <Image Source="{Binding BoxWallpaper}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="None" />
-                      <ItemsControl ItemsSource="{Binding BoxSlots}" Margin="4,2,4,6">
-                        <ItemsControl.ItemsPanel>
-                          <ItemsPanelTemplate>
-                            <UniformGrid Columns="6" />
-                          </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                          <DataTemplate x:DataType="vm:SlotViewModel">
-                            <Button Classes="plain" Margin="1" Command="{Binding SelectCommand}" ToolTip.Tip="{Binding Tooltip}">
-                              <Border Classes="cell" Classes.selected="{Binding IsSelected}" Classes.problem="{Binding HasProblem}">
-                                <Panel>
-                                  <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="52" Height="39" />
-                                  <TextBlock Text="🥚" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsEgg}" />
-                                  <Image Source="{Binding ItemIcon}" Width="16" Height="16" HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                                         RenderOptions.BitmapInterpolationMode="None" IsVisible="{Binding HasItem}" />
-                                  <TextBlock Text="★" Foreground="#FFD700" FontWeight="Bold" FontSize="12" Margin="2,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
-                                             IsVisible="{Binding IsShiny}" />
-                                </Panel>
-                              </Border>
-                            </Button>
-                          </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                      </ItemsControl>
-                    </Panel>
-                    </Viewbox>
-                  </Grid>
-                </Border>
+              <!-- Boxes: the shared box browser (as in multiplayer rooms), scaled down to the height left -->
+              <c:BoxBrowser />
             </DockPanel>
 
             <Grid Grid.Column="1">
@@ -597,78 +416,206 @@
         </TabItem>
 
         <!-- ================= Bag ================= -->
+        <!-- As the games' bag: pockets on top, a plain list of the pocket, and the selected item with its description -->
         <TabItem Header="{x:Static r:Strings.Save_TabBag}">
-          <Grid ColumnDefinitions="240,*" DataContext="{Binding Bag}" x:DataType="vm:SaveBagViewModel">
-            <ListBox Margin="8" ItemsSource="{Binding Pockets}" SelectedItem="{Binding SelectedPocket}">
+          <DockPanel DataContext="{Binding Bag}" x:DataType="vm:SaveBagViewModel" Margin="8">
+            <DockPanel.Styles>
+              <Style Selector="ListBox.pockets">
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+              </Style>
+              <Style Selector="ListBox.pockets ListBoxItem">
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="Margin" Value="0,0,6,0" />
+              </Style>
+              <Style Selector="ListBox.pockets ListBoxItem /template/ ContentPresenter#PART_ContentPresenter, ListBox.pockets ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter, ListBox.pockets ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter, ListBox.pockets ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="Transparent" />
+              </Style>
+              <Style Selector="Border.pocket">
+                <Setter Property="Background" Value="White" />
+                <Setter Property="BorderBrush" Value="#D5DFE5" />
+                <Setter Property="BorderThickness" Value="1" />
+              </Style>
+              <Style Selector="ListBox.pockets ListBoxItem Border.pocket-bar">
+                <Setter Property="Opacity" Value="0" />
+              </Style>
+              <Style Selector="ListBox.pockets ListBoxItem:selected Border.pocket-bar">
+                <Setter Property="Opacity" Value="1" />
+              </Style>
+              <Style Selector="ListBox.pockets ListBoxItem:pointerover Border.pocket">
+                <Setter Property="Background" Value="#F2F6FA" />
+              </Style>
+              <Style Selector="ListBox.pockets ListBoxItem:selected TextBlock, ListBox.pockets ListBoxItem TextBlock">
+                <Setter Property="Foreground" Value="#1A1A1A" />
+              </Style>
+              <Style Selector="ListBox.bag-list ListBoxItem">
+                <Setter Property="Padding" Value="8,4" />
+              </Style>
+            </DockPanel.Styles>
+
+            <!-- Pockets: icon and name, a bar in the pocket's color under the selected one -->
+            <ListBox DockPanel.Dock="Top" Classes="pockets" Margin="0,0,0,8" ItemsSource="{Binding Pockets}" SelectedItem="{Binding SelectedPocket}"
+                     ScrollViewer.HorizontalScrollBarVisibility="Auto">
+              <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+              </ListBox.ItemsPanel>
               <ListBox.ItemTemplate>
                 <DataTemplate x:DataType="vm:PocketViewModel">
-                  <Grid ColumnDefinitions="Auto,*" Margin="0,3">
-                    <Border Width="38" Height="38" CornerRadius="2" Background="{Binding Accent}" BorderBrush="#40000000" BorderThickness="1">
-                      <Panel>
-                        <Image Source="{Binding Icon}" Width="30" Height="30" RenderOptions.BitmapInterpolationMode="None" IsVisible="{Binding HasIcon}" />
-                        <TextBlock Text="🔑" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding !HasIcon}" />
-                      </Panel>
-                    </Border>
-                    <TextBlock Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="13" Text="{Binding Name}" />
-                  </Grid>
+                  <Border Classes="pocket">
+                    <Grid RowDefinitions="*,Auto">
+                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="10,5">
+                      <Border Width="30" Height="30" CornerRadius="2" Background="{Binding Accent}">
+                        <Panel>
+                          <Image Source="{Binding Icon}" Width="24" Height="24" RenderOptions.BitmapInterpolationMode="None" IsVisible="{Binding HasIcon}" />
+                          <TextBlock Text="🔑" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding !HasIcon}" />
+                        </Panel>
+                      </Border>
+                      <TextBlock VerticalAlignment="Center" FontWeight="SemiBold" Text="{Binding Name}" />
+                    </StackPanel>
+                    <Border Grid.Row="1" Classes="pocket-bar" Height="4" Background="{Binding Accent}" />
+                    </Grid>
+                  </Border>
                 </DataTemplate>
               </ListBox.ItemTemplate>
             </ListBox>
-            <DockPanel Grid.Column="1" Margin="8">
-              <!-- Pocket header in its color -->
-              <Border DockPanel.Dock="Top" Classes="detail-header" Margin="0,0,0,8" Background="{Binding SelectedPocket.Accent}">
-                <Grid ColumnDefinitions="Auto,*,Auto">
-                  <Border Width="48" Height="48" CornerRadius="2" Background="#E6FFFFFF" Margin="0,0,12,0">
-                    <Panel>
-                      <Image Source="{Binding SelectedPocket.Icon}" Width="36" Height="36" RenderOptions.BitmapInterpolationMode="None" IsVisible="{Binding SelectedPocket.HasIcon}" />
-                      <TextBlock Text="🔑" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding !SelectedPocket.HasIcon}" />
-                    </Panel>
+
+            <Grid ColumnDefinitions="*,12,380">
+              <!-- The pocket's items -->
+              <Border Classes="card" Padding="0">
+                <DockPanel>
+                  <Border DockPanel.Dock="Top" Background="{Binding SelectedPocket.Accent}" Padding="12,6">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <TextBlock Foreground="White" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" Text="{Binding SelectedPocket.Name}" />
+                      <TextBlock Grid.Column="1" Foreground="White" VerticalAlignment="Center" Text="{Binding CapacityText}" />
+                    </Grid>
                   </Border>
-                  <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                    <TextBlock FontSize="18" FontWeight="Bold" Foreground="White" Text="{Binding SelectedPocket.Name}" />
-                    <TextBlock Foreground="White" Opacity="0.9" Text="{Binding CapacityText}" />
-                  </StackPanel>
-                  <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                  <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="6" Margin="8">
                     <Button Content="{x:Static r:Strings.Bag_Add}" Command="{Binding AddItemCommand}" />
                     <Button Content="{x:Static r:Strings.Bag_Sort}" Command="{Binding SortByNameCommand}" />
                   </StackPanel>
-                </Grid>
-              </Border>
-              <ScrollViewer>
-                <ItemsControl ItemsSource="{Binding SelectedPocket.Items}">
-                  <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                      <WrapPanel />
-                    </ItemsPanelTemplate>
-                  </ItemsControl.ItemsPanel>
-                  <ItemsControl.ItemTemplate>
-                    <DataTemplate x:DataType="vm:BagItemViewModel">
-                      <Border Classes="card" Width="420" Margin="0,0,8,8" Padding="8,6">
-                        <Grid ColumnDefinitions="Auto,*,Auto,Auto">
-                          <Border Width="42" Height="42" CornerRadius="2" Background="#F2F4F6" BorderBrush="#20000000" BorderThickness="1" Margin="0,0,8,0">
-                            <Image Source="{Binding Icon}" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="None" />
-                          </Border>
-                          <ComboBox Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding Pocket.ItemNames}" SelectedIndex="{Binding ItemIndex}"
-                                    HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
-                          <NumericUpDown Grid.Column="2" Margin="8,0,6,0" VerticalAlignment="Center" Value="{Binding Count}" Minimum="1" Maximum="{Binding MaxCount}"
-                                         Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="104" />
-                          <Button Grid.Column="3" VerticalAlignment="Center" Content="✕" ToolTip.Tip="{x:Static r:Strings.Common_Remove}" Command="{Binding RemoveCommand}" />
+                  <ListBox Classes="bag-list" ItemsSource="{Binding SelectedPocket.Items}" SelectedItem="{Binding SelectedItem}" BorderThickness="0,0,0,1"
+                           ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox.ItemTemplate>
+                      <DataTemplate x:DataType="vm:BagItemViewModel">
+                        <Grid ColumnDefinitions="36,*,Auto" Margin="0,0,12,0">
+                          <Panel Width="28" Height="28" HorizontalAlignment="Left">
+                            <Image Source="{Binding Icon}" Width="28" Height="28" RenderOptions.BitmapInterpolationMode="None" IsVisible="{Binding HasIcon}" />
+                            <TextBlock Text="🔑" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding !HasIcon}" />
+                          </Panel>
+                          <TextBlock Grid.Column="1" VerticalAlignment="Center" FontSize="13" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                          <TextBlock Grid.Column="2" VerticalAlignment="Center" FontSize="13" FontWeight="SemiBold" Text="{Binding CountText}" />
                         </Grid>
-                      </Border>
-                    </DataTemplate>
-                  </ItemsControl.ItemTemplate>
-                </ItemsControl>
-              </ScrollViewer>
-            </DockPanel>
-          </Grid>
-        </TabItem>
+                      </DataTemplate>
+                    </ListBox.ItemTemplate>
+                  </ListBox>
+                </DockPanel>
+              </Border>
 
+              <!-- The selected item: big icon, the game's description and what can be changed -->
+              <Border Grid.Column="2" Classes="card" Padding="0" VerticalAlignment="Top">
+                <Panel>
+                  <TextBlock Classes="hint" Margin="14" Text="{x:Static r:Strings.Bag_SelectItem}" IsVisible="{Binding !HasSelectedItem}" TextWrapping="Wrap" />
+                  <StackPanel IsVisible="{Binding HasSelectedItem}">
+                    <Border Background="{Binding SelectedPocket.Accent}" Padding="14,12">
+                      <Grid ColumnDefinitions="Auto,*">
+                        <Border Width="72" Height="72" CornerRadius="999" Background="White" BorderBrush="#40000000" BorderThickness="1" Margin="0,0,14,0">
+                          <Panel>
+                            <Image Source="{Binding SelectedItem.Icon}" Width="48" Height="48" RenderOptions.BitmapInterpolationMode="None" IsVisible="{Binding SelectedItem.HasIcon}" />
+                            <TextBlock Text="🔑" FontSize="30" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding !SelectedItem.HasIcon}" />
+                          </Panel>
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                          <TextBlock Foreground="White" FontSize="17" FontWeight="Bold" TextWrapping="Wrap" Text="{Binding SelectedItem.Name}" />
+                          <TextBlock Foreground="White" Opacity="0.9" FontWeight="SemiBold" Text="{Binding SelectedItem.CountText}" />
+                        </StackPanel>
+                      </Grid>
+                    </Border>
+                    <TextBlock Margin="14,12,14,4" FontSize="13" LineHeight="20" TextWrapping="Wrap" Text="{Binding SelectedItem.Description}" />
+                    <Grid ColumnDefinitions="90,*" RowDefinitions="Auto,Auto,Auto" Margin="14,8,14,14">
+                      <TextBlock Classes="row-label" Text="{x:Static r:Strings.Bag_Item}" />
+                      <ComboBox Grid.Column="1" Margin="0,2" ItemsSource="{Binding SelectedItem.Pocket.ItemNames}" SelectedIndex="{Binding SelectedItem.ItemIndex}"
+                                HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
+                      <TextBlock Grid.Row="1" Classes="row-label" Text="{x:Static r:Strings.Bag_Count}" />
+                      <NumericUpDown Grid.Row="1" Grid.Column="1" Margin="0,2" Value="{Binding SelectedItem.Count}" Minimum="1" Maximum="{Binding SelectedItem.MaxCount}"
+                                     Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="130" HorizontalAlignment="Left" />
+                      <Button Grid.Row="2" Grid.Column="1" Margin="0,8,0,0" HorizontalAlignment="Left" Content="{x:Static r:Strings.Common_Remove}" Command="{Binding SelectedItem.RemoveCommand}" />
+                    </Grid>
+                  </StackPanel>
+                </Panel>
+              </Border>
+            </Grid>
+          </DockPanel>
+        </TabItem>
         <!-- ================= Trainer ================= -->
         <TabItem Header="{x:Static r:Strings.Save_TabTrainer}">
           <TabControl DataContext="{Binding Trainer}" x:DataType="vm:SaveTrainerViewModel" TabStripPlacement="Left" Padding="0">
             <!-- General -->
             <TabItem Header="{x:Static r:Strings.Trainer_TabGeneral}">
               <ScrollViewer>
+                <StackPanel>
+                <!-- Trainer card, as the game's: the game's color, profile picture, name, ID, money, Pokédex, time and badges.
+                     Read only: it follows the fields below. -->
+                <Border Margin="16,12,16,4" MaxWidth="1072" HorizontalAlignment="Left" Background="{Binding CardBrush}" CornerRadius="2"
+                        BorderBrush="#40000000" BorderThickness="1" Padding="16,14">
+                  <Border.Styles>
+                    <Style Selector="TextBlock.card-label">
+                      <Setter Property="Foreground" Value="#D0FFFFFF" />
+                      <Setter Property="FontSize" Value="11" />
+                    </Style>
+                    <Style Selector="TextBlock.card-value">
+                      <Setter Property="Foreground" Value="White" />
+                      <Setter Property="FontSize" Value="15" />
+                      <Setter Property="FontWeight" Value="SemiBold" />
+                    </Style>
+                  </Border.Styles>
+                  <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
+                    <Border Width="104" Height="104" Background="#F2FFFFFF" CornerRadius="2" BorderBrush="#60000000" BorderThickness="1" Margin="0,0,18,0" VerticalAlignment="Top">
+                      <ContentControl Content="{Binding Avatar}" Width="92" Height="92" />
+                    </Border>
+                    <StackPanel Grid.Column="1" Spacing="6">
+                      <TextBlock Classes="card-label" Text="{Binding CardTitle}" />
+                      <TextBlock Foreground="White" FontSize="24" FontWeight="Bold" Text="{Binding CardName}" />
+                      <Grid ColumnDefinitions="Auto,32,Auto,32,Auto" RowDefinitions="Auto,Auto,6,Auto,Auto">
+                        <TextBlock Classes="card-label" Text="{x:Static r:Strings.Trainer_IdLabel}" />
+                        <TextBlock Grid.Row="1" Classes="card-value" Text="{Binding CardId}" />
+                        <TextBlock Grid.Column="2" Classes="card-label" Text="{x:Static r:Strings.Trainer_Money}" />
+                        <TextBlock Grid.Row="1" Grid.Column="2" Classes="card-value" Text="{Binding CardMoney}" />
+                        <TextBlock Grid.Column="4" Classes="card-label" Text="{x:Static r:Strings.Save_TabDex}" />
+                        <TextBlock Grid.Row="1" Grid.Column="4" Classes="card-value" Text="{Binding CardDex}" />
+                        <TextBlock Grid.Row="3" Classes="card-label" Text="{x:Static r:Strings.Trainer_PlayTime}" />
+                        <TextBlock Grid.Row="4" Classes="card-value" Text="{Binding CardPlayTime}" />
+                        <TextBlock Grid.Row="3" Grid.Column="2" Classes="card-label" Text="{x:Static r:Strings.Trainer_Started}" />
+                        <TextBlock Grid.Row="4" Grid.Column="2" Classes="card-value" Text="{Binding CardStarted}" />
+                        <TextBlock Grid.Row="3" Grid.Column="4" Classes="card-label" Text="{x:Static r:Strings.Trainer_HallOfFame}" />
+                        <TextBlock Grid.Row="4" Grid.Column="4" Classes="card-value" Text="{Binding CardFame}" />
+                      </Grid>
+                    </StackPanel>
+                    <Border Grid.Row="1" Grid.ColumnSpan="2" Margin="0,14,0,0" Background="#26FFFFFF" CornerRadius="2" Padding="10,6">
+                      <Grid ColumnDefinitions="Auto,*">
+                        <TextBlock Classes="card-label" VerticalAlignment="Center" Margin="0,0,14,0" Text="{Binding CardMilestones}" />
+                        <ItemsControl Grid.Column="1" ItemsSource="{Binding Badges}">
+                          <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                              <StackPanel Orientation="Horizontal" Spacing="8" />
+                            </ItemsPanelTemplate>
+                          </ItemsControl.ItemsPanel>
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:BadgeViewModel">
+                              <Panel Width="44" Height="44" ToolTip.Tip="{Binding Label}">
+                                <Image Source="{Binding Icon}" Stretch="Uniform" IsVisible="{Binding HasIcon}" />
+                                <Border CornerRadius="999" Background="#40FFFFFF" IsVisible="{Binding !HasIcon}">
+                                  <TextBlock Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Label}" FontSize="9" TextWrapping="Wrap" TextAlignment="Center" />
+                                </Border>
+                              </Panel>
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                      </Grid>
+                    </Border>
+                  </Grid>
+                </Border>
                 <WrapPanel Margin="16,8">
                   <StackPanel Width="520" Margin="0,0,32,0">
                     <TextBlock Classes="section" Text="{x:Static r:Strings.Trainer_Profile}" />
@@ -705,7 +652,12 @@
                       </ItemsControl.ItemsPanel>
                       <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:BadgeViewModel">
-                          <CheckBox IsChecked="{Binding IsChecked}" Content="{Binding Label}" />
+                          <CheckBox IsChecked="{Binding IsChecked}">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                              <Image Source="{Binding Icon}" Width="22" Height="22" IsVisible="{Binding HasIcon}" />
+                              <TextBlock VerticalAlignment="Center" Text="{Binding Label}" />
+                            </StackPanel>
+                          </CheckBox>
                         </DataTemplate>
                       </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -775,6 +727,7 @@
                     </ItemsControl>
                   </StackPanel>
                 </WrapPanel>
+                </StackPanel>
               </ScrollViewer>
             </TabItem>
 

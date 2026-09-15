@@ -79,6 +79,10 @@ public partial class WelcomeViewModel : ObservableObject
         Room.RefreshSelectedProject();
     }
 
+    /// <summary>Back to the project preview; the room itself keeps running.</summary>
+    [RelayCommand]
+    private void CloseRoomPanel() => ShowRoom = false;
+
     partial void OnPreviewChanged(ProjectPreviewViewModel? value) => Room.RefreshSelectedProject();
 
     [ObservableProperty]

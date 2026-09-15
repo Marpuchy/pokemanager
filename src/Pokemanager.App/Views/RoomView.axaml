@@ -1,4 +1,4 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Pokemanager.App.ViewModels"
              xmlns:r="using:Pokemanager.App.Resources"
@@ -12,49 +12,7 @@
       <Setter Property="FontSize" Value="13" />
       <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
-    <!-- Cards colored by type, as in the project preview -->
-    <Style Selector="Button.member">
-      <Setter Property="Padding" Value="0" />
-      <Setter Property="Margin" Value="3" />
-      <Setter Property="HorizontalAlignment" Value="Stretch" />
-      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-      <Setter Property="Background" Value="Transparent" />
-      <Setter Property="BorderThickness" Value="0" />
-    </Style>
-    <Style Selector="Button.member /template/ ContentPresenter#PART_ContentPresenter, Button.member:pointerover /template/ ContentPresenter#PART_ContentPresenter, Button.member:pressed /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="Transparent" />
-    </Style>
-    <Style Selector="Border.member">
-      <Setter Property="BorderBrush" Value="#80000000" />
-      <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="2" />
-      <Setter Property="Padding" Value="6,4" />
-    </Style>
-    <Style Selector="Button.member:pointerover Border.member">
-      <Setter Property="BorderBrush" Value="#0078D7" />
-    </Style>
-    <Style Selector="Border.member.selected">
-      <Setter Property="BorderBrush" Value="#0078D7" />
-      <Setter Property="BorderThickness" Value="3" />
-      <Setter Property="Padding" Value="4,2" />
-    </Style>
-    <Style Selector="Border.slot">
-      <Setter Property="BorderBrush" Value="#40000000" />
-      <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="2" />
-      <Setter Property="Height" Value="46" />
-    </Style>
-    <Style Selector="Border.slot.empty">
-      <Setter Property="Background" Value="#F2F4F6" />
-      <Setter Property="BorderBrush" Value="#20000000" />
-    </Style>
-    <Style Selector="Button.member:pointerover Border.slot">
-      <Setter Property="BorderBrush" Value="#0078D7" />
-    </Style>
-    <Style Selector="Border.slot.selected">
-      <Setter Property="BorderBrush" Value="#0078D7" />
-      <Setter Property="BorderThickness" Value="3" />
-    </Style>
+    <!-- Party cards, box and Pokémon sheet: shared with the save editor (Styles/PokemonLook.axaml) -->
   </UserControl.Styles>
 
   <Grid>
@@ -287,161 +245,30 @@
               </Grid>
             </Border>
 
-            <!-- Party -->
+            <!-- Party: the save editor's party cards -->
             <Border Classes="card" IsVisible="{Binding HasPlayerData}">
               <StackPanel Spacing="4">
                 <TextBlock Classes="card-title" Text="{x:Static r:Strings.Preview_Team}" />
                 <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_PartyHidden}" IsVisible="{Binding PartyHidden}" />
-                <ItemsControl ItemsSource="{Binding Party}" IsVisible="{Binding HasParty}">
+                <ItemsControl ItemsSource="{Binding Party}" ItemTemplate="{StaticResource PartyCard}" IsVisible="{Binding HasParty}">
                   <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                       <UniformGrid Columns="3" />
                     </ItemsPanelTemplate>
                   </ItemsControl.ItemsPanel>
-                  <ItemsControl.ItemTemplate>
-                    <DataTemplate x:DataType="vm:RoomMonCard">
-                      <Button Classes="member" Command="{Binding SelectCommand}" ToolTip.Tip="{Binding Tooltip}">
-                        <Border Classes="member" Classes.selected="{Binding IsSelected}" Background="{Binding TypeBackground}">
-                          <Grid ColumnDefinitions="Auto,*">
-                            <Border Background="#40FFFFFF" CornerRadius="2" Width="68" Height="60">
-                              <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="80" Height="60" />
-                            </Border>
-                            <StackPanel Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center" Spacing="1">
-                              <TextBlock FontWeight="Bold" TextTrimming="CharacterEllipsis" Foreground="{Binding TypeForeground}">
-                                <Run Text="{Binding Name}" />
-                                <Run Text="{Binding GenderText}" />
-                              </TextBlock>
-                              <TextBlock Foreground="{Binding TypeForeground}" TextTrimming="CharacterEllipsis">
-                                <Run Text="{Binding LevelText}" />
-                                <Run Text="·" />
-                                <Run Text="{Binding SpeciesName}" />
-                              </TextBlock>
-                              <TextBlock Foreground="{Binding TypeForeground}" Text="{Binding ItemText}" TextTrimming="CharacterEllipsis" Opacity="0.9" />
-                              <ItemsControl ItemsSource="{Binding TypeChips}" Margin="0,2,0,0">
-                                <ItemsControl.ItemsPanel>
-                                  <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Horizontal" Spacing="3" />
-                                  </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                              </ItemsControl>
-                            </StackPanel>
-                          </Grid>
-                        </Border>
-                      </Button>
-                    </DataTemplate>
-                  </ItemsControl.ItemTemplate>
                 </ItemsControl>
               </StackPanel>
             </Border>
 
-            <!-- Selected Pokémon -->
-            <Border Classes="card" IsVisible="{Binding HasDetail}">
-              <ContentControl Content="{Binding Detail}">
-                <ContentControl.ContentTemplate>
-                  <DataTemplate x:DataType="vm:RoomMonDetail">
-                    <StackPanel Spacing="8">
-                      <Grid ColumnDefinitions="Auto,*">
-                        <Border Grid.ColumnSpan="2" Background="{Binding Card.TypeBackground}" CornerRadius="2" BorderBrush="#80000000" BorderThickness="1" />
-                        <Border Margin="6,4" Background="#40FFFFFF" CornerRadius="2" Width="68" Height="60">
-                          <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Card.Icon}" Width="80" Height="60" />
-                        </Border>
-                        <StackPanel Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center" Spacing="2">
-                          <TextBlock FontSize="14" FontWeight="Bold" Foreground="{Binding Card.TypeForeground}">
-                            <Run Text="{Binding Card.Name}" />
-                            <Run Text="{Binding Card.GenderText}" />
-                          </TextBlock>
-                          <TextBlock Foreground="{Binding Card.TypeForeground}">
-                            <Run Text="{Binding Card.SpeciesName}" />
-                            <Run Text=" · " />
-                            <Run Text="{Binding Card.LevelText}" />
-                          </TextBlock>
-                          <ItemsControl ItemsSource="{Binding Card.TypeChips}">
-                            <ItemsControl.ItemsPanel>
-                              <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" Spacing="3" />
-                              </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                          </ItemsControl>
-                        </StackPanel>
-                      </Grid>
+            <!-- Selected Pokémon, laid out as in the save editor -->
+            <ContentControl Content="{Binding Detail}" ContentTemplate="{StaticResource MonSheet}" IsVisible="{Binding HasDetail}" />
 
-                      <c:AdaptiveColumnsPanel MinColumnWidth="220" MaxColumns="3" Spacing="18">
-                        <StackPanel>
-                          <TextBlock Classes="card-title" Text="{x:Static r:Strings.Pkm_Stats}" />
-                          <ItemsControl ItemsSource="{Binding Stats}">
-                            <ItemsControl.ItemTemplate>
-                              <DataTemplate x:DataType="vm:RoomInfoLine">
-                                <Grid ColumnDefinitions="90,*" Margin="0,1">
-                                  <TextBlock Text="{Binding Label}" />
-                                  <TextBlock Grid.Column="1" Text="{Binding Value}" FontWeight="SemiBold" />
-                                </Grid>
-                              </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                          </ItemsControl>
-                        </StackPanel>
-
-                        <StackPanel>
-                          <TextBlock Classes="card-title" Text="{x:Static r:Strings.Pkm_Moves}" />
-                          <ItemsControl ItemsSource="{Binding Moves}">
-                            <ItemsControl.ItemTemplate>
-                              <DataTemplate x:DataType="vm:MoveLine">
-                                <Border Background="{Binding Background}" CornerRadius="2" Padding="8,4" Margin="0,2" BorderBrush="#40000000" BorderThickness="1">
-                                  <Grid ColumnDefinitions="*,Auto,Auto">
-                                    <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
-                                    <TextBlock Grid.Column="1" Text="{Binding Type}" Foreground="{Binding Foreground}" FontSize="10" Opacity="0.85" Margin="8,0" VerticalAlignment="Center" />
-                                    <TextBlock Grid.Column="2" Text="{Binding PP}" Foreground="{Binding Foreground}" VerticalAlignment="Center" />
-                                  </Grid>
-                                </Border>
-                              </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                          </ItemsControl>
-                        </StackPanel>
-
-                        <StackPanel>
-                          <TextBlock Classes="card-title" Text="{x:Static r:Strings.Pkm_Main}" />
-                          <ItemsControl ItemsSource="{Binding Info}">
-                            <ItemsControl.ItemTemplate>
-                              <DataTemplate x:DataType="vm:RoomInfoLine">
-                                <Grid ColumnDefinitions="100,*" Margin="0,1">
-                                  <TextBlock Classes="hint" Text="{Binding Label}" />
-                                  <TextBlock Grid.Column="1" Text="{Binding Value}" FontWeight="SemiBold" TextWrapping="Wrap" />
-                                </Grid>
-                              </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                          </ItemsControl>
-                        </StackPanel>
-                      </c:AdaptiveColumnsPanel>
-                    </StackPanel>
-                  </DataTemplate>
-                </ContentControl.ContentTemplate>
-              </ContentControl>
-            </Border>
-
-            <!-- Boxes -->
+            <!-- Boxes: the save editor's box browser -->
             <Border Classes="card" IsVisible="{Binding HasPlayerData}">
               <StackPanel Spacing="4">
-                <Grid ColumnDefinitions="*,Auto">
-                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Room_BoxesTitle}" VerticalAlignment="Center" />
-                  <ComboBox Grid.Column="1" ItemsSource="{Binding BoxNames}" SelectedIndex="{Binding SelectedBox}" Width="200"
-                            IsVisible="{Binding HasBoxes}" MaxDropDownHeight="400" />
-                </Grid>
+                <TextBlock Classes="card-title" Text="{x:Static r:Strings.Room_BoxesTitle}" />
                 <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_BoxesHidden}" IsVisible="{Binding BoxesHidden}" />
-                <ItemsControl ItemsSource="{Binding BoxSlots}" IsVisible="{Binding HasBoxes}">
-                  <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                      <UniformGrid Columns="6" />
-                    </ItemsPanelTemplate>
-                  </ItemsControl.ItemsPanel>
-                  <ItemsControl.ItemTemplate>
-                    <DataTemplate x:DataType="vm:RoomMonCard">
-                      <Button Classes="member" Command="{Binding SelectCommand}" ToolTip.Tip="{Binding Tooltip}" IsHitTestVisible="{Binding !IsEmpty}">
-                        <Border Classes="slot" Classes.empty="{Binding IsEmpty}" Classes.selected="{Binding IsSelected}" Background="{Binding TypeBackground}">
-                          <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="53" Height="40" />
-                        </Border>
-                      </Button>
-                    </DataTemplate>
-                  </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                <c:BoxBrowser IsVisible="{Binding HasBoxes}" HorizontalAlignment="Left" />
               </StackPanel>
             </Border>
           </StackPanel>

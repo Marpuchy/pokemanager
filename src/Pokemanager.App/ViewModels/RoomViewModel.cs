@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
@@ -53,9 +53,9 @@ public sealed class RoomPlayerRow(RoomPlayer player, string subtitle)
     public double Faded => Player.Online ? 1 : 0.55;
 }
 
-/// <summary>A Pokémon of another player: party card or box slot, colored by its types like the project preview.</summary>
+/// <summary>A Pokémon of another player: party card or box cell, drawn with the save editor's templates.</summary>
 public sealed partial class RoomMonCard(RoomViewModel owner, SharedPokemon? mon, Bitmap? icon, string name, string species,
-    IReadOnlyList<TypeChip> types, string itemText) : ObservableObject
+    IReadOnlyList<TypeChip> types, string itemText) : ObservableObject, IMonCard
 {
     public SharedPokemon? Mon { get; } = mon;
     public Bitmap? Icon { get; } = icon;
@@ -64,8 +64,13 @@ public sealed partial class RoomMonCard(RoomViewModel owner, SharedPokemon? mon,
     public IReadOnlyList<TypeChip> TypeChips { get; } = types;
     public string ItemText { get; } = itemText;
     public bool IsEmpty => Mon is null;
+    public bool IsShiny => Mon?.IsShiny ?? false;
+    public bool IsEgg => Mon?.IsEgg ?? false;
+    public bool HasProblem => false;
+    public Bitmap? ItemIcon => Mon is { HeldItem: > 0 } m ? PkhexImages.Item(m.HeldItem) : null;
+    public bool HasItem => Mon is { HeldItem: > 0 };
     public string LevelText => Mon is null ? "" : string.Format(Strings.Preview_Level, Mon.Level);
-    public string GenderText => Mon?.Gender switch { 0 => "♂", 1 => "♀", _ => "" };
+    public string GenderText => Mon is null || Mon.IsEgg ? "" : Mon.Gender switch { 0 => "♂", 1 => "♀", _ => "" };
     public string Tooltip => IsEmpty ? "" : $"{Name} · {SpeciesName} · {LevelText}";
 
     private int[] TypeIds => Mon?.Types is { Length: > 0 } t ? [t[0], t.Length > 1 ? t[1] : t[0]] : [0, 0];
@@ -82,22 +87,12 @@ public sealed partial class RoomMonCard(RoomViewModel owner, SharedPokemon? mon,
 }
 
 public sealed record RoomInfoLine(string Label, string Value);
-
-/// <summary>Details of the Pokémon picked in another player's party or boxes.</summary>
-public sealed class RoomMonDetail(RoomMonCard card, IReadOnlyList<RoomInfoLine> info, IReadOnlyList<MoveLine> moves, IReadOnlyList<RoomInfoLine> stats)
-{
-    public RoomMonCard Card { get; } = card;
-    public IReadOnlyList<RoomInfoLine> Info { get; } = info;
-    public IReadOnlyList<MoveLine> Moves { get; } = moves;
-    public IReadOnlyList<RoomInfoLine> Stats { get; } = stats;
-}
-
 /// <summary>
 /// Multiplayer, on the start screen: create a room or join one with a code and see the other players' party and boxes
 /// live. Lives as long as the app (opening a project does not close it). The save shared is the one of the project chosen
 /// when the room started, sent again every time the game writes it.
 /// </summary>
-public sealed partial class RoomViewModel : ObservableObject
+public sealed partial class RoomViewModel : ObservableObject, IBoxBrowser
 {
     private readonly MainWindowViewModel main;
     private RoomSession? session;
@@ -266,7 +261,7 @@ public sealed partial class RoomViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasDetail))]
-    public partial RoomMonDetail? Detail { get; private set; }
+    public partial MonSheet? Detail { get; private set; }
 
     public bool HasDetail => Detail is not null;
 
@@ -553,6 +548,28 @@ public sealed partial class RoomViewModel : ObservableObject
             FillBox();
     }
 
+    System.Collections.IEnumerable IBoxBrowser.BoxNames => BoxNames;
+    System.Collections.IEnumerable IBoxBrowser.BoxSlots => BoxSlots;
+
+    /// <summary>The box's wallpaper in the owner's game, as the save editor draws it.</summary>
+    public Bitmap? BoxWallpaper => shownSnapshot?.Boxes is { } boxes && SelectedBox >= 0 && SelectedBox < boxes.Count && TitleOf(shownSnapshot.Game) is { } title
+        ? PkhexImages.Wallpaper(title, Math.Max(0, boxes[SelectedBox].Wallpaper))
+        : null;
+
+    [RelayCommand]
+    private void PreviousBox()
+    {
+        if (BoxNames.Count > 0)
+            SelectedBox = (SelectedBox + BoxNames.Count - 1) % BoxNames.Count;
+    }
+
+    [RelayCommand]
+    private void NextBox()
+    {
+        if (BoxNames.Count > 0)
+            SelectedBox = (SelectedBox + 1) % BoxNames.Count;
+    }
+
     private void ShowPlayer(bool force)
     {
         OnPropertyChanged(nameof(ShownAvatar));
@@ -563,7 +580,7 @@ public sealed partial class RoomViewModel : ObservableObject
             NotifyPlayerData();
             return;
         }
-        var previousDetail = Detail?.Card.Mon;
+        var previousDetail = (Detail?.Card as RoomMonCard)?.Mon;
         shownSnapshot = snapshot;
         Party.Clear();
         if (snapshot is null)
@@ -627,6 +644,7 @@ public sealed partial class RoomViewModel : ObservableObject
 
     private void FillBox()
     {
+        OnPropertyChanged(nameof(BoxWallpaper));
         BoxSlots.Clear();
         if (shownSnapshot?.Boxes is not { } boxes || SelectedBox < 0 || SelectedBox >= boxes.Count)
             return;
@@ -650,7 +668,7 @@ public sealed partial class RoomViewModel : ObservableObject
         var icon = mon.IsEgg ? null : sprites.For(mon.Species, mon.Form, mon.Gender == 1, mon.IsShiny);
         var types = mon.Types.Distinct().Select(t => new TypeChip(Named(names?.Types, t), TypeColors.Background(t), TypeColors.Foreground(t))).ToList();
         string item = mon.HeldItem == 0 ? Strings.Preview_NoItem : Named(names?.Items, mon.HeldItem);
-        return new RoomMonCard(this, mon, icon, mon.IsShiny ? name + " ★" : name, species, types, item);
+        return new RoomMonCard(this, mon, icon, name, species, types, item);
     }
 
     public void SelectMon(RoomMonCard card)
@@ -659,12 +677,17 @@ public sealed partial class RoomViewModel : ObservableObject
             return;
         foreach (var c in Party.Concat(BoxSlots))
             c.IsSelected = ReferenceEquals(c, card);
+        string ability = Named(names?.Abilities, mon.Ability);
+        string nature = Named(names?.Natures, mon.Nature);
         var info = new List<RoomInfoLine>
         {
-            new(Strings.Pkm_AbilityLabel, Named(names?.Abilities, mon.Ability)),
-            new(Strings.Pkm_Nature, Named(names?.Natures, mon.Nature)),
+            new(Strings.Pkm_Species, card.SpeciesName),
+            new(Strings.Pkm_AbilityLabel, ability),
+            new(Strings.Pkm_Nature, nature),
             new(Strings.Pkm_HeldItem, card.ItemText),
         };
+        if (mon.Ball > 0 && names is not null && mon.Ball < names.Balls.Count)
+            info.Add(new(Strings.Pkm_Ball, names.Balls[mon.Ball]));
         if (mon.Hp >= 0 && mon.Stats.Length > 0)
             info.Add(new(Strings.Room_Hp, $"{mon.Hp} / {mon.Stats[0]}"));
 
@@ -674,17 +697,19 @@ public sealed partial class RoomViewModel : ObservableObject
             ushort move = mon.Moves[i];
             if (move == 0)
             {
-                moves.Add(new MoveLine("—", "", "", Brushes.Transparent, Brushes.Gray));
+                moves.Add(MoveLine.Empty);
                 continue;
             }
             int type = mon.MoveTypes is { } types && i < types.Length ? types[i] : -1;
+            int category = mon.MoveCategories is { } categories && i < categories.Length ? categories[i] : -1;
             string pp = mon.MovePp is { } p && (2 * i) + 1 < p.Length ? string.Format(Strings.Pkm_PP, p[2 * i], p[(2 * i) + 1]) : "";
-            moves.Add(new MoveLine(Named(names?.Moves, move), pp, type >= 0 ? Named(names?.Types, type) : "", TypeColors.Background(type), TypeColors.Foreground(type)));
+            moves.Add(MoveLine.Of(Named(names?.Moves, move), pp, type, type >= 0 ? Named(names?.Types, type) : "", category));
         }
 
         string[] labels = [Strings.Stat_HP, Strings.Stat_Atk, Strings.Stat_Def, Strings.Stat_Spe, Strings.Stat_SpA, Strings.Stat_SpD];
-        int[] order = [0, 1, 2, 4, 5, 3]; // shown as the preview: HP, Atk, Def, SpA, SpD, Spe
-        var stats = order.Where(i => i < mon.Stats.Length).Select(i => new RoomInfoLine(labels[i], mon.Stats[i].ToString())).ToList();
-        Detail = new RoomMonDetail(card, info, moves, stats);
+        int[] order = [0, 1, 2, 4, 5, 3]; // HP, Atk, Def, SpA, SpD, Spe, as the save editor
+        int highest = mon.Stats.DefaultIfEmpty(1).Max();
+        var stats = order.Where(i => i < mon.Stats.Length).Select(i => new SheetStat(labels[i], mon.Stats[i], ScaleMax: highest)).ToList();
+        Detail = new MonSheet(card, $"{card.LevelText} · {nature} · {ability}", mon.Ball > 0 ? PkhexImages.Ball(mon.Ball) : null, stats, moves, info);
     }
 }

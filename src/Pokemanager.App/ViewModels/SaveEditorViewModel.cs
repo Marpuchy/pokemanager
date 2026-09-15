@@ -1,8 +1,9 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PKHeX.Core;
 using Pokemanager.App.Resources;
+using Pokemanager.Model.Data;
 using Pokemanager.App.Services;
 using Pokemanager.Bridge;
 using Pokemanager.Model.Editing;
@@ -13,7 +14,7 @@ using Pokemanager.Save;
 namespace Pokemanager.App.ViewModels;
 
 /// <summary>A party or box slot button.</summary>
-public partial class SlotViewModel(SaveEditorViewModel owner, SaveSlot slot) : ObservableObject
+public partial class SlotViewModel(SaveEditorViewModel owner, SaveSlot slot) : ObservableObject, IMonCard
 {
     public SaveSlot Slot { get; } = slot;
 
@@ -98,7 +99,7 @@ public sealed partial class ProblemViewModel(SaveEditorViewModel owner, SaveProb
 }
 
 /// <summary>Save file tab: a PKHeX-style editor for the emulator's save, written only on demand.</summary>
-public partial class SaveEditorViewModel : ObservableObject
+public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
 {
     private readonly EditorViewModel editor;
     private readonly AppSettings settings;
@@ -123,6 +124,9 @@ public partial class SaveEditorViewModel : ObservableObject
     public ObservableCollection<SlotViewModel> PartySlots { get; } = [];
     public ObservableCollection<SlotViewModel> BoxSlots { get; } = [];
     public ObservableCollection<string> BoxNames { get; } = [];
+
+    System.Collections.IEnumerable IBoxBrowser.BoxNames => BoxNames;
+    System.Collections.IEnumerable IBoxBrowser.BoxSlots => BoxSlots;
     public ObservableCollection<ProblemViewModel> Problems { get; } = [];
 
     [ObservableProperty]
@@ -280,8 +284,9 @@ public partial class SaveEditorViewModel : ObservableObject
             OnPropertyChanged(nameof(SelectedBox));
             RebuildBoxSlots();
 
-            Bag = new SaveBagViewModel(this, doc, names);
-            Trainer = new SaveTrainerViewModel(this, doc, names, editor.Dump.Title.Milestones());
+            Bag = new SaveBagViewModel(this, doc, names, editor.Names.ItemDescriptions);
+            Trainer = new SaveTrainerViewModel(this, doc, names, editor.Dump.Title,
+                MilestoneIcons.Load(new RomFsLayers(editor.Session.Project.RomFsPath), editor.Dump.Title), editor.ProfileAvatar);
             Dex = new SaveDexViewModel(this, doc, names);
             RefreshSlots();
             RefreshProblems();
@@ -382,6 +387,7 @@ public partial class SaveEditorViewModel : ObservableObject
         IsDirty = Document?.IsDirty ?? false;
         RefreshSlots();
         RefreshProblems();
+        Trainer?.RefreshCard();
         if (!restoring && Document is not null)
             Undo.Record(SelectedSlot is { } slot && Pokemon is not null ? $"{SlotLabel(slot)} · {label}" : label);
     }
@@ -532,7 +538,7 @@ public partial class SaveEditorViewModel : ObservableObject
     }
 }
 
-/// <summary>A row of a bag pocket.</summary>
+/// <summary>An item of a bag pocket: a row of the list and, when selected, the detail panel that edits it.</summary>
 public sealed partial class BagItemViewModel(SaveBagViewModel owner, PocketViewModel pocket, int itemIndex, int count) : ObservableObject
 {
     public PocketViewModel Pocket { get; } = pocket;
@@ -547,19 +553,36 @@ public sealed partial class BagItemViewModel(SaveBagViewModel owner, PocketViewM
             {
                 itemIndex = value;
                 OnPropertyChanged(nameof(Icon));
+                OnPropertyChanged(nameof(HasIcon));
+                OnPropertyChanged(nameof(Name));
+                OnPropertyChanged(nameof(Description));
                 owner.Commit(Pocket);
             }
         }
     }
 
-    public Avalonia.Media.Imaging.Bitmap? Icon => PkhexImages.Item(ItemId, Pocket.IsTms);
+    public Avalonia.Media.Imaging.Bitmap? Icon => HasIcon ? PkhexImages.Item(ItemId, Pocket.IsTms) : null;
+
+    /// <summary>PKHeX has no icon for the Gen 6/7 key items: those show the pocket's glyph instead of a question mark.</summary>
+    public bool HasIcon => PkhexImages.HasItemIcon(ItemId, Pocket.IsTms);
+
+    public string Name => Pocket.ItemNames[itemIndex];
+    public string Description => owner.Describe(ItemId);
 
     public decimal? Count
     {
         get => count;
-        set { if (value is { } v) { count = (int)Math.Clamp(v, 1, Pocket.MaxCount); owner.Commit(Pocket); } }
+        set
+        {
+            if (value is not { } v)
+                return;
+            count = (int)Math.Clamp(v, 1, Pocket.MaxCount);
+            OnPropertyChanged(nameof(CountText));
+            owner.Commit(Pocket);
+        }
     }
 
+    public string CountText => $"×{count}";
     public int MaxCount => Pocket.MaxCount;
     public int ItemId => Pocket.ItemIds[itemIndex];
     public int Amount => count;
@@ -567,7 +590,6 @@ public sealed partial class BagItemViewModel(SaveBagViewModel owner, PocketViewM
     [RelayCommand]
     private void Remove() => owner.RemoveItem(this);
 }
-
 public sealed class PocketViewModel(InventoryPouch pouch, SaveNames names)
 {
     public InventoryPouch Pouch { get; } = pouch;
@@ -626,12 +648,38 @@ public partial class SaveBagViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(CapacityText))]
     public partial PocketViewModel? SelectedPocket { get; set; }
 
+    /// <summary>The item shown in the detail panel.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasSelectedItem))]
+    public partial BagItemViewModel? SelectedItem { get; set; }
+
+    public bool HasSelectedItem => SelectedItem is not null;
+
+    /// <summary>
+    /// The first item of the new pocket. Set again once the list has taken the new pocket: replacing its items makes the
+    /// ListBox push null into the selection.
+    /// </summary>
+    partial void OnSelectedPocketChanged(PocketViewModel? value)
+    {
+        SelectedItem = value?.Items.FirstOrDefault();
+        Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+        {
+            if (ReferenceEquals(SelectedPocket, value) && SelectedItem is null)
+                SelectedItem = value?.Items.FirstOrDefault();
+        }, Avalonia.Threading.DispatcherPriority.Background);
+    }
+
+    private readonly IReadOnlyList<string> descriptions;
+
+    public string Describe(int item) => item > 0 && item < descriptions.Count && descriptions[item].Length > 0 ? descriptions[item] : Strings.Bag_NoDescription;
+
     public string CapacityText => SelectedPocket is { } p ? string.Format(Strings.Bag_Capacity, p.Items.Count, p.Capacity) : "";
 
-    public SaveBagViewModel(SaveEditorViewModel owner, SaveDocument doc, SaveNames names)
+    public SaveBagViewModel(SaveEditorViewModel owner, SaveDocument doc, SaveNames names, IReadOnlyList<string> descriptions)
     {
         this.owner = owner;
         this.doc = doc;
+        this.descriptions = descriptions;
         Pockets = doc.Pouches.Select(p => new PocketViewModel(p, names)).ToList();
         foreach (var pocket in Pockets)
         {
@@ -662,7 +710,10 @@ public partial class SaveBagViewModel : ObservableObject
 
     public void RemoveItem(BagItemViewModel item)
     {
+        int index = item.Pocket.Items.IndexOf(item);
         item.Pocket.Items.Remove(item);
+        if (ReferenceEquals(SelectedItem, item))
+            SelectedItem = item.Pocket.Items.Count == 0 ? null : item.Pocket.Items[Math.Min(index, item.Pocket.Items.Count - 1)];
         Commit(item.Pocket);
     }
 
@@ -673,7 +724,9 @@ public partial class SaveBagViewModel : ObservableObject
             return;
         var used = pocket.Items.Select(i => i.ItemId).ToHashSet();
         int index = Enumerable.Range(0, pocket.ItemIds.Count).FirstOrDefault(i => !used.Contains(pocket.ItemIds[i]));
-        pocket.Items.Add(new BagItemViewModel(this, pocket, index, 1));
+        var added = new BagItemViewModel(this, pocket, index, 1);
+        pocket.Items.Add(added);
+        SelectedItem = added;
         Commit(pocket);
     }
 

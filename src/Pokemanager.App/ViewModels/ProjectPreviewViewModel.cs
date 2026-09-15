@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -13,30 +13,38 @@ using Pokemanager.Save;
 
 namespace Pokemanager.App.ViewModels;
 
-/// <summary>A read-only stat row of a party Pokémon.</summary>
-public sealed record StatLine(string Label, int Base, int Iv, int Ev, int Value);
+/// <summary>A read-only move of a party Pokémon, colored by its type, with the type and category icons of the save editor.</summary>
+public sealed record MoveLine(string Name, string PP, string Type, Avalonia.Media.IBrush Background, Avalonia.Media.IBrush Foreground,
+    Bitmap? TypeIcon = null, Avalonia.Media.IImage? CategoryIcon = null)
+{
+    /// <summary>An empty slot, drawn as the save editor draws one.</summary>
+    public static MoveLine Empty { get; } = new("—", "", "", new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#F2F4F6")), Avalonia.Media.Brushes.Gray);
 
-/// <summary>A read-only move of a party Pokémon, colored by its type.</summary>
-public sealed record MoveLine(string Name, string PP, string Type, Avalonia.Media.IBrush Background, Avalonia.Media.IBrush Foreground);
+    public static MoveLine Of(string name, string pp, int type, string typeName, int category) =>
+        new(name, pp, typeName, TypeColors.Background(type), TypeColors.Foreground(type),
+            type >= 0 ? PkhexImages.Type(type) : null, category >= 0 ? PkhexImages.Category(category) : null);
+}
 
 /// <summary>A type label with its color.</summary>
 public sealed record TypeChip(string Name, Avalonia.Media.IBrush Background, Avalonia.Media.IBrush Foreground);
 
 /// <summary>A Pokémon of the party in the project preview. Nothing here can be edited.</summary>
-public sealed partial class PartyMemberViewModel : ObservableObject
+public sealed partial class PartyMemberViewModel : ObservableObject, IMonCard
 {
     private readonly PKM pk;
     private readonly SaveDocument doc;
     private readonly SaveNames names;
     private readonly PokemonSprites sprites;
+    private readonly Action<PartyMemberViewModel> select;
 
     public SaveSlot Slot { get; }
 
-    public PartyMemberViewModel(SaveDocument doc, SaveNames names, PokemonSprites sprites, SaveSlot slot)
+    public PartyMemberViewModel(SaveDocument doc, SaveNames names, PokemonSprites sprites, SaveSlot slot, Action<PartyMemberViewModel> select)
     {
         this.doc = doc;
         this.names = names;
         this.sprites = sprites;
+        this.select = select;
         Slot = slot;
         pk = doc.Get(slot);
     }
@@ -44,12 +52,22 @@ public sealed partial class PartyMemberViewModel : ObservableObject
     public Bitmap? Icon => pk.IsEgg ? null : sprites.For(pk.Species, pk.Form, pk.Gender == 1, pk.IsShiny);
     public string Name => pk.IsEgg ? Strings.Save_Egg : pk.IsNicknamed ? pk.Nickname : names.SpeciesName(pk.Species);
     public string SpeciesName => names.SpeciesName(pk.Species);
-    public bool HasNickname => pk.IsNicknamed && !pk.IsEgg;
     public string LevelText => string.Format(Strings.Preview_Level, doc.Level(pk));
-    public string GenderText => pk.Gender switch { 0 => "♂", 1 => "♀", _ => "" };
+    public string GenderText => pk.IsEgg ? "" : pk.Gender switch { 0 => "♂", 1 => "♀", _ => "" };
     public bool IsShiny => pk.IsShiny;
+    public bool IsEgg => pk.IsEgg;
+    public bool IsEmpty => false;
+    public bool HasProblem => false;
     public string ItemText => pk.HeldItem == 0 ? Strings.Preview_NoItem : names.ItemName(pk.HeldItem);
     public bool HasItem => pk.HeldItem != 0;
+    public Bitmap? ItemIcon => PkhexImages.Item(pk.HeldItem);
+    public string Tooltip => $"{Name} · {SpeciesName} · {LevelText}";
+
+    [ObservableProperty]
+    public partial bool IsSelected { get; set; }
+
+    [RelayCommand]
+    private void Select() => select(this);
 
     // ------------------------------------------------------------------ types (from the ROM being played)
 
@@ -60,71 +78,60 @@ public sealed partial class PartyMemberViewModel : ObservableObject
 
     public Avalonia.Media.IBrush TypeForeground => TypeColors.Foreground(TypeIds);
 
-    public IReadOnlyList<TypeChip> TypeChips => TypeIds.Distinct()
+    public IReadOnlyList<TypeChip> TypeChips => pk.IsEgg ? [] : TypeIds.Distinct()
         .Select(t => new TypeChip(t < names.Types.Count ? names.Types[t] : $"#{t}", TypeColors.Background(t), TypeColors.Foreground(t)))
         .ToList();
 
-    // ------------------------------------------------------------------ detail
+    // ------------------------------------------------------------------ detail, laid out as the save editor
 
-    public string AbilityText
+    public MonSheet Sheet(IRelayCommand manage)
     {
-        get
+        var p = doc.Personal(pk.Species, pk.Form);
+        int[] values = doc.Stats(pk); // HP, Atk, Def, Spe, SpA, SpD
+        SheetStat[] stats =
+        [
+            new(Strings.Stat_HP, values[0], p?.HP, pk.IV_HP, pk.EV_HP),
+            new(Strings.Stat_Atk, values[1], p?.ATK, pk.IV_ATK, pk.EV_ATK),
+            new(Strings.Stat_Def, values[2], p?.DEF, pk.IV_DEF, pk.EV_DEF),
+            new(Strings.Stat_SpA, values[4], p?.SPA, pk.IV_SPA, pk.EV_SPA),
+            new(Strings.Stat_SpD, values[5], p?.SPD, pk.IV_SPD, pk.EV_SPD),
+            new(Strings.Stat_Spe, values[3], p?.SPE, pk.IV_SPE, pk.EV_SPE),
+        ];
+        (ushort Move, int PP, int Ups)[] slots =
+        [
+            (pk.Move1, pk.Move1_PP, pk.Move1_PPUps), (pk.Move2, pk.Move2_PP, pk.Move2_PPUps),
+            (pk.Move3, pk.Move3_PP, pk.Move3_PPUps), (pk.Move4, pk.Move4_PP, pk.Move4_PPUps),
+        ];
+        var moves = slots.Select(m => m.Move == 0 ? MoveLine.Empty : MoveOf(m.Move, m.PP, m.Ups)).ToList();
+
+        string slotName = pk.AbilityNumber switch { 2 => "2", 4 => Strings.Preview_Hidden, _ => "1" };
+        string ability = $"{names.AbilityName(pk.Ability)} ({slotName})";
+        string nature = (int)pk.Nature < names.Natures.Count ? names.Natures[(int)pk.Nature] : "—";
+        var info = new List<RoomInfoLine>
         {
-            string slotName = pk.AbilityNumber switch { 2 => "2", 4 => Strings.Preview_Hidden, _ => "1" };
-            return $"{names.AbilityName(pk.Ability)} ({slotName})";
-        }
+            new(Strings.Pkm_Species, SpeciesName),
+            new(Strings.Pkm_AbilityLabel, ability),
+            new(Strings.Pkm_Nature, nature),
+            new(Strings.Pkm_HeldItem, ItemText),
+            new(Strings.Pkm_Friendship, pk.CurrentFriendship.ToString()),
+            new(Strings.Pkm_Ball, pk.Ball < names.Balls.Count ? names.Balls[pk.Ball] : "—"),
+            new(Strings.Pkm_OriginalTrainer, $"{pk.OriginalTrainerName} ({pk.TID16:00000})"),
+        };
+        string evTotal = string.Format(Strings.Pkm_EvTotal, pk.EV_HP + pk.EV_ATK + pk.EV_DEF + pk.EV_SPA + pk.EV_SPD + pk.EV_SPE, SaveDocument.MaxEvTotal);
+        return new MonSheet(this, $"{LevelText} · {nature} · {names.AbilityName(pk.Ability)}", PkhexImages.Ball(pk.Ball), stats, moves, info,
+            evTotal, manage, Strings.Preview_ManagePokemon);
     }
 
-    public string NatureText => (int)pk.Nature < names.Natures.Count ? names.Natures[(int)pk.Nature] : "—";
-    public string BallText => pk.Ball < names.Balls.Count ? names.Balls[pk.Ball] : "—";
-    public string FriendshipText => pk.CurrentFriendship.ToString();
-    public string TrainerText => $"{pk.OriginalTrainerName} ({pk.TID16:00000})";
-    public string EvTotalText => string.Format(Strings.Pkm_EvTotal, pk.EV_HP + pk.EV_ATK + pk.EV_DEF + pk.EV_SPA + pk.EV_SPD + pk.EV_SPE, SaveDocument.MaxEvTotal);
-
-    public IReadOnlyList<StatLine> Stats
-    {
-        get
-        {
-            var p = doc.Personal(pk.Species, pk.Form);
-            int[] values = doc.Stats(pk); // HP, Atk, Def, Spe, SpA, SpD
-            return
-            [
-                new(Strings.Stat_HP, p?.HP ?? 0, pk.IV_HP, pk.EV_HP, values[0]),
-                new(Strings.Stat_Atk, p?.ATK ?? 0, pk.IV_ATK, pk.EV_ATK, values[1]),
-                new(Strings.Stat_Def, p?.DEF ?? 0, pk.IV_DEF, pk.EV_DEF, values[2]),
-                new(Strings.Stat_SpA, p?.SPA ?? 0, pk.IV_SPA, pk.EV_SPA, values[4]),
-                new(Strings.Stat_SpD, p?.SPD ?? 0, pk.IV_SPD, pk.EV_SPD, values[5]),
-                new(Strings.Stat_Spe, p?.SPE ?? 0, pk.IV_SPE, pk.EV_SPE, values[3]),
-            ];
-        }
-    }
-
-    public IReadOnlyList<MoveLine> Moves
-    {
-        get
-        {
-            (ushort Move, int PP, int Ups)[] moves =
-            [
-                (pk.Move1, pk.Move1_PP, pk.Move1_PPUps), (pk.Move2, pk.Move2_PP, pk.Move2_PPUps),
-                (pk.Move3, pk.Move3_PP, pk.Move3_PPUps), (pk.Move4, pk.Move4_PP, pk.Move4_PPUps),
-            ];
-            return moves.Select(m => m.Move == 0
-                    ? new MoveLine("—", "", "", Avalonia.Media.Brushes.Transparent, Avalonia.Media.Brushes.Gray)
-                    : MoveOf(m.Move, m.PP, m.Ups))
-                .ToList();
-        }
-    }
-
-    /// <summary>A move with the type it has in the ROM (the randomizer may change it).</summary>
+    /// <summary>A move with the type and category it has in the ROM (the randomizer may change them).</summary>
     private MoveLine MoveOf(ushort move, int pp, int ups)
     {
-        int type = move < doc.Rom.Moves.Length ? doc.Rom.Moves[move].Type : -1;
+        var data = move < doc.Rom.Moves.Length ? doc.Rom.Moves[move] : null;
+        int type = data?.Type ?? -1;
         string name = move < names.Moves.Count ? names.Moves[move] : $"#{move}";
         string typeName = type >= 0 && type < names.Types.Count ? names.Types[type] : "";
-        return new MoveLine(name, string.Format(Strings.Pkm_PP, pp, doc.MaxPP(move, ups)), typeName, TypeColors.Background(type), TypeColors.Foreground(type));
+        return MoveLine.Of(name, string.Format(Strings.Pkm_PP, pp, doc.MaxPP(move, ups)), type, typeName, data?.Category ?? -1);
     }
 }
-
 /// <summary>A gym badge in the preview: earned or not (from the save), and its roulette.</summary>
 public sealed partial class BadgeItemViewModel(ProjectPreviewViewModel owner, int index, string name, int type, bool earned, LockeSpin? spin,
     IReadOnlyList<string> itemNames, IconImage? image, bool hasRoulette) : ObservableObject
@@ -197,10 +204,19 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
         Badges.Count(b => b.Earned), Badges.Count);
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasSelection))]
+    [NotifyPropertyChangedFor(nameof(HasSelection), nameof(SelectedSheet))]
     public partial PartyMemberViewModel? Selected { get; set; }
 
     public bool HasSelection => Selected is not null;
+
+    /// <summary>The selected Pokémon laid out as in the save editor (and as the other players in a room).</summary>
+    public MonSheet? SelectedSheet => Selected?.Sheet(ManagePokemonCommand);
+
+    partial void OnSelectedChanged(PartyMemberViewModel? value)
+    {
+        foreach (var member in Party)
+            member.IsSelected = ReferenceEquals(member, value);
+    }
 
     /// <summary>Loads everything but the bitmaps, so it can run off the UI thread.</summary>
     public ProjectPreviewViewModel(MainWindowViewModel main, LoadedProject loaded, Func<Task> reload)
@@ -244,7 +260,7 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
                 TrainerText = string.Format(doc.Generation == 6 ? Strings.Preview_Trainer : Strings.Preview_TrainerTrials, doc.TrainerName, Enumerable.Range(0, doc.MilestoneCount).Count(doc.GetMilestone), doc.Money,
                     $"{doc.PlayedHours}:{doc.PlayedMinutes:00}", settings.EffectiveEmulatorName, File.GetLastWriteTime(savePath));
                 for (int i = 0; i < doc.PartyCount; i++)
-                    Party.Add(new PartyMemberViewModel(doc, names, Sprites, new SaveSlot(null, i)));
+                    Party.Add(new PartyMemberViewModel(doc, names, Sprites, new SaveSlot(null, i), m => Selected = m));
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SaveUpdateException)
             {

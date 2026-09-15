@@ -317,8 +317,24 @@
   <Style Selector="TabItem:selected /template/ Border#PART_LayoutRoot">
     <Setter Property="Background" Value="White" />
   </Style>
+  <!-- Tab strips never wrap into a second row (Fluent uses a WrapPanel): one row on top, one column on the side -->
   <Style Selector="TabControl">
     <Setter Property="Padding" Value="0" />
+    <Setter Property="ItemsPanel">
+      <ItemsPanelTemplate>
+        <StackPanel Orientation="Horizontal" />
+      </ItemsPanelTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="TabControl[TabStripPlacement=Left]">
+    <Setter Property="ItemsPanel">
+      <ItemsPanelTemplate>
+        <StackPanel Orientation="Vertical" />
+      </ItemsPanelTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="TabControl.wide-side[TabStripPlacement=Left] TabItem">
+    <Setter Property="Width" Value="260" />
   </Style>
 
   <!-- Side tabs (tab strip on the left): same size selected or not, flush with the page, no jump when selecting -->

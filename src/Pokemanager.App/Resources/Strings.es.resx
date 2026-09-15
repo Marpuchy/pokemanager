@@ -2397,4 +2397,31 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Dex_StatusLabel" xml:space="preserve">
     <value>Pokédex</value>
   </data>
+  <data name="Room_ClosePanel" xml:space="preserve">
+    <value>Volver al proyecto</value>
+  </data>
+  <data name="Room_ClosePanelTip" xml:space="preserve">
+    <value>Vuelve a mostrar el proyecto seleccionado. La sala sigue abierta; vuelve a ella desde la tarjeta de Multijugador.</value>
+  </data>
+  <data name="Bag_NoDescription" xml:space="preserve">
+    <value>El juego no tiene descripción para este objeto.</value>
+  </data>
+  <data name="Bag_SelectItem" xml:space="preserve">
+    <value>Selecciona un objeto del bolsillo para ver su descripción y cambiarlo.</value>
+  </data>
+  <data name="Bag_Item" xml:space="preserve">
+    <value>Objeto</value>
+  </data>
+  <data name="Bag_Count" xml:space="preserve">
+    <value>Cantidad</value>
+  </data>
+  <data name="Trainer_CardTitle" xml:space="preserve">
+    <value>Tarjeta de entrenador · {0}</value>
+  </data>
+  <data name="Trainer_CardMoney" xml:space="preserve">
+    <value>{0:N0} $</value>
+  </data>
+  <data name="Trainer_CardDex" xml:space="preserve">
+    <value>{0} vistos · {1} capturados</value>
+  </data>
 </root>

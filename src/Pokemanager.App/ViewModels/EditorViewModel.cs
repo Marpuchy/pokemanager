@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Pokemanager.App.Resources;
@@ -28,6 +28,9 @@ public partial class EditorViewModel : ObservableObject
     public RandomizerViewModel Randomizer { get; }
     public HistoryViewModel History { get; }
     public SaveEditorViewModel SaveEditor { get; }
+
+    /// <summary>The player's profile picture (multiplayer profile), shown on the save's trainer card.</summary>
+    public AvatarViewModel ProfileAvatar => main.Room.Avatar;
     public LockeViewModel Locke { get; }
     public IDialogs Dialogs => dialogs;
 

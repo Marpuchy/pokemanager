@@ -89,36 +89,7 @@
       <Setter Property="Foreground" Value="White" />
     </Style>
 
-    <!-- Detail pages of the advanced tabs: colored header, number badges and cards -->
-    <Style Selector="Border.detail-header">
-      <Setter Property="CornerRadius" Value="2" />
-      <Setter Property="BorderBrush" Value="#40000000" />
-      <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="Padding" Value="12,10" />
-    </Style>
-    <Style Selector="Border.badge">
-      <Setter Property="Background" Value="#E6FFFFFF" />
-      <Setter Property="BorderBrush" Value="#30000000" />
-      <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="2" />
-      <Setter Property="Padding" Value="10,3" />
-      <Setter Property="MinWidth" Value="64" />
-    </Style>
-    <Style Selector="TextBlock.badge-label">
-      <Setter Property="FontSize" Value="10" />
-      <Setter Property="Foreground" Value="#5A6670" />
-      <Setter Property="HorizontalAlignment" Value="Center" />
-    </Style>
-    <Style Selector="TextBlock.badge-value">
-      <Setter Property="FontSize" Value="17" />
-      <Setter Property="FontWeight" Value="Bold" />
-      <Setter Property="Foreground" Value="#1A1A1A" />
-      <Setter Property="HorizontalAlignment" Value="Center" />
-    </Style>
-    <Style Selector="Border.card.detail">
-      <Setter Property="Margin" Value="0,0,8,8" />
-      <Setter Property="VerticalAlignment" Value="Top" />
-    </Style>
+    <!-- Header, badges and cards: shared in Styles/PokemonLook.axaml -->
   </UserControl.Styles>
 
   <DockPanel>

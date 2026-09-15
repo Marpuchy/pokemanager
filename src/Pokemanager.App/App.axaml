@@ -48,6 +48,7 @@
   <Application.Styles>
     <FluentTheme DensityStyle="Compact" />
     <StyleInclude Source="avares://Pokemanager.App/Styles/ClassicTheme.axaml" />
+    <StyleInclude Source="avares://Pokemanager.App/Styles/PokemonLook.axaml" />
 
     <!-- Group boxes of the responsive pages (WinForms GroupBox look) -->
     <Style Selector="Border.card">

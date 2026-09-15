@@ -15,6 +15,9 @@ public sealed class GameNames
     public IReadOnlyList<string> Items { get; }
     public IReadOnlyList<string> Moves { get; }
 
+    /// <summary>The bag's description of each item, in the project's text language (empty when the game has none).</summary>
+    public IReadOnlyList<string> ItemDescriptions { get; }
+
     /// <summary>Growth rates in the game's index order.</summary>
     public static IReadOnlyList<string> ExpGrowth =>
         [Strings.Growth_MediumFast, Strings.Growth_Erratic, Strings.Growth_Fluctuating, Strings.Growth_MediumSlow, Strings.Growth_Fast, Strings.Growth_Slow];
@@ -43,6 +46,7 @@ public sealed class GameNames
         Abilities = config.GetText(TextName.AbilityNames);
         Items = config.GetText(TextName.ItemNames);
         Moves = config.GetText(TextName.MoveNames);
+        ItemDescriptions = [.. config.GetText(TextName.ItemFlavor).Select(line => GameText.ToEditable(line).Replace("\\c", "\n").Replace("\\r", "\n").Trim())];
         PersonalEntries = BuildPersonalEntryNames(original, Species, config.MaxSpeciesID);
         var (classifications, entries) = GameText.PokedexFiles(dump.Title);
         Classifications = TextFile(config, classifications);

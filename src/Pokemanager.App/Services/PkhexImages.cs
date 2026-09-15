@@ -32,6 +32,9 @@ public static class PkhexImages
         ? null
         : isTm ? Load("items/bitem_tm.png") : Load($"items/bitem_{item}.png") ?? Load("items/bitem_unk.png");
 
+    /// <summary>Whether PKHeX has a real icon for the item (it has none for the Gen 6/7 key items).</summary>
+    public static bool HasItemIcon(int item, bool isTm = false) => item > 0 && (isTm || Load($"items/bitem_{item}.png") is not null);
+
     /// <summary>A type's square icon (PKHeX's, game type order); a question mark for an unknown type.</summary>
     public static Bitmap? Type(int type) => Load($"types/type_icon_{type:00}.png") ?? Load("types/type_icon_99.png");
 

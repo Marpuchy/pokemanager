@@ -1,4 +1,17 @@
-## New in 1.2.0: battles, the in-game link and a new editor look
+## New in 1.2.1: one look everywhere, a real bag and the trainer card
+
+- **Pokémon look the same everywhere**: the party cards, the box (with the game's wallpaper, ◀ ▶ arrows) and the Pokémon
+  sheet of the save editor are now used by the project preview and by multiplayer rooms too — moves with type and category
+  icons, stats with bars, held item and Poké Ball icons.
+- **Bag like the games'**: pockets on top, a plain list of the pocket, and the selected item with its icon, **the game's
+  description** and its item and quantity.
+- **Trainer card** on the trainer page, in the game's color: your profile picture, name, ID, money, Pokédex, play time,
+  adventure start, Hall of Fame and the badges or seals with their images. Badges also show their image in the list.
+- Start screen: **Back to the project** closes the multiplayer panel (the room keeps running).
+- Tab strips never wrap into a second row; the randomizer option groups are side tabs.
+- Rooms now also share each box's wallpaper, the move categories and the Poké Ball (older versions still connect).
+
+## In 1.2.0: battles, the in-game link and a new editor look
 
 The last version before the 2D games.
 

@@ -1,0 +1,34 @@
+<!--
+  A box as PKHeX draws it: ◀ name ▶, the game's wallpaper and 6×5 cells. Used by the save editor and multiplayer rooms.
+  The slots are drawn at their natural size and scaled down to the height left, so the last row is never cut; the header
+  keeps its size.
+-->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Pokemanager.App.ViewModels"
+             xmlns:r="using:Pokemanager.App.Resources"
+             x:Class="Pokemanager.App.Controls.BoxBrowser"
+             x:DataType="vm:IBoxBrowser">
+  <Border Classes="box-frame" VerticalAlignment="Top" HorizontalAlignment="Center" Width="392">
+    <Grid RowDefinitions="Auto,*">
+      <Grid ColumnDefinitions="Auto,*,Auto" Margin="6">
+        <Button Content="◀" Command="{Binding PreviousBoxCommand}" Width="36" ToolTip.Tip="{x:Static r:Strings.Save_PreviousBox}" />
+        <ComboBox Grid.Column="1" Margin="6,0" ItemsSource="{Binding BoxNames}" SelectedIndex="{Binding SelectedBox}"
+                  HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" MaxDropDownHeight="400" FontWeight="SemiBold" />
+        <Button Grid.Column="2" Content="▶" Command="{Binding NextBoxCommand}" Width="36" ToolTip.Tip="{x:Static r:Strings.Save_NextBox}" />
+      </Grid>
+      <Viewbox Grid.Row="1" Stretch="Uniform" StretchDirection="DownOnly" VerticalAlignment="Top" HorizontalAlignment="Center">
+        <Panel Width="390" Height="248" ClipToBounds="True">
+          <Image Source="{Binding BoxWallpaper}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="None" />
+          <ItemsControl ItemsSource="{Binding BoxSlots}" ItemTemplate="{StaticResource BoxCell}" Margin="4,2,4,6">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <UniformGrid Columns="6" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+          </ItemsControl>
+        </Panel>
+      </Viewbox>
+    </Grid>
+  </Border>
+</UserControl>

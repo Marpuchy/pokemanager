@@ -1,4 +1,4 @@
-using Pokemanager.Save;
+﻿using Pokemanager.Save;
 
 namespace Pokemanager.Multiplayer;
 
@@ -10,13 +10,16 @@ namespace Pokemanager.Multiplayer;
 /// <param name="Stats">HP, Atk, Def, Spe, SpA, SpD (the order of <see cref="SaveDocument.Stats"/>).</param>
 /// <param name="MoveTypes">Type of each move in the owner's ROM (-1 for an empty slot).</param>
 /// <param name="MovePp">Current and maximum PP of each move: current1, max1, current2, max2…</param>
+/// <param name="MoveCategories">Category of each move in the owner's ROM (0 status, 1 physical, 2 special; -1 empty). Since 1.2.1.</param>
+/// <param name="Ball">Poké Ball the Pokémon was caught in (0 unknown). Since 1.2.1.</param>
 public sealed record SharedPokemon(
     ushort Species, byte Form, byte Gender, bool IsShiny, bool IsEgg, string Nickname, int Level,
     int HeldItem, int Ability, int Nature, ushort[] Moves, int[] Stats, int[] Types, int Hp,
-    int[]? MoveTypes = null, int[]? MovePp = null);
+    int[]? MoveTypes = null, int[]? MovePp = null, int[]? MoveCategories = null, int Ball = 0);
 
 /// <param name="Slots">Every slot of the box in order; null where it is empty.</param>
-public sealed record SharedBox(string Name, List<SharedPokemon?> Slots);
+/// <param name="Wallpaper">The box's wallpaper number in the game (-1 unknown). Since 1.2.1.</param>
+public sealed record SharedBox(string Name, List<SharedPokemon?> Slots, int Wallpaper = -1);
 
 /// <summary>What a player shares about their save: trainer summary, party and boxes. Serializable.</summary>
 /// <param name="Game">PKHeX version code of the save (X, Y, OR, AS, SN, MN, US, UM).</param>
@@ -43,7 +46,7 @@ public sealed record TrainerSnapshot(
             var slots = new List<SharedPokemon?>();
             for (int slot = 0; slot < save.BoxSlotCount; slot++)
                 slots.Add(Share(save, new SaveSlot(box, slot)));
-            boxes.Add(new SharedBox(save.BoxName(box), slots));
+            boxes.Add(new SharedBox(save.BoxName(box), slots, save.BoxWallpaper(box)));
         }
         var milestones = Enumerable.Range(0, save.MilestoneCount).Select(save.GetMilestone).ToList();
         return new TrainerSnapshot(save.TrainerName, save.Version.ToString(), save.Generation, save.MilestoneCount, milestones,
@@ -61,10 +64,11 @@ public sealed record TrainerSnapshot(
         int[] pp = [pk.Move1_PP, pk.Move2_PP, pk.Move3_PP, pk.Move4_PP];
         var moveTypes = moves.Select(m => m != 0 && m < save.Rom.Moves.Length ? save.Rom.Moves[m].Type : -1).ToArray();
         var movePp = moves.SelectMany((m, i) => new[] { pp[i], save.MaxPP(m, ppUps[i]) }).ToArray();
+        var moveCategories = moves.Select(m => m != 0 && m < save.Rom.Moves.Length ? save.Rom.Moves[m].Category : -1).ToArray();
         return new SharedPokemon(
             pk.Species, pk.Form, pk.Gender, pk.IsShiny, pk.IsEgg, pk.Nickname, save.Level(pk), pk.HeldItem, pk.Ability,
             (int)pk.Nature, moves, save.Stats(pk), types.Length >= 2 ? [types[0], types[1]] : [.. types],
-            slot.IsParty ? pk.Stat_HPCurrent : -1, moveTypes, movePp);
+            slot.IsParty ? pk.Stat_HPCurrent : -1, moveTypes, movePp, moveCategories, pk.Ball);
     }
 
     /// <summary>Only what the room's rules let other players see.</summary>
