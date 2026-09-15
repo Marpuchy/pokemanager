@@ -250,11 +250,11 @@
             </Grid>
           </Border>
 
-          <!-- 3 cards side by side when there is room, 2 or 1 in narrow places (a room next to its player list) -->
-          <c:AdaptiveColumnsPanel MinColumnWidth="270" MaxColumns="3" Spacing="8">
+          <!-- Stats and moves side by side with the same height, the data below across the whole width: no gaps at any width -->
+          <Grid ColumnDefinitions="*,8,*" RowDefinitions="Auto,8,Auto">
             <!-- Stats: base with bar when known, IV/EV when known, value. Columns without data take no space and the bar
                  takes what is left, so the numbers never get covered. -->
-            <Border Classes="card">
+            <Border Classes="card" VerticalAlignment="Stretch">
               <StackPanel Grid.IsSharedSizeScope="True">
                 <TextBlock Classes="card-title" Text="{x:Static r:Strings.Pkm_Stats}" />
                 <Grid Margin="0,0,0,2">
@@ -284,7 +284,10 @@
                             <ColumnDefinition Width="Auto" SharedSizeGroup="StatEv" />
                             <ColumnDefinition Width="Auto" SharedSizeGroup="StatValue" />
                           </Grid.ColumnDefinitions>
-                          <TextBlock MinWidth="64" Margin="0,0,8,0" FontWeight="SemiBold" Text="{Binding Label}" VerticalAlignment="Center" />
+                          <TextBlock MinWidth="64" Margin="0,0,8,0" FontWeight="SemiBold" Foreground="{Binding LabelBrush}" VerticalAlignment="Center">
+                            <Run Text="{Binding Label}" />
+                            <Run Text="{Binding NatureMark}" FontSize="10" />
+                          </TextBlock>
                           <TextBlock Grid.Column="1" MinWidth="30" Text="{Binding BaseText}" VerticalAlignment="Center" IsVisible="{Binding HasBase}" />
                           <ProgressBar Grid.Column="2" Classes="stat-bar" Minimum="0" Maximum="1" Value="{Binding BarFraction}" Foreground="{Binding BarBrush}" />
                           <TextBlock Grid.Column="3" Classes="hint" MinWidth="26" Margin="8,0,0,0" Text="{Binding IvText}" VerticalAlignment="Center" IsVisible="{Binding HasTraining}" />
@@ -299,7 +302,7 @@
               </StackPanel>
             </Border>
             <!-- Moves: rows in the move's type colors with type and category icons, as the save editor -->
-            <Border Classes="card">
+            <Border Grid.Column="2" Classes="card" VerticalAlignment="Stretch">
               <StackPanel>
                 <TextBlock Classes="card-title" Text="{x:Static r:Strings.Pkm_Moves}" />
                 <ItemsControl ItemsSource="{Binding Moves}">
@@ -321,14 +324,19 @@
               </StackPanel>
             </Border>
 
-            <!-- Data -->
-            <Border Classes="card">
+            <!-- Data: label and value pairs in two columns -->
+            <Border Grid.Row="2" Grid.ColumnSpan="3" Classes="card">
               <StackPanel>
                 <TextBlock Classes="card-title" Text="{x:Static r:Strings.Pkm_Main}" />
                 <ItemsControl ItemsSource="{Binding Info}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <UniformGrid Columns="2" />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
                   <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:RoomInfoLine">
-                      <Border Classes="info-row">
+                      <Border Classes="info-row" Margin="0,0,16,0">
                         <Grid ColumnDefinitions="110,*">
                           <TextBlock Classes="hint" Text="{Binding Label}" VerticalAlignment="Center" />
                           <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{Binding Value}" TextWrapping="Wrap" VerticalAlignment="Center" />
@@ -339,7 +347,7 @@
                 </ItemsControl>
               </StackPanel>
             </Border>
-          </c:AdaptiveColumnsPanel>
+          </Grid>
         </StackPanel>
       </DataTemplate>
     </ResourceDictionary>

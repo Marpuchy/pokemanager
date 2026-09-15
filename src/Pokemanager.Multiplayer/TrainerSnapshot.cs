@@ -12,10 +12,13 @@ namespace Pokemanager.Multiplayer;
 /// <param name="MovePp">Current and maximum PP of each move: current1, max1, current2, max2…</param>
 /// <param name="MoveCategories">Category of each move in the owner's ROM (0 status, 1 physical, 2 special; -1 empty). Since 1.2.1.</param>
 /// <param name="Ball">Poké Ball the Pokémon was caught in (0 unknown). Since 1.2.1.</param>
+/// <param name="BaseStats">Base stats in the owner's ROM, in the order of <paramref name="Stats"/>. Since 1.2.2.</param>
+/// <param name="Ivs">IVs in the order of <paramref name="Stats"/>. Since 1.2.2.</param>
+/// <param name="Evs">EVs in the order of <paramref name="Stats"/>. Since 1.2.2.</param>
 public sealed record SharedPokemon(
     ushort Species, byte Form, byte Gender, bool IsShiny, bool IsEgg, string Nickname, int Level,
     int HeldItem, int Ability, int Nature, ushort[] Moves, int[] Stats, int[] Types, int Hp,
-    int[]? MoveTypes = null, int[]? MovePp = null, int[]? MoveCategories = null, int Ball = 0);
+    int[]? MoveTypes = null, int[]? MovePp = null, int[]? MoveCategories = null, int Ball = 0, int[]? BaseStats = null, int[]? Ivs = null, int[]? Evs = null);
 
 /// <param name="Slots">Every slot of the box in order; null where it is empty.</param>
 /// <param name="Wallpaper">The box's wallpaper number in the game (-1 unknown). Since 1.2.1.</param>
@@ -58,7 +61,9 @@ public sealed record TrainerSnapshot(
         var pk = save.Get(slot);
         if (pk.Species == 0)
             return null;
-        var types = save.Personal(pk.Species, pk.Form)?.Types ?? [];
+        var personal = save.Personal(pk.Species, pk.Form);
+        var types = personal?.Types ?? [];
+        int[]? baseStats = personal is null ? null : [personal.HP, personal.ATK, personal.DEF, personal.SPE, personal.SPA, personal.SPD];
         ushort[] moves = pk.Moves.ToArray();
         int[] ppUps = [pk.Move1_PPUps, pk.Move2_PPUps, pk.Move3_PPUps, pk.Move4_PPUps];
         int[] pp = [pk.Move1_PP, pk.Move2_PP, pk.Move3_PP, pk.Move4_PP];
@@ -68,7 +73,8 @@ public sealed record TrainerSnapshot(
         return new SharedPokemon(
             pk.Species, pk.Form, pk.Gender, pk.IsShiny, pk.IsEgg, pk.Nickname, save.Level(pk), pk.HeldItem, pk.Ability,
             (int)pk.Nature, moves, save.Stats(pk), types.Length >= 2 ? [types[0], types[1]] : [.. types],
-            slot.IsParty ? pk.Stat_HPCurrent : -1, moveTypes, movePp, moveCategories, pk.Ball);
+            slot.IsParty ? pk.Stat_HPCurrent : -1, moveTypes, movePp, moveCategories, pk.Ball, baseStats,
+            [pk.IV_HP, pk.IV_ATK, pk.IV_DEF, pk.IV_SPE, pk.IV_SPA, pk.IV_SPD], [pk.EV_HP, pk.EV_ATK, pk.EV_DEF, pk.EV_SPE, pk.EV_SPA, pk.EV_SPD]);
     }
 
     /// <summary>Only what the room's rules let other players see.</summary>

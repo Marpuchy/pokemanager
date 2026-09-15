@@ -50,12 +50,33 @@ public static class StatBars
     }));
 
     public static double Width(int value, double full) => Math.Max(2, Math.Min(value, 200) / 200.0 * full);
+
+    /// <summary>
+    /// +1 when the nature raises the stat, -1 when it lowers it. Natures are 5 × raised + lowered in the order Atk, Def, Spe,
+    /// SpA, SpD; <paramref name="row"/> is the display order HP, Atk, Def, SpA, SpD, Spe.
+    /// </summary>
+    public static int NatureEffect(int nature, int row)
+    {
+        int up = nature / 5, down = nature % 5;
+        if (up == down || row <= 0 || row > 5)
+            return 0;
+        int order = row switch { 1 => 0, 2 => 1, 3 => 3, 4 => 4, _ => 2 };
+        return order == up ? 1 : order == down ? -1 : 0;
+    }
 }
 
 /// <summary>A stat in a read-only sheet: the value, and base/IV/EV when the viewer knows them.</summary>
 /// <param name="ScaleMax">Without the base stat: the highest stat of the Pokémon, which fills the bar.</param>
-public sealed record SheetStat(string Label, int Value, int? Base = null, int? Iv = null, int? Ev = null, int ScaleMax = 0)
+/// <param name="Nature">+1 raised by the nature (red label ▲), -1 lowered (blue ▼), as the save editor.</param>
+public sealed record SheetStat(string Label, int Value, int? Base = null, int? Iv = null, int? Ev = null, int ScaleMax = 0, int Nature = 0)
 {
+    public IBrush LabelBrush => Nature > 0 ? Raised : Nature < 0 ? Lowered : Plain;
+    public string NatureMark => Nature > 0 ? "▲" : Nature < 0 ? "▼" : "";
+
+    private static readonly IBrush Raised = new SolidColorBrush(Color.Parse("#D13438"));
+    private static readonly IBrush Lowered = new SolidColorBrush(Color.Parse("#1C6FD1"));
+    private static readonly IBrush Plain = new SolidColorBrush(Color.Parse("#1A1A1A"));
+
     public bool HasBase => Base is not null;
     public bool HasTraining => Iv is not null;
     public string BaseText => Base?.ToString() ?? "";

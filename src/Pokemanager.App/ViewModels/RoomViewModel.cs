@@ -709,7 +709,12 @@ public sealed partial class RoomViewModel : ObservableObject, IBoxBrowser
         string[] labels = [Strings.Stat_HP, Strings.Stat_Atk, Strings.Stat_Def, Strings.Stat_Spe, Strings.Stat_SpA, Strings.Stat_SpD];
         int[] order = [0, 1, 2, 4, 5, 3]; // HP, Atk, Def, SpA, SpD, Spe, as the save editor
         int highest = mon.Stats.DefaultIfEmpty(1).Max();
-        var stats = order.Where(i => i < mon.Stats.Length).Select(i => new SheetStat(labels[i], mon.Stats[i], ScaleMax: highest)).ToList();
-        Detail = new MonSheet(card, $"{card.LevelText} · {nature} · {ability}", mon.Ball > 0 ? PkhexImages.Ball(mon.Ball) : null, stats, moves, info);
+        static int? At(int[]? values, int i) => values is not null && i < values.Length ? values[i] : null;
+        // Base, IV and EV come from players on 1.2.2 or later; older ones share only the stats (neutral bars).
+        var stats = order.Where(i => i < mon.Stats.Length)
+            .Select((i, row) => new SheetStat(labels[i], mon.Stats[i], At(mon.BaseStats, i), At(mon.Ivs, i), At(mon.Evs, i), highest, StatBars.NatureEffect(mon.Nature, row)))
+            .ToList();
+        string? evNote = mon.Evs is { } evs ? string.Format(Strings.Pkm_EvTotal, evs.Sum(), SaveDocument.MaxEvTotal) : null;
+        Detail = new MonSheet(card, $"{card.LevelText} · {nature} · {ability}", mon.Ball > 0 ? PkhexImages.Ball(mon.Ball) : null, stats, moves, info, evNote);
     }
 }

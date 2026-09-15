@@ -91,11 +91,11 @@ public sealed partial class PartyMemberViewModel : ObservableObject, IMonCard
         SheetStat[] stats =
         [
             new(Strings.Stat_HP, values[0], p?.HP, pk.IV_HP, pk.EV_HP),
-            new(Strings.Stat_Atk, values[1], p?.ATK, pk.IV_ATK, pk.EV_ATK),
-            new(Strings.Stat_Def, values[2], p?.DEF, pk.IV_DEF, pk.EV_DEF),
-            new(Strings.Stat_SpA, values[4], p?.SPA, pk.IV_SPA, pk.EV_SPA),
-            new(Strings.Stat_SpD, values[5], p?.SPD, pk.IV_SPD, pk.EV_SPD),
-            new(Strings.Stat_Spe, values[3], p?.SPE, pk.IV_SPE, pk.EV_SPE),
+            new(Strings.Stat_Atk, values[1], p?.ATK, pk.IV_ATK, pk.EV_ATK, Nature: StatBars.NatureEffect((int)pk.StatAlignment, 1)),
+            new(Strings.Stat_Def, values[2], p?.DEF, pk.IV_DEF, pk.EV_DEF, Nature: StatBars.NatureEffect((int)pk.StatAlignment, 2)),
+            new(Strings.Stat_SpA, values[4], p?.SPA, pk.IV_SPA, pk.EV_SPA, Nature: StatBars.NatureEffect((int)pk.StatAlignment, 3)),
+            new(Strings.Stat_SpD, values[5], p?.SPD, pk.IV_SPD, pk.EV_SPD, Nature: StatBars.NatureEffect((int)pk.StatAlignment, 4)),
+            new(Strings.Stat_Spe, values[3], p?.SPE, pk.IV_SPE, pk.EV_SPE, Nature: StatBars.NatureEffect((int)pk.StatAlignment, 5)),
         ];
         (ushort Move, int PP, int Ups)[] slots =
         [
