@@ -1,5 +1,6 @@
 using pk3DS.Core.CTR;
 using Pokemanager.Model.Data;
+using Pokemanager.Model.Dump;
 using Pokemanager.Model.Editing;
 using Pokemanager.Model.Edits;
 
@@ -25,8 +26,43 @@ public static class ModBuilder
             outputs["romfs/" + layout.Moves] = BuildMoves(session, moveIds);
         if (EditedIds(edits, GameTables.Learnsets) is { Count: > 0 } learnsetIds)
             outputs["romfs/" + layout.LevelUp] = BuildGarc(session, layout.LevelUp, learnsetIds, id => session.Current.Learnsets[id].Write());
+        if (EditedIds(edits, GameTables.MoveTexts) is { Count: > 0 } descriptionIds)
+        {
+            foreach (var (path, data) in BuildMoveDescriptions(session, descriptionIds))
+                outputs["romfs/" + path] = data;
+        }
 
         return outputs;
+    }
+
+    /// <summary>
+    /// Edited move descriptions go to the text archive of every language the game has, so the game shows them in whatever
+    /// language it runs; the other descriptions of each language are left as they are.
+    /// </summary>
+    private static IEnumerable<(string Path, byte[] Data)> BuildMoveDescriptions(EditorSession session, HashSet<int> ids)
+    {
+        var title = session.Current.Title;
+        int file = GameText.MoveDescriptionFile(title);
+        for (int language = 0; language < title.Layout().LanguageCount; language++)
+        {
+            string path = GameText.Archive(title, language);
+            GARC.MemGARC garc;
+            string[] lines;
+            try
+            {
+                garc = ReadGarc(session, path);
+                lines = GameText.Read(title, garc.Files[file]);
+            }
+            catch (Exception ex) when (ex is FileNotFoundException or IndexOutOfRangeException or InvalidDataException)
+            {
+                continue; // a language the dump does not have
+            }
+            foreach (int id in ids.Where(id => id < lines.Length))
+                lines[id] = GameText.FromEditable(session.Current.MoveDescriptions[id]);
+            byte[][] files = garc.Files;
+            files[file] = GameText.Write(title, lines);
+            yield return (path, GARC.PackGARC(files, garc.Version, garc.ContentPadding).Data);
+        }
     }
 
     private static HashSet<int> EditedIds(EditSet edits, string table) =>

@@ -25,21 +25,22 @@ public static class TypeColors
     /// <summary>A little lighter, so text and sprites stay readable on it.</summary>
     private static Color Soft(Color c) => Color.FromRgb((byte)(c.R + ((255 - c.R) * 0.18)), (byte)(c.G + ((255 - c.G) * 0.18)), (byte)(c.B + ((255 - c.B) * 0.18)));
 
-    /// <summary>One type: a solid color. Two types: split diagonally, one color per half.</summary>
+    /// <summary>One type: a solid color. Two types: split by a diagonal cut, one flat color per half, no blend between them.</summary>
     public static IBrush Background(int type1, int type2)
     {
         var first = Soft(Of(type1));
         if (type1 == type2)
             return new SolidColorBrush(first);
         var second = Soft(Of(type2));
+        // Both stops at the same offset: the color changes at once along the diagonal.
         return new LinearGradientBrush
         {
             StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative),
             EndPoint = new RelativePoint(1, 1, RelativeUnit.Relative),
             GradientStops =
             {
-                new GradientStop(first, 0), new GradientStop(first, 0.49),
-                new GradientStop(second, 0.51), new GradientStop(second, 1),
+                new GradientStop(first, 0), new GradientStop(first, 0.5),
+                new GradientStop(second, 0.5), new GradientStop(second, 1),
             },
         };
     }

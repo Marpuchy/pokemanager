@@ -32,7 +32,7 @@ public abstract class FieldViewModel(EditorSession session, string table, int id
     }
 }
 
-public sealed class IntFieldViewModel(EditorSession session, string table, int id, string field, string label, int min, int max)
+public class IntFieldViewModel(EditorSession session, string table, int id, string field, string label, int min, int max)
     : FieldViewModel(session, table, id, field, label)
 {
     public int Min { get; } = min;
@@ -48,6 +48,27 @@ public sealed class IntFieldViewModel(EditorSession session, string table, int i
             Write((int)Math.Clamp(value.Value, Min, Max));
         }
     }
+}
+
+/// <summary>A base stat with a bar, colored like Showdown's (red when low, green and teal when high).</summary>
+public sealed class StatFieldViewModel(EditorSession session, string table, int id, string field, string label)
+    : IntFieldViewModel(session, table, id, field, label, 0, 255)
+{
+    private const double FullBar = 180;
+
+    private int Current => Session.GetInt(Table, Id, Field);
+
+    public double BarWidth => Math.Max(2, Math.Min(Current, 200) / 200.0 * FullBar);
+
+    public Avalonia.Media.IBrush BarBrush => new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse(Current switch
+    {
+        < 30 => "#F34444",
+        < 60 => "#FF7F0F",
+        < 90 => "#FFDD57",
+        < 120 => "#A0E515",
+        < 150 => "#23CD5E",
+        _ => "#00C2B8",
+    }));
 }
 
 public sealed class ChoiceFieldViewModel(EditorSession session, string table, int id, string field, string label, IReadOnlyList<string> options)

@@ -1,7 +1,7 @@
 // Pokemanager battle host: runs Pokémon Showdown's simulator (MIT) with the data of each player's ROM.
 //
 // Protocol: one JSON object per line.
-//   in  {"type":"start","rules":{...},"players":[{team}, {team}]}   once, first
+//   in  {"type":"start","rules":{...},"players":[{team}, {team}],"avatars":["red","blue"]}   once, first
 //   in  {"type":"choose","side":"p1","choice":"move 1"}             a player's decision
 //   out {"type":"update","lines":[...]}                             what everyone sees
 //   out {"type":"side","side":"p1","lines":[...]}                   a player's private request/errors
@@ -206,7 +206,8 @@ input.on('line', line => {
       }
     })();
     stream.write(`>start ${JSON.stringify({ formatid: format, seed: msg.seed })}`);
-    msg.players.forEach((team, i) => stream.write(`>player p${i + 1} ${JSON.stringify({ name: team.player, team: packed[i] })}`));
+    const avatars = msg.avatars || [];
+    msg.players.forEach((team, i) => stream.write(`>player p${i + 1} ${JSON.stringify({ name: team.player, avatar: avatars[i] || undefined, team: packed[i] })}`));
   } else if (msg.type === 'choose' && stream) {
     if (/^p[12]$/.test(msg.side) && typeof msg.choice === 'string' && !msg.choice.includes('\n'))
       stream.write(`>${msg.side} ${msg.choice}`);

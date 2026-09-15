@@ -51,6 +51,19 @@ public partial class EditorViewModel : ObservableObject
     [ObservableProperty]
     public partial string SpeciesFilter { get; set; } = "";
 
+    /// <summary>
+    /// Advanced: Pokémon shows the abilities only on request, off every time a project opens: players checking the
+    /// changed stats of a randomized ROM may not want to see them (spoilers).
+    /// </summary>
+    [ObservableProperty]
+    public partial bool ShowAbilities { get; set; }
+
+    [RelayCommand]
+    private void RevealAbilities() => ShowAbilities = true;
+
+    [RelayCommand]
+    private void HideAbilities() => ShowAbilities = false;
+
     [ObservableProperty]
     public partial string MoveFilter { get; set; } = "";
 
@@ -117,6 +130,11 @@ public partial class EditorViewModel : ObservableObject
         SaveEditor = new SaveEditorViewModel(this, settings);
         Locke = new LockeViewModel(this);
 
+        ProjectUndo = new SnapshotHistory(() => Session.Project.CaptureState(), RestoreProjectState);
+        ProjectUndo.Changed += NotifyUndo;
+        ProjectUndo.Reset();
+        SaveEditor.Undo.Changed += NotifyUndo;
+
         // Projects built before the history existed: keep what is being played as the first version, so there is
         // something to go back to before the next build.
         var r = session.Project.Randomization;
@@ -146,10 +164,12 @@ public partial class EditorViewModel : ObservableObject
     {
         string[] personalTables = [GameTables.Personal, GameTables.Learnsets];
         allSpecies = Enumerable.Range(1, Session.Current.Personal.Length - 1) // entry 0 is an empty placeholder
-            .Select(i => new ListEntryViewModel(Session, personalTables, i, Names.PersonalEntries[i], () => Sprites.ForPersonalEntry(i)))
+            .Select(i => new ListEntryViewModel(Session, personalTables, i, Names.PersonalEntries[i], () => Sprites.ForPersonalEntry(i),
+                () => (Session.Current.Personal[i].Types[0], Session.Current.Personal[i].Types[1])))
             .ToList();
+        string[] moveTables = [GameTables.Moves, GameTables.MoveTexts];
         allMoves = Enumerable.Range(1, Session.Current.Moves.Length - 1)
-            .Select(i => new ListEntryViewModel(Session, [GameTables.Moves], i, Names.Moves[i]))
+            .Select(i => new ListEntryViewModel(Session, moveTables, i, Names.Moves[i], types: () => (Session.Current.Moves[i].Type, Session.Current.Moves[i].Type), moveCategory: () => Session.Current.Moves[i].Category))
             .ToList();
 
         int? species = SelectedSpecies?.Id, move = SelectedMove?.Id;
@@ -167,13 +187,115 @@ public partial class EditorViewModel : ObservableObject
 
     private void OnSessionChanged(object? sender, EditKey key)
     {
-        MarkDirty();
+        bool move = key.Table is GameTables.Moves or GameTables.MoveTexts;
+        string name = move
+            ? key.Id < Names.Moves.Count ? Names.Moves[key.Id] : $"#{key.Id}"
+            : key.Id < Names.PersonalEntries.Count ? Names.PersonalEntries[key.Id] : $"#{key.Id}";
+        MarkDirty($"{name} · {key.Field}");
         OnPropertyChanged(nameof(EditCountText));
-        var list = key.Table == GameTables.Moves ? allMoves : allSpecies;
+        var list = move ? allMoves : allSpecies;
         list.FirstOrDefault(e => e.Id == key.Id)?.Refresh();
     }
 
-    public void MarkDirty() => IsDirty = true;
+    /// <summary>The project changed: unsaved, and a step for undo (the label says what, for the Undo button).</summary>
+    public void MarkDirty() => MarkDirty(Strings.Undo_ProjectChange);
+
+    public void MarkDirty(string label)
+    {
+        IsDirty = true;
+        if (!restoringProject)
+            ProjectUndo?.Record(label);
+    }
+
+    // ------------------------------------------------------------------ undo / redo
+
+    private bool restoringProject;
+
+    /// <summary>Undo of the project: advanced edits, imports, randomizer settings and Locke rules.</summary>
+    public SnapshotHistory ProjectUndo { get; private set; } = null!;
+
+    /// <summary>Index of the main tab shown: the Save tab (1) undoes save edits, the others the project.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(UndoText), nameof(RedoText), nameof(UndoTip), nameof(RedoTip))]
+    [NotifyCanExecuteChangedFor(nameof(UndoCommand), nameof(RedoCommand))]
+    public partial int SelectedTab { get; set; }
+
+    private const int SaveTabIndex = 1;
+
+    private SnapshotHistory ActiveUndo => SelectedTab == SaveTabIndex ? SaveEditor.Undo : ProjectUndo;
+
+    public string UndoText => ActiveUndo.UndoCount > 0 ? string.Format(Strings.Undo_Button, ActiveUndo.UndoCount) : Strings.Undo_ButtonNone;
+    public string RedoText => ActiveUndo.RedoCount > 0 ? string.Format(Strings.Redo_Button, ActiveUndo.RedoCount) : Strings.Redo_ButtonNone;
+    public string UndoTip => ActiveUndo.UndoLabel is { } label ? string.Format(Strings.Undo_Tip, label) : Strings.Undo_Nothing;
+    public string RedoTip => ActiveUndo.RedoLabel is { } label ? string.Format(Strings.Redo_Tip, label) : Strings.Redo_Nothing;
+
+    private void NotifyUndo()
+    {
+        OnPropertyChanged(nameof(UndoText));
+        OnPropertyChanged(nameof(RedoText));
+        OnPropertyChanged(nameof(UndoTip));
+        OnPropertyChanged(nameof(RedoTip));
+        UndoCommand.NotifyCanExecuteChanged();
+        RedoCommand.NotifyCanExecuteChanged();
+    }
+
+    private bool CanUndo() => ActiveUndo.CanUndo;
+    private bool CanRedo() => ActiveUndo.CanRedo;
+
+    [RelayCommand(CanExecute = nameof(CanUndo))]
+    private void Undo()
+    {
+        if (ActiveUndo.Undo() is { } label)
+            SetStatus(string.Format(Strings.Undo_Done, label));
+    }
+
+    [RelayCommand(CanExecute = nameof(CanRedo))]
+    private void Redo()
+    {
+        if (ActiveUndo.Redo() is { } label)
+            SetStatus(string.Format(Strings.Redo_Done, label));
+    }
+
+    /// <summary>Puts a captured project state back: edits through the session (so every view follows), then the settings.</summary>
+    private void RestoreProjectState(byte[] state)
+    {
+        var (edits, randomization, locke) = Project.ReadState(state);
+        restoringProject = true;
+        Session.Changed -= OnSessionChanged;
+        try
+        {
+            var target = edits.ToDictionary(e => e.Key);
+            foreach (var edit in Session.Project.Edits.All.ToList())
+                if (!target.ContainsKey(edit.Key))
+                    Session.Set(edit.Table, edit.Id, edit.Field, Session.GetOriginal(edit.Table, edit.Id, edit.Field));
+            foreach (var edit in edits)
+                if (!System.Text.Json.Nodes.JsonNode.DeepEquals(Session.Get(edit.Table, edit.Id, edit.Field), edit.Value))
+                    Session.Set(edit.Table, edit.Id, edit.Field, edit.Value);
+
+            // What a build recorded (the ROM written, its seed) is a fact, not something to undo.
+            var r = Session.Project.Randomization;
+            (string? lastBuilt, long? installed) = (r.LastBuiltRom, r.InstalledSeed);
+            r.CopyFrom(randomization);
+            (r.LastBuiltRom, r.InstalledSeed) = (lastBuilt, installed);
+            Session.Project.Locke = locke;
+
+            foreach (var entry in allSpecies.Concat(allMoves))
+                entry.Refresh();
+            if (SpeciesDetail is { } species)
+                SpeciesDetail = new SpeciesDetailViewModel(Session, Names, species.Id, Sprites.ForPersonalEntry(species.Id));
+            if (MoveDetail is { } move)
+                MoveDetail = new MoveDetailViewModel(Session, Names, move.Id);
+            Randomizer.ReloadFromProject();
+            Locke.Refresh();
+            IsDirty = true;
+            OnPropertyChanged(nameof(EditCountText));
+        }
+        finally
+        {
+            Session.Changed += OnSessionChanged;
+            restoringProject = false;
+        }
+    }
 
     // Filtering rebuilds the list and the ListBox loses its selection: keep the open detail and reselect its entry
     // if it is still visible.
@@ -466,21 +588,31 @@ public partial class EditorViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task ExportPokemonData()
+    private Task ExportPokemonData() => ExportDataAsync(PokemonDataKind.Pokemon);
+
+    [RelayCommand]
+    private Task ExportMoveData() => ExportDataAsync(PokemonDataKind.Moves);
+
+    /// <summary>Exports the Pokémon (.pkdata) or the moves (.mvdata): the changes, or every value.</summary>
+    private async Task ExportDataAsync(PokemonDataKind kind)
     {
+        bool moves = kind == PokemonDataKind.Moves;
+        string title = moves ? Strings.Data_ExportMovesTitle : Strings.Data_ExportTitle;
         var all = new DialogCheck(Strings.Data_ExportAll);
-        var question = new QuestionViewModel(Strings.Data_ExportTitle, Strings.Data_ExportMessage, Strings.Data_ExportConfirm, Strings.Common_Cancel, [all]);
+        var question = new QuestionViewModel(title, moves ? Strings.Data_ExportMovesMessage : Strings.Data_ExportMessage,
+            Strings.Data_ExportConfirm, Strings.Common_Cancel, [all]);
         if (!await dialogs.AskAsync(question))
             return;
 
-        string suggested = Path.GetFileNameWithoutExtension(ProjectPath) + (all.IsChecked ? " - all" : " - changes") + "." + PokemonDataFile.Extension;
-        if (await dialogs.PickSaveFileAsync(Strings.Data_ExportTitle, suggested, PokemonDataFile.Extension) is not { } path)
+        string extension = PokemonDataFile.ExtensionOf(kind);
+        string suggested = Path.GetFileNameWithoutExtension(ProjectPath) + (all.IsChecked ? " - all" : " - changes") + "." + extension;
+        if (await dialogs.PickSaveFileAsync(title, suggested, extension) is not { } path)
             return;
         try
         {
             var file = all.IsChecked
-                ? PokemonDataFile.FromCurrent(Session, Dump.Title, DataDescription())
-                : PokemonDataFile.FromEdits(Session, Dump.Title, DataDescription());
+                ? PokemonDataFile.FromCurrent(Session, Dump.Title, DataDescription(), kind)
+                : PokemonDataFile.FromEdits(Session, Dump.Title, DataDescription(), kind);
             await Task.Run(() => file.Save(path));
             SetStatus(string.Format(Strings.Data_Exported, file.ValueCount, path));
         }
@@ -493,7 +625,7 @@ public partial class EditorViewModel : ObservableObject
     [RelayCommand]
     private async Task ImportPokemonData()
     {
-        if (await dialogs.PickOpenFileAsync(Strings.Data_ImportTitle, ["*." + PokemonDataFile.Extension]) is not { } path)
+        if (await dialogs.PickOpenFileAsync(Strings.Data_ImportTitle, ["*." + PokemonDataFile.Extension, "*." + PokemonDataFile.MovesExtension]) is not { } path)
             return;
         PokemonDataFile file;
         try
@@ -506,7 +638,13 @@ public partial class EditorViewModel : ObservableObject
             return;
         }
 
-        string scope = file.Scope == PokemonDataScope.All ? Strings.Data_ScopeAll : Strings.Data_ScopeEdits;
+        string contents = file.Kind switch
+        {
+            PokemonDataKind.Pokemon => Strings.Data_KindPokemon,
+            PokemonDataKind.Moves => Strings.Data_KindMoves,
+            _ => Strings.Data_KindAll,
+        };
+        string scope = contents + ", " + (file.Scope == PokemonDataScope.All ? Strings.Data_ScopeAll : Strings.Data_ScopeEdits);
         string game = file.Game is { } g && g != Dump.Title ? string.Format(Strings.Data_OtherGame, g.DisplayName(), Dump.Title.DisplayName()) : "";
         var replace = new DialogCheck(Strings.Data_Replace, isChecked: false, isEnabled: Session.Project.Edits.Count > 0);
         var question = new QuestionViewModel(Strings.Data_ImportTitle,

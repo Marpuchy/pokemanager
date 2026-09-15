@@ -1,0 +1,11 @@
+<Window xmlns="https://github.com/avaloniaui"
+        Icon="avares://Pokemanager.App/Assets/pokemanager.ico"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Pokemanager.App.ViewModels"
+        x:Class="Pokemanager.App.Views.BattleWindow"
+        x:DataType="vm:BattleViewModel"
+        Title="{Binding Title}"
+        Width="1040" Height="640" MinWidth="960" MinHeight="600"
+        WindowStartupLocation="CenterOwner">
+  <NativeWebView x:Name="WebView" />
+</Window>

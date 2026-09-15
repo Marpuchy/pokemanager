@@ -46,9 +46,10 @@
             <ItemsControl ItemsSource="{Binding Spins}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="vm:SpinRowViewModel">
-                  <Grid ColumnDefinitions="130,*,Auto" Margin="0,2">
+                  <Grid ColumnDefinitions="130,Auto,*,Auto" Margin="0,2">
                     <TextBlock Text="{Binding Badge}" FontWeight="SemiBold" VerticalAlignment="Center" />
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <Border Grid.Column="1" Width="30" Height="30" Background="#F2F4F6" BorderBrush="#30000000" BorderThickness="1" Margin="0,0,8,0" VerticalAlignment="Center"><Panel><Image Source="{Binding Icon}" Width="22" Height="22" RenderOptions.BitmapInterpolationMode="None" /><TextBlock Text="{Binding Glyph}" FontSize="15" FontWeight="Bold" Foreground="#D13438" HorizontalAlignment="Center" VerticalAlignment="Center" /></Panel></Border>
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
                       <TextBlock Text="{Binding PrizeText}" />
                       <TextBlock Classes="hint" FontSize="11">
                         <Run Text="{Binding StateText}" />
@@ -56,7 +57,7 @@
                         <Run Text="{Binding When}" />
                       </TextBlock>
                     </StackPanel>
-                    <Button Grid.Column="2" Content="{x:Static r:Strings.Locke_AllowAgain}" Command="{Binding ForgetCommand}"
+                    <Button Grid.Column="3" Content="{x:Static r:Strings.Locke_AllowAgain}" Command="{Binding ForgetCommand}"
                             ToolTip.Tip="{x:Static r:Strings.Locke_AllowAgainTip}" VerticalAlignment="Center" />
                   </Grid>
                 </DataTemplate>
@@ -71,25 +72,25 @@
         <StackPanel Spacing="6">
           <TextBlock Classes="card-title" Text="{x:Static r:Strings.Locke_PrizesTitle}" />
           <TextBlock Classes="hint" Text="{x:Static r:Strings.Locke_PrizesHint}" />
-          <Grid ColumnDefinitions="110,*,120,100,56,Auto" Margin="0,4,0,0">
-            <TextBlock Classes="hint" Text="{x:Static r:Strings.Locke_ColKind}" />
-            <TextBlock Grid.Column="1" Classes="hint" Text="{x:Static r:Strings.Locke_ColPrize}" />
-            <TextBlock Grid.Column="2" Classes="hint" Text="{x:Static r:Strings.Locke_ColAmount}" />
-            <TextBlock Grid.Column="3" Classes="hint" Text="{x:Static r:Strings.Locke_ColWeight}" />
-            <TextBlock Grid.Column="4" Classes="hint" Text="{x:Static r:Strings.Locke_ColChance}" />
+          <Grid ColumnDefinitions="36,110,*,120,100,56,Auto" Margin="0,4,0,0">
+            <TextBlock Grid.Column="1" Classes="hint" Text="{x:Static r:Strings.Locke_ColKind}" />
+            <TextBlock Grid.Column="2" Classes="hint" Text="{x:Static r:Strings.Locke_ColPrize}" />
+            <TextBlock Grid.Column="3" Classes="hint" Text="{x:Static r:Strings.Locke_ColAmount}" />
+            <TextBlock Grid.Column="4" Classes="hint" Text="{x:Static r:Strings.Locke_ColWeight}" />
+            <TextBlock Grid.Column="5" Classes="hint" Text="{x:Static r:Strings.Locke_ColChance}" />
           </Grid>
           <ItemsControl ItemsSource="{Binding Prizes}">
             <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="vm:PrizeRowViewModel">
-                <Grid ColumnDefinitions="110,*,120,100,56,Auto" Margin="0,2">
-                  <ComboBox ItemsSource="{x:Static vm:PrizeRowViewModel.KindNames}" SelectedIndex="{Binding KindIndex}" HorizontalAlignment="Stretch" Margin="0,0,4,0" />
-                  <ComboBox Grid.Column="1" ItemsSource="{Binding ItemNames}" SelectedIndex="{Binding ItemIndex}" IsVisible="{Binding IsItem}"
+                <Grid ColumnDefinitions="36,110,*,120,100,56,Auto" Margin="0,2"><Border Width="30" Height="30" Background="#F2F4F6" BorderBrush="#30000000" BorderThickness="1" Margin="0,0,6,0" VerticalAlignment="Center"><Panel><Image Source="{Binding Icon}" Width="22" Height="22" RenderOptions.BitmapInterpolationMode="None" /><TextBlock Text="{Binding Glyph}" FontSize="15" FontWeight="Bold" Foreground="#D13438" HorizontalAlignment="Center" VerticalAlignment="Center" /></Panel></Border>
+                  <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:PrizeRowViewModel.KindNames}" SelectedIndex="{Binding KindIndex}" HorizontalAlignment="Stretch" Margin="0,0,4,0" />
+                  <ComboBox Grid.Column="2" ItemsSource="{Binding ItemNames}" SelectedIndex="{Binding ItemIndex}" IsVisible="{Binding IsItem}"
                             HorizontalAlignment="Stretch" MaxDropDownHeight="400" Margin="0,0,4,0" />
-                  <NumericUpDown Grid.Column="2" Value="{Binding Amount}" Minimum="1" Maximum="9999999" FormatString="0" ParsingNumberStyle="Integer"
+                  <NumericUpDown Grid.Column="3" Value="{Binding Amount}" Minimum="1" Maximum="9999999" FormatString="0" ParsingNumberStyle="Integer"
                                  IsVisible="{Binding HasAmount}" Margin="0,0,4,0" />
-                  <NumericUpDown Grid.Column="3" Value="{Binding Weight}" Minimum="0" Maximum="100" FormatString="0" ParsingNumberStyle="Integer" Margin="0,0,4,0" />
-                  <TextBlock Grid.Column="4" Text="{Binding ChanceText}" VerticalAlignment="Center" />
-                  <Button Grid.Column="5" Content="✕" Padding="6,2" Command="{Binding RemoveCommand}" />
+                  <NumericUpDown Grid.Column="4" Value="{Binding Weight}" Minimum="0" Maximum="100" FormatString="0" ParsingNumberStyle="Integer" Margin="0,0,4,0" />
+                  <TextBlock Grid.Column="5" Text="{Binding ChanceText}" VerticalAlignment="Center" />
+                  <Button Grid.Column="6" Content="✕" Padding="6,2" Command="{Binding RemoveCommand}" />
                 </Grid>
               </DataTemplate>
             </ItemsControl.ItemTemplate>

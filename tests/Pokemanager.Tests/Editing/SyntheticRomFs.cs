@@ -1,5 +1,6 @@
 using pk3DS.Core.CTR;
 using Pokemanager.Model.Data;
+using Pokemanager.Model.Dump;
 
 namespace Pokemanager.Tests.Editing;
 
@@ -42,7 +43,19 @@ internal sealed class SyntheticRomFs : IDisposable
         // Learnset i: move 1 at level 1 and move 2 at level 5, with a -1 terminator.
         byte[] learnset = [1, 0, 1, 0, 2, 0, 5, 0, 0xFF, 0xFF, 0xFF, 0xFF];
         Write(GameData.LevelUpGarc, Enumerable.Repeat(learnset, Species).ToArray());
+
+        // Game text, one archive per language (a/0/7/2 …): the move descriptions file says "Move i (language l)" on two lines.
+        int descriptions = GameText.MoveDescriptionFile(GameTitle.X);
+        for (int language = 0; language < GameTitle.X.Layout().LanguageCount; language++)
+        {
+            var files = Enumerable.Range(0, descriptions + 2).Select(_ => GameText.Write(GameTitle.X, ["text"])).ToArray();
+            files[descriptions] = GameText.Write(GameTitle.X, [.. Enumerable.Range(0, MoveCount).Select(i => Description(i, language))]);
+            Write(GameText.Archive(GameTitle.X, language), files);
+        }
     }
+
+    /// <summary>A move description as the game file has it (pk3DS syntax).</summary>
+    public static string Description(int move, int language) => $@"Move {move}\n(language {language})";
 
     public byte[][] ReadGarc(string directory, string garc) =>
         new GARC.MemGARC(File.ReadAllBytes(Path.Combine(directory, garc.Replace('/', Path.DirectorySeparatorChar)))).Files;

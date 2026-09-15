@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<!--
+  Pokemanager battle screen: Pokémon Showdown's battle engine (animations, sprites, log and tooltips; MIT) loaded from
+  play.pokemonshowdown.com the way its replay embed does, driven by the room's battle (battle-room.js) instead of a
+  Showdown server. The app talks to this page with PM.* calls and receives the player's decisions as web messages.
+-->
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width" />
+  <title>Pokemanager battle</title>
+  <link rel="stylesheet" href="https://play.pokemonshowdown.com/style/font-awesome.css" />
+  <link rel="stylesheet" href="https://play.pokemonshowdown.com/style/battle.css" />
+  <link rel="stylesheet" href="https://play.pokemonshowdown.com/style/oldclient.css" />
+  <link rel="stylesheet" href="https://play.pokemonshowdown.com/style/sim-types.css" />
+  <link rel="stylesheet" href="battle-room.css" />
+  <script>window.exports = window;</script>
+  <script src="https://play.pokemonshowdown.com/js/lib/ps-polyfill.js"></script>
+  <script src="https://play.pokemonshowdown.com/config/config.js"></script>
+  <script src="https://play.pokemonshowdown.com/js/lib/jquery-1.11.0.min.js"></script>
+  <script src="https://play.pokemonshowdown.com/js/lib/html-sanitizer-minified.js"></script>
+  <script src="https://play.pokemonshowdown.com/js/battle-sound.js"></script>
+  <script src="https://play.pokemonshowdown.com/js/battledata.js"></script>
+  <script src="https://play.pokemonshowdown.com/data/pokedex-mini.js"></script>
+  <script src="https://play.pokemonshowdown.com/data/pokedex-mini-bw.js"></script>
+  <script src="https://play.pokemonshowdown.com/data/graphics.js"></script>
+  <script src="https://play.pokemonshowdown.com/data/pokedex.js"></script>
+  <script src="https://play.pokemonshowdown.com/data/moves.js"></script>
+  <script src="https://play.pokemonshowdown.com/data/abilities.js"></script>
+  <script src="https://play.pokemonshowdown.com/data/items.js"></script>
+  <script src="https://play.pokemonshowdown.com/data/teambuilder-tables.js"></script>
+  <script src="https://play.pokemonshowdown.com/js/battle-tooltips.js"></script>
+  <script src="https://play.pokemonshowdown.com/js/battle.js"></script>
+</head>
+<body>
+  <div id="room" class="ps-room">
+    <div class="battle"></div>
+    <div class="battle-controls" role="complementary" aria-label="Battle controls"></div>
+    <div class="battle-log" aria-label="Battle log" role="log"></div>
+    <div id="toolbar">
+      <button id="mute" class="button" type="button"></button>
+      <button id="forfeit" class="button" type="button"></button>
+    </div>
+  </div>
+  <div id="offline" hidden></div>
+  <script src="battle-room.js"></script>
+</body>
+</html>

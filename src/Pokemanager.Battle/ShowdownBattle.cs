@@ -68,8 +68,10 @@ public sealed class ShowdownBattle : IAsyncDisposable
         Exited = process.WaitForExitAsync();
     }
 
+    /// <param name="avatars">Showdown trainer sprite of each player ("red"), shown next to their side; null for none.</param>
     /// <exception cref="InvalidOperationException">The simulator could not be started.</exception>
-    public static ShowdownBattle Start(ShowdownTools tools, BattleRules rules, BattleTeam p1, BattleTeam p2, int[]? seed = null)
+    public static ShowdownBattle Start(ShowdownTools tools, BattleRules rules, BattleTeam p1, BattleTeam p2, int[]? seed = null,
+        string?[]? avatars = null)
     {
         var info = new ProcessStartInfo(tools.Node)
         {
@@ -85,7 +87,7 @@ public sealed class ShowdownBattle : IAsyncDisposable
         info.ArgumentList.Add(tools.Launcher);
         var process = Process.Start(info) ?? throw new InvalidOperationException("The battle simulator could not be started.");
         var battle = new ShowdownBattle(process);
-        battle.Send(new { type = "start", rules, players = new[] { p1, p2 }, seed });
+        battle.Send(new { type = "start", rules, players = new[] { p1, p2 }, seed, avatars });
         return battle;
     }
 

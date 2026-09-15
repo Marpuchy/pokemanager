@@ -25,6 +25,9 @@ public interface IDialogs
 
     /// <summary>Shows the badge roulette until it is closed.</summary>
     Task ShowRouletteAsync(RouletteViewModel roulette);
+
+    /// <summary>Opens a battle of the room in its own window (not modal).</summary>
+    void ShowBattle(BattleViewModel battle);
 }
 
 public sealed class Dialogs(Window owner) : IDialogs
@@ -77,4 +80,7 @@ public sealed class Dialogs(Window owner) : IDialogs
 
     public Task ShowRouletteAsync(RouletteViewModel roulette) =>
         new RouletteWindow { DataContext = roulette }.ShowDialog(owner);
+
+    public void ShowBattle(BattleViewModel battle) =>
+        new BattleWindow { DataContext = battle }.Show(owner);
 }

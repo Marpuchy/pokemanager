@@ -1,0 +1,5 @@
+Images from PKHeX (https://github.com/kwsch/PKHeX, GPL-3.0), commit fd213a27db65d6223bcf47935e36c7d375e04b7b:
+box/   PKHeX.Drawing.Misc/Resources/img/box/xy and ao (box wallpapers)
+items/ PKHeX.Drawing.PokeSprite/Resources/img/Big Items (item icons)
+balls/ PKHeX.Drawing.PokeSprite/Resources/img/ball (Poké Ball icons)
+Pokémon and its images are © Nintendo / Game Freak / The Pokémon Company.

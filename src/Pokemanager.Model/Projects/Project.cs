@@ -40,6 +40,21 @@ public sealed class RandomizationSettings
 
     /// <summary>There is a seed. The preset may be missing: UPR ZX defaults are used then.</summary>
     public bool IsReady => Enabled && Seed > 0;
+
+    /// <summary>Takes every value of <paramref name="other"/> (undo keeps the same instance, which views hold).</summary>
+    public void CopyFrom(RandomizationSettings other)
+    {
+        Enabled = other.Enabled;
+        PresetName = other.PresetName;
+        Preset = other.Preset;
+        PresetModified = other.PresetModified;
+        Seed = other.Seed;
+        InstalledSeed = other.InstalledSeed;
+        OutputName = other.OutputName;
+        LastBuiltRom = other.LastBuiltRom;
+        ReplacePreviousRom = other.ReplacePreviousRom;
+        UpdateSave = other.UpdateSave;
+    }
 }
 
 /// <summary>
@@ -117,6 +132,24 @@ public sealed class Project
         File.WriteAllText(tmp, JsonSerializer.Serialize(file, JsonOptions));
         File.Move(tmp, path, overwrite: true);
     }
+
+    /// <summary>
+    /// What the user changes in a project — edits, randomization and Locke rules — as bytes, for undo. Edits are sorted,
+    /// so the same state always gives the same bytes.
+    /// </summary>
+    public byte[] CaptureState() => JsonSerializer.SerializeToUtf8Bytes(new ProjectState(
+        Edits.All.OrderBy(e => e.Table, StringComparer.Ordinal).ThenBy(e => e.Id).ThenBy(e => e.Field, StringComparer.Ordinal)
+            .Select(e => new EditEntry(e.Table, e.Id, e.Field, e.Value)).ToList(),
+        Randomization, Locke), JsonOptions);
+
+    /// <summary>A state captured with <see cref="CaptureState"/>.</summary>
+    public static (IReadOnlyList<Edit> Edits, RandomizationSettings Randomization, LockeSettings Locke) ReadState(byte[] state)
+    {
+        var s = JsonSerializer.Deserialize<ProjectState>(state, JsonOptions) ?? throw new InvalidDataException("Empty project state.");
+        return ([.. s.Edits.Select(e => new Edit(e.Table, e.Id, e.Field, e.Value))], s.Randomization, s.Locke);
+    }
+
+    private sealed record ProjectState(List<EditEntry> Edits, RandomizationSettings Randomization, LockeSettings Locke);
 
     public static Project Load(string path)
     {

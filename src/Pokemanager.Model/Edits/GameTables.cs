@@ -22,6 +22,11 @@ public static class GameTables
     public const string Moves = "move";
     public const string Learnsets = "learnset";
 
+    /// <summary>Move texts: <see cref="Description"/> (a string; English base, written to every language of the game).</summary>
+    public const string MoveTexts = "movetext";
+
+    public const string Description = "description";
+
     /// <summary>Field of <see cref="Learnsets"/>: list of <c>[level, move]</c> pairs sorted by level.</summary>
     public const string LevelUp = "levelup";
 
@@ -78,7 +83,9 @@ public static class GameTables
 
     public static readonly ITable LearnsetTable = new LearnsetTableImpl();
 
-    public static IReadOnlyList<ITable> All { get; } = [PersonalTable, MoveTable, LearnsetTable];
+    public static readonly ITable MoveTextTable = new MoveTextTableImpl();
+
+    public static IReadOnlyList<ITable> All { get; } = [PersonalTable, MoveTable, LearnsetTable, MoveTextTable];
 
     public static ITable Get(string name) =>
         All.FirstOrDefault(t => t.Name == name) ?? throw new ArgumentException(string.Format(Strings.Tables_UnknownTable, name), nameof(name));
@@ -142,6 +149,28 @@ public static class GameTables
         {
             if (field != LevelUp)
                 throw new ArgumentException(string.Format(Strings.Tables_UnknownField, Learnsets, field), nameof(field));
+        }
+    }
+
+    private sealed class MoveTextTableImpl : ITable
+    {
+        public string Name => MoveTexts;
+        public IReadOnlyList<string> Fields { get; } = [Description];
+        public int Count(GameData data) => data.MoveDescriptions.Length;
+
+        public JsonNode Get(GameData data, int id, string field) => JsonValue.Create(data.MoveDescriptions[Index(data, id, field)]);
+
+        /// <summary>Line breaks normalized to "\n" and trailing spaces or breaks removed, so equal texts compare equal.</summary>
+        public void Set(GameData data, int id, string field, JsonNode value) =>
+            data.MoveDescriptions[Index(data, id, field)] = value.GetValue<string>().Replace("\r\n", "\n").Replace('\r', '\n').TrimEnd();
+
+        private static int Index(GameData data, int id, string field)
+        {
+            if (field != Description)
+                throw new ArgumentException(string.Format(Strings.Tables_UnknownField, MoveTexts, field), nameof(field));
+            if ((uint)id >= data.MoveDescriptions.Length)
+                throw new ArgumentOutOfRangeException(nameof(id), id, string.Format(Strings.Tables_OutOfRange, MoveTexts, data.MoveDescriptions.Length));
+            return id;
         }
     }
 }

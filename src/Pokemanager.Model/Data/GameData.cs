@@ -28,12 +28,19 @@ public sealed class GameData
     public Move[] Moves { get; }
     public Learnset6[] Learnsets { get; }
 
-    private GameData(GameTitle title, PersonalInfoXY[] personal, Move[] moves, Learnset6[] learnsets)
+    /// <summary>
+    /// Description of each move as edited in the app (<see cref="GameText"/> editable form). The base is the game's English
+    /// text, whatever language the app or the game uses; an edited description goes to every language of the game.
+    /// </summary>
+    public string[] MoveDescriptions { get; }
+
+    private GameData(GameTitle title, PersonalInfoXY[] personal, Move[] moves, Learnset6[] learnsets, string[] moveDescriptions)
     {
         Title = title;
         Personal = personal;
         Moves = moves;
         Learnsets = learnsets;
+        MoveDescriptions = moveDescriptions;
     }
 
     public static GameData Load(string romFsPath, GameTitle title = GameTitle.X) => Load(new RomFsLayers(romFsPath), title);
@@ -41,10 +48,27 @@ public sealed class GameData
     public static GameData Load(RomFsLayers layers, GameTitle title = GameTitle.X)
     {
         var layout = title.Layout();
+        var moves = ReadMoveFiles(layers, title).Select(f => title.Generation() == 6 ? (Move)new Move6(f) : new Move7(f)).ToArray();
         return new GameData(title,
             ReadPersonal(layers, title),
-            ReadMoveFiles(layers, title).Select(f => title.Generation() == 6 ? (Move)new Move6(f) : new Move7(f)).ToArray(),
-            ReadFiles(layers, layout.LevelUp).Select(f => new Learnset6(f)).ToArray());
+            moves,
+            ReadFiles(layers, layout.LevelUp).Select(f => new Learnset6(f)).ToArray(),
+            ReadMoveDescriptions(layers, title, moves.Length));
+    }
+
+    /// <summary>The English move descriptions (empty when the game text is not in the dump).</summary>
+    private static string[] ReadMoveDescriptions(RomFsLayers layers, GameTitle title, int count)
+    {
+        string[] lines = [];
+        try
+        {
+            string garc = GameText.Archive(title, GameLanguage.English);
+            lines = GameText.Read(title, ReadFiles(layers, garc)[GameText.MoveDescriptionFile(title)]);
+        }
+        catch (Exception ex) when (ex is FileNotFoundException or IndexOutOfRangeException or InvalidDataException)
+        {
+        }
+        return Enumerable.Range(0, count).Select(i => i < lines.Length ? GameText.ToEditable(lines[i]).TrimEnd() : "").ToArray();
     }
 
     /// <summary>

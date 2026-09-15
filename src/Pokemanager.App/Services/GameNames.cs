@@ -29,6 +29,12 @@ public sealed class GameNames
 
     public static IReadOnlyList<string> MoveCategories => [Strings.Category_Status, Strings.Category_Physical, Strings.Category_Special];
 
+    /// <summary>Species classification ("Seed Pokémon") by species, in the project's text language; empty when unknown.</summary>
+    public IReadOnlyList<string> Classifications { get; }
+
+    /// <summary>This version's Pokédex entry by species (plain text with line breaks); empty when the game has none.</summary>
+    public IReadOnlyList<string> PokedexEntries { get; }
+
     public GameNames(GameDump dump, GameData original)
     {
         var config = dump.Config;
@@ -38,7 +44,15 @@ public sealed class GameNames
         Items = config.GetText(TextName.ItemNames);
         Moves = config.GetText(TextName.MoveNames);
         PersonalEntries = BuildPersonalEntryNames(original, Species, config.MaxSpeciesID);
+        var (classifications, entries) = GameText.PokedexFiles(dump.Title);
+        Classifications = TextFile(config, classifications);
+        PokedexEntries = TextFile(config, entries);
     }
+
+    private static string[] TextFile(pk3DS.Core.GameConfig config, int file) =>
+        file >= 0 && file < config.GameTextStrings.Length
+            ? [.. config.GameTextStrings[file].Select(line => GameText.ToEditable(line).Replace("\\c", "\n").Replace("\\r", "\n").Trim())]
+            : [];
 
     /// <summary>
     /// Entries above the species count are alternate forms: the base species tells with <c>FormStatsIndex</c> where

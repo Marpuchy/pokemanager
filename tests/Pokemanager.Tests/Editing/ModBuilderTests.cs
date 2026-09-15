@@ -4,6 +4,7 @@ using pk3DS.Core.Structures.PersonalInfo;
 using Pokemanager.Bridge;
 using Pokemanager.Model.Build;
 using Pokemanager.Model.Data;
+using Pokemanager.Model.Dump;
 using Pokemanager.Model.Editing;
 using Pokemanager.Model.Edits;
 using Pokemanager.Model.Projects;
@@ -93,6 +94,45 @@ public sealed class ModBuilderTests : IDisposable
         Assert.Equal([3, 2], learnset.Moves);
         Assert.Equal([1, 50], learnset.Levels);
         Assert.False(File.Exists(Path.Combine(modDir, "romfs", "a", "2", "1", "8")));
+    }
+
+    [Fact]
+    public void MoveDescription_EnglishBase_EditGoesToEveryLanguage()
+    {
+        var session = NewSession();
+        // The base shown is the English text (language 2), with real line breaks.
+        Assert.Equal("Move 2\n(language 2)", session.GetOriginal(GameTables.MoveTexts, 2, GameTables.Description).GetValue<string>());
+
+        session.Set(GameTables.MoveTexts, 2, GameTables.Description, JsonValue.Create("Hits hard.\r\nUses [brackets] and \\ too.  "));
+        // The same text as the base again is not an edit.
+        session.Set(GameTables.MoveTexts, 1, GameTables.Description, JsonValue.Create("Move 1\n(language 2)\n"));
+        Assert.False(session.IsModified(GameTables.MoveTexts, 1, GameTables.Description));
+
+        var outputs = ModBuilder.BuildEdits(session);
+
+        var title = GameTitle.X;
+        int file = GameText.MoveDescriptionFile(title);
+        Assert.Equal(title.Layout().LanguageCount, outputs.Count);
+        for (int language = 0; language < title.Layout().LanguageCount; language++)
+        {
+            byte[] archive = outputs["romfs/" + GameText.Archive(title, language)];
+            byte[][] files = new GARC.MemGARC(archive).Files;
+            string[] lines = GameText.Read(title, files[file]);
+            Assert.Equal(@"Hits hard.\nUses \[brackets] and \\ too.", lines[2]);
+            Assert.Equal(SyntheticRomFs.Description(1, language), lines[1]); // untouched, in its own language
+            Assert.Equal(SyntheticRomFs.Description(3, language), lines[3]);
+            Assert.Equal(romfs.ReadGarc(romfs.RomFs, GameText.Archive(title, language))[0], files[0]); // other text files as they were
+        }
+    }
+
+    [Fact]
+    public void EditableText_KeepsVariables_EscapesTheRest()
+    {
+        const string line = @"Raises [VAR 0100(0000)]\nby \\ one \[stage].";
+        string editable = GameText.ToEditable(line);
+
+        Assert.Equal("Raises [VAR 0100(0000)]\nby \\ one [stage].", editable);
+        Assert.Equal(line, GameText.FromEditable(editable));
     }
 
     [Fact]

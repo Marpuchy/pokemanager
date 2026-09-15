@@ -54,6 +54,19 @@ public sealed class PokemonSprites
     public Bitmap? ForPersonalEntry(int index) =>
         formEntries.TryGetValue(index, out var f) ? For(f.Species, f.Form) : index < (icons?.SpeciesCount ?? 0) ? For(index) : null;
 
+    /// <summary>
+    /// Canvas of Gen 6 box icons. Gen 7 draws the same sprites on a 64×32 canvas (verified on Ultra Moon: same sprite box,
+    /// 12 px further right and 1 px lower), which looked smaller when fitted into the same space; it is cropped to this.
+    /// </summary>
+    private const int IconWidth = 40, IconHeight = 30;
+
+    /// <summary>A Pokémon box icon on the Gen 6 canvas (Gen 7's wider canvas cropped around the sprite).</summary>
+    private static Bitmap PokemonBitmap(IconImage image) =>
+        ToBitmap(image.Width > IconWidth || image.Height > IconHeight
+            ? Crop(image, (image.Width - IconWidth) / 2, (image.Height - IconHeight) / 2, Math.Min(IconWidth, image.Width), Math.Min(IconHeight, image.Height))
+            : image);
+
+    /// <summary>Any decoded image as it is (badges, stamps…).</summary>
     public static Bitmap ToBitmap(IconImage image)
     {
         var writeable = new WriteableBitmap(new PixelSize(image.Width, image.Height), new Vector(96, 96), PixelFormat.Rgba8888, AlphaFormat.Unpremul);
@@ -63,6 +76,14 @@ public sealed class PokemonSprites
                 System.Runtime.InteropServices.Marshal.Copy(image.Rgba, y * image.Width * 4, buffer.Address + (y * buffer.RowBytes), image.Width * 4);
         }
         return writeable;
+    }
+
+    private static IconImage Crop(IconImage image, int left, int top, int width, int height)
+    {
+        byte[] rgba = new byte[width * height * 4];
+        for (int y = 0; y < height; y++)
+            Array.Copy(image.Rgba, ((top + y) * image.Width + left) * 4, rgba, y * width * 4, width * 4);
+        return new IconImage(width, height, rgba);
     }
 
     private Bitmap? Bitmap(int index)
@@ -77,7 +98,7 @@ public sealed class PokemonSprites
 
         Bitmap? bitmap = null;
         if (icons.Get(index) is { } image)
-            bitmap = ToBitmap(image);
+            bitmap = PokemonBitmap(image);
 
         lock (bitmaps)
             bitmaps[index] = bitmap;

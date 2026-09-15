@@ -53,6 +53,10 @@ public sealed partial class PrizeRowViewModel(LockeViewModel owner, LockePrize p
         set { if (value is { } v && (int)v != Prize.Weight) Update(Prize with { Weight = (int)Math.Max(0, v) }); }
     }
 
+    public Avalonia.Media.Imaging.Bitmap? Icon => LockeRewards.Icon(Prize);
+    public string? Glyph => LockeRewards.Glyph(Prize);
+    public bool HasGlyph => Glyph is not null;
+
     public bool IsItem => Prize.Kind == LockePrizeKind.Item;
     public bool HasAmount => Prize.Kind is LockePrizeKind.Item or LockePrizeKind.Money;
 
@@ -76,6 +80,8 @@ public sealed partial class SpinRowViewModel(LockeViewModel owner, LockeSpin spi
 {
     public string Badge { get; } = badgeName;
     public string PrizeText { get; } = prizeText;
+    public Avalonia.Media.Imaging.Bitmap? Icon { get; } = LockeRewards.Icon(spin.Prize);
+    public string? Glyph { get; } = LockeRewards.Glyph(spin.Prize);
     public string When { get; } = spin.When.ToString("g");
     public string StateText { get; } = spin.Claimed ? Strings.Locke_StateClaimed : Strings.Locke_StatePending;
 

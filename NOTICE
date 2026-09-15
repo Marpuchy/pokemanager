@@ -32,6 +32,22 @@ repository's history. In summary:
 pk3DS itself builds on work by many contributors; see its repository for
 their credits.
 
+-------------------------------------------------------------------------------
+Third-party images
+-------------------------------------------------------------------------------
+
+src/Pokemanager.App/Assets/PKHeX/ holds images from PKHeX:
+
+    PKHeX - Pokémon save file editor
+    https://github.com/kwsch/PKHeX
+    Copyright (C) Kaphotics (kwsch) and PKHeX contributors
+    Licensed under the GNU General Public License v3.0
+
+    box/    box wallpapers of X/Y and Omega Ruby/Alpha Sapphire
+    items/  item icons
+    balls/  Poké Ball icons
+    (upstream commit and paths in Assets/PKHeX/SOURCE.txt)
+
 Pokémon is a trademark of Nintendo, Game Freak and The Pokémon Company.
 This project is not affiliated with or endorsed by them, and contains no
 game data.

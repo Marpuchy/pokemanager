@@ -34,7 +34,9 @@ public sealed class LockeSettings
     public const int BadgeCount = 8;
 
     /// <summary>Lives for the run; 0 means lives are not tracked.</summary>
-    public int MaxLives { get; set; } = 3;
+    public int MaxLives { get; set; } = DefaultMaxLives;
+
+    public const int DefaultMaxLives = 10;
 
     public int LivesLost { get; set; }
 

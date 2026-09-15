@@ -139,8 +139,10 @@ public sealed class AppSettings
 
     public static string ProjectsRoot => Path.Combine(DocumentsRoot, "Projects");
 
-    public static string DefaultFilePath => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Pokemanager", "settings.json");
+    /// <summary><c>POKEMANAGER_SETTINGS</c> moves it (a second instance with its own player, tests and harnesses).</summary>
+    public static string DefaultFilePath => Environment.GetEnvironmentVariable("POKEMANAGER_SETTINGS") is { Length: > 0 } custom
+        ? custom
+        : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Pokemanager", "settings.json");
 
     public static AppSettings Load(string? path = null)
     {

@@ -23,6 +23,9 @@ public sealed partial class RoomSession
         public Dictionary<string, BattleTeam> Teams { get; } = [];
         public ShowdownBattle? Simulator { get; set; }
 
+        /// <summary>Names the simulator knows the players by (different even when two players have the same name).</summary>
+        public (string P1, string P2) Names { get; set; }
+
         public string? SideOf(string playerId) =>
             playerId == State.ChallengerId ? "p1" : playerId == State.OpponentId ? "p2" : null;
 
@@ -153,7 +156,14 @@ public sealed partial class RoomSession
         var state = battle.State;
         try
         {
-            var simulator = ShowdownBattle.Start(options.Battles!, state.Rules, battle.Teams[state.ChallengerId], battle.Teams[state.OpponentId]);
+            // The winner comes back as a name: two players called the same (or one playing against themselves) must differ.
+            string p1 = PlayerName(state.ChallengerId).Replace('|', '/'), p2 = PlayerName(state.OpponentId).Replace('|', '/');
+            if (string.Equals(p1, p2, StringComparison.OrdinalIgnoreCase))
+                p2 += " 2";
+            battle.Names = (p1, p2);
+            string?[] avatars = [PlayerSprite(state.ChallengerId), PlayerSprite(state.OpponentId)];
+            var simulator = ShowdownBattle.Start(options.Battles!, state.Rules, battle.Teams[state.ChallengerId] with { Player = p1 },
+                battle.Teams[state.OpponentId] with { Player = p2 }, avatars: avatars);
             battle.Simulator = simulator;
             simulator.Received += message => work.Enqueue(() => OnSimulator(battle, message));
             Publish(battle, state with { Phase = BattlePhase.Running });
@@ -184,8 +194,9 @@ public sealed partial class RoomSession
                 }
                 break;
             case "end" when state.Phase == BattlePhase.Running:
-                string? winner = message.Winner is null ? null
-                    : battle.Teams.FirstOrDefault(t => t.Value.Player == message.Winner).Key;
+                string? winner = message.Winner == battle.Names.P1 ? state.ChallengerId
+                    : message.Winner == battle.Names.P2 ? state.OpponentId
+                    : null;
                 Finish(battle, BattlePhase.Finished, winner, null);
                 break;
             case "invalid":
@@ -234,6 +245,14 @@ public sealed partial class RoomSession
     private string PlayerName(string id)
     {
         lock (gate) return players.TryGetValue(id, out var p) ? p.Name : "?";
+    }
+
+    /// <summary>The player's Showdown trainer sprite, when it is a plain sprite name.</summary>
+    private string? PlayerSprite(string id)
+    {
+        lock (gate)
+            return players.TryGetValue(id, out var p) && p.Profile.Sprite is { } sprite
+                   && System.Text.RegularExpressions.Regex.IsMatch(sprite, "^[a-z0-9-]{1,40}$") ? sprite : null;
     }
 
     private void Publish(HostedBattle battle, BattleState state)

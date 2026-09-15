@@ -39,7 +39,7 @@
       </Border>
     </DataTemplate>
     <DataTemplate DataType="vm:TypeChip">
-      <Border Background="{Binding Background}" BorderBrush="#60000000" BorderThickness="1" CornerRadius="3" Padding="5,0">
+      <Border Background="{Binding Background}" BorderBrush="#60000000" BorderThickness="1" CornerRadius="2" Padding="5,0">
         <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground}" FontSize="10" FontWeight="SemiBold" />
       </Border>
     </DataTemplate>
@@ -54,7 +54,7 @@
       <Setter Property="Background" Value="White" />
       <Setter Property="BorderBrush" Value="#D5DFE5" />
       <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="3" />
+      <Setter Property="CornerRadius" Value="2" />
       <Setter Property="Padding" Value="10,6,10,8" />
     </Style>
     <Style Selector="TextBlock.card-title">

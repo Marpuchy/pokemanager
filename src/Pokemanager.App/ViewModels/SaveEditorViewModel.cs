@@ -5,6 +5,7 @@ using PKHeX.Core;
 using Pokemanager.App.Resources;
 using Pokemanager.App.Services;
 using Pokemanager.Bridge;
+using Pokemanager.Model.Editing;
 using Pokemanager.Model.Projects;
 using Pokemanager.Model.Dump;
 using Pokemanager.Save;
@@ -44,6 +45,43 @@ public partial class SlotViewModel(SaveEditorViewModel owner, SaveSlot slot) : O
 
     /// <summary>Box slots show only the sprite; an empty one shows a dash.</summary>
     public bool ShowEmptyMark => IsEmpty && !Slot.IsParty;
+
+    // Look of a filled slot, as the project preview: type colors, held item, level, gender and shiny.
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TypeBackground), nameof(TypeForeground))]
+    public partial int[] Types { get; set; } = [];
+
+    [ObservableProperty]
+    public partial IReadOnlyList<TypeChip> TypeChips { get; set; } = [];
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasItem))]
+    public partial Avalonia.Media.Imaging.Bitmap? ItemIcon { get; set; }
+
+    [ObservableProperty]
+    public partial string LevelText { get; set; } = "";
+
+    [ObservableProperty]
+    public partial string GenderText { get; set; } = "";
+
+    [ObservableProperty]
+    public partial bool IsShiny { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsEgg { get; set; }
+
+    public bool HasItem => ItemIcon is not null;
+
+    public Avalonia.Media.IBrush TypeBackground => IsEmpty || Types.Length == 0
+        ? EmptyBrush
+        : TypeColors.Background(Types[0], Types[^1]);
+
+    private static readonly Avalonia.Media.IBrush EmptyBrush = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#F2F4F6"));
+
+    public Avalonia.Media.IBrush TypeForeground => Types.Length == 0 ? Avalonia.Media.Brushes.Black : TypeColors.Foreground(Types);
+
+    partial void OnIsEmptyChanged(bool value) => OnPropertyChanged(nameof(TypeBackground));
 }
 
 /// <summary>A problem line; clicking it selects the Pokémon it belongs to.</summary>
@@ -111,6 +149,11 @@ public partial class SaveEditorViewModel : ObservableObject
 
     public PokemonSprites Sprites => editor.Sprites;
 
+    /// <summary>Game texts of the project (Pokédex entries, classifications).</summary>
+    public GameNames GameNames => editor.Names;
+
+    public GameTitle Game => editor.Dump.Title;
+
     [ObservableProperty]
     public partial decimal? NewLevel { get; set; } = 5;
 
@@ -136,6 +179,33 @@ public partial class SaveEditorViewModel : ObservableObject
     {
         this.editor = editor;
         this.settings = settings;
+        Undo = new SnapshotHistory(() => Document?.CaptureState() ?? [], RestoreState);
+    }
+
+    /// <summary>Undo of the save edits: every change keeps the whole save before it (compressed).</summary>
+    public SnapshotHistory Undo { get; }
+
+    private bool restoring;
+
+    private void RestoreState(byte[] state)
+    {
+        if (Document is null || state.Length == 0)
+            return;
+        restoring = true;
+        try
+        {
+            var slot = SelectedSlot;
+            int pocket = Bag is { SelectedPocket: { } selected } bag ? bag.Pockets.ToList().IndexOf(selected) : 0;
+            Show(Document.WithState(state));
+            if (Bag is not null && pocket >= 0 && pocket < Bag.Pockets.Count)
+                Bag.SelectedPocket = Bag.Pockets[pocket];
+            if (slot is { } s)
+                SelectSlot(s);
+        }
+        finally
+        {
+            restoring = false;
+        }
     }
 
     /// <summary>The game names boxes "Box 1", "Caja 1"… in the save's language; those are shown in the interface language.</summary>
@@ -176,23 +246,38 @@ public partial class SaveEditorViewModel : ObservableObject
 
         try
         {
-            var doc = SaveDocument.Open(path, editor.Session.Current);
+            Show(SaveDocument.Open(path, editor.Session.Current));
+            SelectSlot(new SaveSlot(null, 0));
+            Undo.Reset();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SaveUpdateException)
+        {
+            Message = string.Format(Strings.Rnd_SaveUnreadable, settings.EffectiveEmulatorName, ex.Message);
+        }
+    }
+
+    /// <summary>Shows a document: names, boxes, party, bag, trainer and Pokédex (opening, or a state put back by undo).</summary>
+    private void Show(SaveDocument doc)
+    {
+        string path = doc.SavePath;
+        {
             names = new SaveNames(editor.Names, GameTextLanguage.Current, doc.MaxSpecies);
             Document = doc;
+            IsDirty = doc.IsDirty;
             HeaderText = string.Format(Strings.Save_Header, settings.EffectiveEmulatorName, doc.TrainerName, path, File.GetLastWriteTime(path));
             OnPropertyChanged(nameof(SpeciesChoices));
 
+            // Clearing the names makes the combo box push -1 back into SelectedBox: remember the box, fill the names, then
+            // select it again and tell the combo box, or it shows nothing while box 1 is displayed.
+            int box = SelectedBox;
             BoxNames.Clear();
             for (int b = 0; b < doc.BoxCount; b++)
                 BoxNames.Add(IsDefaultBoxName(doc.BoxName(b), b) ? string.Format(Strings.Save_BoxN, b + 1) : doc.BoxName(b));
             PartySlots.Clear();
             for (int i = 0; i < SaveDocument.PartySize; i++)
                 PartySlots.Add(new SlotViewModel(this, new SaveSlot(null, i)));
-            BoxSlots.Clear();
-            for (int i = 0; i < doc.BoxSlotCount; i++)
-                BoxSlots.Add(new SlotViewModel(this, new SaveSlot(SelectedBox, i)));
-            if (SelectedBox >= doc.BoxCount)
-                SelectedBox = 0;
+            SelectedBox = box >= 0 && box < doc.BoxCount ? box : 0;
+            OnPropertyChanged(nameof(SelectedBox));
             RebuildBoxSlots();
 
             Bag = new SaveBagViewModel(this, doc, names);
@@ -200,13 +285,8 @@ public partial class SaveEditorViewModel : ObservableObject
             Dex = new SaveDexViewModel(this, doc, names);
             RefreshSlots();
             RefreshProblems();
-            SelectSlot(new SaveSlot(null, 0));
             OnPropertyChanged(nameof(RomWarning));
             OnPropertyChanged(nameof(HasRomWarning));
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SaveUpdateException)
-        {
-            Message = string.Format(Strings.Rnd_SaveUnreadable, settings.EffectiveEmulatorName, ex.Message);
         }
     }
 
@@ -236,6 +316,29 @@ public partial class SaveEditorViewModel : ObservableObject
         for (int i = 0; i < Document.BoxSlotCount; i++)
             BoxSlots.Add(new SlotViewModel(this, new SaveSlot(SelectedBox, i)));
         RefreshSlots();
+        OnPropertyChanged(nameof(BoxWallpaper));
+        // Keep the selection mark when coming back to the box of the selected Pokémon.
+        foreach (var s in BoxSlots)
+            s.IsSelected = s.Slot == SelectedSlot;
+    }
+
+    /// <summary>The box's wallpaper in the game, drawn behind its slots as PKHeX does.</summary>
+    public Avalonia.Media.Imaging.Bitmap? BoxWallpaper => Document is null || SelectedBox < 0
+        ? null
+        : PkhexImages.Wallpaper(editor.Dump.Title, Document.BoxWallpaper(SelectedBox));
+
+    [RelayCommand]
+    private void PreviousBox()
+    {
+        if (Document is not null)
+            SelectedBox = (SelectedBox + Document.BoxCount - 1) % Document.BoxCount;
+    }
+
+    [RelayCommand]
+    private void NextBox()
+    {
+        if (Document is not null)
+            SelectedBox = (SelectedBox + 1) % Document.BoxCount;
     }
 
     // ------------------------------------------------------------------ selection and edits
@@ -254,6 +357,8 @@ public partial class SaveEditorViewModel : ObservableObject
         SelectedSlot = slot;
         bool empty = slot.IsParty ? slot.Slot >= Document.PartyCount : Document.IsEmpty(slot);
         Pokemon = empty ? null : new PokemonEditorViewModel(this, Document, names!, slot);
+        if (Pokemon is { } shown)
+            Avalonia.Threading.Dispatcher.UIThread.Post(shown.RefreshSelections, Avalonia.Threading.DispatcherPriority.Background);
         CanCreate = empty && (!slot.IsParty || Document.PartyCount < SaveDocument.PartySize);
         foreach (var s in PartySlots.Concat(BoxSlots))
             s.IsSelected = s.Slot == slot;
@@ -269,11 +374,16 @@ public partial class SaveEditorViewModel : ObservableObject
 
     public void SetStatus(string text) => editor.SetStatus(text);
 
-    public void Touch()
+    public void Touch() => Touch(Strings.Undo_SaveChange);
+
+    /// <summary>Something in the save changed: refresh what depends on it and keep the step for undo.</summary>
+    public void Touch(string label)
     {
         IsDirty = Document?.IsDirty ?? false;
         RefreshSlots();
         RefreshProblems();
+        if (!restoring && Document is not null)
+            Undo.Record(SelectedSlot is { } slot && Pokemon is not null ? $"{SlotLabel(slot)} · {label}" : label);
     }
 
     private void RefreshAll()
@@ -297,6 +407,11 @@ public partial class SaveEditorViewModel : ObservableObject
                 s.Name = Strings.Save_Empty;
                 s.Icon = null;
                 s.Detail = "";
+                s.Types = [];
+                s.TypeChips = [];
+                s.ItemIcon = null;
+                s.LevelText = s.GenderText = "";
+                s.IsShiny = s.IsEgg = false;
             }
             else
             {
@@ -304,10 +419,22 @@ public partial class SaveEditorViewModel : ObservableObject
                 s.Name = pk.IsEgg ? Strings.Save_Egg : names.SpeciesName(pk.Species);
                 s.Icon = pk.IsEgg ? null : Sprites.For(pk.Species, pk.Form, pk.Gender == 1, pk.IsShiny);
                 s.Detail = string.Format(Strings.Save_SlotDetail, Document.Level(pk), pk.IsNicknamed ? pk.Nickname : "");
+                int[] types = pk.IsEgg ? [0] : [.. (Document.Personal(pk.Species, pk.Form)?.Types ?? [0]).Distinct()];
+                s.Types = types;
+                s.TypeChips = pk.IsEgg ? [] : [.. types.Select(TypeChipOf)];
+                s.ItemIcon = PkhexImages.Item(pk.HeldItem);
+                s.LevelText = pk.IsEgg ? "" : string.Format(Strings.Preview_Level, Document.Level(pk));
+                s.GenderText = pk.IsEgg ? "" : pk.Gender switch { 0 => "♂", 1 => "♀", _ => "" };
+                s.IsShiny = pk.IsShiny && !pk.IsEgg;
+                s.IsEgg = pk.IsEgg;
             }
             s.HasProblem = problemSlots.Contains(s.Slot);
         }
     }
+
+    /// <summary>A type label in the colors of the type, named in the interface language.</summary>
+    public TypeChip TypeChipOf(int type) =>
+        new(names is not null && type >= 0 && type < names.Types.Count ? names.Types[type] : "?", TypeColors.Background(type), TypeColors.Foreground(type));
 
     private void RefreshProblems()
     {
@@ -414,8 +541,18 @@ public sealed partial class BagItemViewModel(SaveBagViewModel owner, PocketViewM
     public int ItemIndex
     {
         get => itemIndex;
-        set { if (value >= 0 && value != itemIndex) { itemIndex = value; owner.Commit(Pocket); } }
+        set
+        {
+            if (value >= 0 && value != itemIndex)
+            {
+                itemIndex = value;
+                OnPropertyChanged(nameof(Icon));
+                owner.Commit(Pocket);
+            }
+        }
     }
+
+    public Avalonia.Media.Imaging.Bitmap? Icon => PkhexImages.Item(ItemId, Pocket.IsTms);
 
     public decimal? Count
     {
@@ -444,6 +581,31 @@ public sealed class PocketViewModel(InventoryPouch pouch, SaveNames names)
         InventoryType.Berries => Strings.Bag_Berries,
         _ => Pouch.Type.ToString(),
     };
+
+    public bool IsTms => Pouch.Type == InventoryType.TMHMs;
+
+    /// <summary>An item that stands for the pocket: Poké Ball, Potion, Oran Berry, a TM; key items have a key glyph.</summary>
+    public Avalonia.Media.Imaging.Bitmap? Icon => Pouch.Type switch
+    {
+        InventoryType.Items => PkhexImages.Item(4),
+        InventoryType.Medicine => PkhexImages.Item(17),
+        InventoryType.Berries => PkhexImages.Item(155),
+        InventoryType.TMHMs => PkhexImages.Item(1, isTm: true),
+        _ => null,
+    };
+
+    public bool HasIcon => Icon is not null;
+
+    /// <summary>Header color of the pocket, like the bag screens of the games.</summary>
+    public Avalonia.Media.IBrush Accent => new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse(Pouch.Type switch
+    {
+        InventoryType.Items => "#E8704F",
+        InventoryType.Medicine => "#5DBB63",
+        InventoryType.Berries => "#C0507A",
+        InventoryType.TMHMs => "#4F86C6",
+        InventoryType.KeyItems => "#C9A227",
+        _ => "#7D8A96",
+    }));
 
     public IReadOnlyList<ushort> ItemIds { get; } = SaveDocument.PouchItems(pouch);
     public IReadOnlyList<string> ItemNames { get; } = SaveDocument.PouchItems(pouch).Select(i => names.ItemName(i)).ToList();
@@ -535,6 +697,10 @@ public sealed class DexEntryViewModel(SaveDexViewModel owner, SaveDocument doc, 
     public Avalonia.Media.Imaging.Bitmap? Icon => sprites.For(Species);
     public string Name { get; } = name;
 
+    public Avalonia.Media.IBrush TypeBrush => doc.Personal(Species, 0)?.Types is { Length: > 0 } t
+        ? TypeColors.Background(t[0], t[^1])
+        : Avalonia.Media.Brushes.Transparent;
+
     public bool Seen
     {
         get => doc.GetSeen(Species);
@@ -557,6 +723,8 @@ public partial class SaveDexViewModel : ObservableObject
     private readonly SaveDocument doc;
     private readonly List<DexEntryViewModel> all;
 
+    private readonly SaveNames names;
+
     public ObservableCollection<DexEntryViewModel> Entries { get; } = [];
 
     [ObservableProperty]
@@ -564,15 +732,32 @@ public partial class SaveDexViewModel : ObservableObject
 
     public string CountText => string.Format(Strings.Dex_Count, all.Count(e => e.Seen), all.Count(e => e.Caught), all.Count);
 
+    [ObservableProperty]
+    public partial DexEntryViewModel? SelectedEntry { get; set; }
+
+    /// <summary>The selected species as the game's Pokédex shows it, with the data of the ROM played.</summary>
+    [ObservableProperty]
+    public partial DexDetailViewModel? Detail { get; private set; }
+
     public SaveDexViewModel(SaveEditorViewModel owner, SaveDocument doc, SaveNames names)
     {
         this.owner = owner;
         this.doc = doc;
+        this.names = names;
         all = Enumerable.Range(1, doc.MaxSpecies).Select(s => new DexEntryViewModel(this, doc, (ushort)s, names.SpeciesName((ushort)s), owner.Sprites)).ToList();
         ApplyFilter();
+        SelectedEntry = Entries.FirstOrDefault();
     }
 
-    partial void OnFilterChanged(string value) => ApplyFilter();
+    partial void OnFilterChanged(string value)
+    {
+        var keep = SelectedEntry;
+        ApplyFilter();
+        SelectedEntry = keep is not null && Entries.Contains(keep) ? keep : Entries.FirstOrDefault();
+    }
+
+    partial void OnSelectedEntryChanged(DexEntryViewModel? value) =>
+        Detail = value is null ? null : new DexDetailViewModel(owner, doc, names, value);
 
     private void ApplyFilter()
     {
@@ -587,7 +772,8 @@ public partial class SaveDexViewModel : ObservableObject
     {
         entry.Refresh();
         OnPropertyChanged(nameof(CountText));
-        owner.Touch();
+        Detail?.Refresh();
+        owner.Touch(Strings.Save_TabDex);
     }
 
     [RelayCommand]

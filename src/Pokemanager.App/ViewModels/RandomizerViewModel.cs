@@ -34,9 +34,10 @@ public partial class RandomizerViewModel : ObservableObject
 
     public UprOptionsViewModel Options { get; }
 
-    /// <summary>Pokémon data files (.pkdata), the counterpart of the .rnqs for base stats, types and the rest.</summary>
+    /// <summary>Pokémon (.pkdata) and move (.mvdata) data files, the counterpart of the .rnqs for base stats, types and the rest.</summary>
     public IAsyncRelayCommand ImportPokemonDataCommand => editor.ImportPokemonDataCommand;
     public IAsyncRelayCommand ExportPokemonDataCommand => editor.ExportPokemonDataCommand;
+    public IAsyncRelayCommand ExportMoveDataCommand => editor.ExportMoveDataCommand;
     public IAsyncRelayCommand PlayCommand => editor.PlayCommand;
 
     public ObservableCollection<string> VisibleLog { get; } = [];
@@ -238,6 +239,14 @@ public partial class RandomizerViewModel : ObservableObject
             Settings.OutputName = value;
             editor.MarkDirty();
         }
+    }
+
+    /// <summary>The project's randomization settings were put back (undo): show them again.</summary>
+    public void ReloadFromProject()
+    {
+        SeedText = Settings.Seed > 0 ? Settings.Seed.ToString() : SeedText;
+        OutputName = Settings.OutputName ?? DefaultOutputName();
+        OnPropertyChanged(string.Empty);
     }
 
     public void RefreshSave()

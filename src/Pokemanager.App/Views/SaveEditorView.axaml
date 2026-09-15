@@ -1,4 +1,4 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Pokemanager.App.ViewModels"
              xmlns:r="using:Pokemanager.App.Resources"
@@ -6,51 +6,151 @@
              x:DataType="vm:SaveEditorViewModel">
 
   <UserControl.Styles>
-    <Style Selector="Button.slot">
-      <Setter Property="HorizontalAlignment" Value="Stretch" />
-      <Setter Property="HorizontalContentAlignment" Value="Left" />
-      <Setter Property="VerticalContentAlignment" Value="Center" />
-      <Setter Property="Height" Value="50" />
-      <Setter Property="Margin" Value="2" />
-      <Setter Property="Padding" Value="6,2" />
-      <Setter Property="BorderThickness" Value="2" />
-      <Setter Property="BorderBrush" Value="Transparent" />
-    </Style>
-    <Style Selector="Button.slot.box">
-      <Setter Property="HorizontalContentAlignment" Value="Center" />
-      <Setter Property="Padding" Value="0" />
-    </Style>
-    <Style Selector="Button.slot.empty">
-      <Setter Property="Opacity" Value="0.55" />
-    </Style>
-    <Style Selector="Button.slot.problem">
-      <Setter Property="Background" Value="#33D13438" />
-    </Style>
-    <Style Selector="Button.slot.selected">
-      <Setter Property="BorderBrush" Value="{DynamicResource SystemAccentColor}" />
-    </Style>
     <Style Selector="TextBlock.row-label">
       <Setter Property="VerticalAlignment" Value="Center" />
       <Setter Property="Margin" Value="0,0,8,0" />
     </Style>
-  </UserControl.Styles>
 
-  <UserControl.DataTemplates>
-    <DataTemplate DataType="vm:SlotViewModel">
-      <Button Classes="slot" Classes.box="{Binding !Slot.IsParty}" Classes.empty="{Binding IsEmpty}" Classes.selected="{Binding IsSelected}" Classes.problem="{Binding HasProblem}"
-              Command="{Binding SelectCommand}">
-        <Grid ColumnDefinitions="Auto,*" ToolTip.Tip="{Binding Tooltip}">
-          <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="40" Height="30" Margin="0,0,4,0" VerticalAlignment="Center" />
-          <TextBlock Grid.ColumnSpan="2" Classes="hint" FontSize="11" Text="—" HorizontalAlignment="Center" VerticalAlignment="Center"
-                     IsVisible="{Binding ShowEmptyMark}" />
-          <StackPanel Grid.Column="1" VerticalAlignment="Center" IsVisible="{Binding Slot.IsParty}">
-            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="12" TextTrimming="CharacterEllipsis" />
-            <TextBlock Classes="hint" Text="{Binding Detail}" FontSize="10" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
-          </StackPanel>
-        </Grid>
-      </Button>
-    </DataTemplate>
-  </UserControl.DataTemplates>
+    <!-- Buttons that only hold a drawn card or cell -->
+    <Style Selector="Button.plain">
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Margin" Value="3" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="VerticalContentAlignment" Value="Stretch" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style Selector="Button.plain /template/ ContentPresenter#PART_ContentPresenter, Button.plain:pointerover /template/ ContentPresenter#PART_ContentPresenter, Button.plain:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+
+    <!-- Party: cards in the type colors -->
+    <Style Selector="Border.member">
+      <Setter Property="BorderBrush" Value="#80000000" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="2" />
+      <Setter Property="Padding" Value="3,2" />
+      <Setter Property="Height" Value="50" />
+    </Style>
+    <Style Selector="Button.plain:pointerover Border.member">
+      <Setter Property="BorderBrush" Value="#0078D7" />
+    </Style>
+    <Style Selector="Border.member.empty">
+      <Setter Property="BorderBrush" Value="#30000000" />
+    </Style>
+    <Style Selector="Border.member.selected">
+      <Setter Property="BorderBrush" Value="#0078D7" />
+      <Setter Property="BorderThickness" Value="3" />
+      <Setter Property="Padding" Value="2,1" />
+    </Style>
+    <Style Selector="Border.member.problem">
+      <Setter Property="BorderBrush" Value="#D13438" />
+      <Setter Property="BorderThickness" Value="3" />
+      <Setter Property="Padding" Value="2,1" />
+    </Style>
+
+    <!-- Box: sprites on the wallpaper, as PKHeX -->
+    <Style Selector="Border.cell">
+      <Setter Property="CornerRadius" Value="2" />
+      <Setter Property="BorderThickness" Value="2" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Background" Value="#18FFFFFF" />
+      <Setter Property="Height" Value="44" />
+    </Style>
+    <Style Selector="Button.plain:pointerover Border.cell">
+      <Setter Property="Background" Value="#66FFFFFF" />
+      <Setter Property="BorderBrush" Value="#B0FFFFFF" />
+    </Style>
+    <Style Selector="Border.cell.selected">
+      <Setter Property="Background" Value="#90FFFFFF" />
+      <Setter Property="BorderBrush" Value="#0078D7" />
+    </Style>
+    <Style Selector="Border.cell.problem">
+      <Setter Property="Background" Value="#66D13438" />
+      <Setter Property="BorderBrush" Value="#D13438" />
+    </Style>
+
+    <!-- Detail header and number badges, as the advanced tabs -->
+    <Style Selector="Border.detail-header">
+      <Setter Property="CornerRadius" Value="2" />
+      <Setter Property="BorderBrush" Value="#40000000" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Padding" Value="12,8" />
+    </Style>
+    <Style Selector="Border.badge">
+      <Setter Property="Background" Value="#E6FFFFFF" />
+      <Setter Property="BorderBrush" Value="#30000000" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="2" />
+      <Setter Property="Padding" Value="8,3" />
+      <Setter Property="MinWidth" Value="60" />
+    </Style>
+    <Style Selector="TextBlock.badge-label">
+      <Setter Property="FontSize" Value="10" />
+      <Setter Property="Foreground" Value="#5A6670" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="TextBlock.badge-value">
+      <Setter Property="FontSize" Value="15" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="Foreground" Value="#1A1A1A" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Border.card.detail">
+      <Setter Property="Margin" Value="0,0,8,8" />
+      <Setter Property="VerticalAlignment" Value="Top" />
+    </Style>
+    <!-- Pokédex: seen / caught as small flags (grey outline off, filled on), rows with a rule between them -->
+    <Style Selector="ToggleButton.flag">
+      <Setter Property="Padding" Value="7,1" />
+      <Setter Property="MinHeight" Value="0" />
+      <Setter Property="CornerRadius" Value="2" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="ToggleButton.flag.large">
+      <Setter Property="Padding" Value="10,3" />
+    </Style>
+    <Style Selector="ToggleButton.flag /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="White" />
+      <Setter Property="BorderBrush" Value="#C8D0D6" />
+    </Style>
+    <Style Selector="ToggleButton.flag:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#F2F6FA" />
+      <Setter Property="BorderBrush" Value="#8FA3B3" />
+    </Style>
+    <Style Selector="ToggleButton.flag TextBlock, ListBoxItem:selected ToggleButton.flag TextBlock">
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="#7A8690" />
+    </Style>
+    <Style Selector="ToggleButton.flag.seen:checked /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#2F7BBF" />
+      <Setter Property="BorderBrush" Value="#1F5E96" />
+    </Style>
+    <Style Selector="ToggleButton.flag.caught:checked /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#C0392B" />
+      <Setter Property="BorderBrush" Value="#8E2A20" />
+    </Style>
+    <Style Selector="ToggleButton.flag:checked TextBlock, ListBoxItem:selected ToggleButton.flag:checked TextBlock">
+      <Setter Property="Foreground" Value="White" />
+    </Style>
+    <Style Selector="Border.info-row">
+      <Setter Property="BorderBrush" Value="#EDF0F2" />
+      <Setter Property="BorderThickness" Value="0,0,0,1" />
+      <Setter Property="Padding" Value="0,5" />
+    </Style>
+    <Style Selector="Border.icon-circle">
+      <Setter Property="Background" Value="White" />
+      <Setter Property="BorderBrush" Value="#30000000" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="999" />
+      <Setter Property="Width" Value="30" />
+      <Setter Property="Height" Value="30" />
+      <Setter Property="Margin" Value="0,0,6,0" />
+    </Style>
+  </UserControl.Styles>
 
   <Grid>
     <!-- No save -->
@@ -82,75 +182,201 @@
       <TabControl Padding="0">
         <!-- ================= Pokémon ================= -->
         <TabItem Header="{x:Static r:Strings.Save_TabPokemon}">
-          <Grid ColumnDefinitions="440,*">
-            <ScrollViewer Margin="8,4,4,8">
-              <StackPanel>
-                <TextBlock Classes="section" Margin="2,4,0,4" Text="{x:Static r:Strings.Save_Party}" />
-                <ItemsControl ItemsSource="{Binding PartySlots}">
-                  <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                      <UniformGrid Columns="3" />
-                    </ItemsPanelTemplate>
-                  </ItemsControl.ItemsPanel>
-                </ItemsControl>
-
-                <Grid ColumnDefinitions="Auto,*" Margin="2,14,2,4">
-                  <TextBlock Classes="section" Margin="0,0,10,0" VerticalAlignment="Center" Text="{x:Static r:Strings.Save_Boxes}" />
-                  <ComboBox Grid.Column="1" ItemsSource="{Binding BoxNames}" SelectedIndex="{Binding SelectedBox}" HorizontalAlignment="Stretch" MaxDropDownHeight="400" />
-                </Grid>
-                <ItemsControl ItemsSource="{Binding BoxSlots}">
-                  <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                      <UniformGrid Columns="6" />
-                    </ItemsPanelTemplate>
-                  </ItemsControl.ItemsPanel>
-                </ItemsControl>
-
-                <Expander Margin="2,12,2,0" HorizontalAlignment="Stretch" IsVisible="{Binding HasProblems}" IsExpanded="True">
-                  <Expander.Header>
-                    <TextBlock Classes="error" Text="{Binding ProblemsText}" />
-                  </Expander.Header>
-                  <ItemsControl ItemsSource="{Binding Problems}">
-                    <ItemsControl.ItemTemplate>
-                      <DataTemplate x:DataType="vm:ProblemViewModel">
-                        <Button Classes="link" Command="{Binding GoCommand}" Background="Transparent" Padding="2" HorizontalContentAlignment="Left">
-                          <TextBlock Text="{Binding Text}" TextWrapping="Wrap" />
-                        </Button>
-                      </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                  </ItemsControl>
-                </Expander>
+          <Grid ColumnDefinitions="404,*">
+            <!-- Party and box always in view: no scrolling here, only the problem list below scrolls when long -->
+            <DockPanel Margin="8,8,4,8">
+              <StackPanel DockPanel.Dock="Top">
+                <!-- Party -->
+                <Border Classes="card" Margin="0,0,0,8" Padding="6,4,6,6">
+                  <StackPanel>
+                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Save_Party}" />
+                    <ItemsControl ItemsSource="{Binding PartySlots}">
+                      <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                          <UniformGrid Columns="2" />
+                        </ItemsPanelTemplate>
+                      </ItemsControl.ItemsPanel>
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:SlotViewModel">
+                          <Button Classes="plain" Command="{Binding SelectCommand}" ToolTip.Tip="{Binding Tooltip}">
+                            <Border Classes="member" Classes.empty="{Binding IsEmpty}" Classes.selected="{Binding IsSelected}" Classes.problem="{Binding HasProblem}"
+                                    Background="{Binding TypeBackground}">
+                              <Grid ColumnDefinitions="Auto,*">
+                                <Panel Width="52" Height="42">
+                                  <Border Background="#40FFFFFF" CornerRadius="2" IsVisible="{Binding !IsEmpty}" />
+                                  <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="52" Height="39" />
+                                  <TextBlock Text="🥚" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsEgg}" />
+                                  <Image Source="{Binding ItemIcon}" Width="20" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                         RenderOptions.BitmapInterpolationMode="None" IsVisible="{Binding HasItem}" />
+                                </Panel>
+                                <!-- Two lines so the type chips always fit: name and level, then types -->
+                                <StackPanel Grid.Column="1" Margin="6,0,2,0" VerticalAlignment="Center" Spacing="3" IsVisible="{Binding !IsEmpty}">
+                                  <Grid ColumnDefinitions="*,Auto">
+                                    <TextBlock FontWeight="Bold" TextTrimming="CharacterEllipsis" Foreground="{Binding TypeForeground}">
+                                      <Run Text="{Binding Name}" />
+                                      <Run Text="{Binding GenderText}" />
+                                    </TextBlock>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="3" Margin="4,0,0,0">
+                                      <TextBlock FontSize="11" Text="★" Foreground="#FFD700" FontWeight="Bold" VerticalAlignment="Center" IsVisible="{Binding IsShiny}" />
+                                      <TextBlock FontSize="11" Foreground="{Binding TypeForeground}" VerticalAlignment="Center" Text="{Binding LevelText}" />
+                                    </StackPanel>
+                                  </Grid>
+                                  <ItemsControl ItemsSource="{Binding TypeChips}">
+                                    <ItemsControl.ItemsPanel>
+                                      <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal" Spacing="3" />
+                                      </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                  </ItemsControl>
+                                </StackPanel>
+                                <TextBlock Grid.Column="1" Classes="hint" VerticalAlignment="Center" Text="{Binding Name}" IsVisible="{Binding IsEmpty}" />
+                              </Grid>
+                            </Border>
+                          </Button>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </StackPanel>
+                </Border>
               </StackPanel>
-            </ScrollViewer>
+
+              <!-- Problems of the whole save: click one to go to its Pokémon -->
+              <Border DockPanel.Dock="Bottom" Classes="card" Margin="0,8,0,0" MaxHeight="150" IsVisible="{Binding HasProblems}">
+                <DockPanel>
+                  <TextBlock DockPanel.Dock="Top" Classes="error" Margin="0,0,0,4" Text="{Binding ProblemsText}" />
+                  <ScrollViewer>
+                    <ItemsControl ItemsSource="{Binding Problems}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ProblemViewModel">
+                          <Button Classes="link" Command="{Binding GoCommand}" Background="Transparent" Padding="2" HorizontalContentAlignment="Left">
+                            <TextBlock Text="{Binding Text}" TextWrapping="Wrap" />
+                          </Button>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </ScrollViewer>
+                </DockPanel>
+              </Border>
+
+              <!-- Boxes: wallpaper of the box in the game, name with arrows, 6×5 slots (as PKHeX).
+                   The slots are drawn at their natural size and scaled down to the height left, so the last row is
+                   never cut (short windows, the ROM warning above); the header keeps its size. -->
+                <Border VerticalAlignment="Top" CornerRadius="2" BorderBrush="#60000000" BorderThickness="1" ClipToBounds="True" Background="#1C3A70">
+                  <Grid RowDefinitions="Auto,*">
+                    <Grid ColumnDefinitions="Auto,*,Auto" Margin="6">
+                      <Button Content="◀" Command="{Binding PreviousBoxCommand}" Width="36" ToolTip.Tip="{x:Static r:Strings.Save_PreviousBox}" />
+                      <ComboBox Grid.Column="1" Margin="6,0" ItemsSource="{Binding BoxNames}" SelectedIndex="{Binding SelectedBox}"
+                                HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" MaxDropDownHeight="400" FontWeight="SemiBold" />
+                      <Button Grid.Column="2" Content="▶" Command="{Binding NextBoxCommand}" Width="36" ToolTip.Tip="{x:Static r:Strings.Save_NextBox}" />
+                    </Grid>
+                    <Viewbox Grid.Row="1" Stretch="Uniform" StretchDirection="DownOnly" VerticalAlignment="Top" HorizontalAlignment="Center">
+                    <Panel Width="390" Height="248" ClipToBounds="True">
+                      <Image Source="{Binding BoxWallpaper}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="None" />
+                      <ItemsControl ItemsSource="{Binding BoxSlots}" Margin="4,2,4,6">
+                        <ItemsControl.ItemsPanel>
+                          <ItemsPanelTemplate>
+                            <UniformGrid Columns="6" />
+                          </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate x:DataType="vm:SlotViewModel">
+                            <Button Classes="plain" Margin="1" Command="{Binding SelectCommand}" ToolTip.Tip="{Binding Tooltip}">
+                              <Border Classes="cell" Classes.selected="{Binding IsSelected}" Classes.problem="{Binding HasProblem}">
+                                <Panel>
+                                  <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="52" Height="39" />
+                                  <TextBlock Text="🥚" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsEgg}" />
+                                  <Image Source="{Binding ItemIcon}" Width="16" Height="16" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                         RenderOptions.BitmapInterpolationMode="None" IsVisible="{Binding HasItem}" />
+                                  <TextBlock Text="★" Foreground="#FFD700" FontWeight="Bold" FontSize="12" Margin="2,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                             IsVisible="{Binding IsShiny}" />
+                                </Panel>
+                              </Border>
+                            </Button>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                    </Panel>
+                    </Viewbox>
+                  </Grid>
+                </Border>
+            </DockPanel>
 
             <Grid Grid.Column="1">
               <!-- Empty slot: create -->
-              <StackPanel Margin="16" Spacing="8" MaxWidth="520" HorizontalAlignment="Left" IsVisible="{Binding CanCreate}">
-                <TextBlock Classes="section" Text="{x:Static r:Strings.Save_CreateTitle}" />
-                <TextBlock Classes="hint" Text="{x:Static r:Strings.Save_CreateHint}" />
-                <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding NewSpeciesIcon}" Width="80" Height="60" HorizontalAlignment="Left" />
-                <Grid ColumnDefinitions="140,*" RowDefinitions="Auto,Auto" >
-                  <TextBlock Classes="row-label" Text="{x:Static r:Strings.Pkm_Species}" />
-                  <ComboBox Grid.Column="1" ItemsSource="{Binding SpeciesChoices}" SelectedIndex="{Binding NewSpecies}" HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
-                  <TextBlock Grid.Row="1" Classes="row-label" Margin="0,6,8,0" Text="{x:Static r:Strings.Pkm_Level}" />
-                  <NumericUpDown Grid.Row="1" Grid.Column="1" Margin="0,6,0,0" Value="{Binding NewLevel}" Minimum="1" Maximum="100" Increment="1"
-                                 FormatString="0" ParsingNumberStyle="Integer" Width="140" HorizontalAlignment="Left" />
-                </Grid>
-                <Button Classes="accent" Content="{x:Static r:Strings.Save_CreateButton}" Command="{Binding CreatePokemonCommand}" />
-              </StackPanel>
+              <Border Classes="card" Margin="12" MaxWidth="520" HorizontalAlignment="Left" VerticalAlignment="Top" IsVisible="{Binding CanCreate}">
+                <StackPanel Spacing="8">
+                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Save_CreateTitle}" />
+                  <TextBlock Classes="hint" Text="{x:Static r:Strings.Save_CreateHint}" />
+                  <Border Background="#F2F4F6" CornerRadius="2" Width="96" Height="76" HorizontalAlignment="Left" BorderBrush="#20000000" BorderThickness="1">
+                    <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding NewSpeciesIcon}" Width="80" Height="60" />
+                  </Border>
+                  <Grid ColumnDefinitions="140,*" RowDefinitions="Auto,Auto" >
+                    <TextBlock Classes="row-label" Text="{x:Static r:Strings.Pkm_Species}" />
+                    <ComboBox Grid.Column="1" ItemsSource="{Binding SpeciesChoices}" SelectedIndex="{Binding NewSpecies}" HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
+                    <TextBlock Grid.Row="1" Classes="row-label" Margin="0,6,8,0" Text="{x:Static r:Strings.Pkm_Level}" />
+                    <NumericUpDown Grid.Row="1" Grid.Column="1" Margin="0,6,0,0" Value="{Binding NewLevel}" Minimum="1" Maximum="100" Increment="1"
+                                   FormatString="0" ParsingNumberStyle="Integer" Width="140" HorizontalAlignment="Left" />
+                  </Grid>
+                  <Button Classes="accent" HorizontalAlignment="Left" Content="{x:Static r:Strings.Save_CreateButton}" Command="{Binding CreatePokemonCommand}" />
+                </StackPanel>
+              </Border>
 
               <DockPanel IsVisible="{Binding HasPokemon}">
-                <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*,Auto" Margin="12,8,12,0">
-                  <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Pokemon.Icon}" Width="80" Height="60" Margin="0,0,10,0" />
-                  <TextBlock Grid.Column="1" Text="{Binding Pokemon.Title}" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                  <Button Grid.Column="2" Content="{x:Static r:Strings.Save_DeleteButton}" Command="{Binding DeletePokemonCommand}" VerticalAlignment="Center" />
-                </Grid>
+                <!-- Header in the Pokémon's type colors -->
+                <Border DockPanel.Dock="Top" Classes="detail-header" Margin="12,8,12,4" Background="{Binding Pokemon.TypeBackground}">
+                  <Grid ColumnDefinitions="Auto,*,Auto">
+                    <Panel Width="96" Height="76" Margin="0,0,12,0">
+                      <Border Background="#50FFFFFF" CornerRadius="2" />
+                      <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Pokemon.Icon}" Width="80" Height="60" />
+                      <TextBlock Text="🥚" FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding Pokemon.IsEgg}" />
+                    </Panel>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="3">
+                      <TextBlock Classes="hint" Foreground="{Binding Pokemon.TypeForeground}" Opacity="0.85" Text="{Binding Pokemon.SlotText}" />
+                      <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock FontSize="18" FontWeight="Bold" Foreground="{Binding Pokemon.TypeForeground}" Text="{Binding Pokemon.DisplayName}" TextTrimming="CharacterEllipsis" />
+                        <TextBlock FontSize="18" FontWeight="Bold" Foreground="{Binding Pokemon.TypeForeground}" Text="{Binding Pokemon.GenderText}" />
+                        <TextBlock FontSize="18" FontWeight="Bold" Foreground="#FFD700" Text="★" IsVisible="{Binding Pokemon.IsShiny}" />
+                      </StackPanel>
+                      <StackPanel Orientation="Horizontal" Spacing="6">
+                        <ItemsControl ItemsSource="{Binding Pokemon.TypeChips}">
+                          <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                              <StackPanel Orientation="Horizontal" Spacing="4" />
+                            </ItemsPanelTemplate>
+                          </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                        <TextBlock Foreground="{Binding Pokemon.TypeForeground}" VerticalAlignment="Center">
+                          <Run Text="{Binding Pokemon.LevelText}" FontWeight="SemiBold" />
+                          <Run Text=" · " />
+                          <Run Text="{Binding Pokemon.NatureText}" />
+                          <Run Text=" · " />
+                          <Run Text="{Binding Pokemon.AbilityText}" />
+                        </TextBlock>
+                      </StackPanel>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                      <Border Classes="badge" ToolTip.Tip="{x:Static r:Strings.Pkm_Ball}">
+                        <Image Source="{Binding Pokemon.BallIcon}" Width="30" Height="30" RenderOptions.BitmapInterpolationMode="None" />
+                      </Border>
+                      <Border Classes="badge" ToolTip.Tip="{x:Static r:Strings.Pkm_HeldItem}" IsVisible="{Binding Pokemon.HasItem}">
+                        <Image Source="{Binding Pokemon.ItemIcon}" Width="30" Height="30" RenderOptions.BitmapInterpolationMode="None" />
+                      </Border>
+                      <Border Classes="badge">
+                        <StackPanel>
+                          <TextBlock Classes="badge-label" Text="{x:Static r:Strings.Badge_Total}" />
+                          <TextBlock Classes="badge-value" Text="{Binding Pokemon.StatTotal}" />
+                        </StackPanel>
+                      </Border>
+                      <Button Margin="6,0,0,0" Content="{x:Static r:Strings.Save_DeleteButton}" Command="{Binding DeletePokemonCommand}" />
+                    </StackPanel>
+                  </Grid>
+                </Border>
                 <ContentControl Content="{Binding Pokemon}">
                   <ContentControl.ContentTemplate>
                     <DataTemplate x:DataType="vm:PokemonEditorViewModel">
                       <ScrollViewer Margin="12,4,12,8">
                         <StackPanel>
-                          <Border Padding="8" CornerRadius="4" Background="#22D13438" IsVisible="{Binding HasProblems}" Margin="0,4">
+                          <Border Padding="8" CornerRadius="2" Background="#22D13438" IsVisible="{Binding HasProblems}" Margin="0,4,0,8">
                             <ItemsControl ItemsSource="{Binding Problems}">
                               <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="x:String">
@@ -159,23 +385,25 @@
                               </ItemsControl.ItemTemplate>
                             </ItemsControl>
                           </Border>
-                          <TextBlock Classes="hint" Text="{x:Static r:Strings.Save_Egg}" IsVisible="{Binding IsEgg}" />
 
-                          <WrapPanel Orientation="Horizontal">
+                          <!-- Two columns: data and legality on the left, moves and stats on the right -->
+                          <Grid ColumnDefinitions="*,8,*">
+                            <StackPanel>
                             <!-- Main data -->
-                            <StackPanel Width="440" Margin="0,0,28,0">
-                              <TextBlock Classes="section" Text="{x:Static r:Strings.Pkm_Main}" />
-                              <Grid ColumnDefinitions="140,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                            <Border Classes="card detail" Margin="0,0,0,8">
+                            <StackPanel>
+                              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Pkm_Main}" />
+                              <Grid ColumnDefinitions="110,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
                                 <Grid.Styles>
                                   <Style Selector="Grid > :is(Control)">
-                                    <Setter Property="Margin" Value="0,3" />
+                                    <Setter Property="Margin" Value="0,1" />
                                   </Style>
                                 </Grid.Styles>
                                 <TextBlock Grid.Row="0" Classes="row-label" Text="{x:Static r:Strings.Pkm_Species}" />
                                 <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding SpeciesNames}" SelectedIndex="{Binding SpeciesIndex}" HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
 
                                 <TextBlock Grid.Row="1" Classes="row-label" Text="{x:Static r:Strings.Pkm_FormLabel}" IsVisible="{Binding HasForms}" />
-                                <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding FormChoices}" SelectedIndex="{Binding FormIndex}" HorizontalAlignment="Stretch" IsVisible="{Binding HasForms}" />
+                                <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding FormChoices}" SelectedItem="{Binding SelectedForm}" HorizontalAlignment="Stretch" IsVisible="{Binding HasForms}" />
 
                                 <TextBlock Grid.Row="2" Classes="row-label" Text="{x:Static r:Strings.Pkm_Nickname}" />
                                 <Grid Grid.Row="2" Grid.Column="1" ColumnDefinitions="*,Auto">
@@ -193,85 +421,171 @@
                                 <ComboBox Grid.Row="4" Grid.Column="1" ItemsSource="{Binding NatureNames}" SelectedIndex="{Binding NatureIndex}" HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
 
                                 <TextBlock Grid.Row="5" Classes="row-label" Text="{x:Static r:Strings.Pkm_AbilityLabel}" />
-                                <ComboBox Grid.Row="5" Grid.Column="1" ItemsSource="{Binding AbilityChoices}" SelectedIndex="{Binding AbilityIndex}" HorizontalAlignment="Stretch" />
+                                <ComboBox Grid.Row="5" Grid.Column="1" ItemsSource="{Binding AbilityChoices}" SelectedItem="{Binding SelectedAbility}" HorizontalAlignment="Stretch" />
 
                                 <TextBlock Grid.Row="6" Classes="row-label" Text="{x:Static r:Strings.Pkm_HeldItem}" />
-                                <ComboBox Grid.Row="6" Grid.Column="1" ItemsSource="{Binding ItemNames}" SelectedIndex="{Binding HeldItemIndex}" HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
+                                <Grid Grid.Row="6" Grid.Column="1" ColumnDefinitions="Auto,*">
+                                  <Border Classes="icon-circle">
+                                    <Image Source="{Binding ItemIcon}" Width="20" Height="20" RenderOptions.BitmapInterpolationMode="None" />
+                                  </Border>
+                                  <ComboBox Grid.Column="1" ItemsSource="{Binding ItemNames}" SelectedIndex="{Binding HeldItemIndex}" HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
+                                </Grid>
 
                                 <TextBlock Grid.Row="7" Classes="row-label" Text="{x:Static r:Strings.Pkm_Gender}" />
-                                <ComboBox Grid.Row="7" Grid.Column="1" ItemsSource="{Binding GenderChoices}" SelectedIndex="{Binding GenderIndex}" HorizontalAlignment="Stretch" />
-
-                                <TextBlock Grid.Row="8" Classes="row-label" Text="{x:Static r:Strings.Pkm_Shiny}" />
-                                <CheckBox Grid.Row="8" Grid.Column="1" IsChecked="{Binding IsShiny}" />
+                                <Grid Grid.Row="7" Grid.Column="1" ColumnDefinitions="*,Auto">
+                                  <ComboBox ItemsSource="{Binding GenderChoices}" SelectedItem="{Binding SelectedGender}" HorizontalAlignment="Stretch" />
+                                  <CheckBox Grid.Column="1" Margin="8,0,0,0" IsChecked="{Binding IsShiny}" Content="{x:Static r:Strings.Pkm_Shiny}" />
+                                </Grid>
 
                                 <TextBlock Grid.Row="9" Classes="row-label" Text="{x:Static r:Strings.Pkm_Friendship}" />
                                 <NumericUpDown Grid.Row="9" Grid.Column="1" Value="{Binding Friendship}" Minimum="0" Maximum="255" Increment="1" FormatString="0"
                                                ParsingNumberStyle="Integer" Width="130" HorizontalAlignment="Left" />
 
                                 <TextBlock Grid.Row="10" Classes="row-label" Text="{x:Static r:Strings.Pkm_Ball}" />
-                                <ComboBox Grid.Row="10" Grid.Column="1" ItemsSource="{Binding BallNames}" SelectedIndex="{Binding BallIndex}" HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
+                                <Grid Grid.Row="10" Grid.Column="1" ColumnDefinitions="Auto,*">
+                                  <Border Classes="icon-circle">
+                                    <Image Source="{Binding BallIcon}" Width="20" Height="20" RenderOptions.BitmapInterpolationMode="None" />
+                                  </Border>
+                                  <ComboBox Grid.Column="1" ItemsSource="{Binding BallNames}" SelectedIndex="{Binding BallIndex}" HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
+                                </Grid>
 
                                 <TextBlock Grid.Row="11" Classes="row-label" Text="{x:Static r:Strings.Pkm_OriginalTrainer}" />
                                 <TextBox Grid.Row="11" Grid.Column="1" Text="{Binding OriginalTrainer}" MaxLength="12" />
                               </Grid>
                             </StackPanel>
+                            </Border>
 
-                            <!-- Moves and stats -->
-                            <StackPanel Width="500">
-                              <TextBlock Classes="section" Text="{x:Static r:Strings.Pkm_Moves}" />
-                              <Grid ColumnDefinitions="70,230,120,*" Margin="0,0,0,2">
-                                <TextBlock Grid.Column="2" Classes="hint" Text="{x:Static r:Strings.Pkm_PPUps}" />
+                            <!-- Legality -->
+                            <Border Classes="card detail" Margin="0,0,0,8">
+                            <StackPanel>
+                              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Pkm_Legality}" />
+                              <TextBlock Classes="hint" Text="{x:Static r:Strings.Pkm_LegalityHint}" />
+                              <Button Margin="0,4,0,0" HorizontalAlignment="Left" Content="{x:Static r:Strings.Pkm_CheckLegality}" Command="{Binding CheckLegalityCommand}" />
+                              <SelectableTextBlock Margin="0,6,0,0" Text="{Binding LegalityText}" TextWrapping="Wrap" FontSize="12" />
+                            </StackPanel>
+                            </Border>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2">
+                            <!-- Moves: colored by their type in the ROM, with type and category icons -->
+                            <Border Classes="card detail" Margin="0,0,0,8">
+                            <StackPanel>
+                              <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Classes="card-title" Text="{x:Static r:Strings.Pkm_Moves}" />
+                                <TextBlock Grid.Column="1" Classes="hint" Margin="0,0,64,0" Text="{x:Static r:Strings.Pkm_PPUps}" />
                               </Grid>
                               <ItemsControl ItemsSource="{Binding MoveSlots}">
                                 <ItemsControl.ItemTemplate>
                                   <DataTemplate x:DataType="vm:MoveSlotViewModel">
-                                    <Grid ColumnDefinitions="70,230,120,*" Margin="0,3">
-                                      <TextBlock Classes="row-label" Text="{Binding Label}" />
-                                      <ComboBox Grid.Column="1" ItemsSource="{Binding MoveNames}" SelectedIndex="{Binding Move}" HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
-                                      <NumericUpDown Grid.Column="2" Margin="6,0" Value="{Binding PPUpsValue}" Minimum="0" Maximum="3" Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
-                                      <TextBlock Grid.Column="3" Classes="hint" VerticalAlignment="Center" Text="{Binding PPText}" />
-                                    </Grid>
+                                    <Border Background="{Binding TypeBackground}" CornerRadius="0" Padding="8,4" Margin="0,0,0,5" BorderBrush="#30000000" BorderThickness="1">
+                                      <Grid ColumnDefinitions="Auto,*,8,84,64" ToolTip.Tip="{Binding Label}">
+                                        <StackPanel Orientation="Horizontal" Spacing="2" Margin="0,0,6,0" VerticalAlignment="Center">
+                                          <Image Source="{Binding TypeIcon}" Width="22" Height="22" ToolTip.Tip="{Binding TypeName}" />
+                                          <Image Source="{Binding CategoryIcon}" Width="22" Height="22" ToolTip.Tip="{Binding CategoryText}" />
+                                        </StackPanel>
+                                        <ComboBox Grid.Column="1" ItemsSource="{Binding MoveNames}" SelectedIndex="{Binding Move}" HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
+                                        <NumericUpDown Grid.Column="3" Value="{Binding PPUpsValue}" Minimum="0" Maximum="3" Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
+                                        <TextBlock Grid.Column="4" Margin="6,0,0,0" Foreground="{Binding TypeForeground}" FontWeight="SemiBold" VerticalAlignment="Center" Text="{Binding PPText}" />
+                                      </Grid>
+                                    </Border>
                                   </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                               </ItemsControl>
-                              <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0">
+                              <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,6,0,0">
                                 <Button Content="{x:Static r:Strings.Pkm_RestorePP}" Command="{Binding RestorePPCommand}" />
                                 <Button Content="{x:Static r:Strings.Pkm_LevelUpMoves}" Command="{Binding LevelUpMovesCommand}" ToolTip.Tip="{x:Static r:Strings.Pkm_LevelUpMovesTip}" />
                               </StackPanel>
-
-                              <TextBlock Classes="section" Text="{x:Static r:Strings.Pkm_Stats}" />
-                              <Grid ColumnDefinitions="100,60,120,120,*" Margin="0,0,0,2">
-                                <TextBlock Grid.Column="1" Classes="hint" Text="{x:Static r:Strings.Pkm_Base}" />
-                                <TextBlock Grid.Column="2" Classes="hint" Text="IV" />
-                                <TextBlock Grid.Column="3" Classes="hint" Text="EV" />
-                                <TextBlock Grid.Column="4" Classes="hint" Text="{x:Static r:Strings.Pkm_Stat}" />
-                              </Grid>
-                              <ItemsControl ItemsSource="{Binding StatRows}">
-                                <ItemsControl.ItemTemplate>
-                                  <DataTemplate x:DataType="vm:StatRowViewModel">
-                                    <Grid ColumnDefinitions="100,60,120,120,*" Margin="0,2">
-                                      <TextBlock Classes="row-label" Text="{Binding Label}" />
-                                      <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Base}" />
-                                      <NumericUpDown Grid.Column="2" Margin="0,0,6,0" Value="{Binding Iv}" Minimum="0" Maximum="31" Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
-                                      <NumericUpDown Grid.Column="3" Margin="0,0,6,0" Value="{Binding Ev}" Minimum="0" Maximum="252" Increment="4" FormatString="0" ParsingNumberStyle="Integer" />
-                                      <TextBlock Grid.Column="4" VerticalAlignment="Center" FontWeight="SemiBold" Text="{Binding Stat}" />
-                                    </Grid>
-                                  </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                              </ItemsControl>
-                              <TextBlock Margin="0,4,0,0" Text="{Binding EvTotalText}" Classes.error="{Binding EvTotalTooHigh}" />
-                              <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0">
-                                <Button Content="{x:Static r:Strings.Pkm_MaxIvs}" Command="{Binding MaxIvsCommand}" />
-                                <Button Content="{x:Static r:Strings.Pkm_ClearEvs}" Command="{Binding ClearEvsCommand}" />
-                              </StackPanel>
-                              <TextBlock Classes="hint" Margin="0,6,0,0" Text="{x:Static r:Strings.Pkm_StatsHint}" />
-
-                              <TextBlock Classes="section" Text="{x:Static r:Strings.Pkm_Legality}" />
-                              <TextBlock Classes="hint" Text="{x:Static r:Strings.Pkm_LegalityHint}" />
-                              <Button Margin="0,4,0,0" Content="{x:Static r:Strings.Pkm_CheckLegality}" Command="{Binding CheckLegalityCommand}" />
-                              <SelectableTextBlock Margin="0,6,0,0" Text="{Binding LegalityText}" TextWrapping="Wrap" FontSize="12" />
                             </StackPanel>
-                          </WrapPanel>
+                            </Border>
+
+                            <!-- Stats in two tabs: the stats themselves (base with bar, nature ▲ red / ▼ blue as in PKHeX, result)
+                                 and the IV/EV editor, so the spinners never cover the bars -->
+                            <Border Classes="card detail" Margin="0,0,0,8" ToolTip.Tip="{x:Static r:Strings.Pkm_StatsHint}">
+                              <TabControl Classes="inline">
+                                <TabItem Header="{x:Static r:Strings.Pkm_Stats}">
+                                  <StackPanel>
+                                    <Grid ColumnDefinitions="80,34,*,44" Margin="0,0,0,2">
+                                      <TextBlock Grid.Column="1" Classes="hint" Text="{x:Static r:Strings.Pkm_Base}" />
+                                      <TextBlock Grid.Column="3" Classes="hint" Text="{x:Static r:Strings.Pkm_Stat}" />
+                                    </Grid>
+                                    <ItemsControl ItemsSource="{Binding StatRows}">
+                                      <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:StatRowViewModel">
+                                          <Grid ColumnDefinitions="80,34,*,44" Height="26">
+                                            <TextBlock Classes="row-label" Foreground="{Binding LabelBrush}" FontWeight="SemiBold">
+                                              <Run Text="{Binding Label}" />
+                                              <Run Text="{Binding NatureMark}" FontSize="10" />
+                                            </TextBlock>
+                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Base}" />
+                                            <Border Grid.Column="2" Margin="0,0,10,0" Height="10" Background="#E8ECEF" VerticalAlignment="Center">
+                                              <Border HorizontalAlignment="Left" Width="{Binding BarWidth}" Background="{Binding BarBrush}" BorderBrush="#30000000" BorderThickness="1" />
+                                            </Border>
+                                            <TextBlock Grid.Column="3" VerticalAlignment="Center" FontWeight="Bold" FontSize="14" Foreground="{Binding LabelBrush}" Text="{Binding Stat}" />
+                                          </Grid>
+                                        </DataTemplate>
+                                      </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                  </StackPanel>
+                                </TabItem>
+                                <TabItem Header="{x:Static r:Strings.Pkm_TabIvEv}">
+                                  <StackPanel>
+                                    <Grid ColumnDefinitions="80,*,12,*,44" Margin="0,0,0,2">
+                                      <TextBlock Grid.Column="1" Classes="hint" Text="IV" />
+                                      <TextBlock Grid.Column="3" Classes="hint" Text="EV" />
+                                      <TextBlock Grid.Column="4" Classes="hint" Text="{x:Static r:Strings.Pkm_Stat}" HorizontalAlignment="Right" />
+                                    </Grid>
+                                    <ItemsControl ItemsSource="{Binding StatRows}">
+                                      <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:StatRowViewModel">
+                                          <Grid ColumnDefinitions="80,*,12,*,44" Margin="0,1">
+                                            <TextBlock Classes="row-label" Foreground="{Binding LabelBrush}" FontWeight="SemiBold">
+                                              <Run Text="{Binding Label}" />
+                                              <Run Text="{Binding NatureMark}" FontSize="10" />
+                                            </TextBlock>
+                                            <NumericUpDown Grid.Column="1" Value="{Binding Iv}" Minimum="0" Maximum="31" Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
+                                            <NumericUpDown Grid.Column="3" Value="{Binding Ev}" Minimum="0" Maximum="252" Increment="4" FormatString="0" ParsingNumberStyle="Integer" />
+                                            <TextBlock Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold" FontSize="14" Foreground="{Binding LabelBrush}" Text="{Binding Stat}" />
+                                          </Grid>
+                                        </DataTemplate>
+                                      </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <Grid ColumnDefinitions="*,Auto" Margin="0,6,0,0">
+                                      <TextBlock VerticalAlignment="Center" Text="{Binding EvTotalText}" Classes.error="{Binding EvTotalTooHigh}" />
+                                      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                                        <Button Content="{x:Static r:Strings.Pkm_MaxIvs}" Command="{Binding MaxIvsCommand}" />
+                                        <Button Content="{x:Static r:Strings.Pkm_ClearEvs}" Command="{Binding ClearEvsCommand}" />
+                                      </StackPanel>
+                                    </Grid>
+                                  </StackPanel>
+                                </TabItem>
+                                <TabItem Header="{x:Static r:Strings.Pkm_TabContest}" IsVisible="{Binding HasContestStats}">
+                                  <StackPanel ToolTip.Tip="{x:Static r:Strings.Pkm_ContestHint}">
+                                    <ItemsControl ItemsSource="{Binding ContestRows}">
+                                      <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:ContestRowViewModel">
+                                          <Grid ColumnDefinitions="80,*,12,110" Margin="0,1">
+                                            <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                              <Border Width="10" Height="10" Background="{Binding Brush}" BorderBrush="#30000000" BorderThickness="1" />
+                                              <TextBlock FontWeight="SemiBold" Text="{Binding Label}" />
+                                            </StackPanel>
+                                            <Border Grid.Column="1" Height="10" Background="#E8ECEF" VerticalAlignment="Center">
+                                              <Border HorizontalAlignment="Left" Width="{Binding BarWidth}" Background="{Binding Brush}" BorderBrush="#30000000" BorderThickness="1" />
+                                            </Border>
+                                            <NumericUpDown Grid.Column="3" Value="{Binding Value}" Minimum="0" Maximum="255" Increment="10" FormatString="0" ParsingNumberStyle="Integer" />
+                                          </Grid>
+                                        </DataTemplate>
+                                      </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,6,0,0" HorizontalAlignment="Right">
+                                      <Button Content="{x:Static r:Strings.Pkm_MaxContest}" Command="{Binding MaxContestCommand}" />
+                                      <Button Content="{x:Static r:Strings.Pkm_ClearContest}" Command="{Binding ClearContestCommand}" />
+                                    </StackPanel>
+                                  </StackPanel>
+                                </TabItem>
+                              </TabControl>
+                            </Border>
+                            </StackPanel>
+                          </Grid>
                         </StackPanel>
                       </ScrollViewer>
                     </DataTemplate>
@@ -284,29 +598,63 @@
 
         <!-- ================= Bag ================= -->
         <TabItem Header="{x:Static r:Strings.Save_TabBag}">
-          <Grid ColumnDefinitions="220,*" DataContext="{Binding Bag}" x:DataType="vm:SaveBagViewModel">
+          <Grid ColumnDefinitions="240,*" DataContext="{Binding Bag}" x:DataType="vm:SaveBagViewModel">
             <ListBox Margin="8" ItemsSource="{Binding Pockets}" SelectedItem="{Binding SelectedPocket}">
               <ListBox.ItemTemplate>
                 <DataTemplate x:DataType="vm:PocketViewModel">
-                  <TextBlock Text="{Binding Name}" />
+                  <Grid ColumnDefinitions="Auto,*" Margin="0,3">
+                    <Border Width="38" Height="38" CornerRadius="2" Background="{Binding Accent}" BorderBrush="#40000000" BorderThickness="1">
+                      <Panel>
+                        <Image Source="{Binding Icon}" Width="30" Height="30" RenderOptions.BitmapInterpolationMode="None" IsVisible="{Binding HasIcon}" />
+                        <TextBlock Text="🔑" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding !HasIcon}" />
+                      </Panel>
+                    </Border>
+                    <TextBlock Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="13" Text="{Binding Name}" />
+                  </Grid>
                 </DataTemplate>
               </ListBox.ItemTemplate>
             </ListBox>
             <DockPanel Grid.Column="1" Margin="8">
-              <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
-                <Button Content="{x:Static r:Strings.Bag_Add}" Command="{Binding AddItemCommand}" />
-                <Button Content="{x:Static r:Strings.Bag_Sort}" Command="{Binding SortByNameCommand}" />
-                <TextBlock Classes="hint" VerticalAlignment="Center" Text="{Binding CapacityText}" />
-              </StackPanel>
+              <!-- Pocket header in its color -->
+              <Border DockPanel.Dock="Top" Classes="detail-header" Margin="0,0,0,8" Background="{Binding SelectedPocket.Accent}">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                  <Border Width="48" Height="48" CornerRadius="2" Background="#E6FFFFFF" Margin="0,0,12,0">
+                    <Panel>
+                      <Image Source="{Binding SelectedPocket.Icon}" Width="36" Height="36" RenderOptions.BitmapInterpolationMode="None" IsVisible="{Binding SelectedPocket.HasIcon}" />
+                      <TextBlock Text="🔑" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding !SelectedPocket.HasIcon}" />
+                    </Panel>
+                  </Border>
+                  <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                    <TextBlock FontSize="18" FontWeight="Bold" Foreground="White" Text="{Binding SelectedPocket.Name}" />
+                    <TextBlock Foreground="White" Opacity="0.9" Text="{Binding CapacityText}" />
+                  </StackPanel>
+                  <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                    <Button Content="{x:Static r:Strings.Bag_Add}" Command="{Binding AddItemCommand}" />
+                    <Button Content="{x:Static r:Strings.Bag_Sort}" Command="{Binding SortByNameCommand}" />
+                  </StackPanel>
+                </Grid>
+              </Border>
               <ScrollViewer>
                 <ItemsControl ItemsSource="{Binding SelectedPocket.Items}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <WrapPanel />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
                   <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:BagItemViewModel">
-                      <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,2">
-                        <ComboBox ItemsSource="{Binding Pocket.ItemNames}" SelectedIndex="{Binding ItemIndex}" Width="300" MaxDropDownHeight="420" />
-                        <NumericUpDown Value="{Binding Count}" Minimum="1" Maximum="{Binding MaxCount}" Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="140" />
-                        <Button Content="{x:Static r:Strings.Common_Remove}" Command="{Binding RemoveCommand}" />
-                      </StackPanel>
+                      <Border Classes="card" Width="420" Margin="0,0,8,8" Padding="8,6">
+                        <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                          <Border Width="42" Height="42" CornerRadius="2" Background="#F2F4F6" BorderBrush="#20000000" BorderThickness="1" Margin="0,0,8,0">
+                            <Image Source="{Binding Icon}" Width="32" Height="32" RenderOptions.BitmapInterpolationMode="None" />
+                          </Border>
+                          <ComboBox Grid.Column="1" VerticalAlignment="Center" ItemsSource="{Binding Pocket.ItemNames}" SelectedIndex="{Binding ItemIndex}"
+                                    HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
+                          <NumericUpDown Grid.Column="2" Margin="8,0,6,0" VerticalAlignment="Center" Value="{Binding Count}" Minimum="1" Maximum="{Binding MaxCount}"
+                                         Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="104" />
+                          <Button Grid.Column="3" VerticalAlignment="Center" Content="✕" ToolTip.Tip="{x:Static r:Strings.Common_Remove}" Command="{Binding RemoveCommand}" />
+                        </Grid>
+                      </Border>
                     </DataTemplate>
                   </ItemsControl.ItemTemplate>
                 </ItemsControl>
@@ -387,15 +735,28 @@
                         <NumericUpDown Value="{Binding Seconds}" Minimum="0" Maximum="59" Increment="1" FormatString="00" ParsingNumberStyle="Integer" Width="100" />
                       </StackPanel>
                       <TextBlock Grid.Row="1" Classes="row-label" Text="{x:Static r:Strings.Trainer_Started}" />
-                      <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="6">
-                        <CalendarDatePicker SelectedDate="{Binding StartedDate}" Width="150" />
-                        <TimePicker SelectedTime="{Binding StartedTime}" ClockIdentifier="24HourClock" />
+                      <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                        <!-- Same widths and separators as the play time row, so hour and minute line up under minutes and seconds -->
+                        <Panel Width="110">
+                          <CalendarDatePicker SelectedDate="{Binding StartedDate}" HorizontalAlignment="Stretch" />
+                          <Path Classes="calendar-glyph" />
+                        </Panel>
+                        <TextBlock VerticalAlignment="Center" Text=":" Opacity="0" />
+                        <NumericUpDown Value="{Binding StartedHour}" Minimum="0" Maximum="23" Increment="1" FormatString="00" ParsingNumberStyle="Integer" Width="100" />
+                        <TextBlock VerticalAlignment="Center" Text=":" />
+                        <NumericUpDown Value="{Binding StartedMinute}" Minimum="0" Maximum="59" Increment="1" FormatString="00" ParsingNumberStyle="Integer" Width="100" />
                       </StackPanel>
                       <TextBlock Grid.Row="2" Classes="row-label" Text="{x:Static r:Strings.Trainer_HallOfFame}" />
                       <CheckBox Grid.Row="2" Grid.Column="1" IsChecked="{Binding HasHallOfFame}" Content="{x:Static r:Strings.Trainer_HallOfFameEntered}" />
-                      <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="6" IsVisible="{Binding HasHallOfFame}">
-                        <CalendarDatePicker SelectedDate="{Binding FameDate}" Width="150" />
-                        <TimePicker SelectedTime="{Binding FameTime}" ClockIdentifier="24HourClock" />
+                      <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="4" IsVisible="{Binding HasHallOfFame}">
+                        <Panel Width="110">
+                          <CalendarDatePicker SelectedDate="{Binding FameDate}" HorizontalAlignment="Stretch" />
+                          <Path Classes="calendar-glyph" />
+                        </Panel>
+                        <TextBlock VerticalAlignment="Center" Text=":" Opacity="0" />
+                        <NumericUpDown Value="{Binding FameHour}" Minimum="0" Maximum="23" Increment="1" FormatString="00" ParsingNumberStyle="Integer" Width="100" />
+                        <TextBlock VerticalAlignment="Center" Text=":" />
+                        <NumericUpDown Value="{Binding FameMinute}" Minimum="0" Maximum="59" Increment="1" FormatString="00" ParsingNumberStyle="Integer" Width="100" />
                       </StackPanel>
                       <TextBlock Grid.Row="4" Grid.Column="1" Classes="hint" Text="{Binding LastSavedText}" />
                     </Grid>
@@ -495,7 +856,7 @@
             <!-- Map position -->
             <TabItem Header="{x:Static r:Strings.Trainer_TabMap}" IsVisible="{Binding HasPosition}">
               <StackPanel Margin="16,8" Spacing="6" MaxWidth="640" HorizontalAlignment="Left">
-                <Border Padding="10" CornerRadius="4" Background="#26E07B00" BorderBrush="#E07B00" BorderThickness="1">
+                <Border Padding="10" CornerRadius="2" Background="#26E07B00" BorderBrush="#E07B00" BorderThickness="1">
                   <TextBlock Text="{x:Static r:Strings.Trainer_MapWarning}" TextWrapping="Wrap" />
                 </Border>
                 <Grid ColumnDefinitions="170,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
@@ -522,27 +883,147 @@
 
         <!-- ================= Pokédex ================= -->
         <TabItem Header="{x:Static r:Strings.Save_TabDex}">
-          <DockPanel Margin="8" DataContext="{Binding Dex}" x:DataType="vm:SaveDexViewModel">
-            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
-              <TextBox Text="{Binding Filter}" PlaceholderText="{x:Static r:Strings.Search_Watermark}" Width="260" />
-              <Button Content="{x:Static r:Strings.Dex_AllSeen}" Command="{Binding AllSeenCommand}" />
-              <Button Content="{x:Static r:Strings.Dex_AllCaught}" Command="{Binding AllCaughtCommand}" />
-              <TextBlock Classes="hint" VerticalAlignment="Center" Text="{Binding CountText}" />
+          <Grid ColumnDefinitions="440,*" DataContext="{Binding Dex}" x:DataType="vm:SaveDexViewModel">
+          <DockPanel Margin="8,8,4,8">
+            <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="0,0,0,6">
+              <TextBox Text="{Binding Filter}" PlaceholderText="{x:Static r:Strings.Search_Watermark}" />
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <Button Content="{x:Static r:Strings.Dex_AllSeen}" Command="{Binding AllSeenCommand}" />
+                <Button Content="{x:Static r:Strings.Dex_AllCaught}" Command="{Binding AllCaughtCommand}" />
+              </StackPanel>
+              <TextBlock Classes="hint" Text="{Binding CountText}" />
             </StackPanel>
-            <ListBox ItemsSource="{Binding Entries}" MaxWidth="620" HorizontalAlignment="Left">
+            <ListBox ItemsSource="{Binding Entries}" SelectedItem="{Binding SelectedEntry}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
               <ListBox.ItemTemplate>
                 <DataTemplate x:DataType="vm:DexEntryViewModel">
-                  <Grid ColumnDefinitions="48,60,220,120,120">
-                    <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="40" Height="30" />
-                    <TextBlock Grid.Column="1" Classes="hint" VerticalAlignment="Center" Text="{Binding Number}" />
-                    <TextBlock Grid.Column="2" VerticalAlignment="Center" Text="{Binding Name}" />
-                    <CheckBox Grid.Column="3" IsChecked="{Binding Seen}" Content="{x:Static r:Strings.Dex_Seen}" />
-                    <CheckBox Grid.Column="4" IsChecked="{Binding Caught}" Content="{x:Static r:Strings.Dex_Caught}" />
+                  <Grid ColumnDefinitions="11,46,46,*,Auto" Margin="0,0,12,0">
+                    <Border Width="5" Margin="0,2,6,2" Background="{Binding TypeBrush}" />
+                    <Image Grid.Column="1" Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="40" Height="30" />
+                    <TextBlock Grid.Column="2" Classes="hint" VerticalAlignment="Center" Text="{Binding Number}" />
+                    <TextBlock Grid.Column="3" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+                    <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                      <ToggleButton Classes="flag seen" IsChecked="{Binding Seen}">
+                        <TextBlock Text="{x:Static r:Strings.Dex_Seen}" />
+                      </ToggleButton>
+                      <ToggleButton Classes="flag caught" IsChecked="{Binding Caught}">
+                        <TextBlock Text="{x:Static r:Strings.Dex_Caught}" />
+                      </ToggleButton>
+                    </StackPanel>
                   </Grid>
                 </DataTemplate>
               </ListBox.ItemTemplate>
             </ListBox>
           </DockPanel>
+
+          <!-- The selected species as the game's Pokédex shows it -->
+          <ScrollViewer Grid.Column="1" Padding="4,8,12,8">
+            <ContentControl Content="{Binding Detail}">
+              <ContentControl.ContentTemplate>
+                <DataTemplate x:DataType="vm:DexDetailViewModel">
+                  <StackPanel Spacing="8">
+                    <Border Classes="detail-header" Background="{Binding TypeBackground}">
+                      <Grid ColumnDefinitions="Auto,*,Auto">
+                        <Border Background="#50FFFFFF" Width="112" Height="84" Margin="0,0,14,0" CornerRadius="2">
+                          <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="100" Height="75" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="3">
+                          <TextBlock Foreground="{Binding TypeForeground}" Opacity="0.85" Text="{Binding Number}" FontWeight="SemiBold" />
+                          <TextBlock Foreground="{Binding TypeForeground}" FontSize="20" FontWeight="Bold" Text="{Binding Name}" />
+                          <TextBlock Foreground="{Binding TypeForeground}" Text="{Binding Classification}" />
+                          <ItemsControl ItemsSource="{Binding TypeChips}">
+                            <ItemsControl.ItemsPanel>
+                              <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="4" />
+                              </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                          </ItemsControl>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="6">
+                          <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Right">
+                            <Border Classes="badge">
+                              <StackPanel>
+                                <TextBlock Classes="badge-label" Text="{x:Static r:Strings.Dex_HeightLabel}" />
+                                <TextBlock Classes="badge-value" Text="{Binding Height}" />
+                              </StackPanel>
+                            </Border>
+                            <Border Classes="badge">
+                              <StackPanel>
+                                <TextBlock Classes="badge-label" Text="{x:Static r:Strings.Dex_WeightLabel}" />
+                                <TextBlock Classes="badge-value" Text="{Binding Weight}" />
+                              </StackPanel>
+                            </Border>
+                          </StackPanel>
+                          <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Right">
+                            <ToggleButton Classes="flag seen large" IsChecked="{Binding Seen}">
+                              <TextBlock Text="{x:Static r:Strings.Dex_Seen}" />
+                            </ToggleButton>
+                            <ToggleButton Classes="flag caught large" IsChecked="{Binding Caught}">
+                              <TextBlock Text="{x:Static r:Strings.Dex_Caught}" />
+                            </ToggleButton>
+                          </StackPanel>
+                        </StackPanel>
+                      </Grid>
+                    </Border>
+
+                    <!-- Entry text: a plain card with a bar in the type colors -->
+                    <Border Classes="card" Padding="0">
+                      <Grid ColumnDefinitions="5,*">
+                        <Border Background="{Binding TypeBackground}" />
+                        <StackPanel Grid.Column="1" Margin="14,10,14,12" Spacing="6">
+                          <TextBlock Classes="card-title" Text="{Binding GameName, StringFormat={x:Static r:Strings.Dex_EntryTitle}}" />
+                          <TextBlock FontSize="14" LineHeight="22" TextWrapping="Wrap" Text="{Binding Entry}" Classes.hint="{Binding !HasEntry}" />
+                        </StackPanel>
+                      </Grid>
+                    </Border>
+
+                    <Grid ColumnDefinitions="*,8,*">
+                      <Border Classes="card" ToolTip.Tip="{x:Static r:Strings.Dex_DataHint}">
+                        <StackPanel>
+                          <TextBlock Classes="card-title" Margin="0,0,0,4" Text="{x:Static r:Strings.Dex_DataTitle}" />
+                          <ItemsControl ItemsSource="{Binding Info}">
+                            <ItemsControl.ItemTemplate>
+                              <DataTemplate x:DataType="vm:DexInfoLine">
+                                <Border Classes="info-row">
+                                  <Grid ColumnDefinitions="130,*">
+                                    <TextBlock Classes="hint" VerticalAlignment="Center" Text="{Binding Label}" />
+                                    <TextBlock Grid.Column="1" FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding Value}" />
+                                  </Grid>
+                                </Border>
+                              </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                          </ItemsControl>
+                        </StackPanel>
+                      </Border>
+                      <Border Grid.Column="2" Classes="card">
+                        <StackPanel>
+                          <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,4">
+                            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Section_BaseStats}" />
+                            <TextBlock Grid.Column="1" FontWeight="Bold" Text="{Binding Total, StringFormat='Total {0}'}" />
+                          </Grid>
+                          <ItemsControl ItemsSource="{Binding Stats}">
+                            <ItemsControl.ItemTemplate>
+                              <DataTemplate x:DataType="vm:DexStatLine">
+                                <Border Classes="info-row">
+                                  <Grid ColumnDefinitions="80,36,*">
+                                    <TextBlock Classes="hint" Text="{Binding Label}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{Binding Value}" VerticalAlignment="Center" />
+                                    <Border Grid.Column="2" Height="10" Background="#E8ECEF" VerticalAlignment="Center">
+                                      <Border HorizontalAlignment="Left" Width="{Binding BarWidth}" Background="{Binding BarBrush}" BorderBrush="#30000000" BorderThickness="1" />
+                                    </Border>
+                                  </Grid>
+                                </Border>
+                              </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                          </ItemsControl>
+                        </StackPanel>
+                      </Border>
+                    </Grid>
+                  </StackPanel>
+                </DataTemplate>
+              </ContentControl.ContentTemplate>
+            </ContentControl>
+          </ScrollViewer>
+          </Grid>
         </TabItem>
       </TabControl>
     </DockPanel>

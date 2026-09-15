@@ -27,7 +27,7 @@
     <Style Selector="Border.member">
       <Setter Property="BorderBrush" Value="#80000000" />
       <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="CornerRadius" Value="2" />
       <Setter Property="Padding" Value="6,4" />
     </Style>
     <Style Selector="Button.member:pointerover Border.member">
@@ -41,7 +41,7 @@
     <Style Selector="Border.slot">
       <Setter Property="BorderBrush" Value="#40000000" />
       <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="CornerRadius" Value="2" />
       <Setter Property="Height" Value="46" />
     </Style>
     <Style Selector="Border.slot.empty">
@@ -187,6 +187,95 @@
         <!-- Selected player -->
         <ScrollViewer Grid.Column="1">
           <StackPanel Spacing="8">
+            <!-- Battles: challenge, rules before the battle, ready with the party, battle screen -->
+            <Border Classes="card">
+              <StackPanel Spacing="6">
+                <Grid ColumnDefinitions="*,Auto">
+                  <StackPanel Spacing="2">
+                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Battle_Title}" />
+                    <TextBlock Classes="hint" Text="{x:Static r:Strings.Battle_Hint}" TextWrapping="Wrap" />
+                  </StackPanel>
+                  <Button Grid.Column="1" Classes="accent" Margin="12,0,0,0" VerticalAlignment="Top"
+                          Content="{Binding ChallengeText}" Command="{Binding ChallengeCommand}" IsEnabled="{Binding CanChallenge}" />
+                </Grid>
+                <ItemsControl ItemsSource="{Binding BattleCards}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:RoomBattleCard">
+                      <Border BorderBrush="#40000000" BorderThickness="1" CornerRadius="2" Padding="8" Margin="0,4,0,0">
+                        <StackPanel Spacing="6">
+                          <Grid ColumnDefinitions="Auto,*,Auto">
+                            <ContentControl Content="{Binding OpponentAvatar}" Width="40" Height="40" VerticalAlignment="Top" />
+                            <StackPanel Grid.Column="1" Margin="8,0" VerticalAlignment="Center" Spacing="2">
+                              <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                              <TextBlock Classes="hint" Text="{Binding ReadyText}" IsVisible="{Binding IsProposed}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Top">
+                              <Button Classes="accent" Content="{x:Static r:Strings.Battle_Open}" Command="{Binding OpenCommand}" IsVisible="{Binding CanOpen}" />
+                              <Button Content="{Binding CancelText}" Command="{Binding CancelCommand}" IsVisible="{Binding !IsOver}" />
+                              <Button Content="{x:Static r:Strings.Battle_Dismiss}" Command="{Binding DismissCommand}" IsVisible="{Binding IsOver}" />
+                            </StackPanel>
+                          </Grid>
+                          <TextBlock Classes="error" Text="{Binding ProblemsText}" IsVisible="{Binding HasProblems}" TextWrapping="Wrap" />
+
+                          <StackPanel Spacing="6" IsVisible="{Binding IsProposed}">
+                            <WrapPanel>
+                              <StackPanel Margin="0,0,16,4" Spacing="2">
+                                <TextBlock Classes="hint" Text="{x:Static r:Strings.Battle_Generation}" />
+                                <ComboBox SelectedIndex="{Binding GenerationIndex}" Width="220">
+                                  <ComboBoxItem Content="{x:Static r:Strings.Battle_Gen6}" />
+                                  <ComboBoxItem Content="{x:Static r:Strings.Battle_Gen7}" />
+                                </ComboBox>
+                              </StackPanel>
+                              <StackPanel Margin="0,0,16,4" Spacing="2">
+                                <TextBlock Classes="hint" Text="{x:Static r:Strings.Battle_Level}" />
+                                <ComboBox SelectedIndex="{Binding LevelIndex}" Width="180">
+                                  <ComboBoxItem Content="{x:Static r:Strings.Battle_LevelSave}" />
+                                  <ComboBoxItem Content="{x:Static r:Strings.Battle_Level50}" />
+                                  <ComboBoxItem Content="{x:Static r:Strings.Battle_Level100}" />
+                                </ComboBox>
+                              </StackPanel>
+                            </WrapPanel>
+                            <WrapPanel>
+                              <CheckBox Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_HealBefore}" IsChecked="{Binding HealBefore}" />
+                              <CheckBox Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_TeamPreview}" IsChecked="{Binding TeamPreview}" />
+                              <CheckBox Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_SleepClause}" IsChecked="{Binding SleepClause}" />
+                              <CheckBox Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_SpeciesClause}" IsChecked="{Binding SpeciesClause}" />
+                              <CheckBox Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_ItemClause}" IsChecked="{Binding ItemClause}" />
+                              <CheckBox Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_OhkoClause}" IsChecked="{Binding OhkoClause}" />
+                              <CheckBox Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_EvasionClause}" IsChecked="{Binding EvasionClause}" />
+                              <CheckBox Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_BatonPassClause}" IsChecked="{Binding BatonPassClause}" />
+                              <CheckBox Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_NoMegas}" IsChecked="{Binding NoMegas}" />
+                              <CheckBox Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_NoZMoves}" IsChecked="{Binding NoZMoves}" />
+                            </WrapPanel>
+                            <TextBlock Classes="hint" Text="{x:Static r:Strings.Battle_RulesHint}" TextWrapping="Wrap" />
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                              <Button Classes="accent" Content="{x:Static r:Strings.Battle_Ready}" Command="{Binding ReadyCommand}" IsVisible="{Binding IAmNotReady}" />
+                              <Button Content="{x:Static r:Strings.Battle_Unready}" Command="{Binding NotReadyCommand}" IsVisible="{Binding IAmReady}" />
+                            </StackPanel>
+                          </StackPanel>
+                        </StackPanel>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </Border>
+
+            <!-- In-game link through the emulator's room server -->
+            <Border Classes="card">
+              <StackPanel Spacing="6">
+                <TextBlock Classes="card-title" Text="{x:Static r:Strings.Emu_Title}" />
+                <TextBlock Classes="hint" Text="{x:Static r:Strings.Emu_Hint}" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding EmulatorRoomText}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                <TextBlock Classes="hint" Text="{Binding EmulatorDirectConnectText}" IsVisible="{Binding EmulatorRoomOpen}" TextWrapping="Wrap" />
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <Button Classes="accent" Content="{x:Static r:Strings.Emu_Play}" Command="{Binding PlayInEmulatorRoomCommand}" IsVisible="{Binding EmulatorRoomOpen}" />
+                  <Button Content="{x:Static r:Strings.Emu_Open}" Command="{Binding OpenEmulatorRoomCommand}" IsVisible="{Binding CanOpenEmulatorRoom}" />
+                  <Button Content="{x:Static r:Strings.Emu_Close}" Command="{Binding CloseEmulatorRoomCommand}" IsVisible="{Binding CanCloseEmulatorRoom}" />
+                </StackPanel>
+              </StackPanel>
+            </Border>
+
             <Border Classes="card" IsVisible="{Binding SelectedPlayer, Converter={x:Static ObjectConverters.IsNotNull}}">
               <Grid ColumnDefinitions="Auto,*">
                 <ContentControl Content="{Binding ShownAvatar}" Width="56" Height="56" />
@@ -214,7 +303,7 @@
                       <Button Classes="member" Command="{Binding SelectCommand}" ToolTip.Tip="{Binding Tooltip}">
                         <Border Classes="member" Classes.selected="{Binding IsSelected}" Background="{Binding TypeBackground}">
                           <Grid ColumnDefinitions="Auto,*">
-                            <Border Background="#40FFFFFF" CornerRadius="30" Width="68" Height="60">
+                            <Border Background="#40FFFFFF" CornerRadius="2" Width="68" Height="60">
                               <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="80" Height="60" />
                             </Border>
                             <StackPanel Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center" Spacing="1">
@@ -252,8 +341,8 @@
                   <DataTemplate x:DataType="vm:RoomMonDetail">
                     <StackPanel Spacing="8">
                       <Grid ColumnDefinitions="Auto,*">
-                        <Border Grid.ColumnSpan="2" Background="{Binding Card.TypeBackground}" CornerRadius="4" BorderBrush="#80000000" BorderThickness="1" />
-                        <Border Margin="6,4" Background="#40FFFFFF" CornerRadius="30" Width="68" Height="60">
+                        <Border Grid.ColumnSpan="2" Background="{Binding Card.TypeBackground}" CornerRadius="2" BorderBrush="#80000000" BorderThickness="1" />
+                        <Border Margin="6,4" Background="#40FFFFFF" CornerRadius="2" Width="68" Height="60">
                           <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Card.Icon}" Width="80" Height="60" />
                         </Border>
                         <StackPanel Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center" Spacing="2">
@@ -296,7 +385,7 @@
                           <ItemsControl ItemsSource="{Binding Moves}">
                             <ItemsControl.ItemTemplate>
                               <DataTemplate x:DataType="vm:MoveLine">
-                                <Border Background="{Binding Background}" CornerRadius="4" Padding="8,4" Margin="0,2" BorderBrush="#40000000" BorderThickness="1">
+                                <Border Background="{Binding Background}" CornerRadius="2" Padding="8,4" Margin="0,2" BorderBrush="#40000000" BorderThickness="1">
                                   <Grid ColumnDefinitions="*,Auto,Auto">
                                     <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
                                     <TextBlock Grid.Column="1" Text="{Binding Type}" Foreground="{Binding Foreground}" FontSize="10" Opacity="0.85" Margin="8,0" VerticalAlignment="Center" />

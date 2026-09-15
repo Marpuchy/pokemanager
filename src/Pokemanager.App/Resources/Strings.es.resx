@@ -763,7 +763,7 @@
     <value>Bayas</value>
   </data>
   <data name="Data_ImportButton" xml:space="preserve">
-    <value>Importar datos de Pokémon…</value>
+    <value>Importar archivo de datos…</value>
   </data>
   <data name="Data_ExportButton" xml:space="preserve">
     <value>Exportar datos de Pokémon…</value>
@@ -772,16 +772,16 @@
     <value>Importar .pkdata…</value>
   </data>
   <data name="Data_RandomizerRow" xml:space="preserve">
-    <value>Datos de Pokémon (stats base, tipos, habilidades, movimientos que aprenden, movimientos):</value>
+    <value>Datos de Pokémon (stats base, tipos, habilidades, movimientos que aprenden):</value>
   </data>
   <data name="Data_Hint" xml:space="preserve">
-    <value>Un archivo .pkdata guarda stats base, tipos, habilidades, movimientos que aprenden y movimientos, como un .rnqs guarda las opciones del randomizer.</value>
+    <value>Un archivo .pkdata guarda stats base, tipos, habilidades y movimientos que aprenden, como un .rnqs guarda las opciones del randomizer. Los movimientos van en un archivo .mvdata, desde su pestaña.</value>
   </data>
   <data name="Data_ExportTitle" xml:space="preserve">
     <value>Exportar datos de Pokémon</value>
   </data>
   <data name="Data_ExportMessage" xml:space="preserve">
-    <value>Por defecto solo se exportan tus cambios: al aplicarlos en otro proyecto, todo lo demás conserva la randomización de ese proyecto. Incluye todos los valores para fijar todos los Pokémon y movimientos tal y como están ahora.</value>
+    <value>Por defecto solo se exportan tus cambios: al aplicarlos en otro proyecto, todo lo demás conserva la randomización de ese proyecto. Incluye todos los valores para fijar todos los Pokémon tal y como están ahora.</value>
   </data>
   <data name="Data_ExportAll" xml:space="preserve">
     <value>Incluir todos los valores, no solo mis cambios</value>
@@ -793,10 +793,10 @@
     <value>Exportado a {1} (valores: {0})</value>
   </data>
   <data name="Data_Failed" xml:space="preserve">
-    <value>No se ha podido usar el archivo de datos de Pokémon: {0}</value>
+    <value>No se ha podido usar el archivo de datos: {0}</value>
   </data>
   <data name="Data_ImportTitle" xml:space="preserve">
-    <value>Importar datos de Pokémon</value>
+    <value>Importar archivo de datos</value>
   </data>
   <data name="Data_ImportMessage" xml:space="preserve">
     <value>{0}
@@ -1076,6 +1076,51 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   </data>
   <data name="Pkm_StatsHint" xml:space="preserve">
     <value>Las stats base y los valores salen de la ROM con la que juegas (la randomizada), no del juego original.</value>
+  </data>
+  <data name="Adv_ShowAbilities" xml:space="preserve">
+    <value>Mostrar habilidades</value>
+  </data>
+  <data name="Adv_ShowAbilitiesTip" xml:space="preserve">
+    <value>Las habilidades empiezan ocultas para revisar las stats cambiadas de una ROM randomizada sin spoilers.</value>
+  </data>
+  <data name="Adv_AbilitiesHidden" xml:space="preserve">
+    <value>Habilidades ocultas</value>
+  </data>
+  <data name="Pkm_TabContest" xml:space="preserve">
+    <value>Concursos</value>
+  </data>
+  <data name="Pkm_ContestHint" xml:space="preserve">
+    <value>Condiciones para los Concursos Pokémon (0–255). El brillo sube con cada Pokécubo y limita cuántos puede comer.</value>
+  </data>
+  <data name="Pkm_MaxContest" xml:space="preserve">
+    <value>Todo a 255</value>
+  </data>
+  <data name="Pkm_ClearContest" xml:space="preserve">
+    <value>Vaciar</value>
+  </data>
+  <data name="Contest_Cool" xml:space="preserve">
+    <value>Carisma</value>
+  </data>
+  <data name="Contest_Beauty" xml:space="preserve">
+    <value>Belleza</value>
+  </data>
+  <data name="Contest_Cute" xml:space="preserve">
+    <value>Dulzura</value>
+  </data>
+  <data name="Contest_Clever" xml:space="preserve">
+    <value>Ingenio</value>
+  </data>
+  <data name="Contest_Tough" xml:space="preserve">
+    <value>Dureza</value>
+  </data>
+  <data name="Contest_Sheen" xml:space="preserve">
+    <value>Brillo</value>
+  </data>
+  <data name="Adv_HideAbilities" xml:space="preserve">
+    <value>Ocultar habilidades</value>
+  </data>
+  <data name="Pkm_TabIvEv" xml:space="preserve">
+    <value>IV / EV</value>
   </data>
   <data name="Pkm_Legality" xml:space="preserve">
     <value>Legalidad de PKHeX</value>
@@ -1976,5 +2021,380 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   </data>
   <data name="Profile_Credit" xml:space="preserve">
     <value>Sprites de entrenador: colección de Pokémon Showdown, se descargan al elegirlos. Pokémon es © Nintendo / Game Freak.</value>
+  </data>
+  <data name="Battle_Title" xml:space="preserve">
+    <value>Combates</value>
+  </data>
+  <data name="Battle_Hint" xml:space="preserve">
+    <value>Reta a otro jugador de la sala: acordáis las normas, cada uno lleva el equipo de su partida (con los datos de su ROM) y el combate se abre en la pantalla de combate de Pokémon Showdown.</value>
+  </data>
+  <data name="Battle_Challenge" xml:space="preserve">
+    <value>Retar a {0}</value>
+  </data>
+  <data name="Battle_ChallengePick" xml:space="preserve">
+    <value>Elige un jugador para retarlo</value>
+  </data>
+  <data name="Battle_ChallengeSent" xml:space="preserve">
+    <value>Reto enviado a {0}: acordad las normas y preparaos.</value>
+  </data>
+  <data name="Battle_FromThem" xml:space="preserve">
+    <value>{0} te reta</value>
+  </data>
+  <data name="Battle_ToThem" xml:space="preserve">
+    <value>Retas a {0}</value>
+  </data>
+  <data name="Battle_Running" xml:space="preserve">
+    <value>Combate contra {0} en curso</value>
+  </data>
+  <data name="Battle_Won" xml:space="preserve">
+    <value>Has ganado a {0}</value>
+  </data>
+  <data name="Battle_Lost" xml:space="preserve">
+    <value>{0} ganó el combate</value>
+  </data>
+  <data name="Battle_Tie" xml:space="preserve">
+    <value>Empate contra {0}</value>
+  </data>
+  <data name="Battle_Cancelled" xml:space="preserve">
+    <value>Combate contra {0} cancelado</value>
+  </data>
+  <data name="Battle_Generation" xml:space="preserve">
+    <value>Mecánicas</value>
+  </data>
+  <data name="Battle_Gen6" xml:space="preserve">
+    <value>Generación 6 (X/Y, ROZA)</value>
+  </data>
+  <data name="Battle_Gen7" xml:space="preserve">
+    <value>Generación 7 (SL, USUL)</value>
+  </data>
+  <data name="Battle_Level" xml:space="preserve">
+    <value>Nivel</value>
+  </data>
+  <data name="Battle_LevelSave" xml:space="preserve">
+    <value>El de las partidas</value>
+  </data>
+  <data name="Battle_Level50" xml:space="preserve">
+    <value>Todos a nivel 50</value>
+  </data>
+  <data name="Battle_Level100" xml:space="preserve">
+    <value>Todos a nivel 100</value>
+  </data>
+  <data name="Battle_HealBefore" xml:space="preserve">
+    <value>PS y PP al máximo</value>
+  </data>
+  <data name="Battle_TeamPreview" xml:space="preserve">
+    <value>Vista previa de equipos</value>
+  </data>
+  <data name="Battle_SleepClause" xml:space="preserve">
+    <value>Cláusula de sueño</value>
+  </data>
+  <data name="Battle_SpeciesClause" xml:space="preserve">
+    <value>Cláusula de especie</value>
+  </data>
+  <data name="Battle_ItemClause" xml:space="preserve">
+    <value>Cláusula de objeto</value>
+  </data>
+  <data name="Battle_OhkoClause" xml:space="preserve">
+    <value>Cláusula KO en un golpe</value>
+  </data>
+  <data name="Battle_EvasionClause" xml:space="preserve">
+    <value>Cláusula de evasión</value>
+  </data>
+  <data name="Battle_BatonPassClause" xml:space="preserve">
+    <value>Cláusula de Relevo</value>
+  </data>
+  <data name="Battle_NoMegas" xml:space="preserve">
+    <value>Sin megaevolución</value>
+  </data>
+  <data name="Battle_NoZMoves" xml:space="preserve">
+    <value>Sin movimientos Z</value>
+  </data>
+  <data name="Battle_RulesHint" xml:space="preserve">
+    <value>Cualquiera de los dos puede cambiar las normas; al cambiarlas, ambos tenéis que volver a estar listos.</value>
+  </data>
+  <data name="Battle_ReadyState" xml:space="preserve">
+    <value>Tú: {0} · {1}: {2}</value>
+  </data>
+  <data name="Battle_IsReady" xml:space="preserve">
+    <value>listo</value>
+  </data>
+  <data name="Battle_NotReady" xml:space="preserve">
+    <value>no listo</value>
+  </data>
+  <data name="Battle_Ready" xml:space="preserve">
+    <value>Listo con mi equipo</value>
+  </data>
+  <data name="Battle_Unready" xml:space="preserve">
+    <value>No estoy listo</value>
+  </data>
+  <data name="Battle_Cancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="Battle_Forfeit" xml:space="preserve">
+    <value>Rendirse</value>
+  </data>
+  <data name="Battle_ForfeitConfirm" xml:space="preserve">
+    <value>¿Rendirte en este combate?</value>
+  </data>
+  <data name="Battle_Open" xml:space="preserve">
+    <value>Abrir combate</value>
+  </data>
+  <data name="Battle_Dismiss" xml:space="preserve">
+    <value>Cerrar</value>
+  </data>
+  <data name="Battle_NoParty" xml:space="preserve">
+    <value>La partida no tiene Pokémon en el equipo con los que combatir.</value>
+  </data>
+  <data name="Battle_WindowTitle" xml:space="preserve">
+    <value>Combate: {0} contra {1}</value>
+  </data>
+  <data name="Battle_WhatDo" xml:space="preserve">
+    <value>¿Qué debería hacer {0}?</value>
+  </data>
+  <data name="Battle_Attack" xml:space="preserve">
+    <value>Luchar</value>
+  </data>
+  <data name="Battle_Switch" xml:space="preserve">
+    <value>Cambiar</value>
+  </data>
+  <data name="Battle_Mega" xml:space="preserve">
+    <value>Megaevolución</value>
+  </data>
+  <data name="Battle_ZPower" xml:space="preserve">
+    <value>Poder Z</value>
+  </data>
+  <data name="Battle_UltraBurst" xml:space="preserve">
+    <value>Ultraexplosión</value>
+  </data>
+  <data name="Battle_Waiting" xml:space="preserve">
+    <value>Esperando a tu rival…</value>
+  </data>
+  <data name="Battle_TeamPreviewPick" xml:space="preserve">
+    <value>Elige el Pokémon que sale primero</value>
+  </data>
+  <data name="Battle_ForceSwitch" xml:space="preserve">
+    <value>Elige el Pokémon que va a salir</value>
+  </data>
+  <data name="Battle_Trapped" xml:space="preserve">
+    <value>No puedes cambiar de Pokémon.</value>
+  </data>
+  <data name="Battle_SoundOn" xml:space="preserve">
+    <value>Sonido: sí</value>
+  </data>
+  <data name="Battle_SoundOff" xml:space="preserve">
+    <value>Sonido: no</value>
+  </data>
+  <data name="Battle_Loading" xml:space="preserve">
+    <value>Cargando el combate…</value>
+  </data>
+  <data name="Battle_Offline" xml:space="preserve">
+    <value>La pantalla de combate se carga desde play.pokemonshowdown.com y no se ha podido acceder. Comprueba la conexión a internet y vuelve a abrir el combate.</value>
+  </data>
+  <data name="Battle_ResultWon" xml:space="preserve">
+    <value>¡Has ganado el combate!</value>
+  </data>
+  <data name="Battle_ResultLost" xml:space="preserve">
+    <value>{0} ha ganado el combate.</value>
+  </data>
+  <data name="Battle_ResultTie" xml:space="preserve">
+    <value>El combate ha terminado en empate.</value>
+  </data>
+  <data name="Battle_ResultCancelled" xml:space="preserve">
+    <value>El combate se ha cancelado.</value>
+  </data>
+  <data name="Emu_Title" xml:space="preserve">
+    <value>Jugar dentro del juego</value>
+  </data>
+  <data name="Emu_Hint" xml:space="preserve">
+    <value>Los juegos de la misma generación pueden conectarse dentro del juego (X/Y con Rubí Omega/Zafiro Alfa, Sol/Luna con Ultrasol/Ultraluna). El anfitrión abre una sala multijugador de Citra y su tráfico va por esta sala, así que no hay que tocar el router. Se abre sola cuando otro jugador tiene un juego de la generación del anfitrión.</value>
+  </data>
+  <data name="Emu_Open" xml:space="preserve">
+    <value>Abrir sala del emulador</value>
+  </data>
+  <data name="Emu_Close" xml:space="preserve">
+    <value>Cerrar sala del emulador</value>
+  </data>
+  <data name="Emu_Play" xml:space="preserve">
+    <value>Jugar en la sala del emulador</value>
+  </data>
+  <data name="Emu_Closed" xml:space="preserve">
+    <value>No hay ninguna sala del emulador abierta.</value>
+  </data>
+  <data name="Emu_OpenHost" xml:space="preserve">
+    <value>Sala del emulador abierta ({0}, generación {1}).</value>
+  </data>
+  <data name="Emu_OpenGuest" xml:space="preserve">
+    <value>{0} ha abierto una sala del emulador ({1}, generación {2}).</value>
+  </data>
+  <data name="Emu_OtherGeneration" xml:space="preserve">
+    <value>Tu juego es de generación {0}: no puede conectarse con juegos de generación {1}.</value>
+  </data>
+  <data name="Emu_DirectConnect" xml:space="preserve">
+    <value>¿Ya tienes el emulador abierto? Multijugador → Conexión directa: dirección 127.0.0.1, puerto {0}, contraseña {1}.</value>
+  </data>
+  <data name="Emu_NoServer" xml:space="preserve">
+    <value>No se ha encontrado el servidor de salas del emulador (citra-room.exe junto al emulador; las versiones nightly de Citra lo incluyen).</value>
+  </data>
+  <data name="Emu_NoJoinProgram" xml:space="preserve">
+    <value>No se ha encontrado un programa del emulador que entre en la sala al arrancar (citra.exe junto al emulador). Entra a mano con Conexión directa.</value>
+  </data>
+  <data name="Emu_Started" xml:space="preserve">
+    <value>{0} se ha abierto en la sala del emulador. En el juego, usa sus funciones de conexión (Sistema de Búsqueda de Jugadores, Festival Plaza).</value>
+  </data>
+  <data name="Emu_Failed" xml:space="preserve">
+    <value>No se ha podido abrir la sala del emulador: {0}</value>
+  </data>
+  <data name="Emu_Opened" xml:space="preserve">
+    <value>Sala del emulador abierta para juegos de generación {0}.</value>
+  </data>
+  <data name="Emu_CloseEmulator" xml:space="preserve">
+    <value>Cierra antes {0}: el emulador entra en la sala al arrancar.</value>
+  </data>
+  <data name="Data_MovesRow" xml:space="preserve">
+    <value>Datos de movimientos (tipo, categoría, potencia, precisión, PP, prioridad…):</value>
+  </data>
+  <data name="Data_ExportMovesButton" xml:space="preserve">
+    <value>Exportar datos de movimientos…</value>
+  </data>
+  <data name="Data_ExportMovesTitle" xml:space="preserve">
+    <value>Exportar datos de movimientos</value>
+  </data>
+  <data name="Data_ExportMovesMessage" xml:space="preserve">
+    <value>Por defecto solo se exportan tus cambios en los movimientos: al aplicarlos en otro proyecto, el resto de movimientos conserva la randomización de ese proyecto. Incluye todos los valores para fijar todos los movimientos tal y como están ahora.</value>
+  </data>
+  <data name="Data_MovesHint" xml:space="preserve">
+    <value>Un archivo .mvdata guarda el tipo, la categoría, la potencia, la precisión, los PP y el resto de datos de los movimientos.</value>
+  </data>
+  <data name="Data_KindPokemon" xml:space="preserve">
+    <value>Pokémon</value>
+  </data>
+  <data name="Data_KindMoves" xml:space="preserve">
+    <value>movimientos</value>
+  </data>
+  <data name="Data_KindAll" xml:space="preserve">
+    <value>Pokémon y movimientos</value>
+  </data>
+  <data name="Data_ImportMovesShort" xml:space="preserve">
+    <value>Importar .mvdata…</value>
+  </data>
+  <data name="Move_Description" xml:space="preserve">
+    <value>Descripción</value>
+  </data>
+  <data name="Move_RevertDescription" xml:space="preserve">
+    <value>Restaurar el texto en inglés</value>
+  </data>
+  <data name="Move_DescriptionHint" xml:space="preserve">
+    <value>La base es el texto en inglés del juego. Una descripción editada sustituye el texto de este movimiento en todos los idiomas del juego al crear la ROM, así que se ve en el idioma que tenga el juego. El recuadro del juego admite unas tres líneas de 40 caracteres.</value>
+  </data>
+  <data name="Move_DescriptionOriginal" xml:space="preserve">
+    <value>Texto en inglés del juego:</value>
+  </data>
+  <data name="Badge_Power" xml:space="preserve">
+    <value>Potencia</value>
+  </data>
+  <data name="Badge_Accuracy" xml:space="preserve">
+    <value>Precisión</value>
+  </data>
+  <data name="Badge_PP" xml:space="preserve">
+    <value>PP</value>
+  </data>
+  <data name="Badge_Priority" xml:space="preserve">
+    <value>Prioridad</value>
+  </data>
+  <data name="Badge_Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="Save_PreviousBox" xml:space="preserve">
+    <value>Caja anterior</value>
+  </data>
+  <data name="Save_NextBox" xml:space="preserve">
+    <value>Caja siguiente</value>
+  </data>
+  <data name="Undo_ProjectChange" xml:space="preserve">
+    <value>cambio del proyecto</value>
+  </data>
+  <data name="Undo_SaveChange" xml:space="preserve">
+    <value>cambio en la partida</value>
+  </data>
+  <data name="Undo_Button" xml:space="preserve">
+    <value>↶ Deshacer ({0})</value>
+  </data>
+  <data name="Undo_ButtonNone" xml:space="preserve">
+    <value>↶ Deshacer</value>
+  </data>
+  <data name="Redo_Button" xml:space="preserve">
+    <value>↷ Rehacer ({0})</value>
+  </data>
+  <data name="Redo_ButtonNone" xml:space="preserve">
+    <value>↷ Rehacer</value>
+  </data>
+  <data name="Undo_Tip" xml:space="preserve">
+    <value>Deshacer: {0} (Ctrl+Z). En la pestaña Partida deshace los cambios de la partida; en las demás, los del proyecto.</value>
+  </data>
+  <data name="Redo_Tip" xml:space="preserve">
+    <value>Rehacer: {0} (Ctrl+Y)</value>
+  </data>
+  <data name="Undo_Nothing" xml:space="preserve">
+    <value>Nada que deshacer</value>
+  </data>
+  <data name="Redo_Nothing" xml:space="preserve">
+    <value>Nada que rehacer</value>
+  </data>
+  <data name="Undo_Done" xml:space="preserve">
+    <value>Deshecho: {0}</value>
+  </data>
+  <data name="Redo_Done" xml:space="preserve">
+    <value>Rehecho: {0}</value>
+  </data>
+  <data name="Dex_NoEntry" xml:space="preserve">
+    <value>La Pokédex de este juego no tiene entrada para este Pokémon.</value>
+  </data>
+  <data name="Dex_Height" xml:space="preserve">
+    <value>{0:0.0} m</value>
+  </data>
+  <data name="Dex_Weight" xml:space="preserve">
+    <value>{0:0.0} kg</value>
+  </data>
+  <data name="Dex_HeightLabel" xml:space="preserve">
+    <value>Altura</value>
+  </data>
+  <data name="Dex_WeightLabel" xml:space="preserve">
+    <value>Peso</value>
+  </data>
+  <data name="Dex_EggGroups" xml:space="preserve">
+    <value>Grupos huevo</value>
+  </data>
+  <data name="Dex_GenderRatio" xml:space="preserve">
+    <value>Sexo</value>
+  </data>
+  <data name="Dex_FemaleOnly" xml:space="preserve">
+    <value>Solo hembras</value>
+  </data>
+  <data name="Dex_MaleOnly" xml:space="preserve">
+    <value>Solo machos</value>
+  </data>
+  <data name="Dex_Ratio" xml:space="preserve">
+    <value>♂ {0} % · ♀ {1} %</value>
+  </data>
+  <data name="Dex_StatusCaught" xml:space="preserve">
+    <value>Capturado</value>
+  </data>
+  <data name="Dex_StatusSeen" xml:space="preserve">
+    <value>Visto</value>
+  </data>
+  <data name="Dex_StatusUnknown" xml:space="preserve">
+    <value>No registrado</value>
+  </data>
+  <data name="Dex_EntryTitle" xml:space="preserve">
+    <value>Entrada de la Pokédex · {0}</value>
+  </data>
+  <data name="Dex_DataTitle" xml:space="preserve">
+    <value>Datos en la ROM</value>
+  </data>
+  <data name="Dex_DataHint" xml:space="preserve">
+    <value>Tipos, habilidades y stats de la ROM que se juega (también si está randomizada).</value>
+  </data>
+  <data name="Dex_StatusLabel" xml:space="preserve">
+    <value>Pokédex</value>
   </data>
 </root>

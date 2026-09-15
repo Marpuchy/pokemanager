@@ -457,6 +457,8 @@ public sealed partial class RoomViewModel : ObservableObject
     {
         watcher?.Dispose();
         watcher = null;
+        StopEmulatorServer();
+        BattleCards.Clear();
         if (session is { } s)
         {
             session = null;
@@ -476,6 +478,7 @@ public sealed partial class RoomViewModel : ObservableObject
     public void CloseForExit()
     {
         watcher?.Dispose();
+        StopEmulatorServer();
         if (session is { } s)
             Task.Run(async () => await s.DisposeAsync()).Wait(TimeSpan.FromSeconds(3));
     }
@@ -501,6 +504,8 @@ public sealed partial class RoomViewModel : ObservableObject
             SelectedPlayer = (playerPicked ? Players.FirstOrDefault(p => p.Id == selected) : null)
                              ?? Players.FirstOrDefault(p => !p.Player.IsLocal) ?? Players.FirstOrDefault();
             ShowPlayer(force: true);
+            RefreshBattles(s);
+            RefreshEmulatorRoom(s);
             foreach (string property in new[]
                      {
                          nameof(Title), nameof(StatusText), nameof(StatusBrush), nameof(InviteText), nameof(AnswerText), nameof(ShowAnswer),
@@ -538,6 +543,8 @@ public sealed partial class RoomViewModel : ObservableObject
         playerPicked = value is not null;
         Detail = null;
         ShowPlayer(force: false);
+        OnPropertyChanged(nameof(CanChallenge));
+        OnPropertyChanged(nameof(ChallengeText));
     }
 
     partial void OnSelectedBoxChanged(int value)

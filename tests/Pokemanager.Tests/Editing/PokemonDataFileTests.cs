@@ -81,6 +81,56 @@ public sealed class PokemonDataFileTests : IDisposable
     }
 
     [Fact]
+    public void PokemonAndMoves_AreExportedApart()
+    {
+        var source = NewSession();
+        source.SetInt(GameTables.Personal, 1, "hp", 150);
+        source.Set(GameTables.Learnsets, 1, GameTables.LevelUp, JsonNode.Parse("[[1,2]]")!);
+        source.SetInt(GameTables.Moves, 3, "power", 90);
+        source.SetInt(GameTables.Moves, 2, "type", 9);
+
+        var moves = PokemonDataFile.FromEdits(source, GameTitle.X, kind: PokemonDataKind.Moves);
+        var pokemon = PokemonDataFile.FromEdits(source, GameTitle.X, kind: PokemonDataKind.Pokemon);
+        Assert.Equal([GameTables.Moves], moves.Tables.Keys);
+        Assert.Equal(2, moves.ValueCount);
+        Assert.Equal([GameTables.Learnsets, GameTables.Personal], pokemon.Tables.Keys);
+
+        // Every value of every move (data and description), and no Pokémon.
+        var allMoves = PokemonDataFile.FromCurrent(source, GameTitle.X, kind: PokemonDataKind.Moves);
+        Assert.Equal([GameTables.Moves, GameTables.MoveTexts], allMoves.Tables.Keys);
+        Assert.Equal(GameTables.MoveTable.Count(source.Current) * (GameTables.MoveTable.Fields.Count + 1), allMoves.ValueCount);
+
+        Assert.Equal("mvdata", PokemonDataFile.ExtensionOf(PokemonDataKind.Moves));
+        Assert.Equal("pkdata", PokemonDataFile.ExtensionOf(PokemonDataKind.Pokemon));
+        string path = Path.Combine(dir, "moves." + PokemonDataFile.MovesExtension);
+        moves.Save(path);
+        var loaded = PokemonDataFile.Load(path);
+        Assert.Equal(PokemonDataKind.Moves, loaded.Kind);
+
+        // Replacing with a moves file undoes the move changes only: the Pokémon changes stay.
+        var target = NewSession();
+        target.SetInt(GameTables.Personal, 2, "def", 99);
+        target.SetInt(GameTables.Moves, 1, "pp", 5);
+        loaded.ApplyTo(target, GameTitle.X, replaceEdits: true);
+        Assert.Equal(99, target.GetInt(GameTables.Personal, 2, "def"));
+        Assert.False(target.IsModified(GameTables.Moves, 1, "pp"));
+        Assert.Equal(90, target.GetInt(GameTables.Moves, 3, "power"));
+        Assert.Equal(3, target.Project.Edits.Count);
+    }
+
+    [Fact]
+    public void FilesWithoutKind_HoldEverything()
+    {
+        string path = Path.Combine(dir, "old." + PokemonDataFile.Extension);
+        File.WriteAllText(path, """{"magic":"pokemanager-pokemon-data","format":1,"scope":"Edits","tables":{"move":{"3":{"power":80}}}}""");
+
+        var file = PokemonDataFile.Load(path);
+
+        Assert.Equal(PokemonDataKind.All, file.Kind);
+        Assert.Equal(GameTables.All.Count, PokemonDataFile.TablesOf(file.Kind).Count);
+    }
+
+    [Fact]
     public void ValuesThatDoNotFit_AreSkippedNotFatal()
     {
         var file = new PokemonDataFile();

@@ -35,7 +35,7 @@
               <Setter Property="Width" Value="42" />
               <Setter Property="Height" Value="42" />
               <Setter Property="Padding" Value="0" />
-              <Setter Property="CornerRadius" Value="21" />
+              <Setter Property="CornerRadius" Value="2" />
               <Setter Property="BorderThickness" Value="2" />
               <Setter Property="BorderBrush" Value="#80FFFFFF" />
               <Setter Property="HorizontalContentAlignment" Value="Center" />
@@ -60,7 +60,7 @@
             <Style Selector="Button.badge.icon">
               <Setter Property="Width" Value="52" />
               <Setter Property="Height" Value="52" />
-              <Setter Property="CornerRadius" Value="6" />
+              <Setter Property="CornerRadius" Value="2" />
               <Setter Property="BorderBrush" Value="Transparent" />
             </Style>
             <Style Selector="Button.badge.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter">
@@ -92,7 +92,7 @@
                           <TextBlock Text="{Binding Number}" FontSize="15" FontWeight="Bold" Foreground="{Binding Foreground}" IsVisible="{Binding !HasIcon}" />
                         </Panel>
                       </Button>
-                      <Border IsVisible="{Binding HasMark}" Width="17" Height="17" CornerRadius="9" Background="White"
+                      <Border IsVisible="{Binding HasMark}" Width="17" Height="17" CornerRadius="2" Background="White"
                               BorderBrush="#9A9A9A" BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" IsHitTestVisible="False">
                         <TextBlock Text="{Binding Mark}" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{Binding MarkBrush}" />
                       </Border>
@@ -146,7 +146,7 @@
                 <Style Selector="Border.member">
                   <Setter Property="BorderBrush" Value="#80000000" />
                   <Setter Property="BorderThickness" Value="1" />
-                  <Setter Property="CornerRadius" Value="4" />
+                  <Setter Property="CornerRadius" Value="2" />
                   <Setter Property="Padding" Value="6,4" />
                 </Style>
                 <Style Selector="ListBoxItem:pointerover Border.member">
@@ -162,7 +162,7 @@
                 <DataTemplate x:DataType="vm:PartyMemberViewModel">
                   <Border Classes="member" Background="{Binding TypeBackground}" TextElement.Foreground="{Binding TypeForeground}">
                     <Grid ColumnDefinitions="Auto,*">
-                      <Border Background="#40FFFFFF" CornerRadius="30" Width="68" Height="60">
+                      <Border Background="#40FFFFFF" CornerRadius="2" Width="68" Height="60">
                         <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="80" Height="60" />
                       </Border>
                       <StackPanel Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center" Spacing="1">
@@ -184,7 +184,7 @@
                           </ItemsControl.ItemsPanel>
                           <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="vm:TypeChip">
-                              <Border Background="{Binding Background}" BorderBrush="#60000000" BorderThickness="1" CornerRadius="3" Padding="5,0">
+                              <Border Background="{Binding Background}" BorderBrush="#60000000" BorderThickness="1" CornerRadius="2" Padding="5,0">
                                 <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground}" FontSize="10" FontWeight="SemiBold" />
                               </Border>
                             </DataTemplate>
@@ -204,8 +204,8 @@
         <Border Classes="card" IsVisible="{Binding HasSelection}" VerticalAlignment="Top">
           <DockPanel>
             <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,8">
-              <Border Grid.ColumnSpan="2" Background="{Binding Selected.TypeBackground}" CornerRadius="4" BorderBrush="#80000000" BorderThickness="1" />
-              <Border Margin="6,4" Background="#40FFFFFF" CornerRadius="30" Width="68" Height="60">
+              <Border Grid.ColumnSpan="2" Background="{Binding Selected.TypeBackground}" CornerRadius="2" BorderBrush="#80000000" BorderThickness="1" />
+              <Border Margin="6,4" Background="#40FFFFFF" CornerRadius="2" Width="68" Height="60">
                 <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Selected.Icon}" Width="80" Height="60" />
               </Border>
               <StackPanel Grid.Column="1" Margin="8,0,0,0" VerticalAlignment="Center" Spacing="2">
@@ -226,7 +226,7 @@
                   </ItemsControl.ItemsPanel>
                   <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:TypeChip">
-                      <Border Background="{Binding Background}" BorderBrush="#60000000" BorderThickness="1" CornerRadius="3" Padding="6,1">
+                      <Border Background="{Binding Background}" BorderBrush="#60000000" BorderThickness="1" CornerRadius="2" Padding="6,1">
                         <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground}" FontSize="11" FontWeight="SemiBold" />
                       </Border>
                     </DataTemplate>
@@ -269,7 +269,7 @@
                 <ItemsControl ItemsSource="{Binding Selected.Moves}">
                   <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:MoveLine">
-                      <Border Background="{Binding Background}" CornerRadius="4" Padding="8,4" Margin="0,2" BorderBrush="#40000000" BorderThickness="1">
+                      <Border Background="{Binding Background}" CornerRadius="2" Padding="8,4" Margin="0,2" BorderBrush="#40000000" BorderThickness="1">
                         <Grid ColumnDefinitions="*,Auto,Auto">
                           <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
                           <TextBlock Grid.Column="1" Text="{Binding Type}" Foreground="{Binding Foreground}" FontSize="10" Opacity="0.85" Margin="8,0" VerticalAlignment="Center" />

@@ -129,6 +129,7 @@ public sealed partial class RoomSession : IAsyncDisposable
             DisconnectTimeout = 15000,
             MaxConnectAttempts = 20,
             ReconnectDelay = 500,
+            ChannelsCount = 2, // 0: room messages, 1: emulator packets too big for one unreliable packet (RoomSession.Emulator)
         };
         listener.ConnectionRequestEvent += OnConnectionRequest;
         listener.PeerConnectedEvent += OnPeerConnected;
@@ -364,6 +365,7 @@ public sealed partial class RoomSession : IAsyncDisposable
     {
         if (IsHost)
         {
+            CloseHostTunnel(peer.Id);
             if (peerPlayers.Remove(peer.Id, out string? id))
             {
                 SetPlayer(id, p => p with { Online = false });
@@ -388,6 +390,14 @@ public sealed partial class RoomSession : IAsyncDisposable
 
     private void OnReceive(NetPeer peer, NetPacketReader reader, byte channel, DeliveryMethod method)
     {
+        // Room messages always travel reliable and ordered; anything else is an emulator packet (unreliable packets do not
+        // keep their channel number).
+        if (method != DeliveryMethod.ReliableOrdered)
+        {
+            OnTunnelPacket(peer, reader.GetRemainingBytesSpan());
+            reader.Recycle();
+            return;
+        }
         RoomMessage message;
         try
         {
@@ -430,6 +440,7 @@ public sealed partial class RoomSession : IAsyncDisposable
                     others.Where(p => p.Online).Select(p => new PlayerJoined(p.Id, p.Profile)).ToList()));
                 foreach (var other in others.Where(p => p.Online && p.Snapshot is not null))
                     Send(peer, new SnapshotShared(other.Id, other.Snapshot!.FilteredBy(Rules)));
+                SendEmulatorRoom(peer);
                 Broadcast(new PlayerJoined(hello.PlayerId, hello.Profile.Sanitized()), except: peer);
                 break;
             case SnapshotShared shared when peerPlayers.TryGetValue(peer.Id, out string? id):
@@ -496,6 +507,12 @@ public sealed partial class RoomSession : IAsyncDisposable
                 if (localSnapshot is { } own)
                     Send(hostPeer!, new SnapshotShared(LocalPlayerId, own.FilteredBy(Rules)));
                 break;
+            case EmulatorRoomOpened opened:
+                GuestEmulatorRoomOpened(opened.Room);
+                break;
+            case EmulatorRoomClosed:
+                GuestEmulatorRoomClosed();
+                break;
             default:
                 ReceiveBattleMessage(message);
                 break;
@@ -539,6 +556,7 @@ public sealed partial class RoomSession : IAsyncDisposable
             catch (OperationCanceledException) { }
         }
         await DisposeBattlesAsync();
+        DisposeEmulatorTunnels();
         net.Stop(true); // tells the peers, so they notice at once
         if (Mapping is { } mapping)
             await mapping.DisposeAsync();

@@ -1,0 +1,89 @@
+/* Layout of a Showdown battle room: field top left, decisions under it, log on the right. */
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #EEF2F5;
+  font-family: Verdana, sans-serif;
+  font-size: 10pt;
+}
+
+#room {
+  position: absolute;
+  inset: 0;
+  min-width: 940px;
+  min-height: 580px;
+}
+
+.ps-room .battle {
+  top: 0;
+  left: 0;
+}
+
+.ps-room .battle-controls {
+  top: 361px;
+  bottom: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.ps-room .battle-log {
+  top: 0;
+  left: 641px;
+  right: 0;
+  bottom: 40px;
+  height: auto;
+}
+
+#toolbar {
+  position: absolute;
+  left: 641px;
+  right: 0;
+  bottom: 0;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  border-top: 1px solid #AAAAAA;
+}
+
+#toolbar button[hidden] {
+  display: none;
+}
+
+.pm-result {
+  padding: 18px 12px;
+  font-size: 12pt;
+  color: #222222;
+}
+
+.pm-result strong {
+  display: block;
+  font-size: 14pt;
+  margin-bottom: 6px;
+  color: #222222;
+  text-shadow: none;
+}
+
+.battle-controls .megaevo-box {
+  padding: 2px 0 0 6px;
+}
+
+#offline {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  font-size: 12pt;
+  background: #EEF2F5;
+}
+
+#offline[hidden] {
+  display: none;
+}

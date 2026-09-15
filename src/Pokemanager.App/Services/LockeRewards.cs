@@ -22,6 +22,22 @@ public static class LockeRewards
         _ => Strings.Locke_PrizeNothing,
     };
 
+    /// <summary>The prize's picture: the item's icon, a Nugget for money; lives and bad luck have <see cref="Glyph"/> instead.</summary>
+    public static Avalonia.Media.Imaging.Bitmap? Icon(LockePrize prize) => prize.Kind switch
+    {
+        LockePrizeKind.Item => PkhexImages.Item(prize.ItemId),
+        LockePrizeKind.Money => PkhexImages.Item(92),
+        _ => null,
+    };
+
+    /// <summary>A heart for a life, a cross for nothing; null when the prize has an icon.</summary>
+    public static string? Glyph(LockePrize prize) => prize.Kind switch
+    {
+        LockePrizeKind.Life => "♥",
+        LockePrizeKind.Nothing => "✕",
+        _ => null,
+    };
+
     /// <summary>Records what the roulette gave (lives and bad luck apply at once) and saves the project.</summary>
     public static void RecordWin(LoadedProject loaded, int badge, LockePrize prize)
     {

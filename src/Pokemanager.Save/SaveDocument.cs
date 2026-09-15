@@ -79,6 +79,31 @@ public sealed class SaveDocument
         return SaveWriter.Write(savePath, copy, backupRoot);
     }
 
+    /// <summary>The whole save as it would be written now (bag included), for undo.</summary>
+    public byte[] CaptureState()
+    {
+        bag.CopyTo(sav);
+        return sav.Write().ToArray();
+    }
+
+    /// <summary>
+    /// The same save file in a state captured with <see cref="CaptureState"/>: a new document, dirty unless the state is what
+    /// is on disk.
+    /// </summary>
+    public SaveDocument WithState(byte[] state)
+    {
+        var restored = SaveUpdater.Parse(state) ?? throw new SaveUpdateException(string.Format(Strings.Save_NotRecognized, SavePath));
+        PlayerBag restoredBag = restored switch
+        {
+            SAV6XY xy => xy.Inventory,
+            SAV6AO ao => ao.Inventory,
+            SAV7SM sm => sm.Inventory,
+            SAV7USUM usum => usum.Inventory,
+            _ => throw new SaveUpdateException(string.Format(Strings.Save_NotSupported, restored.GetType().Name)),
+        };
+        return new SaveDocument(SavePath, restored, restoredBag, Rom, diskBytes) { IsDirty = !state.AsSpan().SequenceEqual(diskBytes) };
+    }
+
     /// <summary>The ROM changed (another build): stats and options follow it from now on.</summary>
     public void UseRom(GameData rom) => Rom = rom;
 
@@ -376,6 +401,9 @@ public sealed class SaveDocument
     public int PartyCount => sav.PartyCount;
 
     public string BoxName(int box) => sav is IBoxDetailName names ? names.GetBoxName(box) : $"Box {box + 1}";
+
+    /// <summary>Wallpaper chosen for the box in the game (0-based), 0 when the save has none.</summary>
+    public int BoxWallpaper(int box) => sav is IBoxDetailWallpaper wallpapers ? wallpapers.GetBoxWallpaper(box) : 0;
 
     /// <summary>A copy of the Pokémon in the slot (species 0 when empty). Changes apply with <see cref="Set"/>.</summary>
     public PKM Get(SaveSlot slot) => (slot.Box is { } box

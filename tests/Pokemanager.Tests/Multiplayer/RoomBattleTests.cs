@@ -137,8 +137,9 @@ public sealed class RoomBattleTests : IDisposable
     {
         Assert.SkipWhen(Tools is null, "Node or battle/node_modules is not installed (npm install in battle/).");
         var cancel = TestContext.Current.CancellationToken;
-        await using var host = await RoomSession.HostAsync("Arena", "host", new PlayerProfile("Oak"), new RoomRules(), Local(battles: true), cancel: cancel);
-        var gary = await RoomSession.JoinAsync(host.InviteText!, "gary", new PlayerProfile("Gary"), Local(), cancel);
+        // Both players have the same name (as when someone plays against a second copy of the app): the winner is still right.
+        await using var host = await RoomSession.HostAsync("Arena", "host", new PlayerProfile("Oak", "red"), new RoomRules(), Local(battles: true), cancel: cancel);
+        var gary = await RoomSession.JoinAsync(host.InviteText!, "gary", new PlayerProfile("Oak", "blue"), Local(), cancel);
         await Until(() => gary.Status == RoomStatus.Online && host.Players.Any(p => p.Id == "gary" && p.Online), "Gary in");
 
         string id = host.Challenge("gary", new BattleRules(TeamPreview: false));
@@ -146,6 +147,9 @@ public sealed class RoomBattleTests : IDisposable
         host.SetBattleReady(id, Team("Oak", 1));
         gary.SetBattleReady(id, Team("Gary", 2));
         await Until(() => host.Battles.Single(b => b.Id == id).Phase == BattlePhase.Running && host.Battles.Single(b => b.Id == id).Request is not null, "host has a request");
+        // Each side with its Showdown trainer sprite, and names the simulator can tell apart.
+        Assert.Contains("|player|p1|Oak|red|", host.Battles.Single(b => b.Id == id).Log);
+        Assert.Contains("|player|p2|Oak 2|blue|", host.Battles.Single(b => b.Id == id).Log);
 
         await gary.DisposeAsync();
         await Until(() => host.Battles.Single(b => b.Id == id).Phase == BattlePhase.Finished, "forfeit on leaving", 30);

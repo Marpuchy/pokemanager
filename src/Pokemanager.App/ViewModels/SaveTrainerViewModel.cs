@@ -158,6 +158,31 @@ public partial class SaveTrainerViewModel : ObservableObject
         set { if (value is { } t && doc.HallOfFame is { } f) { doc.HallOfFame = f.Date + t; Changed(); } }
     }
 
+    // Hour and minute as separate numbers (compact, like the play time).
+    public decimal? StartedHour
+    {
+        get => StartedTime?.Hours;
+        set { if (value is { } h && StartedTime is { } t) StartedTime = new TimeSpan((int)Math.Clamp(h, 0, 23), t.Minutes, 0); }
+    }
+
+    public decimal? StartedMinute
+    {
+        get => StartedTime?.Minutes;
+        set { if (value is { } m && StartedTime is { } t) StartedTime = new TimeSpan(t.Hours, (int)Math.Clamp(m, 0, 59), 0); }
+    }
+
+    public decimal? FameHour
+    {
+        get => FameTime?.Hours;
+        set { if (value is { } h && FameTime is { } t) FameTime = new TimeSpan((int)Math.Clamp(h, 0, 23), t.Minutes, 0); }
+    }
+
+    public decimal? FameMinute
+    {
+        get => FameTime?.Minutes;
+        set { if (value is { } m && FameTime is { } t) FameTime = new TimeSpan(t.Hours, (int)Math.Clamp(m, 0, 59), 0); }
+    }
+
     public string LastSavedText => doc.LastSaved is { } d ? string.Format(Strings.Trainer_LastSaved, d) : "";
 
     // ------------------------------------------------------------------ records

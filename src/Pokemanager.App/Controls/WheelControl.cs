@@ -6,7 +6,9 @@ using Avalonia.Media;
 namespace Pokemanager.App.Controls;
 
 /// <summary>A segment of the wheel: its share of the circle is its weight over the total.</summary>
-public sealed record WheelSegment(string Label, double Weight, Color Color);
+/// <param name="Icon">Picture drawn near the rim (an item), or null.</param>
+/// <param name="Glyph">Symbol drawn near the rim when there is no picture (♥, ✕), or null.</param>
+public sealed record WheelSegment(string Label, double Weight, Color Color, IImage? Icon = null, string? Glyph = null);
 
 /// <summary>
 /// A prize wheel. Segments start at the top and go clockwise; <see cref="Angle"/> rotates the whole wheel clockwise, so
@@ -33,6 +35,9 @@ public sealed class WheelControl : Control
         get => GetValue(AngleProperty);
         set => SetValue(AngleProperty, value);
     }
+
+    /// <summary>Picture in the hub of the wheel.</summary>
+    public IImage? CenterIcon { get; set; } = Services.PkhexImages.Ball(4);
 
     /// <summary>Start and end angle (degrees, clockwise from the top, unrotated) of each segment.</summary>
     public static IReadOnlyList<(double Start, double End)> Spans(IReadOnlyList<WheelSegment> segments)
@@ -83,17 +88,38 @@ public sealed class WheelControl : Control
                 context.DrawGeometry(new SolidColorBrush(segments[i].Color), outline, geometry);
             }
 
-            // Label along the middle of the segment, from the rim toward the center.
+            // Icon near the rim, upright, on a white disc so any item reads on any color.
             double mid = (a0 + a1) / 2;
+            double iconSize = Math.Clamp(radius * (end - start) / 360 * 1.6, 16, 34);
+            var iconCenter = PointAt(center, radius * 0.84, mid);
+            if (segments[i].Icon is not null || segments[i].Glyph is not null)
+            {
+                context.DrawEllipse(new SolidColorBrush(Color.Parse("#F2FFFFFF")), new Pen(new SolidColorBrush(Color.Parse("#40000000")), 1),
+                    iconCenter, iconSize * 0.62, iconSize * 0.62);
+                if (segments[i].Icon is { } icon)
+                {
+                    using (context.PushRenderOptions(new RenderOptions { BitmapInterpolationMode = Avalonia.Media.Imaging.BitmapInterpolationMode.None }))
+                        context.DrawImage(icon, new Rect(iconCenter.X - (iconSize / 2), iconCenter.Y - (iconSize / 2), iconSize, iconSize));
+                }
+                else
+                {
+                    var glyph = new FormattedText(segments[i].Glyph!, CultureInfo.CurrentCulture, FlowDirection.LeftToRight,
+                        new Typeface("Segoe UI Symbol", FontStyle.Normal, FontWeight.Bold), iconSize * 0.72,
+                        new SolidColorBrush(Color.Parse(segments[i].Glyph == "♥" ? "#D13438" : "#505050")));
+                    context.DrawText(glyph, new Point(iconCenter.X - (glyph.Width / 2), iconCenter.Y - (glyph.Height / 2)));
+                }
+            }
+
+            // Label along the middle of the segment, between the icon and the center.
             var text = new FormattedText(segments[i].Label, CultureInfo.CurrentCulture, FlowDirection.LeftToRight,
                 new Typeface("Segoe UI", FontStyle.Normal, FontWeight.SemiBold), end - start < 20 ? 10 : 12,
                 Luminance(segments[i].Color) < 0.6 ? Brushes.White : Brushes.Black)
             {
-                MaxTextWidth = radius * 0.78,
+                MaxTextWidth = radius * 0.5,
                 MaxLineCount = 1,
                 Trimming = TextTrimming.CharacterEllipsis,
             };
-            var labelCenter = PointAt(center, radius * 0.58, mid);
+            var labelCenter = PointAt(center, radius * 0.45, mid);
             // Rotate so the text runs radially; flip on the left half so it is never upside down.
             double rotation = mid - 90;
             if (NormalizeDegrees(mid) > 180)
@@ -104,8 +130,15 @@ public sealed class WheelControl : Control
                 context.DrawText(text, new Point(0, 0));
         }
 
-        context.DrawEllipse(Brushes.White, new Pen(new SolidColorBrush(Color.Parse("#404040")), 2), center, radius * 0.12, radius * 0.12);
         context.DrawEllipse(null, new Pen(new SolidColorBrush(Color.Parse("#404040")), 3), center, radius, radius);
+        // A Poké Ball in the middle.
+        double hub = radius * 0.13;
+        context.DrawEllipse(Brushes.White, new Pen(new SolidColorBrush(Color.Parse("#404040")), 2), center, hub, hub);
+        if (CenterIcon is { } ball)
+        {
+            using (context.PushRenderOptions(new RenderOptions { BitmapInterpolationMode = Avalonia.Media.Imaging.BitmapInterpolationMode.None }))
+                context.DrawImage(ball, new Rect(center.X - (hub * 0.8), center.Y - (hub * 0.8), hub * 1.6, hub * 1.6));
+        }
     }
 
     private static double NormalizeDegrees(double degrees) => ((degrees % 360) + 360) % 360;

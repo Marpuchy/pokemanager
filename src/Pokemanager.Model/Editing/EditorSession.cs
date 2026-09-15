@@ -92,10 +92,10 @@ public sealed class EditorSession
 
     public bool IsModified(string table, int id) => Project.Edits.Any(table, id);
 
-    /// <summary>Undoes every edit of the project.</summary>
-    public void RevertAll()
+    /// <summary>Undoes every edit of the project, or only those of the tables <paramref name="table"/> accepts.</summary>
+    public void RevertAll(Func<string, bool>? table = null)
     {
-        foreach (var edit in Project.Edits.All.ToList())
+        foreach (var edit in Project.Edits.All.Where(e => table?.Invoke(e.Table) != false).ToList())
             Set(edit.Table, edit.Id, edit.Field, GameTables.Get(edit.Table).Get(Original, edit.Id, edit.Field));
     }
 

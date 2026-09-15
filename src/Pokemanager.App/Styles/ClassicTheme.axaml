@@ -108,22 +108,108 @@
   <Style Selector="NumericUpDown">
     <Setter Property="MinHeight" Value="23" />
     <Setter Property="FontSize" Value="12" />
+    <Setter Property="Background" Value="White" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
   </Style>
   <Style Selector="NumericUpDown /template/ ButtonSpinner#PART_Spinner">
     <Setter Property="Background" Value="White" />
     <Setter Property="BorderBrush" Value="{StaticResource ClassicInputBorderBrush}" />
     <Setter Property="BorderThickness" Value="1" />
     <Setter Property="MinHeight" Value="23" />
+    <Setter Property="VerticalContentAlignment" Value="Stretch" />
   </Style>
-  <Style Selector="ButtonSpinner RepeatButton">
+  <Style Selector="ButtonSpinner /template/ RepeatButton">
     <Setter Property="MinHeight" Value="0" />
-    <Setter Property="MinWidth" Value="18" />
-    <Setter Property="Padding" Value="2,0" />
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="Width" Value="22" />
+    <Setter Property="Padding" Value="0" />
     <Setter Property="BorderThickness" Value="1,0,0,0" />
+    <Setter Property="Background" Value="#F4F4F4" />
+  </Style>
+  <!-- A spinner arrow that cannot go further (at the minimum or maximum): same look, only a lighter arrow -->
+  <!-- Disabled: Fluent drops the outer border around the arrows, so the box looked cut next to its label -->
+  <Style Selector="NumericUpDown:disabled /template/ ButtonSpinner#PART_Spinner">
+    <Setter Property="BorderBrush" Value="#BFC5CA" />
+    <Setter Property="Background" Value="#F4F4F4" />
+  </Style>
+  <!-- The text box sits 1 px over the spinner's border (negative margin): transparent, so the border shows -->
+  <Style Selector="NumericUpDown:disabled ButtonSpinner TextBox#PART_TextBox">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="NumericUpDown:disabled ButtonSpinner TextBox#PART_TextBox /template/ Border#PART_BorderElement">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="ButtonSpinner /template/ RepeatButton:disabled /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="#F4F4F4" />
+    <Setter Property="BorderBrush" Value="{StaticResource ClassicLightBorderBrush}" />
+    <Setter Property="Foreground" Value="#C0C0C0" />
   </Style>
   <Style Selector="ButtonSpinner TextBox#PART_TextBox">
     <Setter Property="BorderThickness" Value="0" />
     <Setter Property="MinHeight" Value="21" />
+    <Setter Property="Background" Value="White" />
+    <Setter Property="VerticalAlignment" Value="Stretch" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Padding" Value="4,0" />
+  </Style>
+  <Style Selector="ButtonSpinner TextBox#PART_TextBox /template/ Border#PART_BorderElement, ButtonSpinner TextBox#PART_TextBox:pointerover /template/ Border#PART_BorderElement">
+    <Setter Property="Background" Value="White" />
+  </Style>
+
+  <!-- ============================== Date and time pickers ============================== -->
+  <Style Selector="CalendarDatePicker">
+    <Setter Property="Height" Value="25" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Padding" Value="4,0,0,0" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="Background" Value="White" />
+    <Setter Property="BorderBrush" Value="{StaticResource ClassicInputBorderBrush}" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+  <!-- The calendar button inside the box, as tall as it, instead of sticking out -->
+  <Style Selector="CalendarDatePicker /template/ Button#PART_Button">
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Height" Value="23" />
+    <Setter Property="Width" Value="24" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Margin" Value="0" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="BorderThickness" Value="1,0,0,0" />
+    <Setter Property="Background" Value="#F4F4F4" />
+  </Style>
+  <!-- Fluent's calendar glyph is drawn for a 24 px tall button and was cut to its "15": hidden, the views draw
+       Path.calendar-glyph over the (still clickable) button instead -->
+  <Style Selector="CalendarDatePicker /template/ Button#PART_Button > Grid">
+    <Setter Property="Opacity" Value="0" />
+  </Style>
+  <Style Selector="Path.calendar-glyph">
+    <Setter Property="Data" Value="M1.5,2.5 H12.5 V12.5 H1.5 Z M1.5,5.5 H12.5 M4.5,0.5 V3.5 M9.5,0.5 V3.5 M4,8 H6 M8,8 H10 M4,10.5 H6" />
+    <Setter Property="Stroke" Value="#4A5560" />
+    <Setter Property="StrokeThickness" Value="1" />
+    <Setter Property="Width" Value="14" />
+    <Setter Property="Height" Value="13" />
+    <Setter Property="HorizontalAlignment" Value="Right" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="Margin" Value="0,0,5,0" />
+    <Setter Property="IsHitTestVisible" Value="False" />
+  </Style>
+  <Style Selector="CalendarDatePicker /template/ TextBox#PART_TextBox">
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="2,0" />
+  </Style>
+
+  <!-- ============================== Scroll bars ============================== -->
+  <!-- Always expanded, as classic scroll bars: the thumb reaches the ends and the arrows are visible -->
+  <Style Selector="ScrollViewer">
+    <Setter Property="AllowAutoHide" Value="False" />
+  </Style>
+  <!-- Single-line text boxes never scroll vertically: with scroll bars always shown, a box 1 px shorter than its text
+       (the date picker's) drew a scroll bar over the text. The template binds this attached property, so set it here. -->
+  <Style Selector="TextBox[AcceptsReturn=False]">
+    <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Disabled" />
+  </Style>  <Style Selector="ScrollBar">
+    <Setter Property="AllowAutoHide" Value="False" />
   </Style>
   <Style Selector="ButtonSpinner TextBox#PART_TextBox:focus /template/ Border#PART_BorderElement">
     <Setter Property="BorderThickness" Value="0" />
@@ -234,6 +320,24 @@
   <Style Selector="TabControl">
     <Setter Property="Padding" Value="0" />
   </Style>
+
+  <!-- Side tabs (tab strip on the left): same size selected or not, flush with the page, no jump when selecting -->
+  <Style Selector="TabControl[TabStripPlacement=Left] TabItem, TabControl[TabStripPlacement=Left] TabItem:selected">
+    <Setter Property="Margin" Value="0,0,-1,2" />
+    <Setter Property="Padding" Value="12,7" />
+    <Setter Property="MinWidth" Value="150" />
+    <Setter Property="Height" Value="32" />
+    <Setter Property="MinHeight" Value="32" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="HorizontalContentAlignment" Value="Left" />
+    <Setter Property="BorderThickness" Value="1,1,0,1" />
+  </Style>
+  <Style Selector="TabControl[TabStripPlacement=Left] TabItem:selected">
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="TabControl[TabStripPlacement=Left] /template/ ItemsPresenter#PART_ItemsPresenter">
+    <Setter Property="Margin" Value="6,6,0,0" />
+  </Style>
   <Style Selector="TabControl /template/ ContentPresenter#PART_SelectedContentHost">
     <Setter Property="Background" Value="{StaticResource ClassicPageBrush}" />
     <Setter Property="BorderBrush" Value="{StaticResource ClassicBorderBrush}" />
@@ -243,6 +347,18 @@
     <Setter Property="Margin" Value="6,4,6,0" />
   </Style>
 
+  <!-- Tabs inside a card: flush left, only a rule under the strip, the card's own background -->
+  <Style Selector="TabControl.inline /template/ ItemsPresenter#PART_ItemsPresenter">
+    <Setter Property="Margin" Value="0" />
+  </Style>
+  <Style Selector="TabControl.inline /template/ ContentPresenter#PART_SelectedContentHost">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0,1,0,0" />
+    <Setter Property="Padding" Value="0,8,0,0" />
+  </Style>
+  <Style Selector="TabControl.inline TabItem">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
   <!-- ============================== Expander ============================== -->
   <Style Selector="Expander /template/ ToggleButton#ExpanderHeader">
     <Setter Property="MinHeight" Value="26" />

@@ -16,6 +16,19 @@ public enum PokemonDataScope
     All,
 }
 
+/// <summary>Which data a <see cref="PokemonDataFile"/> holds.</summary>
+public enum PokemonDataKind
+{
+    /// <summary>Pokémon and moves (files made before the two were exported apart).</summary>
+    All,
+
+    /// <summary>Pokémon: base stats, types, abilities and the rest of the personal data, and learnsets.</summary>
+    Pokemon,
+
+    /// <summary>Moves: type, category, power, accuracy, PP, priority…</summary>
+    Moves,
+}
+
 /// <summary>Result of <see cref="PokemonDataFile.ApplyTo"/>.</summary>
 /// <param name="Applied">Values that now differ from the base and are stored as edits.</param>
 /// <param name="SameAsBase">Values equal to the base, so no edit was needed.</param>
@@ -32,11 +45,18 @@ public sealed record PokemonDataImport(int Applied, int SameAsBase, IReadOnlyLis
 /// </remarks>
 public sealed class PokemonDataFile
 {
+    /// <summary>Pokémon data (and older files with Pokémon and moves).</summary>
     public const string Extension = "pkdata";
+
+    /// <summary>Move data: another extension so the two files are not mixed up.</summary>
+    public const string MovesExtension = "mvdata";
+
+    public static string ExtensionOf(PokemonDataKind kind) => kind == PokemonDataKind.Moves ? MovesExtension : Extension;
     public const int CurrentFormat = 1;
     private const string Magic = "pokemanager-pokemon-data";
 
     public PokemonDataScope Scope { get; init; }
+    public PokemonDataKind Kind { get; init; }
     public GameTitle? Game { get; init; }
     public DateTime CreatedAt { get; init; } = DateTime.Now;
 
@@ -63,20 +83,32 @@ public sealed class PokemonDataFile
         from f in e.Value
         select (t.Key, e.Key, f.Key, f.Value);
 
-    /// <summary>The session's manual edits.</summary>
-    public static PokemonDataFile FromEdits(EditorSession session, GameTitle game, string? description = null)
+    /// <summary>Tables of the editor that hold each kind of data.</summary>
+    public static IReadOnlyList<string> TablesOf(PokemonDataKind kind) => kind switch
     {
-        var file = new PokemonDataFile { Scope = PokemonDataScope.Edits, Game = game, Description = description };
-        foreach (var edit in session.Project.Edits.All)
+        PokemonDataKind.Pokemon => [GameTables.Personal, GameTables.Learnsets],
+        PokemonDataKind.Moves => [GameTables.Moves, GameTables.MoveTexts],
+        _ => [.. GameTables.All.Select(t => t.Name)],
+    };
+
+    /// <summary>The session's manual edits of that kind of data.</summary>
+    public static PokemonDataFile FromEdits(EditorSession session, GameTitle game, string? description = null,
+        PokemonDataKind kind = PokemonDataKind.All)
+    {
+        var file = new PokemonDataFile { Scope = PokemonDataScope.Edits, Kind = kind, Game = game, Description = description };
+        var tables = TablesOf(kind);
+        foreach (var edit in session.Project.Edits.All.Where(e => tables.Contains(e.Table)))
             file.Add(edit.Table, edit.Id, edit.Field, edit.Value);
         return file;
     }
 
-    /// <summary>Every current value (base + edits) of every table the editor knows.</summary>
-    public static PokemonDataFile FromCurrent(EditorSession session, GameTitle game, string? description = null)
+    /// <summary>Every current value (base + edits) of the tables of that kind of data.</summary>
+    public static PokemonDataFile FromCurrent(EditorSession session, GameTitle game, string? description = null,
+        PokemonDataKind kind = PokemonDataKind.All)
     {
-        var file = new PokemonDataFile { Scope = PokemonDataScope.All, Game = game, Description = description };
-        foreach (var table in GameTables.All)
+        var file = new PokemonDataFile { Scope = PokemonDataScope.All, Kind = kind, Game = game, Description = description };
+        var tables = TablesOf(kind);
+        foreach (var table in GameTables.All.Where(t => tables.Contains(t.Name)))
         {
             int count = table.Count(session.Current);
             for (int id = 0; id < count; id++)
@@ -87,11 +119,17 @@ public sealed class PokemonDataFile
     }
 
     /// <summary>Sets the file's values in the session.</summary>
-    /// <param name="replaceEdits">Undo the session's current edits first, so the result is the base plus this file only.</param>
+    /// <param name="replaceEdits">
+    /// Undo the session's current edits of this file's kind of data first (a moves file leaves the Pokémon edits alone), so
+    /// that data is the base plus this file only.
+    /// </param>
     public PokemonDataImport ApplyTo(EditorSession session, GameTitle game, bool replaceEdits)
     {
         if (replaceEdits)
-            session.RevertAll();
+        {
+            var tables = TablesOf(Kind);
+            session.RevertAll(table => tables.Contains(table));
+        }
 
         int applied = 0, same = 0;
         var skipped = new List<string>();
@@ -136,6 +174,7 @@ public sealed class PokemonDataFile
             ["magic"] = Magic,
             ["format"] = CurrentFormat,
             ["scope"] = Scope.ToString(),
+            ["kind"] = Kind.ToString(),
             ["game"] = Game?.ToString(),
             ["createdAt"] = CreatedAt,
             ["description"] = Description,
@@ -170,6 +209,7 @@ public sealed class PokemonDataFile
         var file = new PokemonDataFile
         {
             Scope = Enum.TryParse<PokemonDataScope>(root["scope"]?.GetValue<string>(), out var scope) ? scope : PokemonDataScope.Edits,
+            Kind = Enum.TryParse<PokemonDataKind>(root["kind"]?.GetValue<string>(), out var kind) ? kind : PokemonDataKind.All,
             Game = Enum.TryParse<GameTitle>(root["game"]?.GetValue<string>(), out var game) ? game : null,
             CreatedAt = root["createdAt"]?.GetValue<DateTime>() ?? File.GetLastWriteTime(path),
             Description = root["description"]?.GetValue<string>(),

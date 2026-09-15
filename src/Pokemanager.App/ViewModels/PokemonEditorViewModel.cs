@@ -17,6 +17,24 @@ public sealed class StatRowViewModel(PokemonEditorViewModel owner, int index, st
     public int Base => owner.BaseStat(Index);
     public int Stat => owner.StatValue(Index);
 
+    /// <summary>Base stat bar, colored as in Showdown.</summary>
+    public double BarWidth => Math.Max(2, Math.Min(Base, 200) / 200.0 * 120);
+
+    public Avalonia.Media.IBrush BarBrush => new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse(Base switch
+    {
+        < 30 => "#F34444", < 60 => "#FF7F0F", < 90 => "#FFDD57", < 120 => "#A0E515", < 150 => "#23CD5E", _ => "#00C2B8",
+    }));
+
+    /// <summary>+1 when the nature raises this stat, -1 when it lowers it (PKHeX colors the label red and blue).</summary>
+    public int NatureEffect => owner.NatureEffect(Index);
+
+    public Avalonia.Media.IBrush LabelBrush => new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse(NatureEffect switch
+    {
+        > 0 => "#D13438", < 0 => "#1C6FD1", _ => "#1A1A1A",
+    }));
+
+    public string NatureMark => NatureEffect switch { > 0 => "▲", < 0 => "▼", _ => "" };
+
     public decimal? Iv
     {
         get => owner.GetIv(Index);
@@ -28,6 +46,25 @@ public sealed class StatRowViewModel(PokemonEditorViewModel owner, int index, st
         get => owner.GetEv(Index);
         set { if (value is { } v) owner.SetEv(Index, (int)Math.Clamp(v, 0, 252)); }
     }
+
+    public void Refresh() => OnPropertyChanged(string.Empty);
+}
+
+/// <summary>A contest condition (Cool … Tough) or Sheen, 0–255, with a bar in the condition's color.</summary>
+public sealed class ContestRowViewModel(PokemonEditorViewModel owner, int index, string label, string color) : ObservableObject
+{
+    /// <summary>0 Cool, 1 Beauty, 2 Cute, 3 Clever, 4 Tough, 5 Sheen.</summary>
+    public int Index { get; } = index;
+    public string Label { get; } = label;
+    public Avalonia.Media.IBrush Brush { get; } = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse(color));
+
+    public decimal? Value
+    {
+        get => owner.GetContest(Index);
+        set { if (value is { } v) owner.SetContest(Index, (int)Math.Clamp(v, 0, 255)); }
+    }
+
+    public double BarWidth => Math.Max(2, owner.GetContest(Index) / 255.0 * 160);
 
     public void Refresh() => OnPropertyChanged(string.Empty);
 }
@@ -73,6 +110,23 @@ public sealed class MoveSlotViewModel(PokemonEditorViewModel owner, int index) :
     public string PPText => owner.Pokemon.GetMove(Index) == 0
         ? ""
         : string.Format(Strings.Pkm_PP, PP(owner.Pokemon), owner.Document.MaxPP(owner.Pokemon.GetMove(Index), PPUps(owner.Pokemon)));
+
+    /// <summary>Type of the move in the ROM being played; -1 for an empty slot.</summary>
+    private int Type => owner.Pokemon.GetMove(Index) is var m and > 0 && m < owner.Document.Rom.Moves.Length ? owner.Document.Rom.Moves[m].Type : -1;
+
+    public Avalonia.Media.IBrush TypeBackground => Type < 0 ? new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#F2F4F6")) : TypeColors.Background(Type);
+    public Avalonia.Media.IBrush TypeForeground => Type < 0 ? Avalonia.Media.Brushes.Gray : TypeColors.Foreground(Type);
+    public string TypeName => Type >= 0 && Type < owner.Names.Types.Count ? owner.Names.Types[Type] : "";
+
+    public Avalonia.Media.Imaging.Bitmap? TypeIcon => Type < 0 ? null : PkhexImages.Type(Type);
+
+    public Avalonia.Media.IImage? CategoryIcon => owner.Pokemon.GetMove(Index) is var m and > 0 && m < owner.Document.Rom.Moves.Length
+        ? PkhexImages.Category(owner.Document.Rom.Moves[m].Category)
+        : null;
+
+    public string CategoryText => owner.Pokemon.GetMove(Index) is var m and > 0 && m < owner.Document.Rom.Moves.Length
+        ? owner.Document.Rom.Moves[m].Category switch { 1 => Strings.Category_Physical, 2 => Strings.Category_Special, _ => Strings.Category_Status }
+        : "";
 
     private int PPUps(PKM pk) => Index switch { 0 => pk.Move1_PPUps, 1 => pk.Move2_PPUps, 2 => pk.Move3_PPUps, _ => pk.Move4_PPUps };
     private int PP(PKM pk) => Index switch { 0 => pk.Move1_PP, 1 => pk.Move2_PP, 2 => pk.Move3_PP, _ => pk.Move4_PP };
@@ -122,7 +176,52 @@ public partial class PokemonEditorViewModel : ObservableObject
             new(this, 3, Strings.Stat_SpA), new(this, 4, Strings.Stat_SpD), new(this, 5, Strings.Stat_Spe),
         ];
         MoveSlots = [new(this, 0), new(this, 1), new(this, 2), new(this, 3)];
+        // Colors of the condition ribbons in the games.
+        ContestRows =
+        [
+            new(this, 0, Strings.Contest_Cool, "#E8483A"), new(this, 1, Strings.Contest_Beauty, "#3A7FE8"),
+            new(this, 2, Strings.Contest_Cute, "#F06EAA"), new(this, 3, Strings.Contest_Clever, "#3DB85C"),
+            new(this, 4, Strings.Contest_Tough, "#E8B82E"), new(this, 5, Strings.Contest_Sheen, "#9AA5AE"),
+        ];
     }
+
+    public IReadOnlyList<ContestRowViewModel> ContestRows { get; }
+
+    /// <summary>Gen 6 and 7 Pokémon store contest conditions (used by the ORAS contests).</summary>
+    public bool HasContestStats => Pokemon is IContestStats;
+
+    public int GetContest(int index) => Pokemon is IContestStats c
+        ? index switch { 0 => c.ContestCool, 1 => c.ContestBeauty, 2 => c.ContestCute, 3 => c.ContestSmart, 4 => c.ContestTough, _ => c.ContestSheen }
+        : 0;
+
+    public void SetContest(int index, int value)
+    {
+        if (GetContest(index) == value)
+            return;
+        Edit(pk => SetContest(pk, index, value));
+    }
+
+    private static void SetContest(PKM pk, int index, int value)
+    {
+        if (pk is not IContestStats c)
+            return;
+        byte v = (byte)value;
+        switch (index)
+        {
+            case 0: c.ContestCool = v; break;
+            case 1: c.ContestBeauty = v; break;
+            case 2: c.ContestCute = v; break;
+            case 3: c.ContestSmart = v; break;
+            case 4: c.ContestTough = v; break;
+            default: c.ContestSheen = v; break;
+        }
+    }
+
+    [RelayCommand]
+    private void MaxContest() => Edit(pk => { for (int i = 0; i < 6; i++) SetContest(pk, i, 255); });
+
+    [RelayCommand]
+    private void ClearContest() => Edit(pk => { for (int i = 0; i < 6; i++) SetContest(pk, i, 0); });
 
     /// <summary>
     /// True while the view is being refreshed after an edit. Controls push values back while they rebind (a combo box
@@ -149,12 +248,36 @@ public partial class PokemonEditorViewModel : ObservableObject
                     OnPropertyChanged(name);
             foreach (var row in StatRows) row.Refresh();
             foreach (var move in MoveSlots) move.Refresh();
+            foreach (var row in ContestRows) row.Refresh();
         }
         finally
         {
             refreshing = false;
         }
+        // A list that changed with the edit (abilities of another species) needs its selection shown again afterwards.
+        Avalonia.Threading.Dispatcher.UIThread.Post(RefreshSelections, Avalonia.Threading.DispatcherPriority.Background);
         owner.OnPokemonEdited(Slot);
+    }
+
+    /// <summary>
+    /// Shows the selections again. When another Pokémon is opened the view reuses its controls: a combo box whose list is
+    /// replaced loses its selection, and the index is not notified again because its value did not change (ability and
+    /// gender showed empty). Called once the view has taken the new Pokémon.
+    /// </summary>
+    public void RefreshSelections()
+    {
+        refreshing = true;
+        try
+        {
+            foreach (string name in new[] { nameof(SpeciesIndex), nameof(SelectedForm), nameof(NatureIndex), nameof(SelectedAbility), nameof(HeldItemIndex), nameof(SelectedGender), nameof(BallIndex) })
+                OnPropertyChanged(name);
+            foreach (var move in MoveSlots)
+                move.Refresh();
+        }
+        finally
+        {
+            refreshing = false;
+        }
     }
 
     /// <summary>Keeps the same list instance while its contents do not change, so combo boxes keep their selection.</summary>
@@ -169,13 +292,53 @@ public partial class PokemonEditorViewModel : ObservableObject
 
     private static readonly string[] Notified =
     [
-        nameof(Title), nameof(Icon), nameof(SpeciesIndex), nameof(FormChoices), nameof(FormIndex), nameof(HasForms), nameof(Nickname), nameof(IsNicknamed),
-        nameof(Level), nameof(NatureIndex), nameof(AbilityChoices), nameof(AbilityIndex), nameof(HeldItemIndex),
-        nameof(GenderChoices), nameof(GenderIndex), nameof(IsShiny), nameof(Friendship), nameof(BallIndex), nameof(OriginalTrainer),
+        nameof(Title), nameof(Icon), nameof(SpeciesIndex), nameof(FormChoices), nameof(FormIndex), nameof(SelectedForm), nameof(HasForms), nameof(Nickname), nameof(IsNicknamed),
+        nameof(Level), nameof(NatureIndex), nameof(AbilityChoices), nameof(AbilityIndex), nameof(SelectedAbility), nameof(HeldItemIndex),
+        nameof(GenderChoices), nameof(GenderIndex), nameof(SelectedGender), nameof(IsShiny), nameof(Friendship), nameof(BallIndex), nameof(OriginalTrainer),
         nameof(EvTotalText), nameof(EvTotalTooHigh), nameof(Problems), nameof(HasProblems), nameof(IsEgg), nameof(ExpText),
+        nameof(DisplayName), nameof(SlotText), nameof(TypeBackground), nameof(TypeForeground), nameof(TypeChips), nameof(ItemIcon),
+        nameof(HasItem), nameof(BallIcon), nameof(LevelText), nameof(GenderText), nameof(AbilityText), nameof(NatureText), nameof(StatTotal),
     ];
 
     public string Title => $"{SaveEditorViewModel.SlotLabel(Slot)} · {Names.SpeciesName(Pokemon.Species)}";
+
+    // ------------------------------------------------------------------ header (type colors, as the advanced tabs)
+
+    public string DisplayName => Pokemon.IsEgg ? Strings.Save_Egg
+        : Pokemon.IsNicknamed ? $"{Pokemon.Nickname} ({Names.SpeciesName(Pokemon.Species)})"
+        : Names.SpeciesName(Pokemon.Species);
+
+    public string SlotText => SaveEditorViewModel.SlotLabel(Slot);
+
+    private int[] TypeIds => Pokemon.IsEgg ? [0] : [.. (Document.Personal(Pokemon.Species, Pokemon.Form)?.Types ?? [0]).Distinct()];
+
+    public Avalonia.Media.IBrush TypeBackground => TypeColors.Background(TypeIds[0], TypeIds[^1]);
+    public Avalonia.Media.IBrush TypeForeground => TypeColors.Foreground(TypeIds);
+    public IReadOnlyList<TypeChip> TypeChips => Pokemon.IsEgg ? [] : [.. TypeIds.Select(owner.TypeChipOf)];
+
+    public Avalonia.Media.Imaging.Bitmap? ItemIcon => PkhexImages.Item(Pokemon.HeldItem);
+    public bool HasItem => Pokemon.HeldItem > 0;
+    public Avalonia.Media.Imaging.Bitmap? BallIcon => PkhexImages.Ball(Pokemon.Ball);
+
+    public string LevelText => string.Format(Strings.Preview_Level, Document.Level(Pokemon));
+    public string GenderText => Pokemon.IsEgg ? "" : Pokemon.Gender switch { 0 => "♂", 1 => "♀", _ => "" };
+    public string AbilityText => Names.AbilityName(Pokemon.Ability);
+    public string NatureText => (int)Pokemon.Nature < Names.Natures.Count ? Names.Natures[(int)Pokemon.Nature] : "";
+    public int StatTotal => Enumerable.Range(0, 6).Sum(BaseStat);
+
+    /// <summary>
+    /// Natures raise one stat and lower another: index = 5 × raised + lowered, in the order Atk, Def, Spe, SpA, SpD. Display
+    /// rows are HP, Atk, Def, SpA, SpD, Spe.
+    /// </summary>
+    public int NatureEffect(int index)
+    {
+        int nature = (int)Pokemon.StatAlignment;
+        int up = nature / 5, down = nature % 5;
+        if (up == down || index == 0)
+            return 0;
+        int order = index switch { 1 => 0, 2 => 1, 3 => 3, 4 => 4, _ => 2 };
+        return order == up ? 1 : order == down ? -1 : 0;
+    }
     public Avalonia.Media.Imaging.Bitmap? Icon => Pokemon.IsEgg ? null : owner.Sprites.For(Pokemon.Species, Pokemon.Form, Pokemon.Gender == 1, Pokemon.IsShiny);
     public bool IsEgg => Pokemon.IsEgg;
 
@@ -277,6 +440,28 @@ public partial class PokemonEditorViewModel : ObservableObject
                 return;
             Edit(pk => pk.AbilityNumber = number);
         }
+    }
+
+    /// <summary>
+    /// The choice as text, for the combo box: bound by item instead of by index, it survives the list being replaced when
+    /// another Pokémon is shown (by index it came up empty). Choices are unique (they start with "1:", "2:", "Hidden:").
+    /// </summary>
+    public string? SelectedAbility
+    {
+        get => AbilityIndex >= 0 && AbilityIndex < AbilityChoices.Count ? AbilityChoices[AbilityIndex] : null;
+        set { if (value is not null && AbilityChoices.ToList().IndexOf(value) is var i and >= 0) AbilityIndex = i; }
+    }
+
+    public string? SelectedGender
+    {
+        get => GenderIndex >= 0 && GenderIndex < GenderChoices.Count ? GenderChoices[GenderIndex] : null;
+        set { if (value is not null && GenderChoices.ToList().IndexOf(value) is var i and >= 0) GenderIndex = i; }
+    }
+
+    public string? SelectedForm
+    {
+        get => FormIndex >= 0 && FormIndex < FormChoices.Count ? FormChoices[FormIndex] : null;
+        set { if (value is not null && FormChoices.ToList().IndexOf(value) is var i and >= 0) FormIndex = i; }
     }
 
     private static int SaveUpdaterIndex(int abilityNumber) => abilityNumber switch { 2 => 1, 4 => 2, _ => 0 };

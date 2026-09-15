@@ -60,7 +60,8 @@ public sealed partial class RouletteViewModel : ObservableObject
         this.onWin = onWin;
         this.claim = claim;
         Segments = locke.Prizes
-            .Select((p, i) => new WheelSegment(LockeRewards.Describe(p, itemNames), Math.Max(0, p.Weight), Palette[i % Palette.Length]))
+            .Select((p, i) => new WheelSegment(LockeRewards.Describe(p, itemNames), Math.Max(0, p.Weight), Palette[i % Palette.Length],
+                LockeRewards.Icon(p), LockeRewards.Glyph(p)))
             .ToList();
 
         if (pending is not null)

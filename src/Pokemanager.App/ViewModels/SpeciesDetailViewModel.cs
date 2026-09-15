@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Text.Json.Nodes;
+using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Pokemanager.App.Resources;
@@ -22,7 +23,7 @@ public partial class SpeciesDetailViewModel : ObservableObject
     /// <summary>Sprite from the dump, if any.</summary>
     public Avalonia.Media.Imaging.Bitmap? Icon { get; }
 
-    public IReadOnlyList<IntFieldViewModel> Stats { get; }
+    public IReadOnlyList<StatFieldViewModel> Stats { get; }
     public IReadOnlyList<ChoiceFieldViewModel> Types { get; }
     public IReadOnlyList<ChoiceFieldViewModel> Abilities { get; }
     public IReadOnlyList<FieldViewModel> Breeding { get; }
@@ -32,6 +33,13 @@ public partial class SpeciesDetailViewModel : ObservableObject
 
     public ObservableCollection<LearnsetRowViewModel> Learnset { get; } = [];
     public IReadOnlyList<string> MoveNames => names.Moves;
+
+    /// <summary>Type chip of a move as the project has it now (the learnset rows show it).</summary>
+    internal TypeChip MoveTypeChip(int move)
+    {
+        int type = move > 0 && move < session.Current.Moves.Length ? session.Current.Moves[move].Type : -1;
+        return new TypeChip(type >= 0 && type < names.Types.Count ? names.Types[type] : "—", TypeColors.Background(type), TypeColors.Foreground(type));
+    }
 
     public int BaseStatTotal => Stats.Sum(s => (int)(s.Value ?? 0));
     public bool IsLearnsetModified => session.IsModified(GameTables.Learnsets, Id, GameTables.LevelUp);
@@ -48,10 +56,11 @@ public partial class SpeciesDetailViewModel : ObservableObject
         IntFieldViewModel Int(string field, string label, int max = 255) => new(session, P, id, field, label, 0, max);
         ChoiceFieldViewModel Choice(string field, string label, IReadOnlyList<string> options) => new(session, P, id, field, label, options);
 
+        StatFieldViewModel Stat(string field, string label) => new(session, P, id, field, label);
         Stats =
         [
-            Int("hp", Strings.Stat_HP), Int("atk", Strings.Stat_Atk), Int("def", Strings.Stat_Def),
-            Int("spa", Strings.Stat_SpA), Int("spd", Strings.Stat_SpD), Int("spe", Strings.Stat_Spe),
+            Stat("hp", Strings.Stat_HP), Stat("atk", Strings.Stat_Atk), Stat("def", Strings.Stat_Def),
+            Stat("spa", Strings.Stat_SpA), Stat("spd", Strings.Stat_SpD), Stat("spe", Strings.Stat_Spe),
         ];
         Types = [Choice("type1", Strings.Field_Type1, names.Types), Choice("type2", Strings.Field_Type2, names.Types)];
         Abilities =
@@ -86,8 +95,37 @@ public partial class SpeciesDetailViewModel : ObservableObject
 
         foreach (var stat in Stats)
             stat.PropertyChanged += (_, _) => OnPropertyChanged(nameof(BaseStatTotal));
+        // The colored header follows the types as they are edited.
+        foreach (var type in Types)
+            type.PropertyChanged += (_, _) => NotifyHeader();
+        foreach (var field in Abilities)
+            field.PropertyChanged += (_, _) => OnPropertyChanged(nameof(AbilitiesText));
 
         LoadLearnset();
+    }
+
+    // ------------------------------------------------------------------ header
+
+    private int Type1 => session.GetInt(P, Id, "type1");
+    private int Type2 => session.GetInt(P, Id, "type2");
+
+    public IBrush TypeBackground => TypeColors.Background(Type1, Type2);
+    public IBrush TypeForeground => TypeColors.Foreground(Type1, Type2);
+
+    public IReadOnlyList<TypeChip> TypeChips => new[] { Type1, Type2 }.Distinct()
+        .Select(t => new TypeChip(t < names.Types.Count ? names.Types[t] : "?", TypeColors.Background(t), TypeColors.Foreground(t)))
+        .ToList();
+
+    public string AbilitiesText => string.Join(" · ", new[] { "ability1", "ability2", "abilityHidden" }
+        .Select(f => session.GetInt(P, Id, f)).Distinct()
+        .Select(a => a < names.Abilities.Count ? names.Abilities[a] : "?"));
+
+    private void NotifyHeader()
+    {
+        OnPropertyChanged(nameof(TypeBackground));
+        OnPropertyChanged(nameof(TypeForeground));
+        OnPropertyChanged(nameof(TypeChips));
+        OnPropertyChanged(nameof(IsModified));
     }
 
     private void LoadLearnset()
@@ -157,6 +195,8 @@ public partial class LearnsetRowViewModel(SpeciesDetailViewModel owner, int leve
         }
     }
 
+    public TypeChip MoveType => owner.MoveTypeChip(MoveIndex);
+
     public int SelectedMove
     {
         get => MoveIndex;
@@ -166,6 +206,7 @@ public partial class LearnsetRowViewModel(SpeciesDetailViewModel owner, int leve
                 return;
             MoveIndex = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(MoveType));
             owner.CommitLearnset(reload: false);
         }
     }
