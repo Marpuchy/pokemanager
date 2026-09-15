@@ -30,6 +30,11 @@ jobs:
           distribution: temurin
           java-version: "21"
 
+      # Node only for building: npm installs the battle simulator and its node.exe is bundled with the app.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
       - name: Version
         id: version
         shell: pwsh

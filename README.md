@@ -21,10 +21,10 @@ and **PKHeX** (the save file), for games played on a 3DS emulator such as Citra 
 - **Randomize** with every UPR ZX option and a reproducible seed; the result is a new ROM next to yours.
 - **Edit your save** like in PKHeX — Pokémon, bag, trainer, Pokédex — using the stats and abilities of the ROM you play.
 - **Adapt a save in progress** when the ROM changes (new seed, new options), with backups and verification.
-- **Keep a history** of versions to go back when a build goes wrong, and share Pokémon data as `.pkdata` files.
+- **Keep a history** of versions to go back when a build goes wrong, **undo/redo** every edit, and share Pokémon and move data\n  as `.pkdata` / `.mvdata` files.
 - **Locke tools:** lives, badges or island trials read from the save, and a reward roulette that puts items in your bag.
 - **Play online with friends:** rooms joined with a code, no server, where everyone sees the others' party and boxes live,
-  with a profile (name, color, trainer sprite).
+  with a profile (name, color, trainer sprite); **battle** each other with your saves' teams and your own ROMs' data on\n  Pokémon Showdown's simulator, or link **inside the game** through a shared emulator room.
 - Interface in **English** and **Spanish**.
 
 The application never modifies your ROM, and the repository contains no game data: each user provides their own
@@ -36,7 +36,7 @@ The application never modifies your ROM, and the repository contains no game dat
 2. Run it. It installs for your user (no administrator rights) and adds **Pokemanager** to the desktop and Start menu.
 3. Open Pokemanager → **New project…** → choose your ROM → **Create project**.
 
-Everything is bundled: .NET, a Java runtime for UPR ZX, UPR ZX itself and PKHeX.Core. Windows SmartScreen may warn because
+Everything is bundled: .NET, a Java runtime for UPR ZX, UPR ZX itself, PKHeX.Core and Node.js with Pokémon Showdown's\nsimulator. Windows SmartScreen may warn because
 the installer is not code-signed (*More info → Run anyway*). A portable `.zip` is published next to the installer, and
 Pokemanager can be uninstalled from *Settings → Apps* like any other program.
 
@@ -69,7 +69,7 @@ Your data lives outside the program folder, so updating or uninstalling keeps it
    the invite code, or paste a friend's code and **Join**. The room shows every player with their profile; selecting one
    shows their party and boxes, updated each time they save in the game. The host can hide parties or boxes. Routers are
    opened automatically when possible (UPnP / NAT-PMP, STUN); otherwise the guest gets an answer code for the host to
-   accept. The room stays open while you manage projects and closes with the app.
+   accept. The room stays open while you manage projects and closes with the app.\n   **Battles:** challenge a player, agree on the rules (generation, level, clauses, megas/Z-moves), click **Ready with my\n   party** and the battle opens in Showdown's battle screen (internet needed). Players with games of the same generation\n   also get a Citra multiplayer room, tunnelled through the Pokemanager room, to link inside the game.
 2. **Settings…:** your multiplayer **profile** (name, color, trainer sprite or own picture), interface language, emulator (by
    default the one you used most recently), base ROM, bundled tools, cache and save backups.
 3. **Randomizer → Options:** every UPR ZX option, grouped as in UPR. A `.rnqs` preset can be
@@ -103,7 +103,9 @@ Your data lives outside the program folder, so updating or uninstalling keeps it
    each chance and slice size) and the badges already spun, with **Allow again** to spin a badge once more.
 9. **Advanced:** manual Pokémon and move edits on top of the randomization; they are included in the built ROM.
    **Export/Import Pokémon data** saves them as a `.pkdata` file — the counterpart of a `.rnqs` for base stats, types,
-   abilities, learnsets and moves — either your changes only or every value.
+   abilities and learnsets — and **Export/Import move data** as a `.mvdata` file (type, category, power, accuracy, PP,
+   descriptions), either your changes only or every value. Modified entries are highlighted; abilities stay hidden until
+   you show them.
 
 Same options + same seed = same game: a ROM made earlier with UPR ZX can be reproduced from its preset and
 the seed in its log.
@@ -136,7 +138,7 @@ tests/Pokemanager.Tests     tests (xUnit v3)
 
 ## Build from source
 
-Requirements: .NET 10 SDK and Java 11 or later (a JDK 17+ to build the installer).
+Requirements: .NET 10 SDK and Java 11 or later (a JDK 17+ to build the installer). For battles, Node.js 20+ and\n`npm ci` in `battle/`.
 
 ```
 dotnet run --project src/Pokemanager.App
@@ -169,10 +171,10 @@ dotnet test --solution Pokemanager.slnx
 ### Installer
 
 ```
-./build/build-installer.ps1 -Version 1.0.0
+./build/build-installer.ps1 -Version 1.2.0
 ```
 
-Publishes the app self-contained, compiles the UPR ZX launcher, builds a trimmed Java runtime with `jlink` and packs a
+Publishes the app self-contained, compiles the UPR ZX launcher, builds a trimmed Java runtime with `jlink`, bundles\n`node.exe` and the pruned Pokémon Showdown simulator (checked with a random battle) and packs a
 per-user installer with [Velopack](https://velopack.io) into `artifacts/installer`. Pushing a `v*` tag runs the same
 script on GitHub Actions and publishes the release.
 

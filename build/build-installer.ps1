@@ -6,9 +6,12 @@
     1. Publishes the application self-contained for win-x64 (no .NET install needed on the target PC).
     2. Compiles the UPR ZX launcher (PokemanagerUpr.java) so the bundled Java runtime needs no compiler.
     3. Builds a trimmed Java runtime with jlink (only the modules UPR ZX and the launcher use) into tools/java.
-    4. Packs everything with Velopack: a per-user Setup.exe with Start menu and desktop shortcuts and an uninstaller.
+    4. Bundles the battle simulator: node.exe into tools/node and the pruned Pokemon Showdown package into battle/,
+       then plays a random battle with them.
+    5. Packs everything with Velopack: a per-user Setup.exe with Start menu and desktop shortcuts and an uninstaller.
 
-    Requirements on the build machine: .NET 10 SDK and a JDK 17 or later (JAVA_HOME, or Java on the PATH).
+    Requirements on the build machine: .NET 10 SDK, a JDK 17 or later (JAVA_HOME, or Java on the PATH) and Node.js 20+
+    with npm (its node.exe is the one bundled).
 
 .EXAMPLE
     ./build/build-installer.ps1 -Version 1.0.0
@@ -69,6 +72,45 @@ Step "Checking the bundled runtime runs the launcher"
 $javaExe = Join-Path $publish "tools/java/bin/java.exe"
 $describe = & $javaExe -cp "$jar;$uprDir" PokemanagerUpr describe-settings - 2>&1
 if ($LASTEXITCODE -ne 0 -or -not ($describe -match '"options"')) { throw "The bundled Java could not run the UPR launcher:`n$describe" }
+
+Step "Bundling the battle simulator (Node.js + Pokemon Showdown)"
+# The app looks for tools/node/node.exe and battle/pokemanager-battle.js next to itself (ShowdownTools.Locate).
+$battleSource = Join-Path $root "battle"
+Push-Location $battleSource
+# npm prints deprecation warnings on stderr, which Windows PowerShell 5.1 turns into errors under "Stop": judge by exit code.
+$ErrorActionPreference = "Continue"
+try {
+    npm ci --no-audit --no-fund 2>&1 | Out-Host
+    if ($LASTEXITCODE -ne 0) { throw "npm ci failed in battle/" }
+}
+finally {
+    $ErrorActionPreference = "Stop"
+    Pop-Location
+}
+$battle = Join-Path $publish "battle"
+$showdownSource = Join-Path $battleSource "node_modules/pokemon-showdown"
+$showdown = Join-Path $battle "node_modules/pokemon-showdown"
+New-Item -ItemType Directory -Force (Join-Path $showdown "dist") | Out-Null
+Copy-Item (Join-Path $battleSource "pokemanager-battle.js"), (Join-Path $battleSource "package.json") $battle
+Copy-Item (Join-Path $showdownSource "package.json"), (Join-Path $showdownSource "LICENSE") $showdown
+# Only the compiled simulator is used (not the server, tools or translations: ~104 MB -> ~95 MB with the data).
+foreach ($part in "sim", "data", "lib", "config") {
+    Copy-Item -Recurse (Join-Path $showdownSource "dist/$part") (Join-Path $showdown "dist")
+}
+# Runtime dependencies of the simulator alone (found by running a battle on the pruned copy).
+foreach ($dependency in "ts-chacha20") {
+    Copy-Item -Recurse (Join-Path $battleSource "node_modules/$dependency") (Join-Path $battle "node_modules")
+}
+$node = (Get-Command node -ErrorAction SilentlyContinue).Source
+if (-not $node) { throw "Node.js not found on the PATH (needed to bundle the battle simulator)" }
+New-Item -ItemType Directory -Force (Join-Path $publish "tools/node") | Out-Null
+Copy-Item $node (Join-Path $publish "tools/node/node.exe")
+
+Step "Checking the bundled simulator plays a battle"
+$bundledNode = Join-Path $publish "tools/node/node.exe"
+$check = & $bundledNode (Join-Path $PSScriptRoot "check-battle.js") $battle 2>&1
+if ($LASTEXITCODE -ne 0 -or -not ($check -match "winner")) { throw "The bundled simulator could not play a battle:`n$check" }
+Write-Host "    $($check -join ' ')"
 
 Step "Packing the installer (Velopack)"
 Push-Location $root

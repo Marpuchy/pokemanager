@@ -1,16 +1,33 @@
-## New in 1.1.0: play online with friends
+## New in 1.2.0: battles, the in-game link and a new editor look
 
-- **Multiplayer rooms**, on the start screen: the host clicks **Create room** and sends the invite code (`PM-…`); friends
-  paste it and **Join**. No server and no account — the apps connect directly, encrypted with the room's code.
-- **Live**: everyone sees the other players' **party and boxes** (types, moves with PP, ability, nature, item, stats), sent
-  again every time someone saves in the game. The host decides with two checkboxes whether parties and boxes are visible.
-- **Nothing to set up on the router** in most homes: Pokemanager opens the port by itself (UPnP / NAT-PMP) and finds your
-  public address. If a friend still cannot get in, their app shows an **answer code**: they send it to the host, the host
-  clicks **Accept**, and both routers open the way. (If both of you are behind very strict carrier NAT, it may not connect.)
-- **Profile** in *Settings*: your name, a color and a **trainer sprite** (search Pokémon Showdown's ~1500 sprites, downloaded
-  when chosen) or your own picture. The other players see it in the room.
-- The first time you open a room, **Windows Firewall** asks whether Pokemanager may use the network: allow it.
-- Everyone in a room needs Pokemanager 1.1.0 or later.
+The last version before the 2D games.
+
+### Battles between players
+- In a multiplayer room, **challenge another player** to a battle with the Pokémon of your **own saves** — and the stats,
+  types and moves of **each player's own ROM**, randomized or not. Battles run on Pokémon Showdown's simulator inside
+  Pokemanager, with Showdown's battle screen.
+- **Rules chosen before each battle**: mechanics generation (6 or 7), level (as in the save, 50 or 100), full HP/PP, team
+  preview, clauses (Sleep, Species, Item, OHKO, Evasion, Baton Pass) and megas/Z-moves. A team that breaks them is refused
+  with the reasons.
+- Everything is bundled (Node.js and the simulator). The battle screen needs an internet connection.
+
+### Play inside the game
+- Players with games of the **same generation** (X/Y with Omega Ruby/Alpha Sapphire, Sun/Moon with Ultra Sun/Ultra Moon)
+  get a **Citra multiplayer room** opened by the host's app, tunnelled through the Pokemanager room: nothing to set up on
+  the router. "Play in the emulator room" starts Citra already connected. Needs a Citra build that includes `citra-room`.
+
+### Editor
+- **Undo / redo** for the project and the save (Ctrl+Z / Ctrl+Y), with a long history.
+- **Move data files** (`.mvdata`) apart from Pokémon data files, and **editable move descriptions** that show in every
+  language of the game.
+- **Save editor redesign**: PKHeX-style boxes with the game's wallpapers, party cards in the type colours, items and balls
+  with icons, stats / IV-EV / **contest conditions** in tabs, and a **Pokédex page** with this version's entry.
+- Advanced tabs: type and category icons, **modified entries highlighted**, and **abilities hidden by default** so you can
+  check a randomized ROM's stats without spoilers.
+- Locke: roulette with prize icons; lives start at 10.
+- Many visual fixes (scroll bars, spinners, date pickers, tabs, Gen 7 sprites).
+
+Everyone in a room needs Pokemanager 1.2.0 to battle or share the emulator room.
 
 ## Install
 
@@ -18,10 +35,12 @@
    and creates **Pokemanager** shortcuts on the desktop and in the Start menu.
 2. Open Pokemanager, click **New project…**, choose a **decrypted** ROM of your game and click **Create project**.
 
-Everything is included: the .NET runtime, a Java runtime for Universal Pokémon Randomizer ZX, UPR ZX itself and PKHeX.Core.
+Everything is included: the .NET runtime, a Java runtime for Universal Pokémon Randomizer ZX, UPR ZX itself, PKHeX.Core,
+and Node.js with Pokémon Showdown's simulator for battles.
 Prefer not to install? Unzip **PokemanagerApp-win-Portable.zip** and run `Pokemanager.App.exe`.
 
 Windows may show a SmartScreen warning because the installer is not code-signed: choose *More info → Run anyway*.
+The first time you open a room, **Windows Firewall** asks whether Pokemanager may use the network: allow it.
 
 ## Supported games
 
@@ -32,7 +51,8 @@ Sun and Moon are expected to work like Ultra Sun/Ultra Moon but have not been te
 
 - **Randomizer** (UPR ZX with a reproducible seed and all its options), building a new ROM next to yours.
 - **Save editor** in the style of PKHeX: Pokémon, bag, trainer, Pokédex — using the stats and abilities of the ROM you play.
-- **Version history** of the project and the save, and **Pokémon data files** (`.pkdata`).
+- **Version history** of the project and the save, **undo/redo**, and **Pokémon and move data files** (`.pkdata`, `.mvdata`).
 - **Locke tools**: lives, badges/trials read from the save and a reward roulette that puts items into the save.
-- **Multiplayer**: rooms by invite code to see each other's party and boxes live, with your own profile and trainer sprite.
+- **Multiplayer**: rooms by invite code to see each other's party and boxes live, **battles** with your own ROMs, and a
+  shared emulator room for in-game link play.
 - English and Spanish interface.
