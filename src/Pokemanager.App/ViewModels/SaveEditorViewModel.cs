@@ -177,6 +177,13 @@ public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
 
     /// <summary>The project changed since the ROM was built: what is shown follows the project, not the ROM being played.</summary>
     public string? RomWarning => editor.ProjectDiffersFromBuiltRom ? Strings.Save_RomWarning : null;
+
+    /// <summary>The editor rebuilt or something changed: the warning about the ROM may have appeared or gone.</summary>
+    public void RefreshRomWarning()
+    {
+        OnPropertyChanged(nameof(RomWarning));
+        OnPropertyChanged(nameof(HasRomWarning));
+    }
     public bool HasRomWarning => RomWarning is not null;
 
     public SaveEditorViewModel(EditorViewModel editor, AppSettings settings)

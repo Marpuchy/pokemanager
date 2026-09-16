@@ -31,6 +31,11 @@ public partial class SpeciesDetailViewModel : ObservableObject
     public IReadOnlyList<IntFieldViewModel> EvYield { get; }
     public IReadOnlyList<IntFieldViewModel> Other { get; }
 
+    /// <summary>Generation 7 only: crystal, the move it needs and the Z-move it becomes.</summary>
+    public IReadOnlyList<ChoiceFieldViewModel> ZMove { get; }
+
+    public bool HasZMove { get; }
+
     public ObservableCollection<LearnsetRowViewModel> Learnset { get; } = [];
     public IReadOnlyList<string> MoveNames => names.Moves;
 
@@ -92,6 +97,18 @@ public partial class SpeciesDetailViewModel : ObservableObject
             Int("evSpa", Strings.Ev_SpA, 3), Int("evSpd", Strings.Ev_SpD, 3), Int("evSpe", Strings.Ev_Spe, 3),
         ];
         Other = [Int("height", Strings.Field_Height, 65535), Int("weight", Strings.Field_Weight, 65535), Int("escapeRate", Strings.Field_EscapeRate)];
+
+        // Generation 7: the species' own Z-move. Changing the move it needs is what makes a crystal usable in a run
+        // (Decidueye's Decidium Z asks for Spirit Shackle, which a randomized Decidueye may never learn).
+        HasZMove = session.Current.Personal[id] is pk3DS.Core.Structures.PersonalInfo.PersonalInfoSM;
+        ZMove = HasZMove
+            ?
+            [
+                Choice(GameTables.ZCrystal, Strings.Field_ZCrystal, names.Items),
+                Choice(GameTables.ZBaseMove, Strings.Field_ZBaseMove, names.Moves),
+                Choice(GameTables.ZMove, Strings.Field_ZMove, names.Moves),
+            ]
+            : [];
 
         foreach (var stat in Stats)
             stat.PropertyChanged += (_, _) => OnPropertyChanged(nameof(BaseStatTotal));

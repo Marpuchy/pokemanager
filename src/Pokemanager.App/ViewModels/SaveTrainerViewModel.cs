@@ -42,7 +42,7 @@ public partial class SaveTrainerViewModel : ObservableObject
 
     public AvatarViewModel Avatar { get; }
 
-    public string CardTitle => string.Format(Strings.Trainer_CardTitle, game.DisplayName());
+    public string CardGame => game.DisplayName();
 
     /// <summary>The card in the color of the game's box art.</summary>
     public Avalonia.Media.IBrush CardBrush => field ??= new Avalonia.Media.LinearGradientBrush
@@ -360,6 +360,9 @@ public partial class SaveTrainerViewModel : ObservableObject
 public sealed class BadgeViewModel(SaveTrainerViewModel owner, SaveDocument doc, int index, string name, IconImage? image) : ObservableObject
 {
     public string Label => name;
+
+    /// <summary>Badge number, shown on the trainer card when the game images are not available.</summary>
+    public string Number => (index + 1).ToString();
 
     public bool IsChecked
     {

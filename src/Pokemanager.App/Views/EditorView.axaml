@@ -125,6 +125,15 @@
       </Grid>
     </Border>
 
+    <!-- Changes that the built ROM does not have yet: stats, moves and randomizer options only reach the game when it is built -->
+    <Border DockPanel.Dock="Top" Background="#FFF6E5" BorderBrush="#E8A33D" BorderThickness="0,0,0,1" Padding="12,7" IsVisible="{Binding NeedsRomBuild}">
+      <Grid ColumnDefinitions="*,Auto">
+        <TextBlock Foreground="#7A4B00" VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding NeedsRomBuildText}" />
+        <Button Grid.Column="1" Classes="accent" Margin="12,0,0,0" Content="{x:Static r:Strings.Editor_RomNoticeBuild}"
+                Command="{Binding BuildRomCommand}" ToolTip.Tip="{x:Static r:Strings.Editor_BuildRomTip}" />
+      </Grid>
+    </Border>
+
     <!-- Status bar -->
     <Border DockPanel.Dock="Bottom" Padding="12,6" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
             IsVisible="{Binding Status, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
@@ -142,10 +151,7 @@
         <ContentControl Content="{Binding SaveEditor}" />
       </TabItem>
 
-      <!-- ================= History ================= -->
-      <TabItem x:Name="HistoryTab" Header="{x:Static r:Strings.Tab_History}">
-        <ContentControl Content="{Binding History}" />
-      </TabItem>
+      <!-- The version history is no longer a tab: it opens from Settings (Dialogs.ShowHistoryAsync) -->
 
       <!-- ================= Locke ================= -->
       <TabItem Header="{x:Static r:Strings.Tab_Locke}">
@@ -267,6 +273,14 @@
                             <StackPanel>
                               <TextBlock Classes="card-title" Text="{x:Static r:Strings.Section_WildItems}" />
                               <ItemsControl ItemsSource="{Binding Items}" />
+                            </StackPanel>
+                          </Border>
+                          <!-- Generation 7: the species' exclusive Z-move -->
+                          <Border Classes="card detail" IsVisible="{Binding HasZMove}">
+                            <StackPanel>
+                              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Section_ZMove}" />
+                              <TextBlock Classes="hint" MaxWidth="430" HorizontalAlignment="Left" TextWrapping="Wrap" Text="{x:Static r:Strings.ZMove_Hint}" />
+                              <ItemsControl ItemsSource="{Binding ZMove}" Margin="0,4,0,0" />
                             </StackPanel>
                           </Border>
                         </WrapPanel>

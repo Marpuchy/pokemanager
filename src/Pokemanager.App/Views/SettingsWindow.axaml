@@ -100,6 +100,13 @@
         </Grid>
       </StackPanel>
 
+      <!-- Version history of the open project: it used to be a tab of the editor -->
+      <StackPanel IsVisible="{Binding HasHistory}">
+        <TextBlock Classes="section" Text="{x:Static r:Strings.History_Title}" />
+        <TextBlock Classes="hint" Text="{x:Static r:Strings.Set_HistoryHint}" TextWrapping="Wrap" />
+        <Button Margin="0,6,0,0" HorizontalAlignment="Left" Content="{x:Static r:Strings.Set_OpenHistory}" Command="{Binding OpenHistoryCommand}" />
+      </StackPanel>
+
       <TextBlock Classes="section" Text="{x:Static r:Strings.Set_Tools}" />
       <TextBlock Text="{Binding UprText}" TextWrapping="Wrap" />
       <TextBlock Text="{Binding PkhexText}" TextWrapping="Wrap" />

@@ -1,0 +1,13 @@
+<!-- The project's version history, opened from Settings (it used to be a tab of the editor). -->
+<Window xmlns="https://github.com/avaloniaui"
+        Icon="avares://Pokemanager.App/Assets/pokemanager.ico"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Pokemanager.App.ViewModels"
+        xmlns:r="using:Pokemanager.App.Resources"
+        x:Class="Pokemanager.App.Views.HistoryWindow"
+        x:DataType="vm:HistoryViewModel"
+        Title="{x:Static r:Strings.History_Title}"
+        Width="1000" Height="700" MinWidth="620" MinHeight="420"
+        WindowStartupLocation="CenterOwner">
+  <ContentControl Content="{Binding}" />
+</Window>

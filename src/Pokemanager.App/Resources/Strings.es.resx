@@ -735,9 +735,6 @@
   <data name="Common_Cancel" xml:space="preserve">
     <value>Cancelar</value>
   </data>
-  <data name="Tab_History" xml:space="preserve">
-    <value>Historial</value>
-  </data>
   <data name="Bag_Add" xml:space="preserve">
     <value>Añadir objeto</value>
   </data>
@@ -2415,13 +2412,61 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Bag_Count" xml:space="preserve">
     <value>Cantidad</value>
   </data>
-  <data name="Trainer_CardTitle" xml:space="preserve">
-    <value>Tarjeta de entrenador · {0}</value>
-  </data>
   <data name="Trainer_CardMoney" xml:space="preserve">
     <value>{0:N0} $</value>
   </data>
   <data name="Trainer_CardDex" xml:space="preserve">
     <value>{0} vistos · {1} capturados</value>
+  </data>
+  <data name="Trainer_CardHeader" xml:space="preserve">
+    <value>TARJETA DE ENTRENADOR</value>
+  </data>
+  <data name="Locke_KindText" xml:space="preserve">
+    <value>Texto</value>
+  </data>
+  <data name="Locke_PrizeTextEmpty" xml:space="preserve">
+    <value>Un premio escrito por ti</value>
+  </data>
+  <data name="Locke_TextPlaceholder" xml:space="preserve">
+    <value>Por ejemplo: un objeto evolutivo a elegir</value>
+  </data>
+  <data name="Locke_AlreadyAdded" xml:space="preserve">
+    <value>Ya añadido</value>
+  </data>
+  <data name="Locke_AlreadyAddedTip" xml:space="preserve">
+    <value>Cuenta el premio como entregado sin escribir en la partida: para premios que añades tú en el juego.</value>
+  </data>
+  <data name="Locke_MarkedAdded" xml:space="preserve">
+    <value>Marcado como entregado a mano: {0}</value>
+  </data>
+  <data name="Editor_RomNeverBuilt" xml:space="preserve">
+    <value>Estos cambios aún no están en ninguna ROM: crea la ROM para que el juego los use.</value>
+  </data>
+  <data name="Editor_RomOutdated" xml:space="preserve">
+    <value>Hay cambios que {0} no tiene: vuelve a crear la ROM para que el juego los use.</value>
+  </data>
+  <data name="Editor_RomNoticeBuild" xml:space="preserve">
+    <value>Crear ROM ahora</value>
+  </data>
+  <data name="Set_HistoryHint" xml:space="preserve">
+    <value>Cada creación de ROM, importación y edición de la partida guarda una versión a la que puedes volver.</value>
+  </data>
+  <data name="Set_OpenHistory" xml:space="preserve">
+    <value>Abrir historial de versiones…</value>
+  </data>
+  <data name="Section_ZMove" xml:space="preserve">
+    <value>Movimiento Z exclusivo</value>
+  </data>
+  <data name="ZMove_Hint" xml:space="preserve">
+    <value>Séptima generación: el cristal que puede usar esta especie, el movimiento que tiene que saber y el movimiento Z en el que se convierte. Cambia el movimiento para que el cristal funcione con uno que tu Pokémon aprenda de verdad.</value>
+  </data>
+  <data name="Field_ZCrystal" xml:space="preserve">
+    <value>Cristal Z</value>
+  </data>
+  <data name="Field_ZBaseMove" xml:space="preserve">
+    <value>Movimiento necesario</value>
+  </data>
+  <data name="Field_ZMove" xml:space="preserve">
+    <value>Movimiento Z</value>
   </data>
 </root>

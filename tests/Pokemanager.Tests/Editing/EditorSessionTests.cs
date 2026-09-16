@@ -26,6 +26,24 @@ public class EditorSessionTests
         Assert.Equal(150, edit.Value.GetValue<int>());
     }
 
+    /// <summary>
+    /// The exclusive Z-move fields only exist in Generation 7 entries. On a Generation 6 game they read 0 and writing
+    /// them changes nothing, instead of throwing (the same table serves both).
+    /// </summary>
+    [Fact]
+    public void ZMoveFields_AreEmptyAndHarmlessOnGeneration6()
+    {
+        using var romfs = new SyntheticRomFs();
+        var session = NewSession(romfs);
+
+        foreach (string field in new[] { GameTables.ZCrystal, GameTables.ZBaseMove, GameTables.ZMove })
+        {
+            Assert.Equal(0, session.GetInt(GameTables.Personal, 1, field));
+            session.SetInt(GameTables.Personal, 1, field, 100);
+            Assert.Equal(0, session.GetInt(GameTables.Personal, 1, field));
+        }
+    }
+
     [Fact]
     public void SettingBackToOriginal_RemovesEdit()
     {

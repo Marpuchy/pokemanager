@@ -19,6 +19,7 @@ public static class LockeRewards
             prize.ItemId > 0 && prize.ItemId < itemNames.Count ? itemNames[prize.ItemId] : $"#{prize.ItemId}", prize.Amount),
         LockePrizeKind.Money => string.Format(Strings.Locke_PrizeMoney, prize.Amount),
         LockePrizeKind.Life => Strings.Locke_PrizeLife,
+        LockePrizeKind.Text => string.IsNullOrWhiteSpace(prize.Text) ? Strings.Locke_PrizeTextEmpty : prize.Text,
         _ => Strings.Locke_PrizeNothing,
     };
 
@@ -35,8 +36,19 @@ public static class LockeRewards
     {
         LockePrizeKind.Life => "♥",
         LockePrizeKind.Nothing => "✕",
+        LockePrizeKind.Text => "✎",
         _ => null,
     };
+
+    /// <summary>
+    /// The player put the prize in the game by hand (a free-text prize, or an item they added themselves): it is marked as
+    /// given without touching the save.
+    /// </summary>
+    public static void MarkAddedByHand(LoadedProject loaded, int badge)
+    {
+        loaded.Project.Locke.MarkClaimed(badge);
+        loaded.Project.Save(loaded.Path);
+    }
 
     /// <summary>Records what the roulette gave (lives and bad luck apply at once) and saves the project.</summary>
     public static void RecordWin(LoadedProject loaded, int badge, LockePrize prize)

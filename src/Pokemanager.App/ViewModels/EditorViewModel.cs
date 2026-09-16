@@ -143,6 +143,9 @@ public partial class EditorViewModel : ObservableObject
         var r = session.Project.Randomization;
         if (History.IsEmpty && r.LastBuiltRom is { } rom && File.Exists(rom) && (!r.Enabled || r.InstalledSeed == r.Seed))
             RecordVersion(VersionKind.Built, rom);
+
+        ready = true;
+        RefreshRomNotice();
     }
 
     /// <summary>
@@ -186,6 +189,7 @@ public partial class EditorViewModel : ObservableObject
         Session.Changed += OnSessionChanged;
         OnPropertyChanged(nameof(EditCountText));
         OnPropertyChanged(nameof(BaseText));
+        RefreshRomNotice();
     }
 
     private void OnSessionChanged(object? sender, EditKey key)
@@ -208,7 +212,33 @@ public partial class EditorViewModel : ObservableObject
         IsDirty = true;
         if (!restoringProject)
             ProjectUndo?.Record(label);
+        RefreshRomNotice();
     }
+
+    // ------------------------------------------------------------------ "the ROM does not have these changes yet"
+
+    /// <summary>
+    /// Stats, moves, learnsets and randomizer options only reach the game when the ROM is built, so the editor says so
+    /// as soon as something changes and until "Build ROM" runs.
+    /// </summary>
+    public bool NeedsRomBuild => ProjectDiffersFromBuiltRom;
+
+    public string NeedsRomBuildText => Session.Project.Randomization.LastBuiltRom is { } rom && File.Exists(rom)
+        ? string.Format(Strings.Editor_RomOutdated, Path.GetFileName(rom))
+        : Strings.Editor_RomNeverBuilt;
+
+    /// <summary>After anything that can change whether the built ROM matches the project (not while still being built).</summary>
+    public void RefreshRomNotice()
+    {
+        if (!ready)
+            return;
+        OnPropertyChanged(nameof(NeedsRomBuild));
+        OnPropertyChanged(nameof(NeedsRomBuildText));
+        SaveEditor.RefreshRomWarning();
+    }
+
+    /// <summary>False while the constructor runs: the pages it notifies do not exist yet.</summary>
+    private bool ready;
 
     // ------------------------------------------------------------------ undo / redo
 
@@ -577,6 +607,7 @@ public partial class EditorViewModel : ObservableObject
         Names = new GameNames(Dump, Session.Original);
         LoadLists();
         OnPropertyChanged(nameof(EditCountText));
+        RefreshRomNotice();
     }
 
     // ------------------------------------------------------------------ Pokémon data files
@@ -803,7 +834,7 @@ public partial class EditorViewModel : ObservableObject
     [RelayCommand]
     private async Task OpenSettings()
     {
-        await dialogs.ShowSettingsAsync(new SettingsViewModel(settings, upr, dialogs, Session.Project, Dump.Title));
+        await dialogs.ShowSettingsAsync(new SettingsViewModel(settings, upr, dialogs, Session.Project, Dump.Title, History));
         main.Room.ProfileChanged();
         OnPropertyChanged(nameof(EmulatorText));
         Randomizer.RefreshSave();

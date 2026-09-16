@@ -63,7 +63,25 @@ public static class GameTables
         new("height", p => p.Height, (p, v) => p.Height = v),
         new("weight", p => p.Weight, (p, v) => p.Weight = v),
         new("escapeRate", p => p.EscapeRate, (p, v) => p.EscapeRate = v),
+
+        // Generation 7 keeps the exclusive Z-move of the species here: the crystal, the move it needs and the Z-move it
+        // becomes (Decidueye + Decidium Z + Spirit Shackle = Sinister Arrow Raid). Reading gives 0 on Gen 6, writing does nothing.
+        new(ZCrystal, p => Z(p)?.SpecialZ_Item ?? 0, (p, v) => { if (Z(p) is { } z) z.SpecialZ_Item = v; }),
+        new(ZBaseMove, p => Z(p)?.SpecialZ_BaseMove ?? 0, (p, v) => { if (Z(p) is { } z) z.SpecialZ_BaseMove = v; }),
+        new(ZMove, p => Z(p)?.SpecialZ_ZMove ?? 0, (p, v) => { if (Z(p) is { } z) z.SpecialZ_ZMove = v; }),
     ]);
+
+    /// <summary>The entry as a Generation 7 one (which has the Z-move fields), or null in Generation 6.</summary>
+    private static PersonalInfoSM? Z(PersonalInfoXY entry) => entry as PersonalInfoSM;
+
+    /// <summary>Field of <see cref="Personal"/>: the Z-crystal that gives this species its exclusive Z-move (Gen 7).</summary>
+    public const string ZCrystal = "zCrystal";
+
+    /// <summary>Field of <see cref="Personal"/>: the move the Z-crystal needs (Gen 7).</summary>
+    public const string ZBaseMove = "zBaseMove";
+
+    /// <summary>Field of <see cref="Personal"/>: the Z-move that comes out (Gen 7).</summary>
+    public const string ZMove = "zMove";
 
     public static readonly ITable MoveTable = new IntTable<Move>(Moves, d => d.Moves,
     [

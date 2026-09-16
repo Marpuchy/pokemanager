@@ -25,6 +25,7 @@ public sealed partial class RouletteViewModel : ObservableObject
     private readonly IReadOnlyList<string> itemNames;
     private readonly Action<LockePrize> onWin;
     private readonly Func<LockePrize, (bool Ok, string Message)> claim;
+    private readonly Action markAdded;
     private LockePrize? won;
 
     public string BadgeName { get; }
@@ -35,7 +36,7 @@ public sealed partial class RouletteViewModel : ObservableObject
     public int WinnerIndex { get; private set; } = -1;
 
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SpinCommand), nameof(ClaimCommand))]
+    [NotifyCanExecuteChangedFor(nameof(SpinCommand), nameof(ClaimCommand), nameof(AlreadyAddedCommand))]
     public partial RouletteState State { get; set; } = RouletteState.Ready;
 
     [ObservableProperty]
@@ -51,14 +52,16 @@ public sealed partial class RouletteViewModel : ObservableObject
     public event EventHandler<int>? SpinRequested;
 
     /// <param name="pending">A prize already won for this badge but not yet put into the save.</param>
+    /// <param name="markAdded">The player gave the prize by hand: it counts as given without writing to the save.</param>
     public RouletteViewModel(string badgeName, LockeSettings locke, IReadOnlyList<string> itemNames, LockePrize? pending,
-        Action<LockePrize> onWin, Func<LockePrize, (bool Ok, string Message)> claim)
+        Action<LockePrize> onWin, Func<LockePrize, (bool Ok, string Message)> claim, Action markAdded)
     {
         BadgeName = badgeName;
         this.locke = locke;
         this.itemNames = itemNames;
         this.onWin = onWin;
         this.claim = claim;
+        this.markAdded = markAdded;
         Segments = locke.Prizes
             .Select((p, i) => new WheelSegment(LockeRewards.Describe(p, itemNames), Math.Max(0, p.Weight), Palette[i % Palette.Length],
                 LockeRewards.Icon(p), LockeRewards.Glyph(p)))
@@ -94,7 +97,7 @@ public sealed partial class RouletteViewModel : ObservableObject
         onWin(won);
         Changed = true;
         string label = LockeRewards.Describe(won, itemNames);
-        if (won.Kind is LockePrizeKind.Item or LockePrizeKind.Money)
+        if (won.Kind is LockePrizeKind.Item or LockePrizeKind.Money or LockePrizeKind.Text)
         {
             ResultText = string.Format(Strings.Locke_YouWon, label);
             State = RouletteState.Won;
@@ -106,7 +109,23 @@ public sealed partial class RouletteViewModel : ObservableObject
         }
     }
 
-    private bool CanClaim() => State == RouletteState.Won && won is not null;
+    /// <summary>Only what the app can write into the save; a free-text prize is always given by hand.</summary>
+    private bool CanClaim() => State == RouletteState.Won && won is not null && won.Kind is LockePrizeKind.Item or LockePrizeKind.Money;
+
+    /// <summary>Any won prize can be marked as given by hand (an item the player put in the game themselves, a text prize).</summary>
+    private bool CanMarkAdded() => State == RouletteState.Won && won is not null;
+
+    [RelayCommand(CanExecute = nameof(CanMarkAdded))]
+    private void AlreadyAdded()
+    {
+        if (!CanMarkAdded())
+            return;
+        markAdded();
+        Changed = true;
+        ResultText = string.Format(Strings.Locke_MarkedAdded, LockeRewards.Describe(won!, itemNames));
+        ResultIsError = false;
+        State = RouletteState.Claimed;
+    }
 
     [RelayCommand(CanExecute = nameof(CanClaim))]
     private void Claim()

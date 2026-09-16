@@ -17,10 +17,16 @@ public enum LockePrizeKind
 
     /// <summary>Bad luck.</summary>
     Nothing,
+
+    /// <summary>
+    /// Free text (<see cref="LockePrize.Text"/>), for prizes the app cannot put into the save by itself: "an evolution
+    /// item of your choice", "a Pokémon from the box"… The player gives it and marks it as already added.
+    /// </summary>
+    Text,
 }
 
 /// <summary>A segment of the badge roulette. <see cref="Weight"/> sets both its chance and its size on the wheel.</summary>
-public sealed record LockePrize(LockePrizeKind Kind, int ItemId = 0, int Amount = 1, int Weight = 1);
+public sealed record LockePrize(LockePrizeKind Kind, int ItemId = 0, int Amount = 1, int Weight = 1, string? Text = null);
 
 /// <summary>A badge roulette already spun. Items and money stay unclaimed until they are written into the save.</summary>
 public sealed record LockeSpin(int Badge, LockePrize Prize, DateTime When, bool Claimed = true);

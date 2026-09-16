@@ -39,8 +39,24 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     public partial bool LanguageChanged { get; set; }
 
-    public SettingsViewModel(AppSettings settings, UprService upr, IDialogs dialogs, Project? project, GameTitle title)
+    /// <summary>The open project's version history, shown as a button here; null on the start screen.</summary>
+    public HistoryViewModel? History { get; }
+
+    public bool HasHistory => History is not null;
+
+    [RelayCommand]
+    private Task OpenHistory()
     {
+        if (History is null)
+            return Task.CompletedTask;
+        History.Refresh();
+        return dialogs.ShowHistoryAsync(History);
+    }
+
+    public SettingsViewModel(AppSettings settings, UprService upr, IDialogs dialogs, Project? project, GameTitle title,
+        HistoryViewModel? history = null)
+    {
+        History = history;
         this.settings = settings;
         this.upr = upr;
         this.dialogs = dialogs;

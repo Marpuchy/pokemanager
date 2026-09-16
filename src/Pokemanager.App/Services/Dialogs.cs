@@ -17,6 +17,9 @@ public interface IDialogs
 
     Task ShowSettingsAsync(SettingsViewModel viewModel);
 
+    /// <summary>The project's version history (opened from Settings).</summary>
+    Task ShowHistoryAsync(HistoryViewModel history);
+
     /// <summary>Asks for confirmation; <paramref name="question"/> keeps the state of its check boxes and input.</summary>
     Task<bool> AskAsync(QuestionViewModel question);
 
@@ -71,6 +74,9 @@ public sealed class Dialogs(Window owner) : IDialogs
 
     public Task ShowSettingsAsync(SettingsViewModel viewModel) =>
         new SettingsWindow { DataContext = viewModel }.ShowDialog(owner);
+
+    public Task ShowHistoryAsync(HistoryViewModel history) =>
+        new HistoryWindow { DataContext = history }.ShowDialog(owner);
 
     public Task<bool> AskAsync(QuestionViewModel question) =>
         new QuestionWindow { DataContext = question }.ShowDialog<bool>(owner);

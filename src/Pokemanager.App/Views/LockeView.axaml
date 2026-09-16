@@ -86,6 +86,9 @@
                   <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:PrizeRowViewModel.KindNames}" SelectedIndex="{Binding KindIndex}" HorizontalAlignment="Stretch" Margin="0,0,4,0" />
                   <ComboBox Grid.Column="2" ItemsSource="{Binding ItemNames}" SelectedIndex="{Binding ItemIndex}" IsVisible="{Binding IsItem}"
                             HorizontalAlignment="Stretch" MaxDropDownHeight="400" Margin="0,0,4,0" />
+                  <!-- A free-text prize: what it says is what the player gives themselves -->
+                  <TextBox Grid.Column="2" Text="{Binding Text}" IsVisible="{Binding IsText}" Margin="0,0,4,0" MaxLength="60"
+                           Watermark="{x:Static r:Strings.Locke_TextPlaceholder}" />
                   <NumericUpDown Grid.Column="3" Value="{Binding Amount}" Minimum="1" Maximum="9999999" FormatString="0" ParsingNumberStyle="Integer"
                                  IsVisible="{Binding HasAmount}" Margin="0,0,4,0" />
                   <NumericUpDown Grid.Column="4" Value="{Binding Weight}" Minimum="0" Maximum="100" FormatString="0" ParsingNumberStyle="Integer" Margin="0,0,4,0" />

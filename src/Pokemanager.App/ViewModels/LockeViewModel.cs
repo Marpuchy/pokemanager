@@ -14,7 +14,7 @@ public sealed partial class PrizeRowViewModel(LockeViewModel owner, LockePrize p
     public LockePrize Prize { get; private set; } = prize;
 
     public static IReadOnlyList<string> KindNames { get; } =
-        [Strings.Locke_KindItem, Strings.Locke_KindMoney, Strings.Locke_KindLife, Strings.Locke_KindNothing];
+        [Strings.Locke_KindItem, Strings.Locke_KindMoney, Strings.Locke_KindLife, Strings.Locke_KindNothing, Strings.Locke_KindText];
 
     public IReadOnlyList<string> ItemNames => owner.ItemNames;
 
@@ -53,11 +53,19 @@ public sealed partial class PrizeRowViewModel(LockeViewModel owner, LockePrize p
         set { if (value is { } v && (int)v != Prize.Weight) Update(Prize with { Weight = (int)Math.Max(0, v) }); }
     }
 
+    /// <summary>What a free-text prize says ("an evolution item of your choice"): the player gives it by hand.</summary>
+    public string Text
+    {
+        get => Prize.Text ?? "";
+        set { if (value != Prize.Text) Update(Prize with { Text = value }); }
+    }
+
     public Avalonia.Media.Imaging.Bitmap? Icon => LockeRewards.Icon(Prize);
     public string? Glyph => LockeRewards.Glyph(Prize);
     public bool HasGlyph => Glyph is not null;
 
     public bool IsItem => Prize.Kind == LockePrizeKind.Item;
+    public bool IsText => Prize.Kind == LockePrizeKind.Text;
     public bool HasAmount => Prize.Kind is LockePrizeKind.Item or LockePrizeKind.Money;
 
     public string ChanceText => owner.ChanceOf(this);
