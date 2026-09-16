@@ -39,6 +39,16 @@ public static class PkhexImages
     /// </summary>
     public static Bitmap? TrialCrystal(int type) => Item(CrystalIds[Math.Clamp(type, 0, CrystalIds.Length - 1)]);
 
+    /// <summary>
+    /// The eighteen type crystals in the order the bag shows them, with the two item ids each one has: the held piece
+    /// (776–793, the only one PKHeX has an icon for) and the bead the bag keeps (that id + 31, checked on the user's
+    /// Ultra Moon: Normalium 776/807, Fightinium 782/813, Rockium 788/819).
+    /// </summary>
+    public static IReadOnlyList<(int Held, int Bead, int Type)> TypeCrystals =>
+        field ??= [.. Enumerable.Range(0, CrystalIds.Length)
+            .Select(type => (Held: CrystalIds[type], Bead: CrystalIds[type] + 31, Type: type))
+            .OrderBy(c => c.Held)];
+
     // Game type order: Normal, Fighting, Flying, Poison, Ground, Rock, Bug, Ghost, Steel, Fire, Water, Grass,
     // Electric, Psychic, Ice, Dragon, Dark, Fairy.
     private static readonly int[] CrystalIds =

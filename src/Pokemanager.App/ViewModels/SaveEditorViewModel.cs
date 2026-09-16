@@ -395,6 +395,7 @@ public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
         RefreshSlots();
         RefreshProblems();
         Trainer?.RefreshCard();
+        Trainer?.RefreshCrystals();
         if (!restoring && Document is not null)
             Undo.Record(SelectedSlot is { } slot && Pokemon is not null ? $"{SlotLabel(slot)} · {label}" : label);
     }

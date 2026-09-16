@@ -31,6 +31,9 @@ public partial class SaveTrainerViewModel : ObservableObject
             .Select(i => new BadgeViewModel(this, doc, i, milestones[i].Name, milestoneImages is { } images && i < images.Length ? images[i] : null,
                 game.HasBadges() ? null : PkhexImages.TrialCrystal(milestones[i].Type))).ToList();
         Sayings = Enumerable.Range(0, 5).Select(i => new SayingViewModel(owner, doc, i)).ToList();
+        Crystals = game.Generation() == 7
+            ? [.. PkhexImages.TypeCrystals.Select(c => new CrystalViewModel(doc, c.Held, c.Bead, names.ItemName(c.Bead)))]
+            : [];
         Maison = SaveDocument.MaisonStyles.Select(s => new MaisonRowViewModel(owner, doc, s)).ToList();
         allRecords = doc.RecordNames.Select(r => new RecordRowViewModel(owner, doc, r.Id, r.Name)).ToList();
         ApplyRecordFilter();
@@ -50,6 +53,25 @@ public partial class SaveTrainerViewModel : ObservableObject
 
     /// <summary>Badge slots in a single row, as the card of the game shows them side by side.</summary>
     public int CardMilestoneColumns => Math.Max(1, Badges.Count);
+
+    /// <summary>
+    /// Generation 7: the Z-crystal of every trial (Normal, Water, Grass…), bright when the bag holds it. Each trial of the
+    /// game gives the crystal of its type, so this is the list of trials done — the island stamps above only count the
+    /// grand trials.
+    /// </summary>
+    public IReadOnlyList<CrystalViewModel> Crystals { get; }
+
+    public bool HasCrystals => Crystals.Count > 0;
+
+    public string CrystalsText => string.Format(Strings.Trainer_CardCrystals, Crystals.Count(c => c.Owned), Crystals.Count);
+
+    /// <summary>The bag changed (an item edited, a prize claimed): the crystals may be different.</summary>
+    public void RefreshCrystals()
+    {
+        foreach (var crystal in Crystals)
+            crystal.Refresh();
+        OnPropertyChanged(nameof(CrystalsText));
+    }
 
     /// <summary>The card in the color of the game's box art.</summary>
     public Avalonia.Media.IBrush CardBrush => field ??= new Avalonia.Media.LinearGradientBrush
@@ -361,6 +383,24 @@ public partial class SaveTrainerViewModel : ObservableObject
             return;
         doc.SetPosition(p.Map, p.X, p.Y, p.Z, p.Rotation);
         Changed();
+    }
+}
+
+/// <summary>
+/// A Z-crystal on the trainer card: the trial that gives it is done when the bag holds it. The bag keeps the bead
+/// (<paramref name="bead"/>); the icon is the held piece (<paramref name="held"/>), which a Pokémon can also carry.
+/// </summary>
+public sealed class CrystalViewModel(SaveDocument doc, int held, int bead, string name) : ObservableObject
+{
+    public string Name { get; } = name;
+    public Avalonia.Media.Imaging.Bitmap? Icon { get; } = PkhexImages.Item(held);
+    public bool Owned => doc.HasItem(bead) || doc.HasItem(held);
+    public double IconOpacity => Owned ? 1 : 0.3;
+
+    public void Refresh()
+    {
+        OnPropertyChanged(nameof(Owned));
+        OnPropertyChanged(nameof(IconOpacity));
     }
 }
 

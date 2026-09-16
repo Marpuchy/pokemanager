@@ -2490,4 +2490,7 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Trainer_CardFameLabel" xml:space="preserve">
     <value>Entrada en el Hall de la Fama:</value>
   </data>
+  <data name="Trainer_CardCrystals" xml:space="preserve">
+    <value>Cristales Z: {0}/{1}</value>
+  </data>
 </root>

@@ -2490,4 +2490,7 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Trainer_CardFameLabel" xml:space="preserve">
     <value>First entered Hall of Fame on:</value>
   </data>
+  <data name="Trainer_CardCrystals" xml:space="preserve">
+    <value>Z-crystals: {0}/{1}</value>
+  </data>
 </root>

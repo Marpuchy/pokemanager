@@ -731,6 +731,10 @@ public sealed class SaveDocument
 
     public IReadOnlyList<InventoryPouch> Pouches => bag.Pouches;
 
+    /// <summary>Whether the bag holds the item (any pouch, count above zero).</summary>
+    public bool HasItem(int item) =>
+        item > 0 && bag.Pouches.Any(p => p.Items.Any(i => i.Index == item && i.Count > 0));
+
     /// <summary>Item IDs a pouch accepts.</summary>
     public static IReadOnlyList<ushort> PouchItems(InventoryPouch pouch) => pouch.GetAllItems().ToArray();
 

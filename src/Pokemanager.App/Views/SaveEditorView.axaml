@@ -658,6 +658,27 @@
                       </Border>
                     </Grid>
 
+                    <!-- Generation 7: the crystal of every trial of the game, bright when the bag holds it -->
+                    <Border Margin="0,8,0,0" Background="#26000000" CornerRadius="6" Padding="6,5" IsVisible="{Binding HasCrystals}">
+                      <StackPanel>
+                        <TextBlock Classes="card-label" Margin="4,0,0,4" FontSize="12" Text="{Binding CrystalsText}" />
+                        <ItemsControl ItemsSource="{Binding Crystals}">
+                          <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                              <UniformGrid Columns="18" />
+                            </ItemsPanelTemplate>
+                          </ItemsControl.ItemsPanel>
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:CrystalViewModel">
+                              <Border Classes="badge-slot" Height="40" Margin="2" ToolTip.Tip="{Binding Name}">
+                                <Image Source="{Binding Icon}" Stretch="Uniform" Margin="4" Opacity="{Binding IconOpacity}" />
+                              </Border>
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                      </StackPanel>
+                    </Border>
+
                     <!-- Badges (or island seals): one slot each, as the lower screen of the card -->
                     <Border Margin="0,8,0,0" Background="#26000000" CornerRadius="6" Padding="6,5">
                       <StackPanel>
