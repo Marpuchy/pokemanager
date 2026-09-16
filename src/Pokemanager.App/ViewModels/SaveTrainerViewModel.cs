@@ -28,7 +28,8 @@ public partial class SaveTrainerViewModel : ObservableObject
         var milestones = game.Milestones();
         VivillonPatterns = names.VivillonPatterns;
         Badges = Enumerable.Range(0, Math.Min(doc.MilestoneCount, milestones.Count))
-            .Select(i => new BadgeViewModel(this, doc, i, milestones[i].Name, milestoneImages is { } images && i < images.Length ? images[i] : null)).ToList();
+            .Select(i => new BadgeViewModel(this, doc, i, milestones[i].Name, milestoneImages is { } images && i < images.Length ? images[i] : null,
+                game.HasBadges() ? null : PkhexImages.TrialCrystal(milestones[i].Type))).ToList();
         Sayings = Enumerable.Range(0, 5).Select(i => new SayingViewModel(owner, doc, i)).ToList();
         Maison = SaveDocument.MaisonStyles.Select(s => new MaisonRowViewModel(owner, doc, s)).ToList();
         allRecords = doc.RecordNames.Select(r => new RecordRowViewModel(owner, doc, r.Id, r.Name)).ToList();
@@ -363,7 +364,9 @@ public partial class SaveTrainerViewModel : ObservableObject
     }
 }
 
-public sealed class BadgeViewModel(SaveTrainerViewModel owner, SaveDocument doc, int index, string name, IconImage? image) : ObservableObject
+/// <param name="crystal">Generation 7: the Z-crystal shown instead of the game's seal (the fifth trial has none).</param>
+public sealed class BadgeViewModel(SaveTrainerViewModel owner, SaveDocument doc, int index, string name, IconImage? image,
+    Avalonia.Media.Imaging.Bitmap? crystal) : ObservableObject
 {
     public string Label => name;
 
@@ -379,14 +382,19 @@ public sealed class BadgeViewModel(SaveTrainerViewModel owner, SaveDocument doc,
                 return;
             doc.SetBadge(index, value);
             OnPropertyChanged(nameof(Icon));
+            OnPropertyChanged(nameof(IconOpacity));
             owner.BadgeChanged();
         }
     }
 
-    /// <summary>The game's badge or seal, faded while not earned (as on the trainer card of the project preview).</summary>
-    public Avalonia.Media.Imaging.Bitmap? Icon => image is null ? null : PokemonSprites.ToBitmap(IsChecked ? image : MilestoneIcons.Faded(image));
+    /// <summary>The game's badge or seal — or the trial's Z-crystal —, faded while it is not earned.</summary>
+    public Avalonia.Media.Imaging.Bitmap? Icon =>
+        crystal ?? (image is null ? null : PokemonSprites.ToBitmap(IsChecked ? image : MilestoneIcons.Faded(image)));
 
-    public bool HasIcon => image is not null;
+    public bool HasIcon => Icon is not null;
+
+    /// <summary>Crystals are one picture only: not earned yet, they are shown faded.</summary>
+    public double IconOpacity => crystal is not null && !IsChecked ? 0.35 : 1;
 }
 
 public sealed class SayingViewModel(SaveEditorViewModel owner, SaveDocument doc, int index) : ObservableObject

@@ -32,6 +32,18 @@ public static class PkhexImages
         ? null
         : isTm ? Load("items/bitem_tm.png") : Load($"items/bitem_{item}.png") ?? Load("items/bitem_unk.png");
 
+    /// <summary>
+    /// Picture for a Generation 7 trial: the Z-crystal of its type. The games only carry seals for the four island
+    /// trials, so the fifth one had no picture at all; crystals give every trial one and they all match.
+    /// Type crystals are items 776–793 in Pokédex type order (checked on the user's Ultra Moon).
+    /// </summary>
+    public static Bitmap? TrialCrystal(int type) => Item(CrystalIds[Math.Clamp(type, 0, CrystalIds.Length - 1)]);
+
+    // Game type order: Normal, Fighting, Flying, Poison, Ground, Rock, Bug, Ghost, Steel, Fire, Water, Grass,
+    // Electric, Psychic, Ice, Dragon, Dark, Fairy.
+    private static readonly int[] CrystalIds =
+        [776, 782, 785, 783, 784, 788, 787, 789, 792, 777, 778, 780, 779, 786, 781, 790, 791, 793];
+
     /// <summary>Whether PKHeX has a real icon for the item (it has none for the Gen 6/7 key items).</summary>
     public static bool HasItemIcon(int item, bool isTm = false) => item > 0 && (isTm || Load($"items/bitem_{item}.png") is not null);
 

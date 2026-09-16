@@ -88,7 +88,7 @@
                       <Button Classes="badge" Classes.icon="{Binding HasIcon}" Classes.pending="{Binding IsPending}" Background="{Binding Background}"
                               Command="{Binding SpinCommand}" IsEnabled="{Binding CanSpin}">
                         <Panel>
-                          <Image Source="{Binding Icon}" IsVisible="{Binding HasIcon}" Width="44" Height="44" Stretch="Uniform" />
+                          <Image Source="{Binding Icon}" IsVisible="{Binding HasIcon}" Opacity="{Binding IconOpacity}" Width="44" Height="44" Stretch="Uniform" />
                           <TextBlock Text="{Binding Number}" FontSize="15" FontWeight="Bold" Foreground="{Binding Foreground}" IsVisible="{Binding !HasIcon}" />
                         </Panel>
                       </Button>

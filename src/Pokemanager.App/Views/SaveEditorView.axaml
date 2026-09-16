@@ -672,7 +672,7 @@
                             <DataTemplate x:DataType="vm:BadgeViewModel">
                               <Border Classes="badge-slot" ToolTip.Tip="{Binding Label}">
                                 <Panel>
-                                  <Image Source="{Binding Icon}" Stretch="Uniform" Margin="6" IsVisible="{Binding HasIcon}" />
+                                  <Image Source="{Binding Icon}" Stretch="Uniform" Margin="6" Opacity="{Binding IconOpacity}" IsVisible="{Binding HasIcon}" />
                                   <TextBlock Foreground="#66FFFFFF" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"
                                              VerticalAlignment="Center" Text="{Binding Number}" IsVisible="{Binding !HasIcon}" />
                                 </Panel>
