@@ -2418,9 +2418,6 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Trainer_CardDex" xml:space="preserve">
     <value>{0} vistos · {1} capturados</value>
   </data>
-  <data name="Trainer_CardHeader" xml:space="preserve">
-    <value>TARJETA DE ENTRENADOR</value>
-  </data>
   <data name="Locke_KindText" xml:space="preserve">
     <value>Texto</value>
   </data>
@@ -2468,5 +2465,29 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   </data>
   <data name="Field_ZMove" xml:space="preserve">
     <value>Movimiento Z</value>
+  </data>
+  <data name="Trainer_CardName" xml:space="preserve">
+    <value>Nombre:</value>
+  </data>
+  <data name="Trainer_CardId" xml:space="preserve">
+    <value>N.º ID:</value>
+  </data>
+  <data name="Trainer_CardDexLabel" xml:space="preserve">
+    <value>Pokédex:</value>
+  </data>
+  <data name="Trainer_CardMoneyLabel" xml:space="preserve">
+    <value>Dinero:</value>
+  </data>
+  <data name="Trainer_CardBpLabel" xml:space="preserve">
+    <value>Puntos de Batalla:</value>
+  </data>
+  <data name="Trainer_CardTimeLabel" xml:space="preserve">
+    <value>Tiempo de juego:</value>
+  </data>
+  <data name="Trainer_CardStartedLabel" xml:space="preserve">
+    <value>Inicio de la aventura:</value>
+  </data>
+  <data name="Trainer_CardFameLabel" xml:space="preserve">
+    <value>Entrada en el Hall de la Fama:</value>
   </data>
 </root>

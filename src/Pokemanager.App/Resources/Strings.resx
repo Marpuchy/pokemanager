@@ -2418,9 +2418,6 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Trainer_CardDex" xml:space="preserve">
     <value>{0} seen · {1} caught</value>
   </data>
-  <data name="Trainer_CardHeader" xml:space="preserve">
-    <value>TRAINER CARD</value>
-  </data>
   <data name="Locke_KindText" xml:space="preserve">
     <value>Text</value>
   </data>
@@ -2468,5 +2465,29 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   </data>
   <data name="Field_ZMove" xml:space="preserve">
     <value>Z-move</value>
+  </data>
+  <data name="Trainer_CardName" xml:space="preserve">
+    <value>Name:</value>
+  </data>
+  <data name="Trainer_CardId" xml:space="preserve">
+    <value>ID No.:</value>
+  </data>
+  <data name="Trainer_CardDexLabel" xml:space="preserve">
+    <value>Pokédex:</value>
+  </data>
+  <data name="Trainer_CardMoneyLabel" xml:space="preserve">
+    <value>Money:</value>
+  </data>
+  <data name="Trainer_CardBpLabel" xml:space="preserve">
+    <value>Battle Points:</value>
+  </data>
+  <data name="Trainer_CardTimeLabel" xml:space="preserve">
+    <value>Play time:</value>
+  </data>
+  <data name="Trainer_CardStartedLabel" xml:space="preserve">
+    <value>Adventure started on:</value>
+  </data>
+  <data name="Trainer_CardFameLabel" xml:space="preserve">
+    <value>First entered Hall of Fame on:</value>
   </data>
 </root>

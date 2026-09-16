@@ -157,7 +157,7 @@ public partial class EditorViewModel : ObservableObject
         get
         {
             var r = Session.Project.Randomization;
-            if (IsDirty || Randomizer.Options.HasChanges || (r.Enabled && r.InstalledSeed != r.Seed))
+            if (romDirty || Randomizer.Options.HasChanges || (r.Enabled && r.InstalledSeed != r.Seed))
                 return true;
             return History.History.List().FirstOrDefault(v => v.Kind == VersionKind.Built) is { } built
                    && built.Fingerprint != ProjectHistory.Fingerprint(Session.Project);
@@ -207,9 +207,14 @@ public partial class EditorViewModel : ObservableObject
     /// <summary>The project changed: unsaved, and a step for undo (the label says what, for the Undo button).</summary>
     public void MarkDirty() => MarkDirty(Strings.Undo_ProjectChange);
 
-    public void MarkDirty(string label)
+    /// <param name="affectsRom">
+    /// False for what the game never sees (the Locke rules: lives, roulette prizes and spins). Those are saved with the
+    /// project but do not ask for a new ROM.
+    /// </param>
+    public void MarkDirty(string label, bool affectsRom = true)
     {
         IsDirty = true;
+        romDirty |= affectsRom;
         if (!restoringProject)
             ProjectUndo?.Record(label);
         RefreshRomNotice();
@@ -239,6 +244,9 @@ public partial class EditorViewModel : ObservableObject
 
     /// <summary>False while the constructor runs: the pages it notifies do not exist yet.</summary>
     private bool ready;
+
+    /// <summary>Something the ROM carries (stats, moves, learnsets, randomization) changed since it was built.</summary>
+    private bool romDirty;
 
     // ------------------------------------------------------------------ undo / redo
 
@@ -461,6 +469,8 @@ public partial class EditorViewModel : ObservableObject
             await SaveAsync();
             Randomizer.OnBuilt(random, saveResult);
             RecordVersion(VersionKind.Built, built.RomPath);
+            romDirty = false;
+            RefreshRomNotice();
             SaveEditor.OnRomChanged();
 
             string what = random is null ? Strings.Status_NotRandomized : string.Format(Strings.Status_Seed, random.Seed);

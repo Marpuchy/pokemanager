@@ -555,118 +555,136 @@
             <TabItem Header="{x:Static r:Strings.Trainer_TabGeneral}">
               <ScrollViewer>
                 <StackPanel>
-                <!-- Trainer card, laid out as the game: the game colour, the trainer picture, the same fields in the same
-                     order and the badges along the bottom. Read only: it follows the fields below. -->
-                <Border Classes="trainer-card" Margin="16,12,16,6" Background="{Binding CardBrush}">
+                <!-- The game's trainer card screen: the rows it shows, the trainer picture and the badge slots. Read
+                     only: it follows the fields below. -->
+                <Border Classes="trainer-card" Background="{Binding CardBrush}" Margin="16,12,16,6">
                   <Border.Styles>
                     <Style Selector="Border.trainer-card">
                       <Setter Property="CornerRadius" Value="10" />
                       <Setter Property="BorderBrush" Value="#50000000" />
                       <Setter Property="BorderThickness" Value="1" />
-                      <Setter Property="Padding" Value="16,12" />
+                      <Setter Property="Padding" Value="14,12" />
                       <Setter Property="MaxWidth" Value="1100" />
                       <Setter Property="HorizontalAlignment" Value="Stretch" />
                     </Style>
+                    <!-- Every line is a band with the label on the left and the value on the right, as on the card -->
+                    <Style Selector="Border.card-row">
+                      <Setter Property="Background" Value="#33FFFFFF" />
+                      <Setter Property="CornerRadius" Value="3" />
+                      <Setter Property="Padding" Value="10,4" />
+                      <Setter Property="Margin" Value="0,0,0,3" />
+                    </Style>
                     <Style Selector="TextBlock.card-label">
-                      <Setter Property="Foreground" Value="#CCFFFFFF" />
-                      <Setter Property="FontSize" Value="12" />
+                      <Setter Property="Foreground" Value="White" />
+                      <Setter Property="FontSize" Value="13" />
+                      <Setter Property="Margin" Value="0,0,16,0" />
                       <Setter Property="VerticalAlignment" Value="Center" />
                     </Style>
                     <Style Selector="TextBlock.card-value">
                       <Setter Property="Foreground" Value="White" />
-                      <Setter Property="FontSize" Value="15" />
-                      <Setter Property="FontWeight" Value="SemiBold" />
+                      <Setter Property="FontSize" Value="14" />
+                      <Setter Property="FontWeight" Value="Bold" />
                       <Setter Property="VerticalAlignment" Value="Center" />
                       <Setter Property="HorizontalAlignment" Value="Right" />
                     </Style>
-                    <!-- One field per line with a rule between them, as on the card of the game -->
-                    <Style Selector="Border.card-row">
-                      <Setter Property="BorderBrush" Value="#38FFFFFF" />
-                      <Setter Property="BorderThickness" Value="0,0,0,1" />
-                      <Setter Property="Padding" Value="0,5" />
+                    <!-- Badge slots: dark holes, with the game's image once earned -->
+                    <Style Selector="Border.badge-slot">
+                      <Setter Property="Background" Value="#3C000000" />
+                      <Setter Property="BorderBrush" Value="#30FFFFFF" />
+                      <Setter Property="BorderThickness" Value="1" />
+                      <Setter Property="CornerRadius" Value="4" />
+                      <Setter Property="Margin" Value="3" />
+                      <Setter Property="Height" Value="58" />
                     </Style>
                   </Border.Styles>
-                  <Grid RowDefinitions="Auto,Auto,Auto">
-                    <Grid ColumnDefinitions="*,Auto">
-                      <TextBlock Foreground="White" FontSize="13" FontWeight="Bold" Text="{x:Static r:Strings.Trainer_CardHeader}" />
-                      <TextBlock Grid.Column="1" Classes="card-label" Text="{Binding CardGame}" />
-                    </Grid>
-
-                    <Grid Grid.Row="1" ColumnDefinitions="*,18,Auto" Margin="0,10,0,0">
+                  <StackPanel>
+                    <Grid ColumnDefinitions="*,14,Auto">
                       <StackPanel>
                         <Border Classes="card-row">
                           <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Classes="card-label" Text="{x:Static r:Strings.Trainer_Name}" />
-                            <TextBlock Grid.Column="1" Classes="card-value" FontSize="19" FontWeight="Bold" Text="{Binding CardName}" />
+                            <TextBlock Classes="card-label" Text="{x:Static r:Strings.Trainer_CardName}" />
+                            <TextBlock Grid.Column="1" Classes="card-value" FontSize="16" Text="{Binding CardName}" />
                           </Grid>
                         </Border>
                         <Border Classes="card-row">
                           <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Classes="card-label" Text="{x:Static r:Strings.Trainer_IdLabel}" />
+                            <TextBlock Classes="card-label" Text="{x:Static r:Strings.Trainer_CardId}" />
                             <TextBlock Grid.Column="1" Classes="card-value" Text="{Binding CardId}" />
                           </Grid>
                         </Border>
                         <Border Classes="card-row">
                           <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Classes="card-label" Text="{x:Static r:Strings.Trainer_Money}" />
-                            <TextBlock Grid.Column="1" Classes="card-value" Text="{Binding CardMoney}" />
-                          </Grid>
-                        </Border>
-                        <Border Classes="card-row">
-                          <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Classes="card-label" Text="{x:Static r:Strings.Save_TabDex}" />
+                            <TextBlock Classes="card-label" Text="{x:Static r:Strings.Trainer_CardDexLabel}" />
                             <TextBlock Grid.Column="1" Classes="card-value" Text="{Binding CardDex}" />
                           </Grid>
                         </Border>
                         <Border Classes="card-row">
                           <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Classes="card-label" Text="{x:Static r:Strings.Trainer_PlayTime}" />
+                            <TextBlock Classes="card-label" Text="{x:Static r:Strings.Trainer_CardMoneyLabel}" />
+                            <TextBlock Grid.Column="1" Classes="card-value" Text="{Binding CardMoney}" />
+                          </Grid>
+                        </Border>
+                        <Border Classes="card-row">
+                          <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Classes="card-label" Text="{x:Static r:Strings.Trainer_CardBpLabel}" />
+                            <TextBlock Grid.Column="1" Classes="card-value" Text="{Binding CardBattlePoints}" />
+                          </Grid>
+                        </Border>
+                        <Border Classes="card-row">
+                          <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Classes="card-label" Text="{x:Static r:Strings.Trainer_CardTimeLabel}" />
                             <TextBlock Grid.Column="1" Classes="card-value" Text="{Binding CardPlayTime}" />
                           </Grid>
                         </Border>
                         <Border Classes="card-row">
                           <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Classes="card-label" Text="{x:Static r:Strings.Trainer_Started}" />
+                            <TextBlock Classes="card-label" Text="{x:Static r:Strings.Trainer_CardStartedLabel}" />
                             <TextBlock Grid.Column="1" Classes="card-value" Text="{Binding CardStarted}" />
                           </Grid>
                         </Border>
-                        <Border Classes="card-row" BorderThickness="0">
+                        <Border Classes="card-row">
                           <Grid ColumnDefinitions="Auto,*">
-                            <TextBlock Classes="card-label" Text="{x:Static r:Strings.Trainer_HallOfFame}" />
+                            <TextBlock Classes="card-label" Text="{x:Static r:Strings.Trainer_CardFameLabel}" />
                             <TextBlock Grid.Column="1" Classes="card-value" Text="{Binding CardFame}" />
                           </Grid>
                         </Border>
                       </StackPanel>
-                      <Border Grid.Column="2" Width="128" Height="128" Background="#F2FFFFFF" CornerRadius="6" BorderBrush="#60000000" BorderThickness="1" VerticalAlignment="Top">
-                        <ContentControl Content="{Binding Avatar}" Width="112" Height="112" />
+                      <!-- The trainer picture, framed as the photo of the card -->
+                      <Border Grid.Column="2" Width="150" Height="150" Background="#33FFFFFF" CornerRadius="6" BorderBrush="#60FFFFFF" BorderThickness="2" VerticalAlignment="Top">
+                        <Panel>
+                          <Ellipse Width="128" Height="128" Fill="#26FFFFFF" />
+                          <ContentControl Content="{Binding Avatar}" Width="120" Height="120" />
+                        </Panel>
                       </Border>
                     </Grid>
 
-                    <!-- Badges or island seals along the bottom, one slot each as the game shows them -->
-                    <Border Grid.Row="2" Margin="0,12,0,0" Background="#26FFFFFF" CornerRadius="6" Padding="10,7">
-                      <Grid ColumnDefinitions="Auto,*">
-                        <TextBlock Classes="card-label" Margin="0,0,14,0" Text="{Binding CardMilestones}" />
-                        <ItemsControl Grid.Column="1" ItemsSource="{Binding Badges}" HorizontalAlignment="Right">
+                    <!-- Badges (or island seals): one slot each, as the lower screen of the card -->
+                    <Border Margin="0,8,0,0" Background="#26000000" CornerRadius="6" Padding="6,5">
+                      <StackPanel>
+                        <TextBlock Classes="card-label" Margin="4,0,0,4" FontSize="12" Text="{Binding CardMilestones}" />
+                        <ItemsControl ItemsSource="{Binding Badges}">
                           <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                              <StackPanel Orientation="Horizontal" Spacing="8" />
+                              <UniformGrid Columns="{Binding CardMilestoneColumns}" />
                             </ItemsPanelTemplate>
                           </ItemsControl.ItemsPanel>
                           <ItemsControl.ItemTemplate>
                             <DataTemplate x:DataType="vm:BadgeViewModel">
-                              <Panel Width="46" Height="46" ToolTip.Tip="{Binding Label}">
-                                <Border CornerRadius="999" Background="#22000000" />
-                                <Image Source="{Binding Icon}" Stretch="Uniform" Margin="2" IsVisible="{Binding HasIcon}" />
-                                <TextBlock Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                           Text="{Binding Number}" FontSize="15" IsVisible="{Binding !HasIcon}" />
-                              </Panel>
+                              <Border Classes="badge-slot" ToolTip.Tip="{Binding Label}">
+                                <Panel>
+                                  <Image Source="{Binding Icon}" Stretch="Uniform" Margin="6" IsVisible="{Binding HasIcon}" />
+                                  <TextBlock Foreground="#66FFFFFF" FontWeight="Bold" FontSize="16" HorizontalAlignment="Center"
+                                             VerticalAlignment="Center" Text="{Binding Number}" IsVisible="{Binding !HasIcon}" />
+                                </Panel>
+                              </Border>
                             </DataTemplate>
                           </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                      </Grid>
+                      </StackPanel>
                     </Border>
-                  </Grid>
+                  </StackPanel>
                 </Border>
+
                 <c:AdaptiveColumnsPanel Margin="16,8" MinColumnWidth="440" MaxColumns="2" Spacing="24">
                   <StackPanel>
                     <TextBlock Classes="section" Text="{x:Static r:Strings.Trainer_Profile}" />

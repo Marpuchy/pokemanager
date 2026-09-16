@@ -179,7 +179,7 @@ public sealed partial class LockeViewModel : ObservableObject
         OnPropertyChanged(nameof(MaxLives));
         OnPropertyChanged(nameof(LivesLost));
         OnPropertyChanged(nameof(LivesText));
-        editor.MarkDirty();
+        editor.MarkDirty(Strings.Undo_ProjectChange, affectsRom: false);
     }
 
     // ------------------------------------------------------------------ roulette interval
@@ -219,7 +219,7 @@ public sealed partial class LockeViewModel : ObservableObject
         OnPropertyChanged(nameof(RouletteLast));
         OnPropertyChanged(nameof(RouletteEvery));
         OnPropertyChanged(nameof(RouletteBadgesText));
-        editor.MarkDirty();
+        editor.MarkDirty(Strings.Undo_ProjectChange, affectsRom: false);
     }
 
     public string ChanceOf(PrizeRowViewModel row)
@@ -234,7 +234,7 @@ public sealed partial class LockeViewModel : ObservableObject
         Locke.Prizes = Prizes.Select(p => p.Prize).ToList();
         foreach (var row in Prizes)
             row.RefreshChance();
-        editor.MarkDirty();
+        editor.MarkDirty(Strings.Undo_ProjectChange, affectsRom: false);
     }
 
     public void Remove(PrizeRowViewModel row)
@@ -257,13 +257,13 @@ public sealed partial class LockeViewModel : ObservableObject
         Prizes.Clear();
         foreach (var prize in Locke.Prizes)
             Prizes.Add(new PrizeRowViewModel(this, prize));
-        editor.MarkDirty();
+        editor.MarkDirty(Strings.Undo_ProjectChange, affectsRom: false);
     }
 
     public void ForgetSpin(int badge)
     {
         Locke.ForgetSpin(badge);
         RefreshSpins();
-        editor.MarkDirty();
+        editor.MarkDirty(Strings.Undo_ProjectChange, affectsRom: false);
     }
 }

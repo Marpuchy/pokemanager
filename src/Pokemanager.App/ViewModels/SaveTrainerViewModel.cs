@@ -44,6 +44,12 @@ public partial class SaveTrainerViewModel : ObservableObject
 
     public string CardGame => game.DisplayName();
 
+    /// <summary>Battle Points of the card.</summary>
+    public string CardBattlePoints => doc.BattlePoints.ToString();
+
+    /// <summary>Badge slots in a single row, as the card of the game shows them side by side.</summary>
+    public int CardMilestoneColumns => Math.Max(1, Badges.Count);
+
     /// <summary>The card in the color of the game's box art.</summary>
     public Avalonia.Media.IBrush CardBrush => field ??= new Avalonia.Media.LinearGradientBrush
     {
