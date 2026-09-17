@@ -19,7 +19,9 @@ public partial class SaveTrainerViewModel : ObservableObject
 
     private readonly GameTitle game;
 
-    public SaveTrainerViewModel(SaveEditorViewModel owner, SaveDocument doc, SaveNames names, GameTitle game, IconImage?[]? milestoneImages, AvatarViewModel avatar)
+    /// <param name="crystals">Generation 7: the game's Z-crystal icons by type, for the trials that have no seal.</param>
+    public SaveTrainerViewModel(SaveEditorViewModel owner, SaveDocument doc, SaveNames names, GameTitle game, IconImage?[]? milestoneImages,
+        IconImage?[]? crystals, AvatarViewModel avatar)
     {
         this.owner = owner;
         this.doc = doc;
@@ -29,7 +31,7 @@ public partial class SaveTrainerViewModel : ObservableObject
         VivillonPatterns = names.VivillonPatterns;
         Badges = Enumerable.Range(0, Math.Min(doc.MilestoneCount, milestones.Count))
             .Select(i => new BadgeViewModel(this, doc, i, milestones[i].Name, milestoneImages is { } images && i < images.Length ? images[i] : null,
-                game.HasBadges() ? null : milestones[i].Type)).ToList();
+                game.HasBadges() ? null : milestones[i].Type, Crystal(crystals, milestones[i].Type))).ToList();
         Sayings = Enumerable.Range(0, 5).Select(i => new SayingViewModel(owner, doc, i)).ToList();
         Crystals = game.Generation() == 7
             ? [.. PkhexImages.TypeCrystals.Select(c => new CrystalViewModel(doc, c.Held, c.Bead, names.ItemName(c.Bead)))]
@@ -40,6 +42,10 @@ public partial class SaveTrainerViewModel : ObservableObject
     }
 
     /// <summary>The save editor refreshes the trainer card with every change (<see cref="RefreshCard"/>).</summary>
+    /// <summary>The game's crystal for a type, when the ROM had the item icons.</summary>
+    private static IconImage? Crystal(IconImage?[]? crystals, int type) =>
+        crystals is not null && (uint)type < crystals.Length ? crystals[type] : null;
+
     private void Changed() => owner.Touch();
 
     // ------------------------------------------------------------------ trainer card (read only, follows the edits)
@@ -406,7 +412,7 @@ public sealed class CrystalViewModel(SaveDocument doc, int held, int bead, strin
 
 /// <param name="crystalType">Generation 7: type of the trial, drawn as its Z-crystal instead of the game's seal.</param>
 public sealed class BadgeViewModel(SaveTrainerViewModel owner, SaveDocument doc, int index, string name, IconImage? image,
-    int? crystalType) : ObservableObject
+    int? crystalType, IconImage? crystalImage) : ObservableObject
 {
     public string Label => name;
 
@@ -428,15 +434,17 @@ public sealed class BadgeViewModel(SaveTrainerViewModel owner, SaveDocument doc,
     }
 
     /// <summary>The game's badge or seal — or the trial's Z-crystal —, faded while it is not earned.</summary>
+    /// <summary>The game's own crystal when the ROM had it, the drawn one otherwise, or the badge image in Gen 6.</summary>
     public Avalonia.Media.IImage? Icon =>
-        crystalType is { } type
-            ? PkhexImages.TrialCrystalArt(type)
-            : image is null ? null : PokemonSprites.ToBitmap(IsChecked ? image : MilestoneIcons.Faded(image));
+        crystalImage is { } crystal ? PokemonSprites.ToBitmap(crystal)
+        : crystalType is { } type ? PkhexImages.TrialCrystalArt(type)
+        : image is null ? null : PokemonSprites.ToBitmap(IsChecked ? image : MilestoneIcons.Faded(image));
 
     public bool HasIcon => Icon is not null;
 
     /// <summary>Crystals are one picture only: not earned yet, they are shown faded.</summary>
-    public double IconOpacity => crystalType is not null && !IsChecked ? 0.35 : 1;
+    /// <summary>A crystal keeps its colour while the trial is not cleared — greyed out, every type would look the same.</summary>
+    public double IconOpacity => crystalType is not null && !IsChecked ? 0.4 : 1;
 }
 
 public sealed class SayingViewModel(SaveEditorViewModel owner, SaveDocument doc, int index) : ObservableObject

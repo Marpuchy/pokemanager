@@ -292,8 +292,9 @@ public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
             RebuildBoxSlots();
 
             Bag = new SaveBagViewModel(this, doc, names, editor.Names.ItemDescriptions);
-            Trainer = new SaveTrainerViewModel(this, doc, names, editor.Dump.Title,
-                MilestoneIcons.Load(new RomFsLayers(editor.Session.Project.RomFsPath), editor.Dump.Title), editor.ProfileAvatar);
+            var layers = new RomFsLayers(editor.Session.Project.RomFsPath);
+            Trainer = new SaveTrainerViewModel(this, doc, names, editor.Dump.Title, MilestoneIcons.Load(layers, editor.Dump.Title),
+                ItemIcons.LoadTypeCrystals(layers, editor.Dump.Title), editor.ProfileAvatar);
             Dex = new SaveDexViewModel(this, doc, names);
             RefreshSlots();
             RefreshProblems();

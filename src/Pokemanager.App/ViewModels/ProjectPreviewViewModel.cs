@@ -135,22 +135,22 @@ public sealed partial class PartyMemberViewModel : ObservableObject, IMonCard
 /// <summary>A gym badge in the preview: earned or not (from the save), and its roulette.</summary>
 /// <param name="crystal">Generation 7: the trial's Z-crystal, used instead of the game's seal (the fifth trial has none).</param>
 public sealed partial class BadgeItemViewModel(ProjectPreviewViewModel owner, int index, string name, int type, bool earned, LockeSpin? spin,
-    IReadOnlyList<string> itemNames, IconImage? image, bool hasRoulette, int? crystalType = null) : ObservableObject
+    IReadOnlyList<string> itemNames, IconImage? image, bool hasRoulette, int? crystalType = null, IconImage? crystalImage = null) : ObservableObject
 {
     /// <summary>
-    /// The badge or seal — or the trial's Z-crystal, drawn —, greyed out while it is not earned. The drawing is made here
-    /// and not in the constructor: this view model is built off the UI thread and an Avalonia image belongs to the thread
-    /// that creates it.
+    /// The badge or seal — or the trial's Z-crystal, the game's own icon when the ROM has it —, greyed out while it is not
+    /// earned. The image is made here and not in the constructor: this view model is built off the UI thread and an
+    /// Avalonia image belongs to the thread that creates it.
     /// </summary>
     public Avalonia.Media.IImage? Icon =>
-        field ??= crystalType is { } type
-            ? PkhexImages.TrialCrystalArt(type)
+        field ??= crystalImage is { } crystal ? PokemonSprites.ToBitmap(crystal)
+            : crystalType is { } type ? PkhexImages.TrialCrystalArt(type)
             : image is null ? null : PokemonSprites.ToBitmap(Earned ? image : MilestoneIcons.Faded(image));
 
     public bool HasIcon => Icon is not null;
 
-    /// <summary>Crystals are one drawing only: not earned yet, they are shown faded.</summary>
-    public double IconOpacity => crystalType is not null && !Earned ? 0.35 : 1;
+    /// <summary>A crystal keeps its colour while the trial is not cleared — greyed out, every type would look the same.</summary>
+    public double IconOpacity => crystalType is not null && !Earned ? 0.4 : 1;
 
     public int Index { get; } = index;
     public string Name { get; } = name;
@@ -281,10 +281,13 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
         }
 
         var milestones = project.Game.Milestones();
-        var images = MilestoneIcons.Load(new RomFsLayers(project.RomFsPath), project.Game);
+        var layers = new RomFsLayers(project.RomFsPath);
+        var images = MilestoneIcons.Load(layers, project.Game);
+        var crystals = ItemIcons.LoadTypeCrystals(layers, project.Game);
         for (int i = 0; i < milestones.Count; i++)
             Badges.Add(new BadgeItemViewModel(this, i, milestones[i].Name, milestones[i].Type, doc?.GetMilestone(i) ?? false, project.Locke.SpinOf(i), itemNames,
-                images?[i], project.Locke.HasRoulette(i), project.Game.HasBadges() ? null : milestones[i].Type));
+                images?[i], project.Locke.HasRoulette(i), project.Game.HasBadges() ? null : milestones[i].Type,
+                crystals is not null && !project.Game.HasBadges() && (uint)milestones[i].Type < crystals.Length ? crystals[milestones[i].Type] : null));
     }
 
     public PokemonSprites Sprites { get; } = PokemonSprites.Empty;

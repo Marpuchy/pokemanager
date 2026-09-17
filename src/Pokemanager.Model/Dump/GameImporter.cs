@@ -94,6 +94,9 @@ public static class GameImporter
             files.Add(icons);
         if (PickMilestones(rom, game) is { } milestones)
             files.Add(milestones);
+        // Item icons: the game's own Z-crystals for the trials of Generation 7.
+        foreach (string itemIcons in game.Layout().ItemIcons.Where(p => rom.RomFsFileSize(p) > 0).Take(1))
+            files.Add(itemIcons);
         Directory.CreateDirectory(directory);
 
         string romfs = Path.Combine(directory, "romfs");
@@ -123,6 +126,32 @@ public static class GameImporter
         new DumpManifest(DumpManifest.CurrentFormat, game, rom.TitleId.ToString("X16"), romPath, info.Length, info.LastWriteTimeUtc,
             DateTime.UtcNow, copied).Save(directory);
         return new ImportedGame(directory, game, reused);
+    }
+
+    /// <summary>
+    /// Completes a folder imported by an older version of the application: when it lacks a file this one reads and the
+    /// source ROM is still where it was, the game is imported again, which only copies what is missing. Any problem (ROM
+    /// moved, changed or unreadable) simply leaves the folder as it is.
+    /// </summary>
+    /// <returns>Whether anything was imported.</returns>
+    public static bool Complete(string directory, IProgress<string>? progress = null)
+    {
+        if (DumpManifest.TryLoad(directory) is not { } manifest)
+            return false;
+        string[] wanted = manifest.Game.Layout().ItemIcons;
+        if (wanted.Length == 0 || wanted.Any(manifest.Files.Contains))
+            return false;
+        if (Path.GetDirectoryName(directory) is not { } gamesRoot || !File.Exists(manifest.SourceRom) || !manifest.IsFrom(manifest.SourceRom))
+            return false;
+        try
+        {
+            Import(manifest.SourceRom, gamesRoot, progress);
+            return true;
+        }
+        catch (Exception ex) when (ex is RomReadException or IOException or InvalidDataException or UnauthorizedAccessException or OperationCanceledException)
+        {
+            return false;
+        }
     }
 
     /// <summary>

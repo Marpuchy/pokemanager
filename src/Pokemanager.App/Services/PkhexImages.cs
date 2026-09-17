@@ -30,7 +30,20 @@ public static class PkhexImages
     /// <summary>An item's icon; TMs and HMs share one; unknown items get a question mark. Null for no item.</summary>
     public static Bitmap? Item(int item, bool isTm = false) => item <= 0
         ? null
-        : isTm ? Load("items/bitem_tm.png") : Load($"items/bitem_{item}.png") ?? Load("items/bitem_unk.png");
+        : isTm ? Load("items/bitem_tm.png") : Load($"items/bitem_{Piece(item)}.png") ?? Load("items/bitem_unk.png");
+
+    /// <summary>
+    /// The held piece of a Z-crystal, which is the id PKHeX has an icon for: the bag keeps the bead instead, a second id
+    /// for the same crystal (checked on the user's Ultra Moon: type crystals 776–794 → 807–825, the Pokémon-exclusive ones
+    /// 798–806 → 826–834 and Pikashunium 835 → 836). Any other item is itself.
+    /// </summary>
+    public static int Piece(int item) => item switch
+    {
+        >= 807 and <= 825 => item - 31,
+        >= 826 and <= 834 => item - 28,
+        836 => 835,
+        _ => item,
+    };
 
     /// <summary>
     /// Picture for a Generation 7 trial: the Z-crystal of its type. The games only carry seals for the four island
@@ -105,7 +118,7 @@ public static class PkhexImages
         [776, 782, 785, 783, 784, 788, 787, 789, 792, 777, 778, 780, 779, 786, 781, 790, 791, 793];
 
     /// <summary>Whether PKHeX has a real icon for the item (it has none for the Gen 6/7 key items).</summary>
-    public static bool HasItemIcon(int item, bool isTm = false) => item > 0 && (isTm || Load($"items/bitem_{item}.png") is not null);
+    public static bool HasItemIcon(int item, bool isTm = false) => item > 0 && (isTm || Load($"items/bitem_{Piece(item)}.png") is not null);
 
     /// <summary>A type's square icon (PKHeX's, game type order); a question mark for an unknown type.</summary>
     public static Bitmap? Type(int type) => Load($"types/type_icon_{type:00}.png") ?? Load("types/type_icon_99.png");
