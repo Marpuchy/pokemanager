@@ -1,4 +1,21 @@
-## New in 1.2.1: one look everywhere, a real bag and the trainer card
+## New in 2.0: the trainer card of the games, Z-moves and a clearer editor
+
+- **Trainer card like the game's**: the trainer page opens with your card as the game draws it — your picture framed on
+  the right, one line per field (name, ID No., Pokédex, money, Battle Points, play time, adventure start, Hall of Fame)
+  and your badges, or your island trials, in their slots below.
+- **Every trial has a picture** in Sun/Moon and Ultra Sun/Ultra Moon: the games only carry seals for four of the five, so
+  the trials now show **the Z-crystal of their type, taken from your own ROM**. The card also has the eighteen type
+  crystals, lit up for the ones your bag holds.
+- **Exclusive Z-moves can be edited** (Generation 7): in Advanced → Pokémon, a Pokémon with its own Z-move shows the
+  crystal, the move it asks for and the Z-move it gives. Point Decidium Z at a move your Decidueye actually knows instead
+  of losing the crystal to a randomized learnset.
+- **The app says when the ROM has to be built again**: changing Pokémon data, moves or anything else the ROM carries puts
+  a notice over the tabs with a *Build ROM now* button. Locke settings never ask for it — the roulette is outside the game.
+- **Roulette**: a **free-text prize** for what the app cannot write into the save ("an evolution item of your choice"),
+  and an **Already added** button for prizes you put in the game yourself. Z-crystals show their icon as a prize now.
+- **History moved into Settings**, so the editor has one tab less.
+
+## In 1.2.1: one look everywhere, a real bag and the trainer card
 
 - **Pokémon look the same everywhere**: the party cards, the box (with the game's wallpaper, ◀ ▶ arrows) and the Pokémon
   sheet of the save editor are now used by the project preview and by multiplayer rooms too — moves with type and category

@@ -171,7 +171,7 @@ dotnet test --solution Pokemanager.slnx
 ### Installer
 
 ```
-./build/build-installer.ps1 -Version 1.2.0
+./build/build-installer.ps1 -Version 2.0.0
 ```
 
 Publishes the app self-contained, compiles the UPR ZX launcher, builds a trimmed Java runtime with `jlink`, bundles\n`node.exe` and the pruned Pokémon Showdown simulator (checked with a random battle) and packs a
