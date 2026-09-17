@@ -19,6 +19,7 @@ namespace Pokemanager.App.ViewModels;
 public sealed partial class TrainerDetailViewModel : ObservableObject
 {
     private const string T = GameTables.Trainers;
+    private readonly EditorViewModel editor;
     private readonly EditorSession session;
     private readonly GameNames names;
     private readonly PokemonSprites sprites;
@@ -34,14 +35,19 @@ public sealed partial class TrainerDetailViewModel : ObservableObject
     public string Number => $"#{Id:000}";
     public string Title => names.TrainerLabel(Id, session.GetInt(T, Id, "class"));
 
+    /// <summary>Bits 0-2 as one list; see <see cref="AiLevelFieldViewModel"/> for why it is not three check boxes.</summary>
+    public AiLevelFieldViewModel AiLevel { get; }
+
+    /// <summary>The bits that are not the level: "uses items", and in Generation 7 the four the game added.</summary>
     public IReadOnlyList<BitFieldViewModel> AiFlags { get; }
     public IReadOnlyList<FieldViewModel> Record { get; }
     public IReadOnlyList<ChoiceFieldViewModel> Bag { get; }
     public IntFieldViewModel Count { get; }
     public ObservableCollection<TrainerMemberViewModel> Members { get; } = [];
 
-    public TrainerDetailViewModel(EditorSession session, GameNames names, PokemonSprites sprites, int id)
+    public TrainerDetailViewModel(EditorViewModel editor, EditorSession session, GameNames names, PokemonSprites sprites, int id)
     {
+        this.editor = editor;
         this.session = session;
         this.names = names;
         this.sprites = sprites;
@@ -49,9 +55,11 @@ public sealed partial class TrainerDetailViewModel : ObservableObject
         Generation = session.Current.Title.Generation();
         IsUnreadable = id < session.Current.Trainers.Length && session.Current.Trainers[id].Unreadable;
 
-        // Generation 6 only ever uses bits 0, 1, 2 and 7 (measured on the real dump, docs/game-ai.md); the middle four
-        // are Generation 7's and are not offered where they do nothing.
-        int[] bits = IsGen6 ? [0, 1, 2, 7] : [0, 1, 2, 3, 4, 5, 6, 7];
+        // Bits 0-2 are the level and go in one list. Of the rest, Generation 6 only ever uses bit 7 (measured on the
+        // real dump, docs/game-ai.md), so the four Generation 7 bits are not offered where they do nothing. Bit 3
+        // (doubles) is left out on purpose: the record's battle type already says whether the fight is a double one.
+        AiLevel = new AiLevelFieldViewModel(session, T, id, "ai", Strings.Ai_Level);
+        int[] bits = IsGen6 ? [7] : [4, 5, 6, 7];
         AiFlags = [.. bits.Select(b => new BitFieldViewModel(session, T, id, "ai", AiName(b), b, Strings.Ai_Tip))];
 
         Record =
@@ -78,7 +86,7 @@ public sealed partial class TrainerDetailViewModel : ObservableObject
             ]
             : [new BoolFieldViewModel(session, T, id, "flag", Strings.Trainer_Flag)];
 
-        foreach (var field in AiFlags.Cast<FieldViewModel>().Concat(Record))
+        foreach (var field in AiFlags.Cast<FieldViewModel>().Append(AiLevel).Concat(Record))
             field.PropertyChanged += (_, _) => NotifyHeader();
         foreach (var field in Gen6Flags)
             field.PropertyChanged += (_, _) =>
@@ -97,12 +105,9 @@ public sealed partial class TrainerDetailViewModel : ObservableObject
     private static IReadOnlyList<string> BattleTypes =>
         [Strings.Trainer_Single, Strings.Trainer_Double, Strings.Trainer_Multi, Strings.Trainer_BattleType3];
 
+    /// <summary>Only the bits that are not the level reach here; bits 0-2 are <see cref="AiLevel"/>.</summary>
     private static string AiName(int bit) => bit switch
     {
-        0 => Strings.Ai_Basic,
-        1 => Strings.Ai_Strong,
-        2 => Strings.Ai_Expert,
-        3 => Strings.Ai_Doubles,
         4 => Strings.Ai_NoWhiteout,
         5 => Strings.Ai_BattleRoyal,
         6 => Strings.Ai_PokeChange,
@@ -117,7 +122,10 @@ public sealed partial class TrainerDetailViewModel : ObservableObject
 
     private string AiFlagNames()
     {
-        var set = AiFlags.Where(f => f.IsSet).Select(f => f.Label).ToList();
+        var set = new List<string>();
+        if (AiLevel.SelectedIndex >= 0)
+            set.Add(AiLevelFieldViewModel.Labels[AiLevel.SelectedIndex]);
+        set.AddRange(AiFlags.Where(f => f.IsSet).Select(f => f.Label));
         return set.Count == 0 ? Strings.Ai_None : string.Join(" + ", set);
     }
 
@@ -163,15 +171,17 @@ public sealed partial class TrainerDetailViewModel : ObservableObject
 
     // ------------------------------------------------------------------ presets and revert
 
-    /// <summary>The values the game itself uses: none, the ordinary trainer, and what every gym leader has.</summary>
+    /// <summary>Every team member to the highest IVs the game can store: 255 in Generation 6, 31 each in Generation 7.</summary>
     [RelayCommand]
-    private void SetAi(string value)
+    private void MaxIvs()
     {
-        if (!int.TryParse(value, out int ai))
-            return;
-        session.SetInt(T, Id, "ai", ai);
-        foreach (var flag in AiFlags)
-            flag.Refresh();
+        using (editor.BeginBatch(string.Format(Strings.Trainer_MaxIvsUndo, Title)))
+        {
+            foreach (var member in Members)
+                member.SetMaxIvs();
+        }
+        foreach (var member in Members)
+            member.RefreshAll();
         NotifyHeader();
     }
 
@@ -181,7 +191,7 @@ public sealed partial class TrainerDetailViewModel : ObservableObject
     private void Revert()
     {
         session.Revert(T, Id);
-        foreach (var field in AiFlags.Cast<FieldViewModel>().Concat(Record).Concat(Bag).Concat(Gen6Flags).Append(Count))
+        foreach (var field in AiFlags.Cast<FieldViewModel>().Append(AiLevel).Concat(Record).Concat(Bag).Concat(Gen6Flags).Append(Count))
             field.Refresh();
         BuildTeam();
         foreach (var member in Members)
@@ -330,6 +340,18 @@ public sealed class TrainerMemberViewModel : ObservableObject
         foreach (string property in new[] { nameof(SpeciesName), nameof(LevelText), nameof(Icon), nameof(TypeBackground), nameof(TypeForeground), nameof(AbilityHint) })
             OnPropertyChanged(property);
         Changed?.Invoke();
+    }
+
+    /// <summary>The best IVs the game can store for this member: the byte at 255 in Generation 6, 31 each in Generation 7.</summary>
+    public void SetMaxIvs()
+    {
+        if (IsGen6)
+        {
+            IvByte.Value = 255;
+            return;
+        }
+        foreach (var iv in Ivs)
+            iv.Value = 31;
     }
 
     /// <summary>The trainer's "own moves" / "held items" flags changed: the warnings follow them.</summary>

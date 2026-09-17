@@ -2631,18 +2631,6 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Ai_Title" xml:space="preserve">
     <value>Artificial intelligence</value>
   </data>
-  <data name="Ai_Basic" xml:space="preserve">
-    <value>Basic</value>
-  </data>
-  <data name="Ai_Strong" xml:space="preserve">
-    <value>Strong</value>
-  </data>
-  <data name="Ai_Expert" xml:space="preserve">
-    <value>Expert</value>
-  </data>
-  <data name="Ai_Doubles" xml:space="preserve">
-    <value>Doubles</value>
-  </data>
   <data name="Ai_NoWhiteout" xml:space="preserve">
     <value>No whiteout</value>
   </data>
@@ -2667,18 +2655,6 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Ai_Tip" xml:space="preserve">
     <value>The names come from pk3DS; what each flag changes in a battle is not documented. Basic + Strong + Expert (0x07) is what the game gives every gym leader, the Elite Four and the Champion, and it is its own maximum.</value>
   </data>
-  <data name="Ai_PresetNone" xml:space="preserve">
-    <value>None (0x00)</value>
-  </data>
-  <data name="Ai_PresetBasic" xml:space="preserve">
-    <value>Ordinary (0x01)</value>
-  </data>
-  <data name="Ai_PresetLeader" xml:space="preserve">
-    <value>Gym leader (0x07)</value>
-  </data>
-  <data name="Ai_Presets" xml:space="preserve">
-    <value>Values the game uses:</value>
-  </data>
   <data name="Trainer_MoneyRate" xml:space="preserve">
     <value>Money multiplier</value>
   </data>
@@ -2687,5 +2663,110 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   </data>
   <data name="Trainer_ItemIgnored" xml:space="preserve">
     <value>This item is stored but the game will not use it while "Held items" is off.</value>
+  </data>
+  <data name="Ai_Level" xml:space="preserve">
+    <value>AI level</value>
+  </data>
+  <data name="Ai_LevelNone" xml:space="preserve">
+    <value>None (0x00)</value>
+  </data>
+  <data name="Ai_LevelBasic" xml:space="preserve">
+    <value>Basic (0x01)</value>
+  </data>
+  <data name="Ai_LevelStrong" xml:space="preserve">
+    <value>Basic + Strong (0x03)</value>
+  </data>
+  <data name="Ai_LevelExpert" xml:space="preserve">
+    <value>Basic + Expert (0x05)</value>
+  </data>
+  <data name="Ai_LevelFull" xml:space="preserve">
+    <value>Full (0x07) - what gym leaders get</value>
+  </data>
+  <data name="Ai_OtherFlags" xml:space="preserve">
+    <value>Other flags:</value>
+  </data>
+  <data name="Trainer_ModeCategory" xml:space="preserve">
+    <value>By category</value>
+  </data>
+  <data name="Trainer_ModeCategoryTip" xml:space="preserve">
+    <value>Apply a change to every trainer of a class at once: the AI, the IVs, the levels.</value>
+  </data>
+  <data name="Trainer_ModeAll" xml:space="preserve">
+    <value>One by one</value>
+  </data>
+  <data name="Trainer_ModeAllTip" xml:space="preserve">
+    <value>The whole list of trainers, to edit a single one.</value>
+  </data>
+  <data name="Trainer_ShowTeam" xml:space="preserve">
+    <value>Show team</value>
+  </data>
+  <data name="Trainer_ShowTeamTip" xml:space="preserve">
+    <value>Teams start hidden so a randomized game is not spoiled. Off again next time the project opens.</value>
+  </data>
+  <data name="Trainer_TeamHidden" xml:space="preserve">
+    <value>team hidden</value>
+  </data>
+  <data name="Trainer_CategoryAll" xml:space="preserve">
+    <value>Every trainer</value>
+  </data>
+  <data name="Trainer_CategoryCount" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="Trainer_CategorySummary" xml:space="preserve">
+    <value>AI {0} - levels {1}-{2}</value>
+  </data>
+  <data name="Trainer_CategorySummaryNoLevels" xml:space="preserve">
+    <value>AI {0}</value>
+  </data>
+  <data name="Trainer_BulkHint" xml:space="preserve">
+    <value>What is applied here goes to every trainer of this category, as one change that a single undo takes back.</value>
+  </data>
+  <data name="Trainer_BulkApply" xml:space="preserve">
+    <value>Apply to the category</value>
+  </data>
+  <data name="Trainer_BulkAi" xml:space="preserve">
+    <value>AI</value>
+  </data>
+  <data name="Trainer_BulkBattleType" xml:space="preserve">
+    <value>battle type</value>
+  </data>
+  <data name="Trainer_BulkIvs" xml:space="preserve">
+    <value>IVs</value>
+  </data>
+  <data name="Trainer_BulkMaxIvs" xml:space="preserve">
+    <value>highest IVs</value>
+  </data>
+  <data name="Trainer_BulkLevels" xml:space="preserve">
+    <value>levels</value>
+  </data>
+  <data name="Trainer_BulkLevelPercent" xml:space="preserve">
+    <value>Levels (%)</value>
+  </data>
+  <data name="Trainer_BulkLevelHint" xml:space="preserve">
+    <value>100 leaves them as they are; 120 raises every level of the category by a fifth, capped at 100.</value>
+  </data>
+  <data name="Trainer_BulkIvsHint" xml:space="preserve">
+    <value>Ordinary trainers have 0, gym leaders 150 and the Champion of X 200. The highest is 255.</value>
+  </data>
+  <data name="Trainer_BulkBattleHint" xml:space="preserve">
+    <value>The kind of fight the trainer starts. Changing it on a trainer the game does not pair up can leave it fighting alone.</value>
+  </data>
+  <data name="Trainer_BulkResult" xml:space="preserve">
+    <value>{0}: {1} values changed in {2} trainers.</value>
+  </data>
+  <data name="Trainer_BulkNothing" xml:space="preserve">
+    <value>{0}: nothing to change, they already had that value.</value>
+  </data>
+  <data name="Trainer_MaxIvs" xml:space="preserve">
+    <value>Highest IVs</value>
+  </data>
+  <data name="Trainer_MaxIvsHint" xml:space="preserve">
+    <value>255 in Generation 6, 31 in each of the six in Generation 7.</value>
+  </data>
+  <data name="Trainer_MaxIvsUndo" xml:space="preserve">
+    <value>{0} - highest IVs</value>
+  </data>
+  <data name="Trainer_BulkPick" xml:space="preserve">
+    <value>Choose one</value>
   </data>
 </root>

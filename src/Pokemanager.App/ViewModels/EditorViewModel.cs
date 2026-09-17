@@ -23,6 +23,7 @@ public partial class EditorViewModel : ObservableObject
     private List<ListEntryViewModel> allSpecies = [];
     private List<ListEntryViewModel> allMoves = [];
     private List<ListEntryViewModel> allTrainers = [];
+    private List<TrainerCategoryViewModel> allCategories = [];
 
     public string ProjectPath { get; }
     public GameDump Dump { get; }
@@ -53,6 +54,25 @@ public partial class EditorViewModel : ObservableObject
     public ObservableCollection<ListEntryViewModel> Moves { get; } = [];
     public ObservableCollection<ListEntryViewModel> Trainers { get; } = [];
 
+    /// <summary>The game's trainer classes, plus "every trainer": the groups the by-category mode edits.</summary>
+    public ObservableCollection<TrainerCategoryViewModel> TrainerCategories { get; } = [];
+
+    /// <summary>
+    /// The tab opens on the categories: changing the AI or the IVs of a whole class at once is what a run needs, and
+    /// the list of 785 trainers one by one is the other mode.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool TrainersByCategory { get; set; } = true;
+
+    /// <summary>
+    /// Teams start hidden (like the abilities of the Pokémon tab): someone looking at what a trainer's AI does should
+    /// not have the whole team spoiled at them. Not persisted: off again on every open.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool ShowTrainerTeam { get; set; }
+
+    public TrainerBulkViewModel TrainerBulk { get; private set; } = null!;
+
     [ObservableProperty]
     public partial string SpeciesFilter { get; set; } = "";
 
@@ -65,6 +85,9 @@ public partial class EditorViewModel : ObservableObject
 
     [RelayCommand]
     private void RevealAbilities() => ShowAbilities = true;
+
+    [RelayCommand]
+    private void RevealTrainerTeam() => ShowTrainerTeam = true;
 
     [RelayCommand]
     private void HideAbilities() => ShowAbilities = false;
@@ -83,6 +106,9 @@ public partial class EditorViewModel : ObservableObject
 
     [ObservableProperty]
     public partial ListEntryViewModel? SelectedTrainer { get; set; }
+
+    [ObservableProperty]
+    public partial TrainerCategoryViewModel? SelectedTrainerCategory { get; set; }
 
     [ObservableProperty]
     public partial SpeciesDetailViewModel? SpeciesDetail { get; set; }
@@ -196,6 +222,17 @@ public partial class EditorViewModel : ObservableObject
                 strip: () => TrainerDetailViewModel.AiColor(Session.GetInt(GameTables.Trainers, i, "ai"))))
             .ToList();
 
+        TrainerBulk ??= new TrainerBulkViewModel(this, Session);
+        allCategories =
+        [
+            new TrainerCategoryViewModel(Session, Strings.Trainer_CategoryAll, [.. Enumerable.Range(0, Session.Current.Trainers.Length)]),
+            .. Enumerable.Range(0, Session.Current.Trainers.Length)
+                .GroupBy(ClassName)
+                .Select(g => new TrainerCategoryViewModel(Session, g.Key, [.. g]))
+                .OrderByDescending(c => c.Trainers.Count)
+                .ThenBy(c => c.Name, StringComparer.CurrentCulture),
+        ];
+
         int? species = SelectedSpecies?.Id, move = SelectedMove?.Id, trainer = SelectedTrainer?.Id;
         SpeciesDetail = null;
         MoveDetail = null;
@@ -206,6 +243,11 @@ public partial class EditorViewModel : ObservableObject
         SelectedSpecies = Species.FirstOrDefault(s => s.Id == species) ?? Species.FirstOrDefault();
         SelectedMove = Moves.FirstOrDefault(m => m.Id == move) ?? Moves.FirstOrDefault();
         SelectedTrainer = Trainers.FirstOrDefault(t => t.Id == trainer) ?? Trainers.FirstOrDefault();
+        string? category = SelectedTrainerCategory?.Name;
+        TrainerCategories.Clear();
+        foreach (var c in allCategories.Where(c => c.Matches(TrainerFilter)))
+            TrainerCategories.Add(c);
+        SelectedTrainerCategory = TrainerCategories.FirstOrDefault(c => c.Name == category) ?? TrainerCategories.FirstOrDefault();
 
         Session.Changed += OnSessionChanged;
         OnPropertyChanged(nameof(EditCountText));
@@ -226,6 +268,8 @@ public partial class EditorViewModel : ObservableObject
         OnPropertyChanged(nameof(EditCountText));
         var list = trainer ? allTrainers : move ? allMoves : allSpecies;
         list.FirstOrDefault(e => e.Id == key.Id)?.Refresh();
+        if (trainer && !inBatch)
+            SelectedTrainerCategory?.Refresh();
     }
 
     /// <summary>The project changed: unsaved, and a step for undo (the label says what, for the Undo button).</summary>
@@ -239,9 +283,42 @@ public partial class EditorViewModel : ObservableObject
     {
         IsDirty = true;
         romDirty |= affectsRom;
-        if (!restoringProject)
+        if (!restoringProject && !inBatch)
             ProjectUndo?.Record(label);
         RefreshRomNotice();
+    }
+
+    private bool inBatch;
+
+    /// <summary>
+    /// Groups everything done inside it into a single undo step: applying a change to a whole category of trainers is
+    /// one thing the user did, not two hundred.
+    /// </summary>
+    public IDisposable BeginBatch(string label) => new Batch(this, label);
+
+    private sealed class Batch : IDisposable
+    {
+        private readonly EditorViewModel editor;
+        private readonly string label;
+        private readonly bool outer;
+
+        public Batch(EditorViewModel editor, string label)
+        {
+            this.editor = editor;
+            this.label = label;
+            outer = !editor.inBatch;
+            editor.inBatch = true;
+        }
+
+        public void Dispose()
+        {
+            if (!outer)
+                return;
+            editor.inBatch = false;
+            if (!editor.restoringProject)
+                editor.ProjectUndo?.Record(label);
+            editor.RefreshRomNotice();
+        }
     }
 
     // ------------------------------------------------------------------ "the ROM does not have these changes yet"
@@ -351,7 +428,7 @@ public partial class EditorViewModel : ObservableObject
             if (MoveDetail is { } move)
                 MoveDetail = new MoveDetailViewModel(Session, Names, move.Id);
             if (TrainerDetail is { } trainer)
-                TrainerDetail = new TrainerDetailViewModel(Session, Names, Sprites, trainer.Id);
+                TrainerDetail = new TrainerDetailViewModel(this, Session, Names, Sprites, trainer.Id);
             Randomizer.ReloadFromProject();
             Locke.Refresh();
             IsDirty = true;
@@ -388,12 +465,42 @@ public partial class EditorViewModel : ObservableObject
         ApplyFilter(Trainers, allTrainers, value);
         if (keep is not null && Trainers.Contains(keep))
             SelectedTrainer = keep;
+
+        var keepCategory = SelectedTrainerCategory;
+        TrainerCategories.Clear();
+        foreach (var c in allCategories.Where(c => c.Matches(value)))
+            TrainerCategories.Add(c);
+        SelectedTrainerCategory = keepCategory is not null && TrainerCategories.Contains(keepCategory)
+            ? keepCategory
+            : TrainerCategories.FirstOrDefault();
+    }
+
+    partial void OnSelectedTrainerCategoryChanged(TrainerCategoryViewModel? value) => TrainerBulk.Category = value;
+
+    /// <summary>After a bulk change: every row and the open trainer show the new values.</summary>
+    /// <summary>The class name of a trainer, which is what groups the categories.</summary>
+    private string ClassName(int trainer)
+    {
+        int id = Session.GetInt(GameTables.Trainers, trainer, "class");
+        return id >= 0 && id < Names.TrainerClasses.Count && !string.IsNullOrWhiteSpace(Names.TrainerClasses[id])
+            ? Names.TrainerClasses[id]
+            : $"#{id}";
+    }
+
+    public void RefreshTrainerLists()
+    {
+        foreach (var entry in allTrainers)
+            entry.Refresh();
+        foreach (var category in allCategories)
+            category.Refresh();
+        if (TrainerDetail is { } detail)
+            TrainerDetail = new TrainerDetailViewModel(this, Session, Names, Sprites, detail.Id);
     }
 
     partial void OnSelectedTrainerChanged(ListEntryViewModel? value)
     {
         if (value is not null && value.Id != TrainerDetail?.Id)
-            TrainerDetail = new TrainerDetailViewModel(Session, Names, Sprites, value.Id);
+            TrainerDetail = new TrainerDetailViewModel(this, Session, Names, Sprites, value.Id);
     }
 
     partial void OnSelectedSpeciesChanged(ListEntryViewModel? value)

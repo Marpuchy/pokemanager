@@ -2631,18 +2631,6 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Ai_Title" xml:space="preserve">
     <value>Inteligencia artificial</value>
   </data>
-  <data name="Ai_Basic" xml:space="preserve">
-    <value>Básica</value>
-  </data>
-  <data name="Ai_Strong" xml:space="preserve">
-    <value>Fuerte</value>
-  </data>
-  <data name="Ai_Expert" xml:space="preserve">
-    <value>Experta</value>
-  </data>
-  <data name="Ai_Doubles" xml:space="preserve">
-    <value>Dobles</value>
-  </data>
   <data name="Ai_NoWhiteout" xml:space="preserve">
     <value>Sin derrota</value>
   </data>
@@ -2667,18 +2655,6 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Ai_Tip" xml:space="preserve">
     <value>Los nombres vienen de pk3DS; lo que cambia cada bandera en un combate no está documentado. Básica + Fuerte + Experta (0x07) es lo que el juego le da a todos los líderes de gimnasio, al Alto Mando y a la Campeona, y es su propio máximo.</value>
   </data>
-  <data name="Ai_PresetNone" xml:space="preserve">
-    <value>Ninguna (0x00)</value>
-  </data>
-  <data name="Ai_PresetBasic" xml:space="preserve">
-    <value>Normal (0x01)</value>
-  </data>
-  <data name="Ai_PresetLeader" xml:space="preserve">
-    <value>Líder de gimnasio (0x07)</value>
-  </data>
-  <data name="Ai_Presets" xml:space="preserve">
-    <value>Valores que usa el juego:</value>
-  </data>
   <data name="Trainer_MoneyRate" xml:space="preserve">
     <value>Multiplicador de dinero</value>
   </data>
@@ -2687,5 +2663,110 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   </data>
   <data name="Trainer_ItemIgnored" xml:space="preserve">
     <value>Este objeto se guarda, pero el juego no lo usará mientras «Objetos equipados» esté desactivado.</value>
+  </data>
+  <data name="Ai_Level" xml:space="preserve">
+    <value>Nivel de IA</value>
+  </data>
+  <data name="Ai_LevelNone" xml:space="preserve">
+    <value>Ninguna (0x00)</value>
+  </data>
+  <data name="Ai_LevelBasic" xml:space="preserve">
+    <value>Básica (0x01)</value>
+  </data>
+  <data name="Ai_LevelStrong" xml:space="preserve">
+    <value>Básica + Fuerte (0x03)</value>
+  </data>
+  <data name="Ai_LevelExpert" xml:space="preserve">
+    <value>Básica + Experta (0x05)</value>
+  </data>
+  <data name="Ai_LevelFull" xml:space="preserve">
+    <value>Completa (0x07): la de los líderes</value>
+  </data>
+  <data name="Ai_OtherFlags" xml:space="preserve">
+    <value>Otras banderas:</value>
+  </data>
+  <data name="Trainer_ModeCategory" xml:space="preserve">
+    <value>Por categoría</value>
+  </data>
+  <data name="Trainer_ModeCategoryTip" xml:space="preserve">
+    <value>Aplica un cambio a todos los entrenadores de una clase de golpe: la IA, los IV, los niveles.</value>
+  </data>
+  <data name="Trainer_ModeAll" xml:space="preserve">
+    <value>Uno a uno</value>
+  </data>
+  <data name="Trainer_ModeAllTip" xml:space="preserve">
+    <value>La lista entera de entrenadores, para editar uno solo.</value>
+  </data>
+  <data name="Trainer_ShowTeam" xml:space="preserve">
+    <value>Mostrar equipo</value>
+  </data>
+  <data name="Trainer_ShowTeamTip" xml:space="preserve">
+    <value>Los equipos empiezan ocultos para no destripar una partida randomizada. Vuelve a apagarse al abrir el proyecto.</value>
+  </data>
+  <data name="Trainer_TeamHidden" xml:space="preserve">
+    <value>equipo oculto</value>
+  </data>
+  <data name="Trainer_CategoryAll" xml:space="preserve">
+    <value>Todos los entrenadores</value>
+  </data>
+  <data name="Trainer_CategoryCount" xml:space="preserve">
+    <value>{0}</value>
+  </data>
+  <data name="Trainer_CategorySummary" xml:space="preserve">
+    <value>IA {0} · niveles {1}-{2}</value>
+  </data>
+  <data name="Trainer_CategorySummaryNoLevels" xml:space="preserve">
+    <value>IA {0}</value>
+  </data>
+  <data name="Trainer_BulkHint" xml:space="preserve">
+    <value>Lo que apliques aquí va a todos los entrenadores de esta categoría, como un solo cambio que se deshace de una vez.</value>
+  </data>
+  <data name="Trainer_BulkApply" xml:space="preserve">
+    <value>Aplicar a la categoría</value>
+  </data>
+  <data name="Trainer_BulkAi" xml:space="preserve">
+    <value>IA</value>
+  </data>
+  <data name="Trainer_BulkBattleType" xml:space="preserve">
+    <value>tipo de combate</value>
+  </data>
+  <data name="Trainer_BulkIvs" xml:space="preserve">
+    <value>IV</value>
+  </data>
+  <data name="Trainer_BulkMaxIvs" xml:space="preserve">
+    <value>IV máximos</value>
+  </data>
+  <data name="Trainer_BulkLevels" xml:space="preserve">
+    <value>niveles</value>
+  </data>
+  <data name="Trainer_BulkLevelPercent" xml:space="preserve">
+    <value>Niveles (%)</value>
+  </data>
+  <data name="Trainer_BulkLevelHint" xml:space="preserve">
+    <value>100 los deja como están; 120 sube un quinto todos los niveles de la categoría, con tope 100.</value>
+  </data>
+  <data name="Trainer_BulkIvsHint" xml:space="preserve">
+    <value>Los entrenadores normales tienen 0, los líderes 150 y la Campeona de X, 200. El máximo es 255.</value>
+  </data>
+  <data name="Trainer_BulkBattleHint" xml:space="preserve">
+    <value>El tipo de combate que empieza el entrenador. Cambiarlo en uno al que el juego no le asigna pareja puede dejarlo peleando solo.</value>
+  </data>
+  <data name="Trainer_BulkResult" xml:space="preserve">
+    <value>{0}: {1} valores cambiados en {2} entrenadores.</value>
+  </data>
+  <data name="Trainer_BulkNothing" xml:space="preserve">
+    <value>{0}: nada que cambiar, ya tenían ese valor.</value>
+  </data>
+  <data name="Trainer_MaxIvs" xml:space="preserve">
+    <value>IV máximos</value>
+  </data>
+  <data name="Trainer_MaxIvsHint" xml:space="preserve">
+    <value>255 en la sexta generación, 31 en cada uno de los seis en la séptima.</value>
+  </data>
+  <data name="Trainer_MaxIvsUndo" xml:space="preserve">
+    <value>{0} · IV máximos</value>
+  </data>
+  <data name="Trainer_BulkPick" xml:space="preserve">
+    <value>Elige uno</value>
   </data>
 </root>

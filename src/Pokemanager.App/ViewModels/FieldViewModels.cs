@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Pokemanager.App.Resources;
 using Pokemanager.Model.Editing;
 
@@ -69,6 +69,43 @@ public sealed class StatFieldViewModel(EditorSession session, string table, int 
         < 150 => "#23CD5E",
         _ => "#00C2B8",
     }));
+}
+
+/// <summary>
+/// The AI level of a trainer: bits 0-2 of the AI byte as a single list, because the game only ever uses five of the
+/// eight combinations and three check boxes made "expert" look like three separate switches. The other bits are kept.
+/// </summary>
+public sealed class AiLevelFieldViewModel(EditorSession session, string table, int id, string field, string label)
+    : FieldViewModel(session, table, id, field, label)
+{
+    /// <summary>The combinations the game gives itself, measured on the real dump (see <c>docs/game-ai.md</c>).</summary>
+    public static readonly int[] Values = [0x00, 0x01, 0x03, 0x05, 0x07];
+
+    private static IReadOnlyList<string>? labels;
+
+    /// <summary>
+    /// Built once and kept: this list is bound straight to an <c>ItemsSource</c> next to a two-way <c>SelectedIndex</c>,
+    /// and a fresh instance on every read makes the ComboBox drop its selection and write the old value back.
+    /// </summary>
+    public static IReadOnlyList<string> Labels =>
+        labels ??= [Strings.Ai_LevelNone, Strings.Ai_LevelBasic, Strings.Ai_LevelStrong, Strings.Ai_LevelExpert, Strings.Ai_LevelFull];
+
+    public IReadOnlyList<string> Options => Labels;
+
+    /// <summary>-1 when the byte holds a combination the game never uses (only reachable by editing the value by hand).</summary>
+    public int SelectedIndex
+    {
+        get => Array.IndexOf(Values, Session.GetInt(Table, Id, Field) & 0x07);
+        set
+        {
+            if ((uint)value >= Values.Length)
+                return;
+            Write((Session.GetInt(Table, Id, Field) & ~0x07) | Values[value]);
+        }
+    }
+
+    protected override string FormatOriginal(int value) =>
+        Array.IndexOf(Values, value & 0x07) is var i and >= 0 ? Labels[i] : $"0x{value:X2}";
 }
 
 /// <summary>One bit of an int field, shown as a check box: the AI flags of a trainer.</summary>
