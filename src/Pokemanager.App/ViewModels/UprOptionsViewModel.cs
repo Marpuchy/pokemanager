@@ -118,6 +118,9 @@ public partial class UprOptionViewModel : ObservableObject
     public IReadOnlyList<string> ChoiceLabels { get; } = [];
     public string? Hint { get; }
 
+    /// <summary>What the option does, on hover: UPR ZX's own text for a misc tweak, ours for everything else.</summary>
+    public string? Tip => Hint ?? UprOptionCatalog.Description(Name);
+
     [ObservableProperty]
     public partial bool IsEnabled { get; set; } = true;
 

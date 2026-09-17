@@ -1,4 +1,4 @@
-<!--
+﻿<!--
   A box as PKHeX draws it: ◀ name ▶, the game's wallpaper and 6×5 cells. Used by the save editor and multiplayer rooms.
   The slots are drawn at their natural size and scaled down to the height left, so the last row is never cut; the header
   keeps its size.
@@ -13,7 +13,7 @@
     <Grid RowDefinitions="Auto,*">
       <Grid ColumnDefinitions="Auto,*,Auto" Margin="6">
         <Button Content="◀" Command="{Binding PreviousBoxCommand}" Width="36" ToolTip.Tip="{x:Static r:Strings.Save_PreviousBox}" />
-        <ComboBox Grid.Column="1" Margin="6,0" ItemsSource="{Binding BoxNames}" SelectedIndex="{Binding SelectedBox}"
+        <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_SaveBoxPick}" Grid.Column="1" Margin="6,0" ItemsSource="{Binding BoxNames}" SelectedIndex="{Binding SelectedBox}"
                   HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" MaxDropDownHeight="400" FontWeight="SemiBold" />
         <Button Grid.Column="2" Content="▶" Command="{Binding NextBoxCommand}" Width="36" ToolTip.Tip="{x:Static r:Strings.Save_NextBox}" />
       </Grid>

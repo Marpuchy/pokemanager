@@ -1,4 +1,4 @@
-<Window xmlns="https://github.com/avaloniaui"
+﻿<Window xmlns="https://github.com/avaloniaui"
         Icon="avares://Pokemanager.App/Assets/pokemanager.ico"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Pokemanager.App.ViewModels"
@@ -11,7 +11,7 @@
   <DockPanel Margin="12">
     <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="0,0,0,8" Text="{x:Static r:Strings.Log_SpoilerHint}" />
     <Grid DockPanel.Dock="Top" ColumnDefinitions="300,*">
-      <ComboBox ItemsSource="{Binding LogSections}" SelectedItem="{Binding SelectedLogSection}"
+      <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_LogSection}" ItemsSource="{Binding LogSections}" SelectedItem="{Binding SelectedLogSection}"
                 HorizontalAlignment="Stretch" MaxDropDownHeight="420">
         <ComboBox.ItemTemplate>
           <DataTemplate x:DataType="x:String">

@@ -208,6 +208,9 @@ public static class UprOptionCatalog
     /// <summary>Localized label of an option; uncatalogued ones show their name with spaces.</summary>
     public static string Label(string name) => Text("Opt_" + name) ?? Humanize(name);
 
+    /// <summary>What an option does, one line, shown when the pointer rests on it; null when there is none written.</summary>
+    public static string? Description(string name) => Text("Tip_" + name);
+
     /// <summary>Label of an enum value: specific to the option, then generic, then the raw constant.</summary>
     public static string ChoiceLabel(string option, string choice) =>
         Text($"Choice_{option}_{choice}") ?? Text("Choice_" + choice) ?? choice;

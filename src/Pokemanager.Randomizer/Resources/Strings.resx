@@ -621,4 +621,418 @@
   <data name="Choice_SAME_STRENGTH" xml:space="preserve">
     <value>Same strength</value>
   </data>
+  <data name="Tip_BaseStatisticsMod" xml:space="preserve">
+    <value>Shuffles or randomizes each Pokémon's base stats. Shuffle keeps the same numbers and moves them between stats; random makes them up, keeping the total.</value>
+  </data>
+  <data name="Tip_BaseStatsFollowEvolutions" xml:space="preserve">
+    <value>An evolution keeps the spread of what it evolved from, so a Pokémon does not get worse when it evolves.</value>
+  </data>
+  <data name="Tip_BaseStatsFollowMegaEvolutions" xml:space="preserve">
+    <value>A Mega Evolution keeps the spread of the Pokémon it comes from.</value>
+  </data>
+  <data name="Tip_AssignEvoStatsRandomly" xml:space="preserve">
+    <value>The stats an evolution inherits are placed at random instead of in the same stats as its preevolution.</value>
+  </data>
+  <data name="Tip_UpdateBaseStats" xml:space="preserve">
+    <value>Applies the changes later games made to base stats (Butterfree's Special Attack, Pikachu's Defense…).</value>
+  </data>
+  <data name="Tip_UpdateBaseStatsToGeneration" xml:space="preserve">
+    <value>Which generation's base stats to copy.</value>
+  </data>
+  <data name="Tip_StandardizeEXPCurves" xml:space="preserve">
+    <value>Gives every Pokémon the same experience curve, so none of them levels up much slower than the rest.</value>
+  </data>
+  <data name="Tip_ExpCurveMod" xml:space="preserve">
+    <value>Which curve everyone gets: Medium Fast is the usual one, Slow makes the whole game slower.</value>
+  </data>
+  <data name="Tip_TypesMod" xml:space="preserve">
+    <value>Changes the types of every Pokémon: random, or random but keeping one of the originals.</value>
+  </data>
+  <data name="Tip_TypesFollowMegaEvolutions" xml:space="preserve">
+    <value>A Mega Evolution keeps the types of the Pokémon it comes from.</value>
+  </data>
+  <data name="Tip_DualTypeOnly" xml:space="preserve">
+    <value>Every Pokémon ends with two types; none is left with a single one.</value>
+  </data>
+  <data name="Tip_AbilitiesMod" xml:space="preserve">
+    <value>Randomizes the abilities of every Pokémon.</value>
+  </data>
+  <data name="Tip_AbilitiesFollowEvolutions" xml:space="preserve">
+    <value>An evolution keeps the abilities of what it evolved from.</value>
+  </data>
+  <data name="Tip_AbilitiesFollowMegaEvolutions" xml:space="preserve">
+    <value>A Mega Evolution keeps the ability of the Pokémon it comes from.</value>
+  </data>
+  <data name="Tip_AllowWonderGuard" xml:space="preserve">
+    <value>Lets Wonder Guard be handed out (only super effective moves hurt: it can make a Pokémon nearly unbeatable).</value>
+  </data>
+  <data name="Tip_BanTrappingAbilities" xml:space="preserve">
+    <value>Keeps out the abilities that stop you from switching or running (Arena Trap, Shadow Tag, Magnet Pull).</value>
+  </data>
+  <data name="Tip_BanNegativeAbilities" xml:space="preserve">
+    <value>Keeps out the abilities that are a drawback (Truant, Slow Start, Defeatist…).</value>
+  </data>
+  <data name="Tip_BanBadAbilities" xml:space="preserve">
+    <value>Keeps out the abilities that do nothing useful in a normal playthrough.</value>
+  </data>
+  <data name="Tip_WeighDuplicateAbilitiesTogether" xml:space="preserve">
+    <value>Abilities that appear several times in the games are handed out more often, as they are in the original.</value>
+  </data>
+  <data name="Tip_EnsureTwoAbilities" xml:space="preserve">
+    <value>Every Pokémon gets two different abilities instead of just one.</value>
+  </data>
+  <data name="Tip_EvolutionsMod" xml:space="preserve">
+    <value>Rebuilds who evolves into whom. Random breaks the families; the other modes keep some sense.</value>
+  </data>
+  <data name="Tip_EvosSimilarStrength" xml:space="preserve">
+    <value>A Pokémon evolves into something of a similar power, so an evolution is not a downgrade.</value>
+  </data>
+  <data name="Tip_EvosSameTyping" xml:space="preserve">
+    <value>The new evolution shares a type with the Pokémon it comes from.</value>
+  </data>
+  <data name="Tip_EvosMaxThreeStages" xml:space="preserve">
+    <value>No family is longer than three stages, as in the games.</value>
+  </data>
+  <data name="Tip_EvosForceChange" xml:space="preserve">
+    <value>No Pokémon keeps any of its original evolutions.</value>
+  </data>
+  <data name="Tip_EvosAllowAltFormes" xml:space="preserve">
+    <value>Alternate formes (regional, Mega…) can be the result of an evolution.</value>
+  </data>
+  <data name="Tip_ChangeImpossibleEvolutions" xml:space="preserve">
+    <value>Turns evolutions that need a trade or an item you cannot get into ones you can reach on your own.</value>
+  </data>
+  <data name="Tip_MakeEvolutionsEasier" xml:space="preserve">
+    <value>Lowers what an evolution asks for (levels, friendship, beauty…) so it does not hold up a run.</value>
+  </data>
+  <data name="Tip_RemoveTimeBasedEvolutions" xml:space="preserve">
+    <value>Evolutions that only happen at a time of day work at any hour.</value>
+  </data>
+  <data name="Tip_StartersMod" xml:space="preserve">
+    <value>Changes the three starters: completely random, from the same power level, or the ones you choose.</value>
+  </data>
+  <data name="Tip_AllowStarterAltFormes" xml:space="preserve">
+    <value>Alternate formes can come out as a starter.</value>
+  </data>
+  <data name="Tip_RandomizeStartersHeldItems" xml:space="preserve">
+    <value>The starter arrives holding a random item.</value>
+  </data>
+  <data name="Tip_BanBadRandomStarterHeldItems" xml:space="preserve">
+    <value>The starter's item is never a useless one.</value>
+  </data>
+  <data name="Tip_StaticPokemonMod" xml:space="preserve">
+    <value>Changes the Pokémon you are given or that wait for you in a fixed spot (gifts, legendaries, fossils).</value>
+  </data>
+  <data name="Tip_AllowStaticAltFormes" xml:space="preserve">
+    <value>Those fixed Pokémon can be alternate formes.</value>
+  </data>
+  <data name="Tip_SwapStaticMegaEvos" xml:space="preserve">
+    <value>A fixed Pokémon that could Mega Evolve is swapped for another that can, with its stone.</value>
+  </data>
+  <data name="Tip_LimitMainGameLegendaries" xml:space="preserve">
+    <value>Keeps legendaries out of the fixed Pokémon of the main story; they stay for after the league.</value>
+  </data>
+  <data name="Tip_Limit600" xml:space="preserve">
+    <value>Keeps Pokémon with a base stat total of 600 or more out of those spots.</value>
+  </data>
+  <data name="Tip_StaticLevelModified" xml:space="preserve">
+    <value>Raises or lowers the level of the fixed Pokémon.</value>
+  </data>
+  <data name="Tip_StaticLevelModifier" xml:space="preserve">
+    <value>By what percentage their level changes.</value>
+  </data>
+  <data name="Tip_CorrectStaticMusic" xml:space="preserve">
+    <value>The music of a fixed encounter matches the Pokémon that shows up.</value>
+  </data>
+  <data name="Tip_InGameTradesMod" xml:space="preserve">
+    <value>Changes what the in-game trades ask for and what they give.</value>
+  </data>
+  <data name="Tip_RandomizeInGameTradesNicknames" xml:space="preserve">
+    <value>The traded Pokémon arrives with a random nickname.</value>
+  </data>
+  <data name="Tip_RandomizeInGameTradesOTs" xml:space="preserve">
+    <value>The traded Pokémon arrives with a random original trainer.</value>
+  </data>
+  <data name="Tip_RandomizeInGameTradesIVs" xml:space="preserve">
+    <value>The traded Pokémon arrives with random IVs.</value>
+  </data>
+  <data name="Tip_RandomizeInGameTradesItems" xml:space="preserve">
+    <value>The traded Pokémon arrives holding a random item.</value>
+  </data>
+  <data name="Tip_RandomizeMovePowers" xml:space="preserve">
+    <value>Gives every attacking move a random power.</value>
+  </data>
+  <data name="Tip_RandomizeMoveAccuracies" xml:space="preserve">
+    <value>Gives every move a random accuracy.</value>
+  </data>
+  <data name="Tip_RandomizeMovePPs" xml:space="preserve">
+    <value>Gives every move a random number of PP.</value>
+  </data>
+  <data name="Tip_RandomizeMoveTypes" xml:space="preserve">
+    <value>Gives every move a random type. Watch out: the type shown in the app is the ROM's, so it already counts this.</value>
+  </data>
+  <data name="Tip_RandomizeMoveCategory" xml:space="preserve">
+    <value>Turns physical moves into special ones and the other way round, at random.</value>
+  </data>
+  <data name="Tip_UpdateMoves" xml:space="preserve">
+    <value>Applies the changes later games made to the moves (power, accuracy, PP).</value>
+  </data>
+  <data name="Tip_UpdateMovesToGeneration" xml:space="preserve">
+    <value>Which generation's move data to copy.</value>
+  </data>
+  <data name="Tip_MovesetsMod" xml:space="preserve">
+    <value>Rebuilds what every Pokémon learns by levelling up.</value>
+  </data>
+  <data name="Tip_StartWithGuaranteedMoves" xml:space="preserve">
+    <value>Every Pokémon knows a few damaging moves from the start, so an early catch is not useless.</value>
+  </data>
+  <data name="Tip_GuaranteedMoveCount" xml:space="preserve">
+    <value>How many of those moves it starts with.</value>
+  </data>
+  <data name="Tip_ReorderDamagingMoves" xml:space="preserve">
+    <value>Sorts what it learns so the stronger moves come later, as the games do.</value>
+  </data>
+  <data name="Tip_MovesetsForceGoodDamaging" xml:space="preserve">
+    <value>Makes sure a good part of what it learns really does damage.</value>
+  </data>
+  <data name="Tip_MovesetsGoodDamagingPercent" xml:space="preserve">
+    <value>What percentage of the moveset has to be good damaging moves.</value>
+  </data>
+  <data name="Tip_BlockBrokenMovesetMoves" xml:space="preserve">
+    <value>Keeps the moves that break the game (one-hit KOs, Swagger…) out of what Pokémon learn.</value>
+  </data>
+  <data name="Tip_EvolutionMovesForAll" xml:space="preserve">
+    <value>Every Pokémon gets a move it learns the moment it evolves.</value>
+  </data>
+  <data name="Tip_TrainersMod" xml:space="preserve">
+    <value>Changes the Pokémon of every trainer. This is what makes the game's battles unpredictable.</value>
+  </data>
+  <data name="Tip_RivalCarriesStarterThroughout" xml:space="preserve">
+    <value>Your rival keeps the starter that beats yours, and evolves it as the game goes on.</value>
+  </data>
+  <data name="Tip_TrainersUsePokemonOfSimilarStrength" xml:space="preserve">
+    <value>A trainer gets Pokémon as strong as the ones they had, so the difficulty curve holds.</value>
+  </data>
+  <data name="Tip_TrainersMatchTypingDistribution" xml:space="preserve">
+    <value>Gym leaders and type specialists keep a team of their own type.</value>
+  </data>
+  <data name="Tip_TrainersBlockLegendaries" xml:space="preserve">
+    <value>No trainer is handed a legendary.</value>
+  </data>
+  <data name="Tip_TrainersBlockEarlyWonderGuard" xml:space="preserve">
+    <value>No early trainer gets a Pokémon with Wonder Guard, which you could not beat yet.</value>
+  </data>
+  <data name="Tip_TrainersEnforceDistribution" xml:space="preserve">
+    <value>Spreads the species out so the same Pokémon does not show up in every battle.</value>
+  </data>
+  <data name="Tip_TrainersEnforceMainPlaythrough" xml:space="preserve">
+    <value>Makes sure the Pokémon of the main story cover several types, so no single type of yours sweeps the game.</value>
+  </data>
+  <data name="Tip_TrainersForceFullyEvolved" xml:space="preserve">
+    <value>From a level you choose, trainers only use fully evolved Pokémon.</value>
+  </data>
+  <data name="Tip_TrainersForceFullyEvolvedLevel" xml:space="preserve">
+    <value>The level from which that applies.</value>
+  </data>
+  <data name="Tip_EliteFourUniquePokemonNumber" xml:space="preserve">
+    <value>How many Pokémon of each Elite Four member are unique: legendaries or very strong ones nobody else uses.</value>
+  </data>
+  <data name="Tip_AllowTrainerAlternateFormes" xml:space="preserve">
+    <value>Trainers can carry alternate formes (regional, Mega…).</value>
+  </data>
+  <data name="Tip_SwapTrainerMegaEvos" xml:space="preserve">
+    <value>A trainer who could Mega Evolve keeps being able to, with the new Pokémon and its stone.</value>
+  </data>
+  <data name="Tip_DoubleBattleMode" xml:space="preserve">
+    <value>Turns the game's single battles into double battles.</value>
+  </data>
+  <data name="Tip_AdditionalBossTrainerPokemon" xml:space="preserve">
+    <value>Extra Pokémon for gym leaders, the Elite Four and the Champion: the quickest way to make the game harder.</value>
+  </data>
+  <data name="Tip_AdditionalImportantTrainerPokemon" xml:space="preserve">
+    <value>Extra Pokémon for rivals and other important trainers.</value>
+  </data>
+  <data name="Tip_AdditionalRegularTrainerPokemon" xml:space="preserve">
+    <value>Extra Pokémon for every ordinary trainer.</value>
+  </data>
+  <data name="Tip_RandomizeHeldItemsForBossTrainerPokemon" xml:space="preserve">
+    <value>The Pokémon of leaders, Elite Four and Champion carry a random item.</value>
+  </data>
+  <data name="Tip_RandomizeHeldItemsForImportantTrainerPokemon" xml:space="preserve">
+    <value>The Pokémon of rivals and important trainers carry a random item.</value>
+  </data>
+  <data name="Tip_RandomizeHeldItemsForRegularTrainerPokemon" xml:space="preserve">
+    <value>The Pokémon of ordinary trainers carry a random item.</value>
+  </data>
+  <data name="Tip_ConsumableItemsOnlyForTrainers" xml:space="preserve">
+    <value>Those items are only ones that get used up (berries, gems), never permanent ones.</value>
+  </data>
+  <data name="Tip_SensibleItemsOnlyForTrainers" xml:space="preserve">
+    <value>The item fits the Pokémon that holds it, instead of being pure chance.</value>
+  </data>
+  <data name="Tip_HighestLevelGetsItemsForTrainers" xml:space="preserve">
+    <value>Only the trainer's highest level Pokémon gets an item.</value>
+  </data>
+  <data name="Tip_BetterTrainerMovesets" xml:space="preserve">
+    <value>Trainers pick better moves for their Pokémon instead of the last four they learned.</value>
+  </data>
+  <data name="Tip_RandomizeTrainerNames" xml:space="preserve">
+    <value>Changes the trainers' names.</value>
+  </data>
+  <data name="Tip_RandomizeTrainerClassNames" xml:space="preserve">
+    <value>Changes the trainer classes (Youngster, Bug Catcher…).</value>
+  </data>
+  <data name="Tip_WildPokemonMod" xml:space="preserve">
+    <value>Changes what you find in the grass, the water and the caves.</value>
+  </data>
+  <data name="Tip_WildPokemonRestrictionMod" xml:space="preserve">
+    <value>How much sense the encounters keep: none, similar power, same type as the area, or the original's family.</value>
+  </data>
+  <data name="Tip_UseTimeBasedEncounters" xml:space="preserve">
+    <value>Also randomizes the encounters that only happen at certain times of day.</value>
+  </data>
+  <data name="Tip_BlockWildLegendaries" xml:space="preserve">
+    <value>No legendary appears as a wild Pokémon.</value>
+  </data>
+  <data name="Tip_AllowWildAltFormes" xml:space="preserve">
+    <value>Alternate formes can appear in the wild.</value>
+  </data>
+  <data name="Tip_BalanceShakingGrass" xml:space="preserve">
+    <value>The special encounters (shaking grass and the like) are not far stronger than the rest of the area.</value>
+  </data>
+  <data name="Tip_UseMinimumCatchRate" xml:space="preserve">
+    <value>Raises the catch rate of every Pokémon, so a randomized run does not waste dozens of balls.</value>
+  </data>
+  <data name="Tip_MinimumCatchRateLevel" xml:space="preserve">
+    <value>How much it is raised: 1 barely, 5 makes almost everything easy to catch.</value>
+  </data>
+  <data name="Tip_RandomizeWildPokemonHeldItems" xml:space="preserve">
+    <value>Wild Pokémon carry a random item.</value>
+  </data>
+  <data name="Tip_BanBadRandomWildPokemonHeldItems" xml:space="preserve">
+    <value>Those items are never useless ones.</value>
+  </data>
+  <data name="Tip_WildLevelsModified" xml:space="preserve">
+    <value>Raises or lowers the level of the wild Pokémon.</value>
+  </data>
+  <data name="Tip_WildLevelModifier" xml:space="preserve">
+    <value>By what percentage their level changes.</value>
+  </data>
+  <data name="Tip_TmsMod" xml:space="preserve">
+    <value>Changes which move each TM teaches.</value>
+  </data>
+  <data name="Tip_KeepFieldMoveTMs" xml:space="preserve">
+    <value>The TMs of moves needed outside battle (Fly, Surf…) keep their move.</value>
+  </data>
+  <data name="Tip_TmsForceGoodDamaging" xml:space="preserve">
+    <value>Makes sure a good part of the TMs really do damage.</value>
+  </data>
+  <data name="Tip_TmsGoodDamagingPercent" xml:space="preserve">
+    <value>What percentage of the TMs have to be good damaging moves.</value>
+  </data>
+  <data name="Tip_BlockBrokenTMMoves" xml:space="preserve">
+    <value>Keeps the moves that break the game out of the TMs.</value>
+  </data>
+  <data name="Tip_TmsHmsCompatibilityMod" xml:space="preserve">
+    <value>Changes which Pokémon can learn each TM and HM.</value>
+  </data>
+  <data name="Tip_TmLevelUpMoveSanity" xml:space="preserve">
+    <value>If a Pokémon learns a move by levelling up, it can also learn its TM.</value>
+  </data>
+  <data name="Tip_TmsFollowEvolutions" xml:space="preserve">
+    <value>An evolution can learn everything its preevolution could.</value>
+  </data>
+  <data name="Tip_FullHMCompat" xml:space="preserve">
+    <value>Every Pokémon can learn every HM, so no team is stuck outside the map.</value>
+  </data>
+  <data name="Tip_MoveTutorMovesMod" xml:space="preserve">
+    <value>Changes what the move tutors teach.</value>
+  </data>
+  <data name="Tip_KeepFieldMoveTutors" xml:space="preserve">
+    <value>The tutors of moves needed outside battle keep their move.</value>
+  </data>
+  <data name="Tip_TutorsForceGoodDamaging" xml:space="preserve">
+    <value>Makes sure a good part of what the tutors teach really does damage.</value>
+  </data>
+  <data name="Tip_TutorsGoodDamagingPercent" xml:space="preserve">
+    <value>What percentage of the tutor moves have to be good damaging moves.</value>
+  </data>
+  <data name="Tip_BlockBrokenTutorMoves" xml:space="preserve">
+    <value>Keeps the moves that break the game out of the tutors.</value>
+  </data>
+  <data name="Tip_MoveTutorsCompatibilityMod" xml:space="preserve">
+    <value>Changes which Pokémon each tutor will teach.</value>
+  </data>
+  <data name="Tip_TutorLevelUpMoveSanity" xml:space="preserve">
+    <value>If a Pokémon learns a move by levelling up, a tutor will also teach it that move.</value>
+  </data>
+  <data name="Tip_TutorFollowEvolutions" xml:space="preserve">
+    <value>An evolution can be taught everything its preevolution could.</value>
+  </data>
+  <data name="Tip_FieldItemsMod" xml:space="preserve">
+    <value>Changes the items lying on the ground and the ones people give you.</value>
+  </data>
+  <data name="Tip_BanBadRandomFieldItems" xml:space="preserve">
+    <value>Those items are never useless ones.</value>
+  </data>
+  <data name="Tip_ShopItemsMod" xml:space="preserve">
+    <value>Changes what the shops sell.</value>
+  </data>
+  <data name="Tip_BanBadRandomShopItems" xml:space="preserve">
+    <value>The shops never sell useless items.</value>
+  </data>
+  <data name="Tip_BanRegularShopItems" xml:space="preserve">
+    <value>The ordinary items (Poké Balls, Potions) stop being sold, leaving only the rest.</value>
+  </data>
+  <data name="Tip_BanOPShopItems" xml:space="preserve">
+    <value>The shops do not sell items that break the game (Rare Candies, Master Balls…).</value>
+  </data>
+  <data name="Tip_BalanceShopPrices" xml:space="preserve">
+    <value>Item prices are set by how useful they are, instead of the game's own.</value>
+  </data>
+  <data name="Tip_GuaranteeEvolutionItems" xml:space="preserve">
+    <value>Evolution items are on sale somewhere, so a randomized evolution is not out of reach.</value>
+  </data>
+  <data name="Tip_GuaranteeXItems" xml:space="preserve">
+    <value>The X items (X Attack and the like) are on sale somewhere.</value>
+  </data>
+  <data name="Tip_PickupItemsMod" xml:space="preserve">
+    <value>Changes what the Pickup ability finds.</value>
+  </data>
+  <data name="Tip_BanBadRandomPickupItems" xml:space="preserve">
+    <value>What Pickup finds is never useless.</value>
+  </data>
+  <data name="Tip_TotemPokemonMod" xml:space="preserve">
+    <value>Changes the Totem Pokémon of the trials.</value>
+  </data>
+  <data name="Tip_AllyPokemonMod" xml:space="preserve">
+    <value>Changes the allies a Totem Pokémon calls for help.</value>
+  </data>
+  <data name="Tip_AuraMod" xml:space="preserve">
+    <value>Changes the aura that raises a Totem Pokémon's stats at the start of the battle.</value>
+  </data>
+  <data name="Tip_RandomizeTotemHeldItems" xml:space="preserve">
+    <value>Totem Pokémon carry a random item.</value>
+  </data>
+  <data name="Tip_AllowTotemAltFormes" xml:space="preserve">
+    <value>Totem Pokémon can be alternate formes.</value>
+  </data>
+  <data name="Tip_TotemLevelsModified" xml:space="preserve">
+    <value>Raises or lowers the level of the Totem Pokémon.</value>
+  </data>
+  <data name="Tip_TotemLevelModifier" xml:space="preserve">
+    <value>By what percentage their level changes.</value>
+  </data>
+  <data name="Tip_BanIrregularAltFormes" xml:space="preserve">
+    <value>Keeps out the formes that only exist inside a battle (Megas, Zygarde Complete, the fusions).</value>
+  </data>
+  <data name="Tip_RaceMode" xml:space="preserve">
+    <value>For racing the same ROM with other people: no log is saved and a check value is generated so everyone can prove they play the same game.</value>
+  </data>
+  <data name="Tip_BlockBrokenMoves" xml:space="preserve">
+    <value>Keeps the moves that break the game out of everything at once.</value>
+  </data>
+  <data name="Tip_ShinyChance" xml:space="preserve">
+    <value>Raises the chance of a wild Pokémon being shiny.</value>
+  </data>
 </root>

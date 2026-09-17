@@ -102,8 +102,8 @@
             </StackPanel>
             <StackPanel Grid.Column="1" Margin="16,0,0,0" Spacing="2">
               <TextBlock Classes="card-title" Text="{x:Static r:Strings.Room_RulesTitle}" />
-              <CheckBox Content="{x:Static r:Strings.Room_ShareParty}" IsChecked="{Binding ShareParty}" />
-              <CheckBox Content="{x:Static r:Strings.Room_ShareBoxes}" IsChecked="{Binding ShareBoxes}" />
+              <CheckBox ToolTip.Tip="{x:Static r:Strings.Tip_RoomShareParty}" Content="{x:Static r:Strings.Room_ShareParty}" IsChecked="{Binding ShareParty}" />
+              <CheckBox ToolTip.Tip="{x:Static r:Strings.Tip_RoomShareBoxes}" Content="{x:Static r:Strings.Room_ShareBoxes}" IsChecked="{Binding ShareBoxes}" />
             </StackPanel>
           </Grid>
 
@@ -179,14 +179,14 @@
                             <WrapPanel>
                               <StackPanel Margin="0,0,16,4" Spacing="2">
                                 <TextBlock Classes="hint" Text="{x:Static r:Strings.Battle_Generation}" />
-                                <ComboBox SelectedIndex="{Binding GenerationIndex}" Width="220">
+                                <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_BattleGeneration}" SelectedIndex="{Binding GenerationIndex}" Width="220">
                                   <ComboBoxItem Content="{x:Static r:Strings.Battle_Gen6}" />
                                   <ComboBoxItem Content="{x:Static r:Strings.Battle_Gen7}" />
                                 </ComboBox>
                               </StackPanel>
                               <StackPanel Margin="0,0,16,4" Spacing="2">
                                 <TextBlock Classes="hint" Text="{x:Static r:Strings.Battle_Level}" />
-                                <ComboBox SelectedIndex="{Binding LevelIndex}" Width="180">
+                                <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_BattleLevel}" SelectedIndex="{Binding LevelIndex}" Width="180">
                                   <ComboBoxItem Content="{x:Static r:Strings.Battle_LevelSave}" />
                                   <ComboBoxItem Content="{x:Static r:Strings.Battle_Level50}" />
                                   <ComboBoxItem Content="{x:Static r:Strings.Battle_Level100}" />
@@ -194,16 +194,16 @@
                               </StackPanel>
                             </WrapPanel>
                             <WrapPanel>
-                              <CheckBox Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_HealBefore}" IsChecked="{Binding HealBefore}" />
-                              <CheckBox Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_TeamPreview}" IsChecked="{Binding TeamPreview}" />
-                              <CheckBox Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_SleepClause}" IsChecked="{Binding SleepClause}" />
-                              <CheckBox Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_SpeciesClause}" IsChecked="{Binding SpeciesClause}" />
-                              <CheckBox Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_ItemClause}" IsChecked="{Binding ItemClause}" />
-                              <CheckBox Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_OhkoClause}" IsChecked="{Binding OhkoClause}" />
-                              <CheckBox Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_EvasionClause}" IsChecked="{Binding EvasionClause}" />
-                              <CheckBox Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_BatonPassClause}" IsChecked="{Binding BatonPassClause}" />
-                              <CheckBox Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_NoMegas}" IsChecked="{Binding NoMegas}" />
-                              <CheckBox Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_NoZMoves}" IsChecked="{Binding NoZMoves}" />
+                              <CheckBox ToolTip.Tip="{x:Static r:Strings.Tip_BattleHealBefore}" Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_HealBefore}" IsChecked="{Binding HealBefore}" />
+                              <CheckBox ToolTip.Tip="{x:Static r:Strings.Tip_BattleTeamPreview}" Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_TeamPreview}" IsChecked="{Binding TeamPreview}" />
+                              <CheckBox ToolTip.Tip="{x:Static r:Strings.Tip_BattleSleepClause}" Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_SleepClause}" IsChecked="{Binding SleepClause}" />
+                              <CheckBox ToolTip.Tip="{x:Static r:Strings.Tip_BattleSpeciesClause}" Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_SpeciesClause}" IsChecked="{Binding SpeciesClause}" />
+                              <CheckBox ToolTip.Tip="{x:Static r:Strings.Tip_BattleItemClause}" Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_ItemClause}" IsChecked="{Binding ItemClause}" />
+                              <CheckBox ToolTip.Tip="{x:Static r:Strings.Tip_BattleOhkoClause}" Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_OhkoClause}" IsChecked="{Binding OhkoClause}" />
+                              <CheckBox ToolTip.Tip="{x:Static r:Strings.Tip_BattleEvasionClause}" Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_EvasionClause}" IsChecked="{Binding EvasionClause}" />
+                              <CheckBox ToolTip.Tip="{x:Static r:Strings.Tip_BattleBatonPassClause}" Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_BatonPassClause}" IsChecked="{Binding BatonPassClause}" />
+                              <CheckBox ToolTip.Tip="{x:Static r:Strings.Tip_BattleNoMegas}" Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_NoMegas}" IsChecked="{Binding NoMegas}" />
+                              <CheckBox ToolTip.Tip="{x:Static r:Strings.Tip_BattleNoZMoves}" Margin="0,0,14,0" Content="{x:Static r:Strings.Battle_NoZMoves}" IsChecked="{Binding NoZMoves}" />
                             </WrapPanel>
                             <TextBlock Classes="hint" Text="{x:Static r:Strings.Battle_RulesHint}" TextWrapping="Wrap" />
                             <StackPanel Orientation="Horizontal" Spacing="6">

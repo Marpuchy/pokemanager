@@ -2847,4 +2847,502 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Shops_UndoRemove" xml:space="preserve">
     <value>{0} off the shops</value>
   </data>
+  <data name="Tip_SettingsLanguage" xml:space="preserve">
+    <value>Language of the application and of the game texts it shows. It applies when you restart.</value>
+  </data>
+  <data name="Tip_SettingsEmulator" xml:space="preserve">
+    <value>Whose save the application reads and writes. It starts on the emulator you used last.</value>
+  </data>
+  <data name="Tip_LockeMaxLives" xml:space="preserve">
+    <value>How many lives the run has. When they are all gone, the run is over.</value>
+  </data>
+  <data name="Tip_LockeLivesLost" xml:space="preserve">
+    <value>Lives already lost. The roulette can give one back.</value>
+  </data>
+  <data name="Tip_LockeRouletteFirst" xml:space="preserve">
+    <value>First badge (or trial) that gives a spin.</value>
+  </data>
+  <data name="Tip_LockeRouletteLast" xml:space="preserve">
+    <value>Last badge (or trial) that gives a spin.</value>
+  </data>
+  <data name="Tip_LockeRouletteEvery" xml:space="preserve">
+    <value>One spin every so many badges: 1 is every badge, 2 is every other one.</value>
+  </data>
+  <data name="Tip_LockePrizeKind" xml:space="preserve">
+    <value>What the prize is: an item, money, a life, plain text you write, or nothing.</value>
+  </data>
+  <data name="Tip_LockePrizeItem" xml:space="preserve">
+    <value>The item it gives. The application puts it in your bag when you claim it.</value>
+  </data>
+  <data name="Tip_LockePrizeAmount" xml:space="preserve">
+    <value>How many of the item, or how much money.</value>
+  </data>
+  <data name="Tip_LockePrizeWeight" xml:space="preserve">
+    <value>How likely this prize is next to the others: twice the weight, twice the chance.</value>
+  </data>
+  <data name="Tip_RandomizerEnabled" xml:space="preserve">
+    <value>Whether the ROM is randomized when it is built. Off, it is built with your manual edits only.</value>
+  </data>
+  <data name="Tip_RandomizerReplace" xml:space="preserve">
+    <value>Overwrites the ROM built last time instead of leaving files piling up.</value>
+  </data>
+  <data name="Tip_RandomizerCreateNew" xml:space="preserve">
+    <value>Leaves the previous ROM where it is and writes another one with this name.</value>
+  </data>
+  <data name="Tip_RandomizerUpdateSave" xml:space="preserve">
+    <value>Adapts your save to the new ROM: the abilities and stats of the Pokémon you already caught. It backs the save up first.</value>
+  </data>
+  <data name="Tip_ShopsPickItem" xml:space="preserve">
+    <value>The item to put on sale in every ordinary Poké Mart.</value>
+  </data>
+  <data name="Tip_LearnsetLevel" xml:space="preserve">
+    <value>The level at which it learns the move.</value>
+  </data>
+  <data name="Tip_LearnsetMove" xml:space="preserve">
+    <value>The move it learns at that level.</value>
+  </data>
+  <data name="Tip_TrainerAiLevelPick" xml:space="preserve">
+    <value>The AI the trainers of this class use in battle.</value>
+  </data>
+  <data name="Tip_TrainerBattleTypePick" xml:space="preserve">
+    <value>The kind of battle these trainers start: single, double or the game's own modes.</value>
+  </data>
+  <data name="Tip_TrainerIvsValue" xml:space="preserve">
+    <value>The IVs, 0 to 31, that every Pokémon of these trainers gets.</value>
+  </data>
+  <data name="Tip_TrainerLevelPercentValue" xml:space="preserve">
+    <value>What their levels become, as a percentage: 100 leaves them as they are, 120 raises them a fifth.</value>
+  </data>
+  <data name="Tip_TrainerTeamIvsValue" xml:space="preserve">
+    <value>The IVs, 0 to 31, to give to this trainer's whole team.</value>
+  </data>
+  <data name="Tip_RoomShareParty" xml:space="preserve">
+    <value>Whether the players in the room see your party.</value>
+  </data>
+  <data name="Tip_RoomShareBoxes" xml:space="preserve">
+    <value>Whether they also see your boxes.</value>
+  </data>
+  <data name="Tip_BattleGeneration" xml:space="preserve">
+    <value>Which game's battle mechanics are used. Each side still fights with the data of its own ROM.</value>
+  </data>
+  <data name="Tip_BattleLevel" xml:space="preserve">
+    <value>The level both teams fight at: the one they have in the save, or the same level for everyone.</value>
+  </data>
+  <data name="Tip_BattleHealBefore" xml:space="preserve">
+    <value>Both teams start with full HP and PP, whatever state the save is in.</value>
+  </data>
+  <data name="Tip_BattleTeamPreview" xml:space="preserve">
+    <value>Both players see the other's team before choosing who leads.</value>
+  </data>
+  <data name="Tip_BattleSleepClause" xml:space="preserve">
+    <value>Only one of the opponent's Pokémon can be asleep at a time.</value>
+  </data>
+  <data name="Tip_BattleSpeciesClause" xml:space="preserve">
+    <value>No repeating a species in the same team.</value>
+  </data>
+  <data name="Tip_BattleItemClause" xml:space="preserve">
+    <value>No repeating a held item in the same team.</value>
+  </data>
+  <data name="Tip_BattleOhkoClause" xml:space="preserve">
+    <value>No one-hit KO moves (Fissure, Horn Drill…).</value>
+  </data>
+  <data name="Tip_BattleEvasionClause" xml:space="preserve">
+    <value>No moves that raise evasion (Double Team, Minimize).</value>
+  </data>
+  <data name="Tip_BattleBatonPassClause" xml:space="preserve">
+    <value>No Baton Pass, which hands over the stat changes.</value>
+  </data>
+  <data name="Tip_BattleNoMegas" xml:space="preserve">
+    <value>No Mega Evolution in this battle.</value>
+  </data>
+  <data name="Tip_BattleNoZMoves" xml:space="preserve">
+    <value>No Z-moves in this battle.</value>
+  </data>
+  <data name="Tip_SaveBoxPick" xml:space="preserve">
+    <value>Which box is shown. Nothing is moved by picking one.</value>
+  </data>
+  <data name="Tip_LogSection" xml:space="preserve">
+    <value>Which part of the randomization log is shown. It has spoilers.</value>
+  </data>
+  <data name="Tip_PkmNewSpecies" xml:space="preserve">
+    <value>Which Pokémon to create in this empty slot.</value>
+  </data>
+  <data name="Tip_PkmNewLevel" xml:space="preserve">
+    <value>The level it is created at. Its stats are worked out with the data of your ROM.</value>
+  </data>
+  <data name="Tip_PkmSpecies" xml:space="preserve">
+    <value>The species. Changing it keeps the level and recalculates the stats with your ROM's data.</value>
+  </data>
+  <data name="Tip_PkmForm" xml:space="preserve">
+    <value>The form of the species (regional, Mega, its different looks).</value>
+  </data>
+  <data name="Tip_PkmNicknamed" xml:space="preserve">
+    <value>Whether it keeps the nickname you gave it. Off, it is called by its species name.</value>
+  </data>
+  <data name="Tip_PkmLevelValue" xml:space="preserve">
+    <value>Its level. The stats follow it, with the base stats your ROM has now.</value>
+  </data>
+  <data name="Tip_PkmNature" xml:space="preserve">
+    <value>Its nature: it raises one stat by 10% and lowers another one.</value>
+  </data>
+  <data name="Tip_PkmAbility" xml:space="preserve">
+    <value>Its ability, out of the ones the species has in your ROM.</value>
+  </data>
+  <data name="Tip_PkmHeldItem" xml:space="preserve">
+    <value>The item it carries.</value>
+  </data>
+  <data name="Tip_PkmGender" xml:space="preserve">
+    <value>Its gender, among those its species allows.</value>
+  </data>
+  <data name="Tip_PkmShiny" xml:space="preserve">
+    <value>Whether it is shiny.</value>
+  </data>
+  <data name="Tip_PkmFriendship" xml:space="preserve">
+    <value>How much it likes you, 0 to 255. Some evolutions and moves depend on it.</value>
+  </data>
+  <data name="Tip_PkmBall" xml:space="preserve">
+    <value>The ball it was caught in.</value>
+  </data>
+  <data name="Tip_PkmMove" xml:space="preserve">
+    <value>One of its four moves. The PP come from your ROM's move table.</value>
+  </data>
+  <data name="Tip_PkmPPUps" xml:space="preserve">
+    <value>PP Ups used on this move, 0 to 3: each one raises its PP.</value>
+  </data>
+  <data name="Tip_PkmIv" xml:space="preserve">
+    <value>Individual value, 0 to 31: what this Pokémon was born with. It cannot be trained.</value>
+  </data>
+  <data name="Tip_PkmEv" xml:space="preserve">
+    <value>Effort value, 0 to 252 per stat and 510 in total: what it gained from training.</value>
+  </data>
+  <data name="Tip_PkmContest" xml:space="preserve">
+    <value>Contest condition, 0 to 255. It does nothing in battle.</value>
+  </data>
+  <data name="Tip_BagItemPick" xml:space="preserve">
+    <value>Which item this slot of the pocket holds.</value>
+  </data>
+  <data name="Tip_BagCount" xml:space="preserve">
+    <value>How many of it you carry.</value>
+  </data>
+  <data name="Tip_TrainerGenderPick" xml:space="preserve">
+    <value>Your trainer's gender.</value>
+  </data>
+  <data name="Tip_TrainerMoneyValue" xml:space="preserve">
+    <value>The money you carry.</value>
+  </data>
+  <data name="Tip_TrainerBattlePoints" xml:space="preserve">
+    <value>Battle Points, what the battle facilities pay in.</value>
+  </data>
+  <data name="Tip_TrainerVivillonPattern" xml:space="preserve">
+    <value>The Vivillon pattern of your save, which depends on the console's region.</value>
+  </data>
+  <data name="Tip_TrainerMegaFlag" xml:space="preserve">
+    <value>Whether the game already let you Mega Evolve.</value>
+  </data>
+  <data name="Tip_TrainerZMovesFlag" xml:space="preserve">
+    <value>Whether you already have the Z-Ring, which is what lets Z-moves be used.</value>
+  </data>
+  <data name="Tip_TrainerMilestoneFlag" xml:space="preserve">
+    <value>Whether you have this badge or trial. The game opens areas and obeys traded Pokémon by these.</value>
+  </data>
+  <data name="Tip_TrainerBoxesUnlockedValue" xml:space="preserve">
+    <value>How many boxes of the PC are open.</value>
+  </data>
+  <data name="Tip_TrainerPlayTimeValue" xml:space="preserve">
+    <value>The play time the game shows.</value>
+  </data>
+  <data name="Tip_TrainerStartedTime" xml:space="preserve">
+    <value>The hour of the day your adventure started.</value>
+  </data>
+  <data name="Tip_TrainerHallOfFameFlag" xml:space="preserve">
+    <value>Whether you already beat the league and entered the Hall of Fame.</value>
+  </data>
+  <data name="Tip_TrainerFameTime" xml:space="preserve">
+    <value>The hour of the day you entered the Hall of Fame.</value>
+  </data>
+  <data name="Tip_TrainerRecordValue" xml:space="preserve">
+    <value>The number the game keeps for this record.</value>
+  </data>
+  <data name="Tip_TrainerStreakCurrent" xml:space="preserve">
+    <value>Your current streak in this facility.</value>
+  </data>
+  <data name="Tip_TrainerStreakBest" xml:space="preserve">
+    <value>The best streak you ever got.</value>
+  </data>
+  <data name="Tip_TrainerStreakSuperCurrent" xml:space="preserve">
+    <value>Your current streak in the super mode.</value>
+  </data>
+  <data name="Tip_TrainerStreakSuperBest" xml:space="preserve">
+    <value>The best streak in the super mode.</value>
+  </data>
+  <data name="Tip_TrainerOPower" xml:space="preserve">
+    <value>The points the O-Powers use up.</value>
+  </data>
+  <data name="Tip_TrainerMapValue" xml:space="preserve">
+    <value>The map your character is standing on. Changing it can leave you inside a wall: only touch it if you are stuck.</value>
+  </data>
+  <data name="Tip_TrainerCoordinate" xml:space="preserve">
+    <value>Where you are on that map. One step is about 18.</value>
+  </data>
+  <data name="Tip_TrainerRotationValue" xml:space="preserve">
+    <value>Which way your character is facing.</value>
+  </data>
+  <data name="Tip_DexSeenFlag" xml:space="preserve">
+    <value>Whether the Pokédex counts this Pokémon as seen.</value>
+  </data>
+  <data name="Tip_DexCaughtFlag" xml:space="preserve">
+    <value>Whether the Pokédex counts it as caught. Caught also counts as seen.</value>
+  </data>
+  <data name="Tip_Field_personal_hp" xml:space="preserve">
+    <value>Base HP: how much life the species has before its level, IVs and EVs count.</value>
+  </data>
+  <data name="Tip_Field_personal_atk" xml:space="preserve">
+    <value>Base Attack, used by physical moves.</value>
+  </data>
+  <data name="Tip_Field_personal_def" xml:space="preserve">
+    <value>Base Defense, against physical moves.</value>
+  </data>
+  <data name="Tip_Field_personal_spa" xml:space="preserve">
+    <value>Base Special Attack, used by special moves.</value>
+  </data>
+  <data name="Tip_Field_personal_spd" xml:space="preserve">
+    <value>Base Special Defense, against special moves.</value>
+  </data>
+  <data name="Tip_Field_personal_spe" xml:space="preserve">
+    <value>Base Speed: who moves first.</value>
+  </data>
+  <data name="Tip_Field_personal_type1" xml:space="preserve">
+    <value>Its first type, the one that decides most of the damage it takes.</value>
+  </data>
+  <data name="Tip_Field_personal_type2" xml:space="preserve">
+    <value>Its second type; the same as the first means it has only one.</value>
+  </data>
+  <data name="Tip_Field_personal_ability1" xml:space="preserve">
+    <value>The ability it gets when it is the first one.</value>
+  </data>
+  <data name="Tip_Field_personal_ability2" xml:space="preserve">
+    <value>The ability it gets when it is the second one.</value>
+  </data>
+  <data name="Tip_Field_personal_abilityHidden" xml:space="preserve">
+    <value>Its hidden ability, the one the game only gives in special ways.</value>
+  </data>
+  <data name="Tip_Field_personal_catchRate" xml:space="preserve">
+    <value>How easy it is to catch, 3 (a legendary) to 255 (a Caterpie).</value>
+  </data>
+  <data name="Tip_Field_personal_baseExp" xml:space="preserve">
+    <value>How much experience beating it gives.</value>
+  </data>
+  <data name="Tip_Field_personal_expGrowth" xml:space="preserve">
+    <value>Its experience curve: how fast it levels up.</value>
+  </data>
+  <data name="Tip_Field_personal_gender" xml:space="preserve">
+    <value>Its gender ratio, 0 (always male) to 254 (always female); 255 is genderless.</value>
+  </data>
+  <data name="Tip_Field_personal_hatchCycles" xml:space="preserve">
+    <value>How many cycles its egg needs to hatch.</value>
+  </data>
+  <data name="Tip_Field_personal_baseFriendship" xml:space="preserve">
+    <value>The friendship it starts with when you catch it.</value>
+  </data>
+  <data name="Tip_Field_personal_eggGroup1" xml:space="preserve">
+    <value>Its first egg group, which says who it can breed with.</value>
+  </data>
+  <data name="Tip_Field_personal_eggGroup2" xml:space="preserve">
+    <value>Its second egg group.</value>
+  </data>
+  <data name="Tip_Field_personal_item1" xml:space="preserve">
+    <value>Item a wild one carries most of the time.</value>
+  </data>
+  <data name="Tip_Field_personal_item2" xml:space="preserve">
+    <value>Item a wild one carries now and then.</value>
+  </data>
+  <data name="Tip_Field_personal_item3" xml:space="preserve">
+    <value>Item a wild one hardly ever carries.</value>
+  </data>
+  <data name="Tip_Field_personal_evHp" xml:space="preserve">
+    <value>HP effort points beating it gives.</value>
+  </data>
+  <data name="Tip_Field_personal_evAtk" xml:space="preserve">
+    <value>Attack effort points beating it gives.</value>
+  </data>
+  <data name="Tip_Field_personal_evDef" xml:space="preserve">
+    <value>Defense effort points beating it gives.</value>
+  </data>
+  <data name="Tip_Field_personal_evSpa" xml:space="preserve">
+    <value>Special Attack effort points beating it gives.</value>
+  </data>
+  <data name="Tip_Field_personal_evSpd" xml:space="preserve">
+    <value>Special Defense effort points beating it gives.</value>
+  </data>
+  <data name="Tip_Field_personal_evSpe" xml:space="preserve">
+    <value>Speed effort points beating it gives.</value>
+  </data>
+  <data name="Tip_Field_personal_height" xml:space="preserve">
+    <value>Its height in centimetres, as the Pokédex shows it.</value>
+  </data>
+  <data name="Tip_Field_personal_weight" xml:space="preserve">
+    <value>Its weight in hectograms; moves like Grass Knot use it.</value>
+  </data>
+  <data name="Tip_Field_personal_escapeRate" xml:space="preserve">
+    <value>How easy it is to run from it in the wild.</value>
+  </data>
+  <data name="Tip_Field_personal_zCrystal" xml:space="preserve">
+    <value>The Z-crystal that gives this species its own Z-move.</value>
+  </data>
+  <data name="Tip_Field_personal_zBaseMove" xml:space="preserve">
+    <value>The move it has to know for that crystal to work. This is the one to change when a randomized run left it unreachable.</value>
+  </data>
+  <data name="Tip_Field_personal_zMove" xml:space="preserve">
+    <value>The Z-move that comes out.</value>
+  </data>
+  <data name="Tip_Field_move_type" xml:space="preserve">
+    <value>The move's type, which decides what it is effective against.</value>
+  </data>
+  <data name="Tip_Field_move_category" xml:space="preserve">
+    <value>Physical (it uses Attack), special (Special Attack) or status (no damage).</value>
+  </data>
+  <data name="Tip_Field_move_power" xml:space="preserve">
+    <value>Its power. 0 means it does no direct damage.</value>
+  </data>
+  <data name="Tip_Field_move_accuracy" xml:space="preserve">
+    <value>Its accuracy as a percentage; 0 means it never misses.</value>
+  </data>
+  <data name="Tip_Field_move_pp" xml:space="preserve">
+    <value>How many times it can be used before needing a restore.</value>
+  </data>
+  <data name="Tip_Field_move_priority" xml:space="preserve">
+    <value>Who moves first regardless of Speed: above 0 goes before, below 0 after.</value>
+  </data>
+  <data name="Tip_Field_move_critStage" xml:space="preserve">
+    <value>How much it raises the chance of a critical hit.</value>
+  </data>
+  <data name="Tip_Field_move_flinch" xml:space="preserve">
+    <value>Its chance of making the target flinch, as a percentage.</value>
+  </data>
+  <data name="Tip_Field_move_hitMin" xml:space="preserve">
+    <value>The fewest times it hits in one turn.</value>
+  </data>
+  <data name="Tip_Field_move_hitMax" xml:space="preserve">
+    <value>The most times it hits in one turn.</value>
+  </data>
+  <data name="Tip_Field_move_recoil" xml:space="preserve">
+    <value>Recoil damage as a percentage; a negative value heals instead.</value>
+  </data>
+  <data name="Tip_Field_move_inflictPercent" xml:space="preserve">
+    <value>Its chance of causing the secondary effect, as a percentage.</value>
+  </data>
+  <data name="Tip_Field_item_price" xml:space="preserve">
+    <value>What a shop charges for it. The game stores a tenth, so it goes in steps of ten.</value>
+  </data>
+  <data name="Tip_Field_trainer_ai" xml:space="preserve">
+    <value>The flags of the AI this trainer uses in battle.</value>
+  </data>
+  <data name="Tip_Field_trainer_class" xml:space="preserve">
+    <value>Their trainer class, which sets the sprite, the music and the money.</value>
+  </data>
+  <data name="Tip_Field_trainer_battleType" xml:space="preserve">
+    <value>The kind of battle they start: single, double or one of the game's own modes.</value>
+  </data>
+  <data name="Tip_Field_trainer_money" xml:space="preserve">
+    <value>The multiplier of what you win: the game multiplies it by the level of their last Pokémon.</value>
+  </data>
+  <data name="Tip_Field_trainer_flag" xml:space="preserve">
+    <value>A flag of the record whose meaning the games do not document.</value>
+  </data>
+  <data name="Tip_Field_trainer_customMoves" xml:space="preserve">
+    <value>Whether their Pokémon use the moves written here. Off, the game gives them the last four they learned.</value>
+  </data>
+  <data name="Tip_Field_trainer_heldItems" xml:space="preserve">
+    <value>Whether their Pokémon carry the item written here.</value>
+  </data>
+  <data name="Tip_Field_trainer_count" xml:space="preserve">
+    <value>How many Pokémon they bring, up to six.</value>
+  </data>
+  <data name="Tip_Field_trainer_item1" xml:space="preserve">
+    <value>An item they use during the battle, as a person (Full Restores and the like).</value>
+  </data>
+  <data name="Tip_Field_trainer_item2" xml:space="preserve">
+    <value>An item they use during the battle.</value>
+  </data>
+  <data name="Tip_Field_trainer_item3" xml:space="preserve">
+    <value>An item they use during the battle.</value>
+  </data>
+  <data name="Tip_Field_trainer_item4" xml:space="preserve">
+    <value>An item they use during the battle.</value>
+  </data>
+  <data name="Tip_Field_trainer_species" xml:space="preserve">
+    <value>The Pokémon in this slot.</value>
+  </data>
+  <data name="Tip_Field_trainer_form" xml:space="preserve">
+    <value>Its form (regional, Mega, its different looks).</value>
+  </data>
+  <data name="Tip_Field_trainer_level" xml:space="preserve">
+    <value>Its level.</value>
+  </data>
+  <data name="Tip_Field_trainer_ability" xml:space="preserve">
+    <value>Which of the species' abilities it uses.</value>
+  </data>
+  <data name="Tip_Field_trainer_gender" xml:space="preserve">
+    <value>Its gender.</value>
+  </data>
+  <data name="Tip_Field_trainer_item" xml:space="preserve">
+    <value>The item it holds during the battle.</value>
+  </data>
+  <data name="Tip_Field_trainer_move1" xml:space="preserve">
+    <value>One of its four moves; it is only used if the trainer has its own moves turned on.</value>
+  </data>
+  <data name="Tip_Field_trainer_move2" xml:space="preserve">
+    <value>One of its four moves; it is only used if the trainer has its own moves turned on.</value>
+  </data>
+  <data name="Tip_Field_trainer_move3" xml:space="preserve">
+    <value>One of its four moves; it is only used if the trainer has its own moves turned on.</value>
+  </data>
+  <data name="Tip_Field_trainer_move4" xml:space="preserve">
+    <value>One of its four moves; it is only used if the trainer has its own moves turned on.</value>
+  </data>
+  <data name="Tip_Field_trainer_ivs" xml:space="preserve">
+    <value>The IVs of every stat of this Pokémon, 0 to 31.</value>
+  </data>
+  <data name="Tip_Field_trainer_nature" xml:space="preserve">
+    <value>Its nature: it raises one stat and lowers another.</value>
+  </data>
+  <data name="Tip_Field_trainer_shiny" xml:space="preserve">
+    <value>Whether it comes out shiny.</value>
+  </data>
+  <data name="Tip_Field_trainer_ivHp" xml:space="preserve">
+    <value>Its HP IV, 0 to 31.</value>
+  </data>
+  <data name="Tip_Field_trainer_ivAtk" xml:space="preserve">
+    <value>Its Attack IV, 0 to 31.</value>
+  </data>
+  <data name="Tip_Field_trainer_ivDef" xml:space="preserve">
+    <value>Its Defense IV, 0 to 31.</value>
+  </data>
+  <data name="Tip_Field_trainer_ivSpa" xml:space="preserve">
+    <value>Its Special Attack IV, 0 to 31.</value>
+  </data>
+  <data name="Tip_Field_trainer_ivSpd" xml:space="preserve">
+    <value>Its Special Defense IV, 0 to 31.</value>
+  </data>
+  <data name="Tip_Field_trainer_ivSpe" xml:space="preserve">
+    <value>Its Speed IV, 0 to 31.</value>
+  </data>
+  <data name="Tip_Field_trainer_evHp" xml:space="preserve">
+    <value>Its HP EVs, up to 252.</value>
+  </data>
+  <data name="Tip_Field_trainer_evAtk" xml:space="preserve">
+    <value>Its Attack EVs, up to 252.</value>
+  </data>
+  <data name="Tip_Field_trainer_evDef" xml:space="preserve">
+    <value>Its Defense EVs, up to 252.</value>
+  </data>
+  <data name="Tip_Field_trainer_evSpa" xml:space="preserve">
+    <value>Its Special Attack EVs, up to 252.</value>
+  </data>
+  <data name="Tip_Field_trainer_evSpd" xml:space="preserve">
+    <value>Its Special Defense EVs, up to 252.</value>
+  </data>
+  <data name="Tip_Field_trainer_evSpe" xml:space="preserve">
+    <value>Its Speed EVs, up to 252.</value>
+  </data>
 </root>

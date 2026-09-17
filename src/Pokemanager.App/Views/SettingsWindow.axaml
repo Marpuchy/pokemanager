@@ -1,4 +1,4 @@
-<Window xmlns="https://github.com/avaloniaui"
+﻿<Window xmlns="https://github.com/avaloniaui"
         Icon="avares://Pokemanager.App/Assets/pokemanager.ico"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Pokemanager.App.ViewModels"
@@ -60,7 +60,7 @@
       <TextBlock Classes="hint" FontSize="11" Text="{x:Static r:Strings.Profile_Credit}" />
 
       <TextBlock Classes="section" Text="{x:Static r:Strings.Set_Language}" />
-      <ComboBox ItemsSource="{x:Static vm:SettingsViewModel.UiLanguages}" SelectedItem="{Binding SelectedLanguage}" MinWidth="200">
+      <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_SettingsLanguage}" ItemsSource="{x:Static vm:SettingsViewModel.UiLanguages}" SelectedItem="{Binding SelectedLanguage}" MinWidth="200">
         <ComboBox.ItemTemplate>
           <DataTemplate x:DataType="vm:UiLanguageOption">
             <TextBlock Text="{Binding Name}" />
@@ -72,7 +72,7 @@
       <TextBlock Classes="section" Text="{x:Static r:Strings.Set_Emulator}" />
       <TextBlock Classes="hint" Text="{x:Static r:Strings.Set_EmulatorHint}" />
       <Grid ColumnDefinitions="*,Auto">
-        <ComboBox ItemsSource="{Binding Emulators}" SelectedItem="{Binding SelectedEmulator}" HorizontalAlignment="Stretch">
+        <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_SettingsEmulator}" ItemsSource="{Binding Emulators}" SelectedItem="{Binding SelectedEmulator}" HorizontalAlignment="Stretch">
           <ComboBox.ItemTemplate>
             <DataTemplate x:DataType="vm:EmulatorOption">
               <TextBlock Text="{Binding Label}" TextTrimming="CharacterEllipsis" />

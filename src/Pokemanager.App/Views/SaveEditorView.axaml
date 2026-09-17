@@ -131,9 +131,9 @@
                   </Border>
                   <Grid ColumnDefinitions="140,*" RowDefinitions="Auto,Auto" >
                     <TextBlock Classes="row-label" Text="{x:Static r:Strings.Pkm_Species}" />
-                    <ComboBox Grid.Column="1" ItemsSource="{Binding SpeciesChoices}" SelectedIndex="{Binding NewSpecies}" HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
+                    <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_PkmNewSpecies}" Grid.Column="1" ItemsSource="{Binding SpeciesChoices}" SelectedIndex="{Binding NewSpecies}" HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
                     <TextBlock Grid.Row="1" Classes="row-label" Margin="0,6,8,0" Text="{x:Static r:Strings.Pkm_Level}" />
-                    <NumericUpDown Grid.Row="1" Grid.Column="1" Margin="0,6,0,0" Value="{Binding NewLevel}" Minimum="1" Maximum="100" Increment="1"
+                    <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_PkmNewLevel}" Grid.Row="1" Grid.Column="1" Margin="0,6,0,0" Value="{Binding NewLevel}" Minimum="1" Maximum="100" Increment="1"
                                    FormatString="0" ParsingNumberStyle="Integer" Width="140" HorizontalAlignment="Left" />
                   </Grid>
                   <Button Classes="accent" HorizontalAlignment="Left" Content="{x:Static r:Strings.Save_CreateButton}" Command="{Binding CreatePokemonCommand}" />
@@ -219,45 +219,45 @@
                                   </Style>
                                 </Grid.Styles>
                                 <TextBlock Grid.Row="0" Classes="row-label" Text="{x:Static r:Strings.Pkm_Species}" />
-                                <ComboBox Grid.Row="0" Grid.Column="1" ItemsSource="{Binding SpeciesNames}" SelectedIndex="{Binding SpeciesIndex}" HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
+                                <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_PkmSpecies}" Grid.Row="0" Grid.Column="1" ItemsSource="{Binding SpeciesNames}" SelectedIndex="{Binding SpeciesIndex}" HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
 
                                 <TextBlock Grid.Row="1" Classes="row-label" Text="{x:Static r:Strings.Pkm_FormLabel}" IsVisible="{Binding HasForms}" />
-                                <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding FormChoices}" SelectedItem="{Binding SelectedForm}" HorizontalAlignment="Stretch" IsVisible="{Binding HasForms}" />
+                                <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_PkmForm}" Grid.Row="1" Grid.Column="1" ItemsSource="{Binding FormChoices}" SelectedItem="{Binding SelectedForm}" HorizontalAlignment="Stretch" IsVisible="{Binding HasForms}" />
 
                                 <TextBlock Grid.Row="2" Classes="row-label" Text="{x:Static r:Strings.Pkm_Nickname}" />
                                 <Grid Grid.Row="2" Grid.Column="1" ColumnDefinitions="*,Auto">
                                   <TextBox Text="{Binding Nickname}" MaxLength="12" />
-                                  <CheckBox Grid.Column="1" Margin="8,0,0,0" IsChecked="{Binding IsNicknamed}" Content="{x:Static r:Strings.Pkm_Nicknamed}" />
+                                  <CheckBox ToolTip.Tip="{x:Static r:Strings.Tip_PkmNicknamed}" Grid.Column="1" Margin="8,0,0,0" IsChecked="{Binding IsNicknamed}" Content="{x:Static r:Strings.Pkm_Nicknamed}" />
                                 </Grid>
 
                                 <TextBlock Grid.Row="3" Classes="row-label" Text="{x:Static r:Strings.Pkm_Level}" />
                                 <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="8">
-                                  <NumericUpDown Value="{Binding Level}" Minimum="1" Maximum="100" Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="130" />
+                                  <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_PkmLevelValue}" Value="{Binding Level}" Minimum="1" Maximum="100" Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="130" />
                                   <TextBlock Classes="hint" VerticalAlignment="Center" Text="{Binding ExpText}" />
                                 </StackPanel>
 
                                 <TextBlock Grid.Row="4" Classes="row-label" Text="{x:Static r:Strings.Pkm_Nature}" />
-                                <ComboBox Grid.Row="4" Grid.Column="1" ItemsSource="{Binding NatureNames}" SelectedIndex="{Binding NatureIndex}" HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
+                                <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_PkmNature}" Grid.Row="4" Grid.Column="1" ItemsSource="{Binding NatureNames}" SelectedIndex="{Binding NatureIndex}" HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
 
                                 <TextBlock Grid.Row="5" Classes="row-label" Text="{x:Static r:Strings.Pkm_AbilityLabel}" />
-                                <ComboBox Grid.Row="5" Grid.Column="1" ItemsSource="{Binding AbilityChoices}" SelectedItem="{Binding SelectedAbility}" HorizontalAlignment="Stretch" />
+                                <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_PkmAbility}" Grid.Row="5" Grid.Column="1" ItemsSource="{Binding AbilityChoices}" SelectedItem="{Binding SelectedAbility}" HorizontalAlignment="Stretch" />
 
                                 <TextBlock Grid.Row="6" Classes="row-label" Text="{x:Static r:Strings.Pkm_HeldItem}" />
                                 <Grid Grid.Row="6" Grid.Column="1" ColumnDefinitions="Auto,*">
                                   <Border Classes="icon-circle">
                                     <Image Source="{Binding ItemIcon}" Width="20" Height="20" RenderOptions.BitmapInterpolationMode="None" />
                                   </Border>
-                                  <ComboBox Grid.Column="1" ItemsSource="{Binding ItemNames}" SelectedIndex="{Binding HeldItemIndex}" HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
+                                  <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_PkmHeldItem}" Grid.Column="1" ItemsSource="{Binding ItemNames}" SelectedIndex="{Binding HeldItemIndex}" HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
                                 </Grid>
 
                                 <TextBlock Grid.Row="7" Classes="row-label" Text="{x:Static r:Strings.Pkm_Gender}" />
                                 <Grid Grid.Row="7" Grid.Column="1" ColumnDefinitions="*,Auto">
-                                  <ComboBox ItemsSource="{Binding GenderChoices}" SelectedItem="{Binding SelectedGender}" HorizontalAlignment="Stretch" />
-                                  <CheckBox Grid.Column="1" Margin="8,0,0,0" IsChecked="{Binding IsShiny}" Content="{x:Static r:Strings.Pkm_Shiny}" />
+                                  <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_PkmGender}" ItemsSource="{Binding GenderChoices}" SelectedItem="{Binding SelectedGender}" HorizontalAlignment="Stretch" />
+                                  <CheckBox ToolTip.Tip="{x:Static r:Strings.Tip_PkmShiny}" Grid.Column="1" Margin="8,0,0,0" IsChecked="{Binding IsShiny}" Content="{x:Static r:Strings.Pkm_Shiny}" />
                                 </Grid>
 
                                 <TextBlock Grid.Row="9" Classes="row-label" Text="{x:Static r:Strings.Pkm_Friendship}" />
-                                <NumericUpDown Grid.Row="9" Grid.Column="1" Value="{Binding Friendship}" Minimum="0" Maximum="255" Increment="1" FormatString="0"
+                                <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_PkmFriendship}" Grid.Row="9" Grid.Column="1" Value="{Binding Friendship}" Minimum="0" Maximum="255" Increment="1" FormatString="0"
                                                ParsingNumberStyle="Integer" Width="130" HorizontalAlignment="Left" />
 
                                 <TextBlock Grid.Row="10" Classes="row-label" Text="{x:Static r:Strings.Pkm_Ball}" />
@@ -265,7 +265,7 @@
                                   <Border Classes="icon-circle">
                                     <Image Source="{Binding BallIcon}" Width="20" Height="20" RenderOptions.BitmapInterpolationMode="None" />
                                   </Border>
-                                  <ComboBox Grid.Column="1" ItemsSource="{Binding BallNames}" SelectedIndex="{Binding BallIndex}" HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
+                                  <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_PkmBall}" Grid.Column="1" ItemsSource="{Binding BallNames}" SelectedIndex="{Binding BallIndex}" HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
                                 </Grid>
 
                                 <TextBlock Grid.Row="11" Classes="row-label" Text="{x:Static r:Strings.Pkm_OriginalTrainer}" />
@@ -302,8 +302,8 @@
                                           <Image Source="{Binding TypeIcon}" Width="22" Height="22" ToolTip.Tip="{Binding TypeName}" />
                                           <Image Source="{Binding CategoryIcon}" Width="22" Height="22" ToolTip.Tip="{Binding CategoryText}" />
                                         </StackPanel>
-                                        <ComboBox Grid.Column="1" ItemsSource="{Binding MoveNames}" SelectedIndex="{Binding Move}" HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
-                                        <NumericUpDown Grid.Column="3" Value="{Binding PPUpsValue}" Minimum="0" Maximum="3" Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
+                                        <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_PkmMove}" Grid.Column="1" ItemsSource="{Binding MoveNames}" SelectedIndex="{Binding Move}" HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
+                                        <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_PkmPPUps}" Grid.Column="3" Value="{Binding PPUpsValue}" Minimum="0" Maximum="3" Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
                                         <TextBlock Grid.Column="4" Margin="6,0,0,0" Foreground="{Binding TypeForeground}" FontWeight="SemiBold" VerticalAlignment="Center" Text="{Binding PPText}" />
                                       </Grid>
                                     </Border>
@@ -361,8 +361,8 @@
                                               <Run Text="{Binding Label}" />
                                               <Run Text="{Binding NatureMark}" FontSize="10" />
                                             </TextBlock>
-                                            <NumericUpDown Grid.Column="1" Value="{Binding Iv}" Minimum="0" Maximum="31" Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
-                                            <NumericUpDown Grid.Column="3" Value="{Binding Ev}" Minimum="0" Maximum="252" Increment="4" FormatString="0" ParsingNumberStyle="Integer" />
+                                            <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_PkmIv}" Grid.Column="1" Value="{Binding Iv}" Minimum="0" Maximum="31" Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
+                                            <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_PkmEv}" Grid.Column="3" Value="{Binding Ev}" Minimum="0" Maximum="252" Increment="4" FormatString="0" ParsingNumberStyle="Integer" />
                                             <TextBlock Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right" FontWeight="Bold" FontSize="14" Foreground="{Binding LabelBrush}" Text="{Binding Stat}" />
                                           </Grid>
                                         </DataTemplate>
@@ -390,7 +390,7 @@
                                             <Border Grid.Column="1" Height="10" Background="#E8ECEF" VerticalAlignment="Center">
                                               <Border HorizontalAlignment="Left" Width="{Binding BarWidth}" Background="{Binding Brush}" BorderBrush="#30000000" BorderThickness="1" />
                                             </Border>
-                                            <NumericUpDown Grid.Column="3" Value="{Binding Value}" Minimum="0" Maximum="255" Increment="10" FormatString="0" ParsingNumberStyle="Integer" />
+                                            <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_PkmContest}" Grid.Column="3" Value="{Binding Value}" Minimum="0" Maximum="255" Increment="10" FormatString="0" ParsingNumberStyle="Integer" />
                                           </Grid>
                                         </DataTemplate>
                                       </ItemsControl.ItemTemplate>
@@ -535,10 +535,10 @@
                     <TextBlock Margin="14,12,14,4" FontSize="13" LineHeight="20" TextWrapping="Wrap" Text="{Binding SelectedItem.Description}" />
                     <Grid ColumnDefinitions="90,*" RowDefinitions="Auto,Auto,Auto" Margin="14,8,14,14">
                       <TextBlock Classes="row-label" Text="{x:Static r:Strings.Bag_Item}" />
-                      <ComboBox Grid.Column="1" Margin="0,2" ItemsSource="{Binding SelectedItem.Pocket.ItemNames}" SelectedIndex="{Binding SelectedItem.ItemIndex}"
+                      <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_BagItemPick}" Grid.Column="1" Margin="0,2" ItemsSource="{Binding SelectedItem.Pocket.ItemNames}" SelectedIndex="{Binding SelectedItem.ItemIndex}"
                                 HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
                       <TextBlock Grid.Row="1" Classes="row-label" Text="{x:Static r:Strings.Bag_Count}" />
-                      <NumericUpDown Grid.Row="1" Grid.Column="1" Margin="0,2" Value="{Binding SelectedItem.Count}" Minimum="1" Maximum="{Binding SelectedItem.MaxCount}"
+                      <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_BagCount}" Grid.Row="1" Grid.Column="1" Margin="0,2" Value="{Binding SelectedItem.Count}" Minimum="1" Maximum="{Binding SelectedItem.MaxCount}"
                                      Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="130" HorizontalAlignment="Left" />
                       <Button Grid.Row="2" Grid.Column="1" Margin="0,8,0,0" HorizontalAlignment="Left" Content="{x:Static r:Strings.Common_Remove}" Command="{Binding SelectedItem.RemoveCommand}" />
                     </Grid>
@@ -718,21 +718,21 @@
                       <TextBlock Grid.Row="0" Classes="row-label" Text="{x:Static r:Strings.Trainer_Name}" />
                       <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Name}" MaxLength="12" />
                       <TextBlock Grid.Row="1" Classes="row-label" Text="{x:Static r:Strings.Pkm_Gender}" />
-                      <ComboBox Grid.Row="1" Grid.Column="1" ItemsSource="{Binding Genders}" SelectedIndex="{Binding GenderIndex}" Width="200" />
+                      <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_TrainerGenderPick}" Grid.Row="1" Grid.Column="1" ItemsSource="{Binding Genders}" SelectedIndex="{Binding GenderIndex}" Width="200" />
                       <TextBlock Grid.Row="2" Classes="row-label" Text="{x:Static r:Strings.Trainer_IdLabel}" />
                       <TextBlock Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Text="{Binding IdText}" />
                       <TextBlock Grid.Row="3" Classes="row-label" Text="{x:Static r:Strings.Trainer_Money}" />
-                      <NumericUpDown Grid.Row="3" Grid.Column="1" Value="{Binding Money}" Minimum="0" Maximum="9999999" Increment="1000" FormatString="0" ParsingNumberStyle="Integer" Width="200" HorizontalAlignment="Left" />
+                      <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerMoneyValue}" Grid.Row="3" Grid.Column="1" Value="{Binding Money}" Minimum="0" Maximum="9999999" Increment="1000" FormatString="0" ParsingNumberStyle="Integer" Width="200" HorizontalAlignment="Left" />
                       <TextBlock Grid.Row="4" Classes="row-label" Text="{x:Static r:Strings.Trainer_BP}" />
-                      <NumericUpDown Grid.Row="4" Grid.Column="1" Value="{Binding BattlePoints}" Minimum="0" Maximum="9999" Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="200" HorizontalAlignment="Left" />
+                      <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerBattlePoints}" Grid.Row="4" Grid.Column="1" Value="{Binding BattlePoints}" Minimum="0" Maximum="9999" Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="200" HorizontalAlignment="Left" />
                       <TextBlock Grid.Row="5" Classes="row-label" Text="{x:Static r:Strings.Trainer_Vivillon}" />
-                      <ComboBox Grid.Row="5" Grid.Column="1" ItemsSource="{Binding VivillonPatterns}" SelectedIndex="{Binding VivillonIndex}" Width="200" MaxDropDownHeight="400" />
+                      <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_TrainerVivillonPattern}" Grid.Row="5" Grid.Column="1" ItemsSource="{Binding VivillonPatterns}" SelectedIndex="{Binding VivillonIndex}" Width="200" MaxDropDownHeight="400" />
                     </Grid>
 
                     <TextBlock Classes="section" Text="{x:Static r:Strings.Trainer_Progress}" />
-                    <CheckBox IsChecked="{Binding MegaEvolution}" Content="{x:Static r:Strings.Trainer_MegaEvolution}" />
+                    <CheckBox ToolTip.Tip="{x:Static r:Strings.Tip_TrainerMegaFlag}" IsChecked="{Binding MegaEvolution}" Content="{x:Static r:Strings.Trainer_MegaEvolution}" />
                     <TextBlock Classes="hint" Margin="28,0,0,6" Text="{x:Static r:Strings.Trainer_MegaEvolutionHint}" />
-                    <CheckBox IsChecked="{Binding ZMoves}" Content="{x:Static r:Strings.Trainer_ZMoves}" IsVisible="{Binding HasZMoves}" />
+                    <CheckBox ToolTip.Tip="{x:Static r:Strings.Tip_TrainerZMovesFlag}" IsChecked="{Binding ZMoves}" Content="{x:Static r:Strings.Trainer_ZMoves}" IsVisible="{Binding HasZMoves}" />
                     <TextBlock Margin="0,4,0,4" Text="{Binding MilestonesTitle}" />
                     <ItemsControl ItemsSource="{Binding Badges}">
                       <ItemsControl.ItemsPanel>
@@ -742,7 +742,7 @@
                       </ItemsControl.ItemsPanel>
                       <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:BadgeViewModel">
-                          <CheckBox IsChecked="{Binding IsChecked}">
+                          <CheckBox ToolTip.Tip="{x:Static r:Strings.Tip_TrainerMilestoneFlag}" IsChecked="{Binding IsChecked}">
                             <StackPanel Orientation="Horizontal" Spacing="6">
                               <Image Source="{Binding Icon}" Width="22" Height="22" IsVisible="{Binding HasIcon}" />
                               <TextBlock VerticalAlignment="Center" Text="{Binding Label}" />
@@ -754,7 +754,7 @@
                     <Grid ColumnDefinitions="170,*" Margin="0,8,0,0">
                       <TextBlock Classes="row-label" Text="{x:Static r:Strings.Trainer_BoxesUnlocked}" />
                       <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="0,4">
-                        <NumericUpDown Value="{Binding BoxesUnlocked}" Minimum="1" Maximum="{Binding BoxCount}" Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="130" />
+                        <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerBoxesUnlockedValue}" Value="{Binding BoxesUnlocked}" Minimum="1" Maximum="{Binding BoxCount}" Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="130" />
                         <Button Content="{x:Static r:Strings.Trainer_UnlockBoxes}" Command="{Binding UnlockAllBoxesCommand}" />
                       </StackPanel>
                     </Grid>
@@ -770,11 +770,11 @@
                       </Grid.Styles>
                       <TextBlock Grid.Row="0" Classes="row-label" Text="{x:Static r:Strings.Trainer_PlayTime}" />
                       <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Spacing="4">
-                        <NumericUpDown Value="{Binding Hours}" Minimum="0" Maximum="999" Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="110" />
+                        <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerPlayTimeValue}" Value="{Binding Hours}" Minimum="0" Maximum="999" Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="110" />
                         <TextBlock VerticalAlignment="Center" Text=":" />
-                        <NumericUpDown Value="{Binding Minutes}" Minimum="0" Maximum="59" Increment="1" FormatString="00" ParsingNumberStyle="Integer" Width="100" />
+                        <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerPlayTimeValue}" Value="{Binding Minutes}" Minimum="0" Maximum="59" Increment="1" FormatString="00" ParsingNumberStyle="Integer" Width="100" />
                         <TextBlock VerticalAlignment="Center" Text=":" />
-                        <NumericUpDown Value="{Binding Seconds}" Minimum="0" Maximum="59" Increment="1" FormatString="00" ParsingNumberStyle="Integer" Width="100" />
+                        <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerPlayTimeValue}" Value="{Binding Seconds}" Minimum="0" Maximum="59" Increment="1" FormatString="00" ParsingNumberStyle="Integer" Width="100" />
                       </StackPanel>
                       <TextBlock Grid.Row="1" Classes="row-label" Text="{x:Static r:Strings.Trainer_Started}" />
                       <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="4">
@@ -784,21 +784,21 @@
                           <Path Classes="calendar-glyph" />
                         </Panel>
                         <TextBlock VerticalAlignment="Center" Text=":" Opacity="0" />
-                        <NumericUpDown Value="{Binding StartedHour}" Minimum="0" Maximum="23" Increment="1" FormatString="00" ParsingNumberStyle="Integer" Width="100" />
+                        <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerStartedTime}" Value="{Binding StartedHour}" Minimum="0" Maximum="23" Increment="1" FormatString="00" ParsingNumberStyle="Integer" Width="100" />
                         <TextBlock VerticalAlignment="Center" Text=":" />
-                        <NumericUpDown Value="{Binding StartedMinute}" Minimum="0" Maximum="59" Increment="1" FormatString="00" ParsingNumberStyle="Integer" Width="100" />
+                        <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerStartedTime}" Value="{Binding StartedMinute}" Minimum="0" Maximum="59" Increment="1" FormatString="00" ParsingNumberStyle="Integer" Width="100" />
                       </StackPanel>
                       <TextBlock Grid.Row="2" Classes="row-label" Text="{x:Static r:Strings.Trainer_HallOfFame}" />
-                      <CheckBox Grid.Row="2" Grid.Column="1" IsChecked="{Binding HasHallOfFame}" Content="{x:Static r:Strings.Trainer_HallOfFameEntered}" />
+                      <CheckBox ToolTip.Tip="{x:Static r:Strings.Tip_TrainerHallOfFameFlag}" Grid.Row="2" Grid.Column="1" IsChecked="{Binding HasHallOfFame}" Content="{x:Static r:Strings.Trainer_HallOfFameEntered}" />
                       <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Spacing="4" IsVisible="{Binding HasHallOfFame}">
                         <Panel Width="110">
                           <CalendarDatePicker SelectedDate="{Binding FameDate}" HorizontalAlignment="Stretch" />
                           <Path Classes="calendar-glyph" />
                         </Panel>
                         <TextBlock VerticalAlignment="Center" Text=":" Opacity="0" />
-                        <NumericUpDown Value="{Binding FameHour}" Minimum="0" Maximum="23" Increment="1" FormatString="00" ParsingNumberStyle="Integer" Width="100" />
+                        <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerFameTime}" Value="{Binding FameHour}" Minimum="0" Maximum="23" Increment="1" FormatString="00" ParsingNumberStyle="Integer" Width="100" />
                         <TextBlock VerticalAlignment="Center" Text=":" />
-                        <NumericUpDown Value="{Binding FameMinute}" Minimum="0" Maximum="59" Increment="1" FormatString="00" ParsingNumberStyle="Integer" Width="100" />
+                        <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerFameTime}" Value="{Binding FameMinute}" Minimum="0" Maximum="59" Increment="1" FormatString="00" ParsingNumberStyle="Integer" Width="100" />
                       </StackPanel>
                       <TextBlock Grid.Row="4" Grid.Column="1" Classes="hint" Text="{Binding LastSavedText}" />
                     </Grid>
@@ -834,7 +834,7 @@
                       <Grid ColumnDefinitions="60,380,200">
                         <TextBlock Classes="hint" VerticalAlignment="Center" Text="{Binding Number}" />
                         <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
-                        <NumericUpDown Grid.Column="2" Value="{Binding Value}" Minimum="0" Maximum="{Binding Max}" Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
+                        <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerRecordValue}" Grid.Column="2" Value="{Binding Value}" Minimum="0" Maximum="{Binding Max}" Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
                       </Grid>
                     </DataTemplate>
                   </ListBox.ItemTemplate>
@@ -857,10 +857,10 @@
                     <DataTemplate x:DataType="vm:MaisonRowViewModel">
                       <Grid ColumnDefinitions="140,150,150,150,150" Margin="0,3">
                         <TextBlock Classes="row-label" Text="{Binding Style}" />
-                        <NumericUpDown Grid.Column="1" Margin="0,0,8,0" Value="{Binding Current}" Minimum="0" Maximum="65535" FormatString="0" ParsingNumberStyle="Integer" />
-                        <NumericUpDown Grid.Column="2" Margin="0,0,8,0" Value="{Binding Best}" Minimum="0" Maximum="65535" FormatString="0" ParsingNumberStyle="Integer" />
-                        <NumericUpDown Grid.Column="3" Margin="0,0,8,0" Value="{Binding SuperCurrent}" Minimum="0" Maximum="65535" FormatString="0" ParsingNumberStyle="Integer" />
-                        <NumericUpDown Grid.Column="4" Margin="0,0,8,0" Value="{Binding SuperBest}" Minimum="0" Maximum="65535" FormatString="0" ParsingNumberStyle="Integer" />
+                        <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerStreakCurrent}" Grid.Column="1" Margin="0,0,8,0" Value="{Binding Current}" Minimum="0" Maximum="65535" FormatString="0" ParsingNumberStyle="Integer" />
+                        <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerStreakBest}" Grid.Column="2" Margin="0,0,8,0" Value="{Binding Best}" Minimum="0" Maximum="65535" FormatString="0" ParsingNumberStyle="Integer" />
+                        <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerStreakSuperCurrent}" Grid.Column="3" Margin="0,0,8,0" Value="{Binding SuperCurrent}" Minimum="0" Maximum="65535" FormatString="0" ParsingNumberStyle="Integer" />
+                        <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerStreakSuperBest}" Grid.Column="4" Margin="0,0,8,0" Value="{Binding SuperBest}" Minimum="0" Maximum="65535" FormatString="0" ParsingNumberStyle="Integer" />
                       </Grid>
                     </DataTemplate>
                   </ItemsControl.ItemTemplate>
@@ -881,7 +881,7 @@
                   <Button Grid.Row="0" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Trainer_UnlockOPowers}" Command="{Binding UnlockOPowersCommand}" IsVisible="{Binding HasGen6Extras}" />
                   <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="12,5,0,5" IsVisible="{Binding HasGen6Extras}">
                     <TextBlock VerticalAlignment="Center" Text="{x:Static r:Strings.Trainer_OPowerPoints}" />
-                    <NumericUpDown Value="{Binding OPowerPoints}" Minimum="0" Maximum="255" FormatString="0" ParsingNumberStyle="Integer" Width="130" />
+                    <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerOPower}" Value="{Binding OPowerPoints}" Minimum="0" Maximum="255" FormatString="0" ParsingNumberStyle="Integer" Width="130" />
                   </StackPanel>
                   <Button Grid.Row="1" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Trainer_UnlockSafari}" Command="{Binding UnlockFriendSafariCommand}" IsVisible="{Binding HasXYExtras}" />
                   <TextBlock Grid.Row="1" Grid.Column="1" Classes="hint" Margin="12,0,0,0" VerticalAlignment="Center" Text="{x:Static r:Strings.Trainer_UnlockSafariHint}" IsVisible="{Binding HasXYExtras}" />
@@ -909,15 +909,15 @@
                     </Style>
                   </Grid.Styles>
                   <TextBlock Grid.Row="0" Classes="row-label" Text="{x:Static r:Strings.Trainer_MapId}" />
-                  <NumericUpDown Grid.Row="0" Grid.Column="1" Value="{Binding Map}" Minimum="0" Maximum="65535" FormatString="0" ParsingNumberStyle="Integer" Width="180" HorizontalAlignment="Left" />
+                  <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerMapValue}" Grid.Row="0" Grid.Column="1" Value="{Binding Map}" Minimum="0" Maximum="65535" FormatString="0" ParsingNumberStyle="Integer" Width="180" HorizontalAlignment="Left" />
                   <TextBlock Grid.Row="1" Classes="row-label" Text="X" />
-                  <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding X}" Minimum="-100000" Maximum="100000" Increment="18" FormatString="0.##" Width="180" HorizontalAlignment="Left" />
+                  <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerCoordinate}" Grid.Row="1" Grid.Column="1" Value="{Binding X}" Minimum="-100000" Maximum="100000" Increment="18" FormatString="0.##" Width="180" HorizontalAlignment="Left" />
                   <TextBlock Grid.Row="2" Classes="row-label" Text="Y" />
-                  <NumericUpDown Grid.Row="2" Grid.Column="1" Value="{Binding Y}" Minimum="-100000" Maximum="100000" Increment="18" FormatString="0.##" Width="180" HorizontalAlignment="Left" />
+                  <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerCoordinate}" Grid.Row="2" Grid.Column="1" Value="{Binding Y}" Minimum="-100000" Maximum="100000" Increment="18" FormatString="0.##" Width="180" HorizontalAlignment="Left" />
                   <TextBlock Grid.Row="3" Classes="row-label" Text="Z" />
-                  <NumericUpDown Grid.Row="3" Grid.Column="1" Value="{Binding Z}" Minimum="-100000" Maximum="100000" Increment="18" FormatString="0.##" Width="180" HorizontalAlignment="Left" />
+                  <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerCoordinate}" Grid.Row="3" Grid.Column="1" Value="{Binding Z}" Minimum="-100000" Maximum="100000" Increment="18" FormatString="0.##" Width="180" HorizontalAlignment="Left" />
                   <TextBlock Grid.Row="4" Classes="row-label" Text="{x:Static r:Strings.Trainer_Rotation}" />
-                  <NumericUpDown Grid.Row="4" Grid.Column="1" Value="{Binding Rotation}" Minimum="0" Maximum="65535" FormatString="0" ParsingNumberStyle="Integer" Width="180" HorizontalAlignment="Left" />
+                  <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerRotationValue}" Grid.Row="4" Grid.Column="1" Value="{Binding Rotation}" Minimum="0" Maximum="65535" FormatString="0" ParsingNumberStyle="Integer" Width="180" HorizontalAlignment="Left" />
                 </Grid>
               </StackPanel>
             </TabItem>
@@ -945,10 +945,10 @@
                     <TextBlock Grid.Column="2" Classes="hint" VerticalAlignment="Center" Text="{Binding Number}" />
                     <TextBlock Grid.Column="3" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
                     <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                      <ToggleButton Classes="flag seen" IsChecked="{Binding Seen}">
+                      <ToggleButton ToolTip.Tip="{x:Static r:Strings.Tip_DexSeenFlag}" Classes="flag seen" IsChecked="{Binding Seen}">
                         <TextBlock Text="{x:Static r:Strings.Dex_Seen}" />
                       </ToggleButton>
-                      <ToggleButton Classes="flag caught" IsChecked="{Binding Caught}">
+                      <ToggleButton ToolTip.Tip="{x:Static r:Strings.Tip_DexCaughtFlag}" Classes="flag caught" IsChecked="{Binding Caught}">
                         <TextBlock Text="{x:Static r:Strings.Dex_Caught}" />
                       </ToggleButton>
                     </StackPanel>
@@ -997,10 +997,10 @@
                             </Border>
                           </StackPanel>
                           <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Right">
-                            <ToggleButton Classes="flag seen large" IsChecked="{Binding Seen}">
+                            <ToggleButton ToolTip.Tip="{x:Static r:Strings.Tip_DexSeenFlag}" Classes="flag seen large" IsChecked="{Binding Seen}">
                               <TextBlock Text="{x:Static r:Strings.Dex_Seen}" />
                             </ToggleButton>
-                            <ToggleButton Classes="flag caught large" IsChecked="{Binding Caught}">
+                            <ToggleButton ToolTip.Tip="{x:Static r:Strings.Tip_DexCaughtFlag}" Classes="flag caught large" IsChecked="{Binding Caught}">
                               <TextBlock Text="{x:Static r:Strings.Dex_Caught}" />
                             </ToggleButton>
                           </StackPanel>

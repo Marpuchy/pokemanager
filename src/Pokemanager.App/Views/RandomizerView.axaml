@@ -15,7 +15,7 @@
           <Border Classes="card">
             <Grid ColumnDefinitions="*,Auto">
               <StackPanel Spacing="2" VerticalAlignment="Center">
-                <CheckBox IsChecked="{Binding Enabled}" FontSize="12" FontWeight="SemiBold" Content="{x:Static r:Strings.Rnd_Enable}" />
+                <CheckBox ToolTip.Tip="{x:Static r:Strings.Tip_RandomizerEnabled}" IsChecked="{Binding Enabled}" FontSize="12" FontWeight="SemiBold" Content="{x:Static r:Strings.Rnd_Enable}" />
                 <TextBlock Text="{Binding ToolsStatus}" TextWrapping="Wrap" Classes="hint" Classes.error="{Binding !ToolsReady}" />
               </StackPanel>
               <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
@@ -69,12 +69,41 @@
           </Border>
 
           <!-- Card 2: output ROM -->
+          <!-- Ours, not UPR ZX's: the shops of the built ROM -->
+          <Border Classes="card">
+            <StackPanel Spacing="4" DataContext="{Binding Shops}">
+              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Shops_Title}" />
+              <TextBlock Classes="hint" TextWrapping="Wrap" Text="{Binding UnsupportedText}" IsVisible="{Binding !Supported}" />
+              <StackPanel Spacing="4" IsVisible="{Binding Supported}">
+                <CheckBox IsChecked="{Binding FreeRareCandies}" Content="{x:Static r:Strings.Shops_FreeCandies}"
+                          ToolTip.Tip="{x:Static r:Strings.Shops_FreeCandiesTip}" />
+                <TextBlock Classes="card-title" Margin="0,8,0,2" Text="{x:Static r:Strings.Shops_ExtraTitle}" />
+                <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Shops_ExtraHint}" />
+                <Grid ColumnDefinitions="*,Auto" Margin="0,2">
+                  <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_ShopsPickItem}" ItemsSource="{Binding ItemNames}" SelectedIndex="{Binding SelectedItem}" HorizontalAlignment="Stretch"
+                            MaxDropDownHeight="360" PlaceholderText="{x:Static r:Strings.Shops_PickItem}" />
+                  <Button Grid.Column="1" Margin="4,0,0,0" Content="{x:Static r:Strings.Shops_Add}" Command="{Binding AddItemCommand}" />
+                </Grid>
+                <ItemsControl ItemsSource="{Binding Extra}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ShopItemViewModel">
+                      <Grid ColumnDefinitions="*,Auto" Margin="0,1">
+                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                        <Button Grid.Column="1" Content="✕" Command="{Binding RemoveCommand}" />
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Classes="hint" TextWrapping="Wrap" Margin="0,4,0,0" Text="{x:Static r:Strings.Shops_SlotHint}" />
+              </StackPanel>
+            </StackPanel>
+          </Border>
           <Border Classes="card">
           <StackPanel Spacing="6">
             <TextBlock Classes="card-title" Text="{x:Static r:Strings.Rnd_OutputRom}" />
             <StackPanel IsVisible="{Binding HasPreviousRom}" Spacing="2">
-              <RadioButton GroupName="output" IsChecked="{Binding ReplacePrevious}" Content="{Binding PreviousRomText}" />
-              <RadioButton GroupName="output" IsChecked="{Binding CreateNew}" Content="{x:Static r:Strings.Rnd_CreateNew}" />
+              <RadioButton ToolTip.Tip="{x:Static r:Strings.Tip_RandomizerReplace}" GroupName="output" IsChecked="{Binding ReplacePrevious}" Content="{Binding PreviousRomText}" />
+              <RadioButton ToolTip.Tip="{x:Static r:Strings.Tip_RandomizerCreateNew}" GroupName="output" IsChecked="{Binding CreateNew}" Content="{x:Static r:Strings.Rnd_CreateNew}" />
             </StackPanel>
             <TextBlock Text="{x:Static r:Strings.Rnd_Name}" IsVisible="{Binding IsNameEditable}" />
             <TextBox Text="{Binding OutputName}" IsVisible="{Binding IsNameEditable}" />
@@ -90,7 +119,7 @@
             <TextBlock Classes="card-title" Text="{x:Static r:Strings.Rnd_YourSave}" />
             <TextBlock Text="{Binding SaveText}" TextWrapping="Wrap" />
             <TextBlock Classes="hint" Text="{Binding SaveTargetText}" TextWrapping="Wrap" />
-            <CheckBox IsChecked="{Binding UpdateSave}" IsEnabled="{Binding HasSave}" Content="{x:Static r:Strings.Rnd_UpdateSave}" />
+            <CheckBox ToolTip.Tip="{x:Static r:Strings.Tip_RandomizerUpdateSave}" IsChecked="{Binding UpdateSave}" IsEnabled="{Binding HasSave}" Content="{x:Static r:Strings.Rnd_UpdateSave}" />
             <Button Content="{x:Static r:Strings.Rnd_AdaptNow}" Command="{Binding AdaptSaveNowCommand}"
                     IsVisible="{Binding HasPreviousRom}" IsEnabled="{Binding HasSave}"
                     ToolTip.Tip="{x:Static r:Strings.Rnd_AdaptNowTip}" />
@@ -121,35 +150,6 @@
             </StackPanel>
           </StackPanel>
           </Border>
-          <!-- Ours, not UPR ZX's: the shops of the built ROM -->
-          <Border Classes="card">
-            <StackPanel Spacing="4" DataContext="{Binding Shops}">
-              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Shops_Title}" />
-              <TextBlock Classes="hint" TextWrapping="Wrap" Text="{Binding UnsupportedText}" IsVisible="{Binding !Supported}" />
-              <StackPanel Spacing="4" IsVisible="{Binding Supported}">
-                <CheckBox IsChecked="{Binding FreeRareCandies}" Content="{x:Static r:Strings.Shops_FreeCandies}"
-                          ToolTip.Tip="{x:Static r:Strings.Shops_FreeCandiesTip}" />
-                <TextBlock Classes="card-title" Margin="0,8,0,2" Text="{x:Static r:Strings.Shops_ExtraTitle}" />
-                <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Shops_ExtraHint}" />
-                <Grid ColumnDefinitions="*,Auto" Margin="0,2">
-                  <ComboBox ItemsSource="{Binding ItemNames}" SelectedIndex="{Binding SelectedItem}" HorizontalAlignment="Stretch"
-                            MaxDropDownHeight="360" PlaceholderText="{x:Static r:Strings.Shops_PickItem}" />
-                  <Button Grid.Column="1" Margin="4,0,0,0" Content="{x:Static r:Strings.Shops_Add}" Command="{Binding AddItemCommand}" />
-                </Grid>
-                <ItemsControl ItemsSource="{Binding Extra}">
-                  <ItemsControl.ItemTemplate>
-                    <DataTemplate x:DataType="vm:ShopItemViewModel">
-                      <Grid ColumnDefinitions="*,Auto" Margin="0,1">
-                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                        <Button Grid.Column="1" Content="✕" Command="{Binding RemoveCommand}" />
-                      </Grid>
-                    </DataTemplate>
-                  </ItemsControl.ItemTemplate>
-                </ItemsControl>
-                <TextBlock Classes="hint" TextWrapping="Wrap" Margin="0,4,0,0" Text="{x:Static r:Strings.Shops_SlotHint}" />
-              </StackPanel>
-            </StackPanel>
-          </Border>
           </c:AdaptiveColumnsPanel>
         </StackPanel>
       </ScrollViewer>
@@ -179,7 +179,7 @@
                   </ItemsControl.ItemsPanel>
                   <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:UprOptionViewModel">
-                      <StackPanel Margin="0,3" Spacing="2" IsEnabled="{Binding IsEnabled}" ToolTip.Tip="{Binding Hint}">
+                      <StackPanel Margin="0,3" Spacing="2" IsEnabled="{Binding IsEnabled}" ToolTip.Tip="{Binding Tip}">
                         <CheckBox IsVisible="{Binding IsBool}" IsChecked="{Binding BoolValue}">
                           <TextBlock Text="{Binding Label}" TextWrapping="Wrap" />
                         </CheckBox>

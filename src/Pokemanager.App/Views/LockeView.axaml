@@ -1,4 +1,4 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Pokemanager.App.ViewModels"
              xmlns:r="using:Pokemanager.App.Resources"
@@ -15,9 +15,9 @@
             <TextBlock Classes="hint" Text="{x:Static r:Strings.Locke_LivesHint}" />
             <Grid ColumnDefinitions="170,*" RowDefinitions="Auto,Auto">
               <TextBlock Classes="field-label" Text="{x:Static r:Strings.Locke_MaxLives}" />
-              <NumericUpDown Grid.Column="1" Value="{Binding MaxLives}" Minimum="0" Maximum="99" FormatString="0" ParsingNumberStyle="Integer" Width="130" HorizontalAlignment="Left" Margin="0,3" />
+              <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_LockeMaxLives}" Grid.Column="1" Value="{Binding MaxLives}" Minimum="0" Maximum="99" FormatString="0" ParsingNumberStyle="Integer" Width="130" HorizontalAlignment="Left" Margin="0,3" />
               <TextBlock Grid.Row="1" Classes="field-label" Text="{x:Static r:Strings.Locke_LivesLost}" />
-              <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding LivesLost}" Minimum="0" Maximum="99" FormatString="0" ParsingNumberStyle="Integer" Width="130" HorizontalAlignment="Left" Margin="0,3" />
+              <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_LockeLivesLost}" Grid.Row="1" Grid.Column="1" Value="{Binding LivesLost}" Minimum="0" Maximum="99" FormatString="0" ParsingNumberStyle="Integer" Width="130" HorizontalAlignment="Left" Margin="0,3" />
             </Grid>
             <TextBlock Text="{Binding LivesText}" FontSize="16" Foreground="#D13438" />
           </StackPanel>
@@ -29,11 +29,11 @@
             <TextBlock Classes="hint" Text="{Binding IntervalHint}" />
             <Grid ColumnDefinitions="170,*" RowDefinitions="Auto,Auto,Auto">
               <TextBlock Classes="field-label" Text="{Binding IntervalFirstLabel}" />
-              <NumericUpDown Grid.Column="1" Value="{Binding RouletteFirst}" Minimum="1" Maximum="{Binding MilestoneCount}" FormatString="0" ParsingNumberStyle="Integer" Width="130" HorizontalAlignment="Left" Margin="0,3" />
+              <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_LockeRouletteFirst}" Grid.Column="1" Value="{Binding RouletteFirst}" Minimum="1" Maximum="{Binding MilestoneCount}" FormatString="0" ParsingNumberStyle="Integer" Width="130" HorizontalAlignment="Left" Margin="0,3" />
               <TextBlock Grid.Row="1" Classes="field-label" Text="{Binding IntervalLastLabel}" />
-              <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding RouletteLast}" Minimum="1" Maximum="{Binding MilestoneCount}" FormatString="0" ParsingNumberStyle="Integer" Width="130" HorizontalAlignment="Left" Margin="0,3" />
+              <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_LockeRouletteLast}" Grid.Row="1" Grid.Column="1" Value="{Binding RouletteLast}" Minimum="1" Maximum="{Binding MilestoneCount}" FormatString="0" ParsingNumberStyle="Integer" Width="130" HorizontalAlignment="Left" Margin="0,3" />
               <TextBlock Grid.Row="2" Classes="field-label" Text="{Binding IntervalEveryLabel}" />
-              <NumericUpDown Grid.Row="2" Grid.Column="1" Value="{Binding RouletteEvery}" Minimum="1" Maximum="{Binding MilestoneCount}" FormatString="0" ParsingNumberStyle="Integer" Width="130" HorizontalAlignment="Left" Margin="0,3" />
+              <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_LockeRouletteEvery}" Grid.Row="2" Grid.Column="1" Value="{Binding RouletteEvery}" Minimum="1" Maximum="{Binding MilestoneCount}" FormatString="0" ParsingNumberStyle="Integer" Width="130" HorizontalAlignment="Left" Margin="0,3" />
             </Grid>
             <TextBlock Text="{Binding RouletteBadgesText}" TextWrapping="Wrap" />
           </StackPanel>
@@ -83,15 +83,15 @@
             <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="vm:PrizeRowViewModel">
                 <Grid ColumnDefinitions="36,110,*,120,100,56,Auto" Margin="0,2"><Border Width="30" Height="30" Background="#F2F4F6" BorderBrush="#30000000" BorderThickness="1" Margin="0,0,6,0" VerticalAlignment="Center"><Panel><Image Source="{Binding Icon}" Width="22" Height="22" RenderOptions.BitmapInterpolationMode="None" /><TextBlock Text="{Binding Glyph}" FontSize="15" FontWeight="Bold" Foreground="#D13438" HorizontalAlignment="Center" VerticalAlignment="Center" /></Panel></Border>
-                  <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:PrizeRowViewModel.KindNames}" SelectedIndex="{Binding KindIndex}" HorizontalAlignment="Stretch" Margin="0,0,4,0" />
-                  <ComboBox Grid.Column="2" ItemsSource="{Binding ItemNames}" SelectedIndex="{Binding ItemIndex}" IsVisible="{Binding IsItem}"
+                  <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_LockePrizeKind}" Grid.Column="1" ItemsSource="{x:Static vm:PrizeRowViewModel.KindNames}" SelectedIndex="{Binding KindIndex}" HorizontalAlignment="Stretch" Margin="0,0,4,0" />
+                  <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_LockePrizeItem}" Grid.Column="2" ItemsSource="{Binding ItemNames}" SelectedIndex="{Binding ItemIndex}" IsVisible="{Binding IsItem}"
                             HorizontalAlignment="Stretch" MaxDropDownHeight="400" Margin="0,0,4,0" />
                   <!-- A free-text prize: what it says is what the player gives themselves -->
                   <TextBox Grid.Column="2" Text="{Binding Text}" IsVisible="{Binding IsText}" Margin="0,0,4,0" MaxLength="60"
                            Watermark="{x:Static r:Strings.Locke_TextPlaceholder}" />
-                  <NumericUpDown Grid.Column="3" Value="{Binding Amount}" Minimum="1" Maximum="9999999" FormatString="0" ParsingNumberStyle="Integer"
+                  <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_LockePrizeAmount}" Grid.Column="3" Value="{Binding Amount}" Minimum="1" Maximum="9999999" FormatString="0" ParsingNumberStyle="Integer"
                                  IsVisible="{Binding HasAmount}" Margin="0,0,4,0" />
-                  <NumericUpDown Grid.Column="4" Value="{Binding Weight}" Minimum="0" Maximum="100" FormatString="0" ParsingNumberStyle="Integer" Margin="0,0,4,0" />
+                  <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_LockePrizeWeight}" Grid.Column="4" Value="{Binding Weight}" Minimum="0" Maximum="100" FormatString="0" ParsingNumberStyle="Integer" Margin="0,0,4,0" />
                   <TextBlock Grid.Column="5" Text="{Binding ChanceText}" VerticalAlignment="Center" />
                   <Button Grid.Column="6" Content="✕" Padding="6,2" Command="{Binding RemoveCommand}" />
                 </Grid>
