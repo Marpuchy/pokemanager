@@ -401,7 +401,7 @@ public partial class EditorViewModel : ObservableObject
     /// <summary>Puts a captured project state back: edits through the session (so every view follows), then the settings.</summary>
     private void RestoreProjectState(byte[] state)
     {
-        var (edits, randomization, locke) = Project.ReadState(state);
+        var (edits, randomization, locke, shops) = Project.ReadState(state);
         restoringProject = true;
         Session.Changed -= OnSessionChanged;
         try
@@ -420,6 +420,8 @@ public partial class EditorViewModel : ObservableObject
             r.CopyFrom(randomization);
             (r.LastBuiltRom, r.InstalledSeed) = (lastBuilt, installed);
             Session.Project.Locke = locke;
+            Session.Project.Shops = shops;
+            Randomizer?.Shops.Refresh();
 
             foreach (var entry in allSpecies.Concat(allMoves).Concat(allTrainers))
                 entry.Refresh();
@@ -594,7 +596,7 @@ public partial class EditorViewModel : ObservableObject
 
             ReloadBaseIfNeeded(random is null ? null : Path.Combine(random.TitleDirectory, "romfs"));
 
-            var built = await RomBuilder.BuildAsync(new UprRunner(tools), baseRom, random, ModBuilder.BuildEdits(Session),
+            var built = await RomBuilder.BuildAsync(new UprRunner(tools), baseRom, random, ModBuilder.BuildEdits(Session, random?.TitleDirectory),
                 output, r.Seed, upr.Cache.Root, progress);
             r.LastBuiltRom = built.RomPath;
             if (random is null && File.Exists(built.RomPath + ".log"))

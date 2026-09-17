@@ -1,4 +1,5 @@
-using pk3DS.Core.CTR;
+﻿using pk3DS.Core.CTR;
+using pk3DS.Core.Structures;
 using Pokemanager.Model.Data;
 using Pokemanager.Model.Dump;
 using Pokemanager.Model.Editing;
@@ -13,8 +14,15 @@ namespace Pokemanager.Model.Build;
 /// </remarks>
 public static class ModBuilder
 {
-    /// <returns>Relative path inside the title (<c>romfs/a/2/1/8</c>) → contents.</returns>
-    public static IReadOnlyDictionary<string, byte[]> BuildEdits(EditorSession session)
+    /// <summary>The key of the executable among the outputs; everything else is a <c>romfs/</c> path.</summary>
+    public const string CodeFile = "code.bin";
+
+    /// <param name="randomizedTitleDirectory">
+    /// UPR ZX output, when the ROM is being randomized: its <c>code.bin</c> is the one the shop changes are made on, so
+    /// they land on top of the randomization like every other edit.
+    /// </param>
+    /// <returns>Relative path inside the title (<c>romfs/a/2/1/8</c>, or <see cref="CodeFile"/>) → contents.</returns>
+    public static IReadOnlyDictionary<string, byte[]> BuildEdits(EditorSession session, string? randomizedTitleDirectory = null)
     {
         var edits = session.Project.Edits;
         var layout = session.Current.Layout;
@@ -34,13 +42,89 @@ public static class ModBuilder
             outputs["romfs/" + layout.TrainerPokemon] =
                 BuildGarc(session, layout.TrainerPokemon, trainerIds, id => session.Current.Trainers[id].WriteTeam());
         }
+        if (EditedIds(edits, GameTables.Items) is { Count: > 0 } itemIds)
+            outputs["romfs/" + layout.Items] = BuildGarc(session, layout.Items, itemIds, id => session.Current.Items[id].Write());
         if (EditedIds(edits, GameTables.MoveTexts) is { Count: > 0 } descriptionIds)
         {
             foreach (var (path, data) in BuildMoveDescriptions(session, descriptionIds))
                 outputs["romfs/" + path] = data;
         }
 
+        BuildShops(session, randomizedTitleDirectory, outputs);
         return outputs;
+    }
+
+    /// <summary>
+    /// The project's shop changes: the items are put in the ordinary Poké Marts of <c>code.bin</c>, and free Rare
+    /// Candies also need their price in the item table. A hand edit of that price wins, as everywhere else.
+    /// </summary>
+    private static void BuildShops(EditorSession session, string? randomizedTitleDirectory, Dictionary<string, byte[]> outputs)
+    {
+        var shops = session.Project.Shops;
+        if (shops.IsEmpty)
+            return;
+
+        // The price lives in the item table; write it unless the user set that price by hand.
+        if (shops.FreeRareCandies && !session.Project.Edits.All.Any(e => e.Table == GameTables.Items && e.Id == GameShops.RareCandy))
+        {
+            string path = session.Current.Layout.Items;
+            var garc = outputs.TryGetValue("romfs/" + path, out byte[]? built) ? new GARC.MemGARC(built) : ReadGarc(session, path);
+            byte[][] files = garc.Files;
+            if (GameShops.RareCandy < files.Length)
+            {
+                var item = new Item(files[GameShops.RareCandy]) { BuyPrice = 0 };
+                files[GameShops.RareCandy] = item.Write();
+                outputs["romfs/" + path] = GARC.PackGARC(files, garc.Version, garc.ContentPadding).Data;
+            }
+        }
+
+        if (GameShops.For(session.Current.Title) is not { } layout)
+            return;
+        // Generation 6 keeps the table in the executable; Generation 7 in a romfs module of its own.
+        byte[]? data = layout.File is { } file ? ReadRomFsFile(session, file) : ReadCode(session, randomizedTitleDirectory);
+        if (data is null || GameShops.Find(data, layout, session.Current.Items.Length) is not { } offset)
+            return;
+
+        var table = GameShops.Read(data, offset, layout);
+        List<int> extra = [.. shops.ExtraItems];
+        if (shops.FreeRareCandies)
+            extra.Add(GameShops.RareCandy);
+        if (GameShops.AddToRegularShops(table, layout, extra) == 0)
+            return;
+        GameShops.Write(data, offset, layout, table);
+        outputs[layout.File is { } shopFile ? "romfs/" + shopFile : CodeFile] = data;
+    }
+
+    /// <summary>
+    /// A romfs file that is not a GARC, through the session's layers: the randomizer's copy when it made one, the game
+    /// folder's otherwise. Null when the game folder does not have it (imported before this version).
+    /// </summary>
+    private static byte[]? ReadRomFsFile(EditorSession session, string path)
+    {
+        try
+        {
+            return File.ReadAllBytes(session.Layers.Resolve(path));
+        }
+        catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>The executable the build starts from: the randomizer's when it ran, the game folder's otherwise.</summary>
+    private static byte[]? ReadCode(EditorSession session, string? randomizedTitleDirectory)
+    {
+        string[] candidates =
+        [
+            .. randomizedTitleDirectory is null ? Array.Empty<string>() : [Path.Combine(randomizedTitleDirectory, CodeFile)],
+            Path.Combine(session.Project.DumpDirectory, "exefs", CodeFile),
+        ];
+        foreach (string path in candidates)
+        {
+            if (File.Exists(path))
+                return File.ReadAllBytes(path);
+        }
+        return null;
     }
 
     /// <summary>

@@ -1,4 +1,4 @@
-using System.Text.Json.Nodes;
+﻿using System.Text.Json.Nodes;
 using pk3DS.Core.Structures;
 using pk3DS.Core.Structures.PersonalInfo;
 using Pokemanager.Model.Data;
@@ -31,6 +31,12 @@ public static class GameTables
     /// <c>ivs</c> byte, the Generation 7 IVs, EVs, nature and shiny) read 0 and write nothing.
     /// </summary>
     public const string Trainers = "trainer";
+
+    /// <summary>
+    /// Items: <c>price</c> is what a shop charges for one (the game stores a tenth of it, so the value is rounded down
+    /// to the nearest 10), and <c>sellPrice</c> is what it pays, half of that, shown for reference.
+    /// </summary>
+    public const string Items = "item";
 
     public const string Description = "description";
 
@@ -112,7 +118,9 @@ public static class GameTables
 
     public static readonly ITable TrainerTable = new TrainerTableImpl();
 
-    public static IReadOnlyList<ITable> All { get; } = [PersonalTable, MoveTable, LearnsetTable, MoveTextTable, TrainerTable];
+    public static readonly ITable ItemTable = new ItemTableImpl();
+
+    public static IReadOnlyList<ITable> All { get; } = [PersonalTable, MoveTable, LearnsetTable, MoveTextTable, TrainerTable, ItemTable];
 
     public static ITable Get(string name) =>
         All.FirstOrDefault(t => t.Name == name) ?? throw new ArgumentException(string.Format(Strings.Tables_UnknownTable, name), nameof(name));
@@ -331,6 +339,37 @@ public static class GameTables
 
         private static ArgumentException Unknown(string field) =>
             new(string.Format(Strings.Tables_UnknownField, Trainers, field), nameof(field));
+    }
+
+    /// <summary>The item table; only the price for now, which is what the shops charge.</summary>
+    private sealed class ItemTableImpl : ITable
+    {
+        public string Name => Items;
+        public IReadOnlyList<string> Fields { get; } = ["price"];
+        public int Count(GameData data) => data.Items.Length;
+
+        public JsonNode Get(GameData data, int id, string field)
+        {
+            Check(data, id, field);
+            return JsonValue.Create(data.Items[id].BuyPrice);
+        }
+
+        public void Set(GameData data, int id, string field, JsonNode value)
+        {
+            Check(data, id, field);
+            // The game stores a tenth of the price in a ushort, so anything not a multiple of 10 rounds down.
+            var item = data.Items[id];
+            item.BuyPrice = Math.Clamp(value.GetValue<int>(), 0, ushort.MaxValue * 10);
+            data.Items[id] = item;
+        }
+
+        private static void Check(GameData data, int id, string field)
+        {
+            if (field != "price")
+                throw new ArgumentException(string.Format(Strings.Tables_UnknownField, Items, field), nameof(field));
+            if ((uint)id >= data.Items.Length)
+                throw new ArgumentOutOfRangeException(nameof(id), id, string.Format(Strings.Tables_OutOfRange, Items, data.Items.Length));
+        }
     }
 
     private sealed class MoveTextTableImpl : ITable

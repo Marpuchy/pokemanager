@@ -1,4 +1,4 @@
-using Pokemanager.Randomizer.Resources;
+﻿using Pokemanager.Randomizer.Resources;
 
 namespace Pokemanager.Randomizer;
 
@@ -68,7 +68,8 @@ public static class RomBuilder
 
             foreach (var (relative, bytes) in edits)
             {
-                if (!relative.StartsWith("romfs/", StringComparison.Ordinal))
+                // romfs files, and the executable (the shop table lives in it).
+                if (!relative.StartsWith("romfs/", StringComparison.Ordinal) && relative != "code.bin")
                     throw new InvalidOperationException(string.Format(Strings.Rom_OnlyRomFs, relative));
                 string target = Path.Combine(title, relative.Replace('/', Path.DirectorySeparatorChar));
                 Directory.CreateDirectory(Path.GetDirectoryName(target)!);

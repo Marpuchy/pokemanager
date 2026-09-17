@@ -39,11 +39,14 @@ public class GamesTests
         Assert.Contains("a/0/3/9", files); // 10 languages in Gen 7
         Assert.Contains("a/1/0/6", files); // trainers, read since 3.0
         Assert.Contains("a/1/0/7", files);
-        Assert.Equal(6 + 10, files.Count);
+        Assert.Contains("a/0/1/9", files); // items, read for the shops since 3.0
+        Assert.Contains("Shop.cro", files); // and what the shops sell, which Gen 7 keeps apart
+        Assert.Equal(8 + 10, files.Count);
         var x = GameImporter.RequiredFiles(GameTitle.X).ToList();
-        Assert.Equal(6 + 8, x.Count);
+        Assert.Equal(7 + 8, x.Count);
         Assert.Contains("a/0/3/8", x);
         Assert.Contains("a/0/4/0", x);
+        Assert.Contains("a/2/2/0", x);
     }
 
     /// <summary>SARC with two files, names in SFNT at offsets (×4), data relative to the data offset.</summary>

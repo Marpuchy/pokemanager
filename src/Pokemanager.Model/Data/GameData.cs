@@ -40,8 +40,14 @@ public sealed class GameData
     /// </summary>
     public Trainer[] Trainers { get; }
 
+    /// <summary>
+    /// One entry per item: what it costs and what it does. The entry is 36 bytes in Generation 6 (measured on the real
+    /// X dump: 718 items) and pk3DS's <see cref="Item"/> reads it; entries of another size are left alone.
+    /// </summary>
+    public Item[] Items { get; }
+
     private GameData(GameTitle title, PersonalInfoXY[] personal, Move[] moves, Learnset6[] learnsets, string[] moveDescriptions,
-        Trainer[] trainers)
+        Trainer[] trainers, Item[] items)
     {
         Title = title;
         Personal = personal;
@@ -49,6 +55,7 @@ public sealed class GameData
         Learnsets = learnsets;
         MoveDescriptions = moveDescriptions;
         Trainers = trainers;
+        Items = items;
     }
 
     public static GameData Load(string romFsPath, GameTitle title = GameTitle.X) => Load(new RomFsLayers(romFsPath), title);
@@ -62,7 +69,26 @@ public sealed class GameData
             moves,
             ReadFiles(layers, layout.LevelUp).Select(f => new Learnset6(f)).ToArray(),
             ReadMoveDescriptions(layers, title, moves.Length),
-            TrainerArchive.Read(layers, title));
+            TrainerArchive.Read(layers, title),
+            ReadItems(layers, title));
+    }
+
+    /// <summary>
+    /// The item table, or an empty array when the game folder does not have it (imported before 3.0) or the entries are
+    /// not the size this application knows.
+    /// </summary>
+    private static Item[] ReadItems(RomFsLayers layers, GameTitle title)
+    {
+        try
+        {
+            byte[][] files = ReadFiles(layers, title.Layout().Items);
+            int size = System.Runtime.InteropServices.Marshal.SizeOf<Item>();
+            return files.All(f => f.Length == size) ? [.. files.Select(f => new Item(f))] : [];
+        }
+        catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException or InvalidDataException or ArgumentException)
+        {
+            return [];
+        }
     }
 
     /// <summary>The English move descriptions (empty when the game text is not in the dump).</summary>

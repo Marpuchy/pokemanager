@@ -121,6 +121,35 @@
             </StackPanel>
           </StackPanel>
           </Border>
+          <!-- Ours, not UPR ZX's: the shops of the built ROM -->
+          <Border Classes="card">
+            <StackPanel Spacing="4" DataContext="{Binding Shops}">
+              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Shops_Title}" />
+              <TextBlock Classes="hint" TextWrapping="Wrap" Text="{Binding UnsupportedText}" IsVisible="{Binding !Supported}" />
+              <StackPanel Spacing="4" IsVisible="{Binding Supported}">
+                <CheckBox IsChecked="{Binding FreeRareCandies}" Content="{x:Static r:Strings.Shops_FreeCandies}"
+                          ToolTip.Tip="{x:Static r:Strings.Shops_FreeCandiesTip}" />
+                <TextBlock Classes="card-title" Margin="0,8,0,2" Text="{x:Static r:Strings.Shops_ExtraTitle}" />
+                <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Shops_ExtraHint}" />
+                <Grid ColumnDefinitions="*,Auto" Margin="0,2">
+                  <ComboBox ItemsSource="{Binding ItemNames}" SelectedIndex="{Binding SelectedItem}" HorizontalAlignment="Stretch"
+                            MaxDropDownHeight="360" PlaceholderText="{x:Static r:Strings.Shops_PickItem}" />
+                  <Button Grid.Column="1" Margin="4,0,0,0" Content="{x:Static r:Strings.Shops_Add}" Command="{Binding AddItemCommand}" />
+                </Grid>
+                <ItemsControl ItemsSource="{Binding Extra}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ShopItemViewModel">
+                      <Grid ColumnDefinitions="*,Auto" Margin="0,1">
+                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                        <Button Grid.Column="1" Content="✕" Command="{Binding RemoveCommand}" />
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Classes="hint" TextWrapping="Wrap" Margin="0,4,0,0" Text="{x:Static r:Strings.Shops_SlotHint}" />
+              </StackPanel>
+            </StackPanel>
+          </Border>
           </c:AdaptiveColumnsPanel>
         </StackPanel>
       </ScrollViewer>

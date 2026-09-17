@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Pokemanager.App.Resources;
@@ -66,6 +66,9 @@ public partial class RandomizerViewModel : ObservableObject
     [ObservableProperty]
     public partial string SaveChangesSummary { get; set; } = "";
 
+    /// <summary>Changes to the game's shops; ours, not UPR ZX's, and kept in the project.</summary>
+    public ShopExtrasViewModel Shops { get; private set; } = null!;
+
     public RandomizerViewModel(EditorViewModel editor, IDialogs dialogs, UprService upr, AppSettings settings)
     {
         this.editor = editor;
@@ -73,6 +76,7 @@ public partial class RandomizerViewModel : ObservableObject
         this.upr = upr;
         this.settings = settings;
         Options = new UprOptionsViewModel(editor.MarkDirty);
+        Shops = new ShopExtrasViewModel(editor);
 
         SeedText = Settings.Seed > 0 ? Settings.Seed.ToString() : UprRunner.NewSeed().ToString();
         OutputName = Settings.OutputName ?? DefaultOutputName();

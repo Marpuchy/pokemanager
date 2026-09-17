@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using Pokemanager.Model.Resources;
 
@@ -201,6 +201,10 @@ public static class GameImporter
         yield return layout.Evolution;
         yield return layout.TrainerData;
         yield return layout.TrainerPokemon;
+        yield return layout.Items;
+        // Generation 7 keeps what the shops sell in a module of its own instead of in the executable.
+        if (Data.GameShops.For(game)?.File is { } shopFile)
+            yield return shopFile;
         for (int language = 0; language < layout.LanguageCount; language++)
             yield return GarcPath(layout.GameText + language);
     }

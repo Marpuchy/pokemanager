@@ -2811,4 +2811,40 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Trainer_BulkClearIvs" xml:space="preserve">
     <value>IV a cero</value>
   </data>
+  <data name="Shops_Title" xml:space="preserve">
+    <value>Tiendas de la ROM construida</value>
+  </data>
+  <data name="Shops_Unsupported" xml:space="preserve">
+    <value>Las tiendas de {0} no están en un sitio que la aplicación sepa cambiar todavía.</value>
+  </data>
+  <data name="Shops_FreeCandies" xml:space="preserve">
+    <value>Caramelos Raros gratis en las tiendas</value>
+  </data>
+  <data name="Shops_FreeCandiesTip" xml:space="preserve">
+    <value>Los pone a la venta en todas las tiendas normales y deja su precio a 0. Hacen falta las dos cosas: un objeto gratis que nadie vende no es gratis.</value>
+  </data>
+  <data name="Shops_ExtraTitle" xml:space="preserve">
+    <value>Objetos que el juego no vende</value>
+  </data>
+  <data name="Shops_ExtraHint" xml:space="preserve">
+    <value>Se ponen a la venta en las tiendas normales, incluso los que el juego no tiene forma de darte (las Megapiedras de un juego que no las tiene).</value>
+  </data>
+  <data name="Shops_PickItem" xml:space="preserve">
+    <value>Elige un objeto</value>
+  </data>
+  <data name="Shops_Add" xml:space="preserve">
+    <value>Añadir</value>
+  </data>
+  <data name="Shops_SlotHint" xml:space="preserve">
+    <value>Una tienda vende un número fijo de cosas, así que cada objeto añadido ocupa el sitio del último de su estante. Siempre se deja uno de los del juego.</value>
+  </data>
+  <data name="Shops_UndoCandies" xml:space="preserve">
+    <value>Caramelos Raros gratis</value>
+  </data>
+  <data name="Shops_UndoAdd" xml:space="preserve">
+    <value>{0} a la venta</value>
+  </data>
+  <data name="Shops_UndoRemove" xml:space="preserve">
+    <value>{0} fuera de las tiendas</value>
+  </data>
 </root>

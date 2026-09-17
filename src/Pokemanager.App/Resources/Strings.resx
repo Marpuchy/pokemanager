@@ -2811,4 +2811,40 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Trainer_BulkClearIvs" xml:space="preserve">
     <value>IVs cleared</value>
   </data>
+  <data name="Shops_Title" xml:space="preserve">
+    <value>Shops of the built ROM</value>
+  </data>
+  <data name="Shops_Unsupported" xml:space="preserve">
+    <value>The shops of {0} are not in a place this application can change yet.</value>
+  </data>
+  <data name="Shops_FreeCandies" xml:space="preserve">
+    <value>Free Rare Candies in the Poké Marts</value>
+  </data>
+  <data name="Shops_FreeCandiesTip" xml:space="preserve">
+    <value>Puts them on sale in every ordinary Poké Mart and sets their price to 0. Both halves are needed: a free item nobody sells is not free.</value>
+  </data>
+  <data name="Shops_ExtraTitle" xml:space="preserve">
+    <value>Items the game never sells</value>
+  </data>
+  <data name="Shops_ExtraHint" xml:space="preserve">
+    <value>They go on sale in the ordinary Poké Marts, even ones the game has no way to give you (the Mega Stones of a game without them).</value>
+  </data>
+  <data name="Shops_PickItem" xml:space="preserve">
+    <value>Pick an item</value>
+  </data>
+  <data name="Shops_Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Shops_SlotHint" xml:space="preserve">
+    <value>A shop sells a fixed number of things, so each added item takes the place of the last one on its shelf. One of the game's own is always kept.</value>
+  </data>
+  <data name="Shops_UndoCandies" xml:space="preserve">
+    <value>Free Rare Candies</value>
+  </data>
+  <data name="Shops_UndoAdd" xml:space="preserve">
+    <value>{0} on sale</value>
+  </data>
+  <data name="Shops_UndoRemove" xml:space="preserve">
+    <value>{0} off the shops</value>
+  </data>
 </root>

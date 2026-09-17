@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Pokemanager.Model.Dump;
@@ -84,6 +84,9 @@ public sealed class Project
     /// <summary>Nuzlocke rules: lives and the badge roulette.</summary>
     public LockeSettings Locke { get; set; } = new();
 
+    /// <summary>What the shops of the built ROM sell beyond what the game does. Defaults to nothing.</summary>
+    public ShopSettings Shops { get; set; } = new();
+
     public EditSet Edits { get; } = new();
 
     public string RomFsPath => Path.Combine(DumpDirectory, "romfs");
@@ -140,16 +143,17 @@ public sealed class Project
     public byte[] CaptureState() => JsonSerializer.SerializeToUtf8Bytes(new ProjectState(
         Edits.All.OrderBy(e => e.Table, StringComparer.Ordinal).ThenBy(e => e.Id).ThenBy(e => e.Field, StringComparer.Ordinal)
             .Select(e => new EditEntry(e.Table, e.Id, e.Field, e.Value)).ToList(),
-        Randomization, Locke), JsonOptions);
+        Randomization, Locke, Shops), JsonOptions);
 
     /// <summary>A state captured with <see cref="CaptureState"/>.</summary>
-    public static (IReadOnlyList<Edit> Edits, RandomizationSettings Randomization, LockeSettings Locke) ReadState(byte[] state)
+    public static (IReadOnlyList<Edit> Edits, RandomizationSettings Randomization, LockeSettings Locke, ShopSettings Shops) ReadState(byte[] state)
     {
         var s = JsonSerializer.Deserialize<ProjectState>(state, JsonOptions) ?? throw new InvalidDataException("Empty project state.");
-        return ([.. s.Edits.Select(e => new Edit(e.Table, e.Id, e.Field, e.Value))], s.Randomization, s.Locke);
+        return ([.. s.Edits.Select(e => new Edit(e.Table, e.Id, e.Field, e.Value))], s.Randomization, s.Locke, s.Shops ?? new ShopSettings());
     }
 
-    private sealed record ProjectState(List<EditEntry> Edits, RandomizationSettings Randomization, LockeSettings Locke);
+    /// <param name="Shops">Null in states captured before 3.0.</param>
+    private sealed record ProjectState(List<EditEntry> Edits, RandomizationSettings Randomization, LockeSettings Locke, ShopSettings? Shops = null);
 
     public static Project Load(string path)
     {
