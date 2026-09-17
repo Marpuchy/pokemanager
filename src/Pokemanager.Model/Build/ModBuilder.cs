@@ -26,6 +26,14 @@ public static class ModBuilder
             outputs["romfs/" + layout.Moves] = BuildMoves(session, moveIds);
         if (EditedIds(edits, GameTables.Learnsets) is { Count: > 0 } learnsetIds)
             outputs["romfs/" + layout.LevelUp] = BuildGarc(session, layout.LevelUp, learnsetIds, id => session.Current.Learnsets[id].Write());
+        // Trainers: the record and the team live in two archives, both written when either changes.
+        if (EditedIds(edits, GameTables.Trainers) is { Count: > 0 } trainerIds)
+        {
+            outputs["romfs/" + layout.TrainerData] =
+                BuildGarc(session, layout.TrainerData, trainerIds, id => session.Current.Trainers[id].WriteData());
+            outputs["romfs/" + layout.TrainerPokemon] =
+                BuildGarc(session, layout.TrainerPokemon, trainerIds, id => session.Current.Trainers[id].WriteTeam());
+        }
         if (EditedIds(edits, GameTables.MoveTexts) is { Count: > 0 } descriptionIds)
         {
             foreach (var (path, data) in BuildMoveDescriptions(session, descriptionIds))

@@ -384,9 +384,20 @@ the player make the adventure easier or harder by changing the trainer AI. Full 
   Gen 6 `DllBattle.cro` (1 040 384 B in X), Gen 7 `Battle.cro` (UPR's `gen6/gen7_offsets.ini` name them). Patching one
   means reverse engineering plus a CRR re-hash (pk3DS has `CRO.E_HashCRR`).
 - **Trainers are not in the save**, so difficulty changes need a ROM rebuild and never a save adaptation.
-- Missing plumbing: `GameImporter`/`GameLayout` do not carry `trdata`/`trpoke`/`trclass`, `GameTables` has no trainer
-  table and `ModBuilder` does not repack those GARCs. The pipeline gains a stage:
-  **`dump → randomization → difficulty rules → manual edits → build`**.
+- The pipeline gains a stage: **`dump → randomization → difficulty rules → manual edits → build`** — the rules run after
+  UPR (which rewrites whole teams) and before manual edits, so a hand-edited trainer still wins.
+
+**Order agreed with the user:** first the plumbing and the per-trainer editor (model D of the document), because the
+difficulty profiles (A), the level curve (B) and the rival that follows the save (C) are only generators writing through
+it; the engine patch (E) stays a spike.
+
+| Step | State |
+|---|---|
+| Trainers in the layout and the importer | **Done.** `GameLayout.TrainerData`/`TrainerPokemon` (XY `a/0/3/8`+`a/0/4/0`, ORAS `a/0/3/6`+`a/0/3/8`, SM `a/1/0/5`+`a/1/0/6`, USUM `a/1/0/6`+`a/1/0/7`), copied by `GameImporter`. `Complete` now re-imports whenever **any** required file is missing from the manifest (it only looked at the Gen 7 item icons), so game folders imported by 2.x pick the trainers up when the project is opened. |
+| Reading them | **Done.** `Model/Data/Trainer.cs`: `Trainer` + `TrainerMon` over `TrainerData6`/`TrainerData7`, and `TrainerArchive.Read` → `GameData.Trainers`. Differences are not hidden: Gen 6 has the IVs byte and no EVs/nature, Gen 7 has six IVs, six EVs, nature and shiny; **a field the generation lacks reads 0 and writes nothing** (same rule as the Z-move fields). A record that does not parse (the archive's dummy entry, a team that does not match) is an `Unreadable` **pass-through**, written back untouched. |
+| Editing them | **Done.** Table `trainer` in `GameTables`: `ai`, `class`, `battleType`, `money`, `flag`, `customMoves`, `heldItems`, `count`, `item1…4`, and the team as `p1.` … `p6.` prefixes (`species`, `form`, `level`, `ability`, `gender`, `item`, `move1…4`, `ivs`, `nature`, `shiny`, `iv*`, `ev*`). Writing a slot the trainer does not have **grows the team**. `ModBuilder` repacks both archives whenever the table has edits. |
+| Verified on the real X dump | 785 trainers read; **every one round-trips byte for byte** (which exposed an upstream pk3DS bug: `TrainerData6.Write` dropped an ORAS field — fixed in the fork, see `docs/upstream-pk3ds.md`). Korrina `ai` 0x07 → 0x00 changes **exactly one byte** of the whole GARC and leaves `trpoke` identical; a level + IVs edit changes only that Pokémon. Tests: `RealDumpTrainerTests` (4, need `POKEMANAGER_DUMP`) and `TrainerTableTests` (6, hand-made records, no ROM needed, both generations). |
+| Trainers tab, `.trdata` export, difficulty profiles | pending |
 
 ---
 

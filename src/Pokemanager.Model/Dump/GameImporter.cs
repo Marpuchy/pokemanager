@@ -138,8 +138,7 @@ public static class GameImporter
     {
         if (DumpManifest.TryLoad(directory) is not { } manifest)
             return false;
-        string[] wanted = manifest.Game.Layout().ItemIcons;
-        if (wanted.Length == 0 || wanted.Any(manifest.Files.Contains))
+        if (!Incomplete(manifest))
             return false;
         if (Path.GetDirectoryName(directory) is not { } gamesRoot || !File.Exists(manifest.SourceRom) || !manifest.IsFrom(manifest.SourceRom))
             return false;
@@ -152,6 +151,18 @@ public static class GameImporter
         {
             return false;
         }
+    }
+
+    /// <summary>
+    /// Whether the folder lacks a file this version of the application reads: one of the required files (trainers were
+    /// added in 3.0), or the item icons of Generation 7 (added in 2.0, and only when the game has them at all).
+    /// </summary>
+    private static bool Incomplete(DumpManifest manifest)
+    {
+        if (RequiredFiles(manifest.Game).Any(f => !manifest.Files.Contains(f)))
+            return true;
+        string[] itemIcons = manifest.Game.Layout().ItemIcons;
+        return itemIcons.Length > 0 && !itemIcons.Any(manifest.Files.Contains);
     }
 
     /// <summary>
@@ -188,6 +199,8 @@ public static class GameImporter
         yield return layout.Moves;
         yield return layout.LevelUp;
         yield return layout.Evolution;
+        yield return layout.TrainerData;
+        yield return layout.TrainerPokemon;
         for (int language = 0; language < layout.LanguageCount; language++)
             yield return GarcPath(layout.GameText + language);
     }

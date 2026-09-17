@@ -25,6 +25,13 @@ public static class GameTables
     /// <summary>Move texts: <see cref="Description"/> (a string; English base, written to every language of the game).</summary>
     public const string MoveTexts = "movetext";
 
+    /// <summary>
+    /// Trainers: the record and its team. Team fields are prefixed with the slot, <c>p1.</c> … <c>p6.</c>; writing one of
+    /// them on a slot the trainer does not have grows the team. Fields the generation does not have (the Generation 6
+    /// <c>ivs</c> byte, the Generation 7 IVs, EVs, nature and shiny) read 0 and write nothing.
+    /// </summary>
+    public const string Trainers = "trainer";
+
     public const string Description = "description";
 
     /// <summary>Field of <see cref="Learnsets"/>: list of <c>[level, move]</c> pairs sorted by level.</summary>
@@ -103,7 +110,9 @@ public static class GameTables
 
     public static readonly ITable MoveTextTable = new MoveTextTableImpl();
 
-    public static IReadOnlyList<ITable> All { get; } = [PersonalTable, MoveTable, LearnsetTable, MoveTextTable];
+    public static readonly ITable TrainerTable = new TrainerTableImpl();
+
+    public static IReadOnlyList<ITable> All { get; } = [PersonalTable, MoveTable, LearnsetTable, MoveTextTable, TrainerTable];
 
     public static ITable Get(string name) =>
         All.FirstOrDefault(t => t.Name == name) ?? throw new ArgumentException(string.Format(Strings.Tables_UnknownTable, name), nameof(name));
@@ -168,6 +177,160 @@ public static class GameTables
             if (field != LevelUp)
                 throw new ArgumentException(string.Format(Strings.Tables_UnknownField, Learnsets, field), nameof(field));
         }
+    }
+
+    /// <summary>
+    /// The trainer record and its team. Everything is an int, booleans included (0/1), so a trainer file is the same
+    /// kind of document as a <c>.pkdata</c>.
+    /// </summary>
+    private sealed class TrainerTableImpl : ITable
+    {
+        private static readonly string[] RecordFields =
+            ["ai", "class", "battleType", "money", "flag", "customMoves", "heldItems", "count", "item1", "item2", "item3", "item4"];
+
+        private static readonly string[] MemberFields =
+        [
+            "species", "form", "level", "ability", "gender", "item", "move1", "move2", "move3", "move4",
+            "ivs", "nature", "shiny",
+            "ivHp", "ivAtk", "ivDef", "ivSpa", "ivSpd", "ivSpe",
+            "evHp", "evAtk", "evDef", "evSpa", "evSpd", "evSpe",
+        ];
+
+        /// <summary>Stat order of the game's records: HP, Atk, Def, SpA, SpD, Spe.</summary>
+        private static readonly string[] Stats = ["Hp", "Atk", "Def", "Spa", "Spd", "Spe"];
+
+        public string Name => Trainers;
+
+        public IReadOnlyList<string> Fields { get; } =
+        [
+            .. RecordFields,
+            .. Enumerable.Range(1, 6).SelectMany(slot => MemberFields.Select(f => $"p{slot}.{f}")),
+        ];
+
+        public int Count(GameData data) => data.Trainers.Length;
+
+        public JsonNode Get(GameData data, int id, string field)
+        {
+            var trainer = Entry(data, id);
+            if (Slot(field, out int slot, out string member))
+                return JsonValue.Create(trainer.Member(slot) is { } mon ? ReadMember(mon, member) : 0);
+            return JsonValue.Create(ReadRecord(trainer, field));
+        }
+
+        public void Set(GameData data, int id, string field, JsonNode value)
+        {
+            var trainer = Entry(data, id);
+            int number = value.GetValue<int>();
+            if (Slot(field, out int slot, out string member))
+            {
+                if (trainer.Grow(slot) is { } mon)
+                    WriteMember(mon, member, number);
+                return;
+            }
+            WriteRecord(trainer, field, number);
+        }
+
+        /// <summary>"p3.level" → slot 2, "level". Anything else is a field of the record itself.</summary>
+        private static bool Slot(string field, out int slot, out string member)
+        {
+            slot = -1;
+            member = field;
+            if (field.Length < 4 || field[0] != 'p' || field[2] != '.' || field[1] is < '1' or > '6')
+                return false;
+            slot = field[1] - '1';
+            member = field[3..];
+            return true;
+        }
+
+        private static int ReadRecord(Trainer t, string field) => field switch
+        {
+            "ai" => t.Ai,
+            "class" => t.TrainerClass,
+            "battleType" => t.BattleType,
+            "money" => t.Money,
+            "flag" => t.Flag ? 1 : 0,
+            "customMoves" => t.CustomMoves ? 1 : 0,
+            "heldItems" => t.HeldItems ? 1 : 0,
+            "count" => t.Count,
+            "item1" or "item2" or "item3" or "item4" => t.GetItem(field[^1] - '1'),
+            _ => throw Unknown(field),
+        };
+
+        private static void WriteRecord(Trainer t, string field, int value)
+        {
+            switch (field)
+            {
+                case "ai": t.Ai = value; break;
+                case "class": t.TrainerClass = value; break;
+                case "battleType": t.BattleType = value; break;
+                case "money": t.Money = value; break;
+                case "flag": t.Flag = value != 0; break;
+                case "customMoves": t.CustomMoves = value != 0; break;
+                case "heldItems": t.HeldItems = value != 0; break;
+                case "count": t.Count = value; break;
+                case "item1" or "item2" or "item3" or "item4": t.SetItem(field[^1] - '1', value); break;
+                default: throw Unknown(field);
+            }
+        }
+
+        private static int ReadMember(TrainerMon m, string field) => field switch
+        {
+            "species" => m.Species,
+            "form" => m.Form,
+            "level" => m.Level,
+            "ability" => m.Ability,
+            "gender" => m.Gender,
+            "item" => m.Item,
+            "move1" or "move2" or "move3" or "move4" => m.GetMove(field[^1] - '1'),
+            "ivs" => m.IvByte,
+            "nature" => m.Nature,
+            "shiny" => m.Shiny ? 1 : 0,
+            _ when Stat(field, "iv") is { } iv => m.GetIv(iv),
+            _ when Stat(field, "ev") is { } ev => m.GetEv(ev),
+            _ => throw Unknown(field),
+        };
+
+        private static void WriteMember(TrainerMon m, string field, int value)
+        {
+            switch (field)
+            {
+                case "species": m.Species = value; return;
+                case "form": m.Form = value; return;
+                case "level": m.Level = value; return;
+                case "ability": m.Ability = value; return;
+                case "gender": m.Gender = value; return;
+                case "item": m.Item = value; return;
+                case "move1" or "move2" or "move3" or "move4": m.SetMove(field[^1] - '1', value); return;
+                case "ivs": m.IvByte = value; return;
+                case "nature": m.Nature = value; return;
+                case "shiny": m.Shiny = value != 0; return;
+            }
+            if (Stat(field, "iv") is { } iv)
+                m.SetIv(iv, value);
+            else if (Stat(field, "ev") is { } ev)
+                m.SetEv(ev, value);
+            else
+                throw Unknown(field);
+        }
+
+        /// <summary>"ivSpa" with prefix "iv" → 3; null when it is not one of the six.</summary>
+        private static int? Stat(string field, string prefix)
+        {
+            if (!field.StartsWith(prefix, StringComparison.Ordinal))
+                return null;
+            int index = Array.IndexOf(Stats, field[prefix.Length..]);
+            return index < 0 ? null : index;
+        }
+
+        private static Trainer Entry(GameData data, int id)
+        {
+            if ((uint)id >= data.Trainers.Length)
+                throw new ArgumentOutOfRangeException(nameof(id), id, string.Format(Strings.Tables_OutOfRange, Trainers, data.Trainers.Length));
+            return data.Trainers[id];
+        }
+
+        private static ArgumentException Unknown(string field) =>
+            new(string.Format(Strings.Tables_UnknownField, Trainers, field), nameof(field));
     }
 
     private sealed class MoveTextTableImpl : ITable

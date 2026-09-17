@@ -1,4 +1,4 @@
-using pk3DS.Core.CTR;
+﻿using pk3DS.Core.CTR;
 using Pokemanager.Model.Dump;
 using pk3DS.Core.Structures;
 using pk3DS.Core.Structures.PersonalInfo;
@@ -34,13 +34,21 @@ public sealed class GameData
     /// </summary>
     public string[] MoveDescriptions { get; }
 
-    private GameData(GameTitle title, PersonalInfoXY[] personal, Move[] moves, Learnset6[] learnsets, string[] moveDescriptions)
+    /// <summary>
+    /// Every trainer of the game, in <c>trdata</c> order. Empty when the game folder was imported before 3.0 and does
+    /// not have the trainer archives yet (<see cref="GameImporter.Complete"/> adds them when the project is opened).
+    /// </summary>
+    public Trainer[] Trainers { get; }
+
+    private GameData(GameTitle title, PersonalInfoXY[] personal, Move[] moves, Learnset6[] learnsets, string[] moveDescriptions,
+        Trainer[] trainers)
     {
         Title = title;
         Personal = personal;
         Moves = moves;
         Learnsets = learnsets;
         MoveDescriptions = moveDescriptions;
+        Trainers = trainers;
     }
 
     public static GameData Load(string romFsPath, GameTitle title = GameTitle.X) => Load(new RomFsLayers(romFsPath), title);
@@ -53,7 +61,8 @@ public sealed class GameData
             ReadPersonal(layers, title),
             moves,
             ReadFiles(layers, layout.LevelUp).Select(f => new Learnset6(f)).ToArray(),
-            ReadMoveDescriptions(layers, title, moves.Length));
+            ReadMoveDescriptions(layers, title, moves.Length),
+            TrainerArchive.Read(layers, title));
     }
 
     /// <summary>The English move descriptions (empty when the game text is not in the dump).</summary>

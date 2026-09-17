@@ -32,6 +32,8 @@ public enum GameFamily
 /// <param name="GameText">First of the per-language game text archives (index = pk3DS language).</param>
 /// <param name="Icons">Pokémon box icons (BCLIM in Gen 6, BFLIM in Gen 7); the species → icon table is in code.bin.</param>
 /// <param name="Milestones">Where the badge/trial images are: archive, file inside it and image names in milestone order.</param>
+/// <param name="TrainerData">One file per trainer: class, battle type, bag, the AI byte and how many Pokémon.</param>
+/// <param name="TrainerPokemon">The teams, one file per trainer, entries the size the trainer's record says.</param>
 public sealed record GameLayout(
     string Personal,
     string Moves,
@@ -44,7 +46,9 @@ public sealed record GameLayout(
     string[] Icons,
     string[] ItemIcons,
     MilestoneImages[] Milestones,
-    int FileCount);
+    int FileCount,
+    string TrainerData,
+    string TrainerPokemon);
 
 /// <summary>
 /// Images of badges or trials inside a layout archive (darc in Gen 6, SARC inside ALYT in Gen 7), matched by file name; an
@@ -119,16 +123,20 @@ public static class GameTitleExtensions
     public static GameLayout Layout(this GameTitle title) => title.Family() switch
     {
         GameFamily.XY => new GameLayout("a/2/1/8", "a/2/1/2", "a/2/1/4", "a/2/1/5", 72, 8, MovesPacked: false, SpeciesCount: 722,
-            Icons: ["a/0/9/3"], ItemIcons: [], Milestones: [new MilestoneImages("a/1/1/3", 0, BadgeNames)], FileCount: 271),
+            Icons: ["a/0/9/3"], ItemIcons: [], Milestones: [new MilestoneImages("a/1/1/3", 0, BadgeNames)], FileCount: 271,
+            TrainerData: "a/0/3/8", TrainerPokemon: "a/0/4/0"),
         GameFamily.ORAS => new GameLayout("a/1/9/5", "a/1/8/9", "a/1/9/1", "a/1/9/2", 71, 8, MovesPacked: true, SpeciesCount: 722,
-            Icons: ["a/0/9/1"], ItemIcons: [], Milestones: [new MilestoneImages("a/1/0/9", 0, BadgeNames)], FileCount: 299),
+            Icons: ["a/0/9/1"], ItemIcons: [], Milestones: [new MilestoneImages("a/1/0/9", 0, BadgeNames)], FileCount: 299,
+            TrainerData: "a/0/3/6", TrainerPokemon: "a/0/3/8"),
         // Sun/Moon: the archives are not verified on a real dump (none was available); icons and stamps are looked up
         // among the candidates and simply not shown if absent.
         GameFamily.SM => new GameLayout("a/0/1/7", "a/0/1/1", "a/0/1/3", "a/0/1/4", 30, 10, MovesPacked: true, SpeciesCount: 803,
             Icons: ["a/0/6/2", "a/0/6/1", "a/0/6/3"], ItemIcons: ["a/0/6/1", "a/0/6/0", "a/0/6/3"],
-            Milestones: TrialStamps("a/2/3/8", "a/2/3/9", "a/2/4/0", "a/2/4/1", "a/2/4/2"), FileCount: 311),
+            Milestones: TrialStamps("a/2/3/8", "a/2/3/9", "a/2/4/0", "a/2/4/1", "a/2/4/2"), FileCount: 311,
+            TrainerData: "a/1/0/5", TrainerPokemon: "a/1/0/6"),
         _ => new GameLayout("a/0/1/7", "a/0/1/1", "a/0/1/3", "a/0/1/4", 30, 10, MovesPacked: true, SpeciesCount: 808,
-            Icons: ["a/0/6/2"], ItemIcons: ["a/0/6/1"], Milestones: TrialStamps("a/2/4/2", "a/2/9/6", "a/2/9/7"), FileCount: 333),
+            Icons: ["a/0/6/2"], ItemIcons: ["a/0/6/1"], Milestones: TrialStamps("a/2/4/2", "a/2/9/6", "a/2/9/7"), FileCount: 333,
+            TrainerData: "a/1/0/6", TrainerPokemon: "a/1/0/7"),
     };
 
     /// <summary>Gen 6 trainer card: <c>badge_01.bclim</c> … <c>badge_08.bclim</c> in a darc.</summary>

@@ -56,7 +56,7 @@ public class TrainerData6
         using var bw = new BinaryWriter(ms);
         Format = Convert.ToByte(Moves) + (Convert.ToByte(Item) << 1);
         if (isORAS)
-        { bw.Write((ushort)Format); bw.Write((ushort)Class); bw.Write((ushort)0); }
+        { bw.Write((ushort)Format); bw.Write((ushort)Class); bw.Write(uORAS); } // fork: upstream writes 0 here and loses the field
         else
         { bw.Write((byte)Format); bw.Write((byte)Class); }
 

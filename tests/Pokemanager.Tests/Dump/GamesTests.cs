@@ -37,8 +37,13 @@ public class GamesTests
         var files = GameImporter.RequiredFiles(GameTitle.UltraMoon).ToList();
         Assert.Contains("a/0/3/0", files);
         Assert.Contains("a/0/3/9", files); // 10 languages in Gen 7
-        Assert.Equal(4 + 10, files.Count);
-        Assert.Equal(4 + 8, GameImporter.RequiredFiles(GameTitle.X).Count());
+        Assert.Contains("a/1/0/6", files); // trainers, read since 3.0
+        Assert.Contains("a/1/0/7", files);
+        Assert.Equal(6 + 10, files.Count);
+        var x = GameImporter.RequiredFiles(GameTitle.X).ToList();
+        Assert.Equal(6 + 8, x.Count);
+        Assert.Contains("a/0/3/8", x);
+        Assert.Contains("a/0/4/0", x);
     }
 
     /// <summary>SARC with two files, names in SFNT at offsets (×4), data relative to the data offset.</summary>

@@ -34,6 +34,11 @@ They are kept in their own commits, separate from the import ones, so that `git 
    iteration for `ncchSize` iterations, producing a `game.cxi` 10 times too large (~17 GB for Pokémon X)
    filled with garbage past EOF. It now copies the exact size. Candidate for an upstream PR.
 
+6. **Bug fixed in `Structures/Gen6/TrainerData6.cs` (`Write`).** For ORAS it wrote a literal `0` where the record has a
+   field the constructor reads into `uORAS`, so reading and writing an ORAS trainer changed the file. It now writes the
+   field back, and every trainer of a real dump round-trips byte for byte (test
+   `RealDumpTrainerTests.EveryTrainer_RoundTripsByteForByte`). Candidate for an upstream PR.
+
 `Properties/Resources.resx` is untouched: its entries are `ResXFileRef`s that the .NET SDK
 compiles without WinForms, and `Exheader` and the `.3ds` build in `CTR.cs` need them.
 
