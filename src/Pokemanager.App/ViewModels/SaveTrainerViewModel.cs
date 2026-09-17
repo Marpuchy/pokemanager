@@ -29,7 +29,7 @@ public partial class SaveTrainerViewModel : ObservableObject
         VivillonPatterns = names.VivillonPatterns;
         Badges = Enumerable.Range(0, Math.Min(doc.MilestoneCount, milestones.Count))
             .Select(i => new BadgeViewModel(this, doc, i, milestones[i].Name, milestoneImages is { } images && i < images.Length ? images[i] : null,
-                game.HasBadges() ? null : PkhexImages.TrialCrystal(milestones[i].Type))).ToList();
+                game.HasBadges() ? null : milestones[i].Type)).ToList();
         Sayings = Enumerable.Range(0, 5).Select(i => new SayingViewModel(owner, doc, i)).ToList();
         Crystals = game.Generation() == 7
             ? [.. PkhexImages.TypeCrystals.Select(c => new CrystalViewModel(doc, c.Held, c.Bead, names.ItemName(c.Bead)))]
@@ -404,9 +404,9 @@ public sealed class CrystalViewModel(SaveDocument doc, int held, int bead, strin
     }
 }
 
-/// <param name="crystal">Generation 7: the Z-crystal shown instead of the game's seal (the fifth trial has none).</param>
+/// <param name="crystalType">Generation 7: type of the trial, drawn as its Z-crystal instead of the game's seal.</param>
 public sealed class BadgeViewModel(SaveTrainerViewModel owner, SaveDocument doc, int index, string name, IconImage? image,
-    Avalonia.Media.Imaging.Bitmap? crystal) : ObservableObject
+    int? crystalType) : ObservableObject
 {
     public string Label => name;
 
@@ -428,13 +428,15 @@ public sealed class BadgeViewModel(SaveTrainerViewModel owner, SaveDocument doc,
     }
 
     /// <summary>The game's badge or seal — or the trial's Z-crystal —, faded while it is not earned.</summary>
-    public Avalonia.Media.Imaging.Bitmap? Icon =>
-        crystal ?? (image is null ? null : PokemonSprites.ToBitmap(IsChecked ? image : MilestoneIcons.Faded(image)));
+    public Avalonia.Media.IImage? Icon =>
+        crystalType is { } type
+            ? PkhexImages.TrialCrystalArt(type)
+            : image is null ? null : PokemonSprites.ToBitmap(IsChecked ? image : MilestoneIcons.Faded(image));
 
     public bool HasIcon => Icon is not null;
 
     /// <summary>Crystals are one picture only: not earned yet, they are shown faded.</summary>
-    public double IconOpacity => crystal is not null && !IsChecked ? 0.35 : 1;
+    public double IconOpacity => crystalType is not null && !IsChecked ? 0.35 : 1;
 }
 
 public sealed class SayingViewModel(SaveEditorViewModel owner, SaveDocument doc, int index) : ObservableObject

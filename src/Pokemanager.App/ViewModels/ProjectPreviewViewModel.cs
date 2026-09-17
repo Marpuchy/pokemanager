@@ -135,15 +135,22 @@ public sealed partial class PartyMemberViewModel : ObservableObject, IMonCard
 /// <summary>A gym badge in the preview: earned or not (from the save), and its roulette.</summary>
 /// <param name="crystal">Generation 7: the trial's Z-crystal, used instead of the game's seal (the fifth trial has none).</param>
 public sealed partial class BadgeItemViewModel(ProjectPreviewViewModel owner, int index, string name, int type, bool earned, LockeSpin? spin,
-    IReadOnlyList<string> itemNames, IconImage? image, bool hasRoulette, Bitmap? crystal = null) : ObservableObject
+    IReadOnlyList<string> itemNames, IconImage? image, bool hasRoulette, int? crystalType = null) : ObservableObject
 {
-    /// <summary>The badge or seal — or the trial's Z-crystal —, greyed out while it is not earned.</summary>
-    public Bitmap? Icon => field ??= crystal ?? (image is null ? null : PokemonSprites.ToBitmap(Earned ? image : MilestoneIcons.Faded(image)));
+    /// <summary>
+    /// The badge or seal — or the trial's Z-crystal, drawn —, greyed out while it is not earned. The drawing is made here
+    /// and not in the constructor: this view model is built off the UI thread and an Avalonia image belongs to the thread
+    /// that creates it.
+    /// </summary>
+    public Avalonia.Media.IImage? Icon =>
+        field ??= crystalType is { } type
+            ? PkhexImages.TrialCrystalArt(type)
+            : image is null ? null : PokemonSprites.ToBitmap(Earned ? image : MilestoneIcons.Faded(image));
 
     public bool HasIcon => Icon is not null;
 
-    /// <summary>Crystals are one picture only: not earned yet, they are shown faded.</summary>
-    public double IconOpacity => crystal is not null && !Earned ? 0.35 : 1;
+    /// <summary>Crystals are one drawing only: not earned yet, they are shown faded.</summary>
+    public double IconOpacity => crystalType is not null && !Earned ? 0.35 : 1;
 
     public int Index { get; } = index;
     public string Name { get; } = name;
@@ -277,7 +284,7 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
         var images = MilestoneIcons.Load(new RomFsLayers(project.RomFsPath), project.Game);
         for (int i = 0; i < milestones.Count; i++)
             Badges.Add(new BadgeItemViewModel(this, i, milestones[i].Name, milestones[i].Type, doc?.GetMilestone(i) ?? false, project.Locke.SpinOf(i), itemNames,
-                images?[i], project.Locke.HasRoulette(i), project.Game.HasBadges() ? null : PkhexImages.TrialCrystal(milestones[i].Type)));
+                images?[i], project.Locke.HasRoulette(i), project.Game.HasBadges() ? null : milestones[i].Type));
     }
 
     public PokemonSprites Sprites { get; } = PokemonSprites.Empty;

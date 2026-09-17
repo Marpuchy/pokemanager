@@ -40,6 +40,56 @@ public static class PkhexImages
     public static Bitmap? TrialCrystal(int type) => Item(CrystalIds[Math.Clamp(type, 0, CrystalIds.Length - 1)]);
 
     /// <summary>
+    /// A trial's Z-crystal drawn as a gem in the type's colour: the item sprite is 32 px and looks poor in the big slots
+    /// of the trainer card, this one stays sharp at any size. Cached per type.
+    /// </summary>
+    public static Avalonia.Media.IImage TrialCrystalArt(int type)
+    {
+        lock (CrystalArt)
+        {
+            if (CrystalArt.TryGetValue(type, out var cached))
+                return cached;
+            var image = DrawCrystal(TypeColors.Of(type));
+            CrystalArt[type] = image;
+            return image;
+        }
+    }
+
+    private static readonly Dictionary<int, Avalonia.Media.IImage> CrystalArt = [];
+
+    /// <summary>A hexagonal gem: body in the type's colour, a lighter top facet, a darker bottom one and a highlight.</summary>
+    private static Avalonia.Media.IImage DrawCrystal(Avalonia.Media.Color color)
+    {
+        static Avalonia.Media.Color Mix(Avalonia.Media.Color c, double amount) => amount >= 0
+            ? Avalonia.Media.Color.FromRgb((byte)(c.R + ((255 - c.R) * amount)), (byte)(c.G + ((255 - c.G) * amount)), (byte)(c.B + ((255 - c.B) * amount)))
+            : Avalonia.Media.Color.FromRgb((byte)(c.R * (1 + amount)), (byte)(c.G * (1 + amount)), (byte)(c.B * (1 + amount)));
+
+        var group = new Avalonia.Media.DrawingGroup();
+        void Add(string path, Avalonia.Media.Color fill, Avalonia.Media.Color? stroke = null, double thickness = 0)
+        {
+            group.Children.Add(new Avalonia.Media.GeometryDrawing
+            {
+                Brush = new Avalonia.Media.SolidColorBrush(fill),
+                Pen = stroke is { } s ? new Avalonia.Media.Pen(new Avalonia.Media.SolidColorBrush(s), thickness, lineJoin: Avalonia.Media.PenLineJoin.Round) : null,
+                Geometry = Avalonia.Media.Geometry.Parse(path),
+            });
+        }
+
+        // 64×64 box: a cut gem seen from the front — six facets around a table, as the Z-crystals of the games.
+        Add("M0,0 H64 V64 H0 Z", Avalonia.Media.Colors.Transparent);
+        Add("M32,3 L57,17.5 L57,46.5 L32,61 L7,46.5 L7,17.5 Z", Mix(color, -0.15), Mix(color, -0.65), 3);  // body and outline
+        Add("M32,3 L57,17.5 L32,32 Z", Mix(color, 0.45));      // facets around the table, light at the top…
+        Add("M57,17.5 L57,46.5 L32,32 Z", Mix(color, 0.1));
+        Add("M57,46.5 L32,61 L32,32 Z", Mix(color, -0.35));    // …dark at the bottom
+        Add("M32,61 L7,46.5 L32,32 Z", Mix(color, -0.2));
+        Add("M7,46.5 L7,17.5 L32,32 Z", Mix(color, 0.25));
+        Add("M7,17.5 L32,3 L32,32 Z", Mix(color, 0.6));
+        Add("M32,14 L45,21.5 L45,36.5 L32,44 L19,36.5 L19,21.5 Z", Mix(color, 0.3), Mix(color, -0.5), 2);  // table
+        Add("M32,18 L41,23 L32,28 L23,23 Z", Mix(color, 0.8));  // shine on the table
+        return new Avalonia.Media.DrawingImage(group);
+    }
+
+    /// <summary>
     /// The eighteen type crystals in the order the bag shows them, with the two item ids each one has: the held piece
     /// (776–793, the only one PKHeX has an icon for) and the bead the bag keeps (that id + 31, checked on the user's
     /// Ultra Moon: Normalium 776/807, Fightinium 782/813, Rockium 788/819).
