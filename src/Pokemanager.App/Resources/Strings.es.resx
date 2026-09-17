@@ -2746,7 +2746,7 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>100 los deja como están; 120 sube un quinto todos los niveles de la categoría, con tope 100.</value>
   </data>
   <data name="Trainer_BulkIvsHint" xml:space="preserve">
-    <value>Los entrenadores normales tienen 0, los líderes 150 y la Campeona de X, 200. El máximo es 255.</value>
+    <value>Los entrenadores normales tienen 0, los líderes unos 18 y la Campeona de X unos 25. La sexta generación lo guarda como un byte (0, 150, 200), por eso se muestra en qué valor queda.</value>
   </data>
   <data name="Trainer_BulkBattleHint" xml:space="preserve">
     <value>El tipo de combate que empieza el entrenador. Cambiarlo en uno al que el juego no le asigna pareja puede dejarlo peleando solo.</value>
@@ -2768,5 +2768,47 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   </data>
   <data name="Trainer_BulkPick" xml:space="preserve">
     <value>Elige uno</value>
+  </data>
+  <data name="Trainer_IvsValue" xml:space="preserve">
+    <value>IV (0-31)</value>
+  </data>
+  <data name="Trainer_IvsByteHint" xml:space="preserve">
+    <value>= byte {0}</value>
+  </data>
+  <data name="Trainer_IvsPresets" xml:space="preserve">
+    <value>Como el juego:</value>
+  </data>
+  <data name="Trainer_IvsOrdinary" xml:space="preserve">
+    <value>Normal (0)</value>
+  </data>
+  <data name="Trainer_IvsLeader" xml:space="preserve">
+    <value>Líder (18)</value>
+  </data>
+  <data name="Trainer_IvsChampion" xml:space="preserve">
+    <value>Campeona (25)</value>
+  </data>
+  <data name="Trainer_OnlyRaise" xml:space="preserve">
+    <value>Solo subir</value>
+  </data>
+  <data name="Trainer_OnlyRaiseTip" xml:space="preserve">
+    <value>Deja en paz a los entrenadores que ya tienen mejores IV, así aplicarlo a todo el juego no debilita a sus jefes.</value>
+  </data>
+  <data name="Trainer_ClearIvs" xml:space="preserve">
+    <value>A cero</value>
+  </data>
+  <data name="Trainer_TeamIvs" xml:space="preserve">
+    <value>IV de todo el equipo:</value>
+  </data>
+  <data name="Trainer_ApplyToTeam" xml:space="preserve">
+    <value>Aplicar al equipo</value>
+  </data>
+  <data name="Trainer_IvsUndo" xml:space="preserve">
+    <value>{0} · IV {1}</value>
+  </data>
+  <data name="Trainer_ClearIvsUndo" xml:space="preserve">
+    <value>{0} · IV a cero</value>
+  </data>
+  <data name="Trainer_BulkClearIvs" xml:space="preserve">
+    <value>IV a cero</value>
   </data>
 </root>

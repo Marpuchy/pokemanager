@@ -546,13 +546,24 @@
                         <Border Classes="card detail">
                           <StackPanel Spacing="4">
                             <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_Ivs}" />
-                            <Grid ColumnDefinitions="190,150" Margin="0,2" IsVisible="{Binding IsGen6}">
-                              <TextBlock Classes="field-label" Text="{x:Static r:Strings.Trainer_IvByte}" />
-                              <NumericUpDown Grid.Column="1" Value="{Binding Ivs}" Minimum="0" Maximum="255" Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
+                            <Grid ColumnDefinitions="190,150,Auto" Margin="0,2">
+                              <TextBlock Classes="field-label" Text="{x:Static r:Strings.Trainer_IvsValue}" />
+                              <NumericUpDown Grid.Column="1" Value="{Binding Ivs}" Minimum="0" Maximum="31" Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
+                              <TextBlock Grid.Column="2" Classes="hint" Text="{Binding IvsHint}" VerticalAlignment="Center" Margin="8,0,0,0" />
                             </Grid>
+                            <!-- The values the real game uses, so a class can be put where a leader or the Champion sits -->
                             <StackPanel Orientation="Horizontal" Spacing="4">
-                              <Button Content="{x:Static r:Strings.Trainer_BulkApply}" Command="{Binding ApplyIvsCommand}" IsVisible="{Binding IsGen6}" />
+                              <TextBlock Classes="hint" Text="{x:Static r:Strings.Trainer_IvsPresets}" VerticalAlignment="Center" />
+                              <Button Content="{x:Static r:Strings.Trainer_IvsOrdinary}" Command="{Binding PickIvsCommand}" CommandParameter="0" />
+                              <Button Content="{x:Static r:Strings.Trainer_IvsLeader}" Command="{Binding PickIvsCommand}" CommandParameter="18" />
+                              <Button Content="{x:Static r:Strings.Trainer_IvsChampion}" Command="{Binding PickIvsCommand}" CommandParameter="25" />
+                            </StackPanel>
+                            <CheckBox IsChecked="{Binding OnlyRaiseIvs}" Content="{x:Static r:Strings.Trainer_OnlyRaise}"
+                                      ToolTip.Tip="{x:Static r:Strings.Trainer_OnlyRaiseTip}" />
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                              <Button Content="{x:Static r:Strings.Trainer_BulkApply}" Command="{Binding ApplyIvsCommand}" />
                               <Button Content="{x:Static r:Strings.Trainer_MaxIvs}" Command="{Binding MaxIvsCommand}" />
+                              <Button Content="{x:Static r:Strings.Trainer_ClearIvs}" Command="{Binding ClearIvsCommand}" />
                             </StackPanel>
                             <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="320" Text="{x:Static r:Strings.Trainer_BulkIvsHint}" Margin="0,4,0,0" />
                           </StackPanel>
@@ -653,10 +664,18 @@
                       </Border>
 
                       <!-- The team: one card per Pokémon, headed in the species' types as the ROM has them now -->
-                      <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).ShowTrainerTeam}">
-                        <Button Content="{x:Static r:Strings.Trainer_MaxIvs}" Command="{Binding MaxIvsCommand}" />
-                        <TextBlock Classes="hint" Text="{x:Static r:Strings.Trainer_MaxIvsHint}" VerticalAlignment="Center" />
-                      </StackPanel>
+                      <Border Classes="card" HorizontalAlignment="Left"
+                              IsVisible="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).ShowTrainerTeam}">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                          <TextBlock Text="{x:Static r:Strings.Trainer_TeamIvs}" VerticalAlignment="Center" />
+                          <NumericUpDown Width="110" Value="{Binding TeamIvs}" Minimum="0" Maximum="31" Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
+                          <TextBlock Classes="hint" Text="{Binding TeamIvsHint}" VerticalAlignment="Center" />
+                          <Button Content="{x:Static r:Strings.Trainer_ApplyToTeam}" Command="{Binding ApplyIvsCommand}" />
+                          <Button Content="{x:Static r:Strings.Trainer_MaxIvs}" Command="{Binding MaxIvsCommand}" />
+                          <Button Content="{x:Static r:Strings.Trainer_ClearIvs}" Command="{Binding ClearIvsCommand}" />
+                          <TextBlock Classes="hint" Text="{x:Static r:Strings.Trainer_MaxIvsHint}" VerticalAlignment="Center" />
+                        </StackPanel>
+                      </Border>
                       <ItemsControl ItemsSource="{Binding Members}"
                                     IsVisible="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).ShowTrainerTeam}">
                         <ItemsControl.ItemsPanel>

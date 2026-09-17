@@ -171,14 +171,40 @@ public sealed partial class TrainerDetailViewModel : ObservableObject
 
     // ------------------------------------------------------------------ presets and revert
 
-    /// <summary>Every team member to the highest IVs the game can store: 255 in Generation 6, 31 each in Generation 7.</summary>
-    [RelayCommand]
-    private void MaxIvs()
+    /// <summary>The value the three IV buttons write, in IVs (0-31) for either generation.</summary>
+    public int TeamIvs
     {
-        using (editor.BeginBatch(string.Format(Strings.Trainer_MaxIvsUndo, Title)))
+        get => teamIvs;
+        set
+        {
+            teamIvs = Math.Clamp(value, 0, TrainerIvs.Max);
+            OnPropertyChanged(nameof(TeamIvs));
+            OnPropertyChanged(nameof(TeamIvsHint));
+        }
+    }
+
+    private int teamIvs = TrainerIvs.Max;
+
+    /// <summary>In Generation 6 the number really written is a byte: show it, since the game's own values are bytes.</summary>
+    public string TeamIvsHint => IsGen6 ? string.Format(Strings.Trainer_IvsByteHint, TrainerIvs.ToByte(TeamIvs)) : "";
+
+    [RelayCommand]
+    private void ApplyIvs() => WriteIvs(TeamIvs, string.Format(Strings.Trainer_IvsUndo, Title, TeamIvs));
+
+    /// <summary>Every team member to the highest the game can store.</summary>
+    [RelayCommand]
+    private void MaxIvs() => WriteIvs(TrainerIvs.Max, string.Format(Strings.Trainer_MaxIvsUndo, Title));
+
+    /// <summary>Back to 0, which is what an ordinary trainer of the game has.</summary>
+    [RelayCommand]
+    private void ClearIvs() => WriteIvs(0, string.Format(Strings.Trainer_ClearIvsUndo, Title));
+
+    private void WriteIvs(int ivs, string label)
+    {
+        using (editor.BeginBatch(label))
         {
             foreach (var member in Members)
-                member.SetMaxIvs();
+                member.SetIvs(ivs);
         }
         foreach (var member in Members)
             member.RefreshAll();
@@ -342,17 +368,39 @@ public sealed class TrainerMemberViewModel : ObservableObject
         Changed?.Invoke();
     }
 
-    /// <summary>The best IVs the game can store for this member: the byte at 255 in Generation 6, 31 each in Generation 7.</summary>
-    public void SetMaxIvs()
+    /// <summary>
+    /// The member's IVs, 0-31, whichever way its generation stores them (the Generation 6 byte is converted). Returns
+    /// how many values changed, and <paramref name="onlyRaise"/> leaves alone what is already better.
+    /// </summary>
+    public int SetIvs(int ivs, bool onlyRaise = false)
     {
+        ivs = Math.Clamp(ivs, 0, TrainerIvs.Max);
         if (IsGen6)
         {
-            IvByte.Value = 255;
-            return;
+            int wanted = TrainerIvs.ToByte(ivs);
+            if (IvByte.Value == wanted || (onlyRaise && IvByte.Value >= wanted))
+                return 0;
+            IvByte.Value = wanted;
+            return 1;
         }
+        int changed = 0;
         foreach (var iv in Ivs)
-            iv.Value = 31;
+        {
+            if (iv.Value == ivs || (onlyRaise && iv.Value >= ivs))
+                continue;
+            iv.Value = ivs;
+            changed++;
+        }
+        return changed;
     }
+
+    /// <summary>The IVs this member has now, 0-31 (the lowest of the six in Generation 7).</summary>
+    public int CurrentIvs => IsGen6
+        ? TrainerIvs.FromByte((int)(IvByte.Value ?? 0))
+        : Ivs.Min(iv => (int)(iv.Value ?? 0));
+
+    /// <summary>The best the game can store: the byte at 255 in Generation 6, 31 each in Generation 7.</summary>
+    public void SetMaxIvs() => SetIvs(TrainerIvs.Max);
 
     /// <summary>The trainer's "own moves" / "held items" flags changed: the warnings follow them.</summary>
     public void RefreshFlags()

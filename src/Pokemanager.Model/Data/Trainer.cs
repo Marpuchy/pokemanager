@@ -373,3 +373,24 @@ public static class TrainerArchive
         }
     }
 }
+
+/// <summary>
+/// The two ways a trainer's IVs are stored, in the one unit a player thinks in (0–31).
+/// </summary>
+/// <remarks>
+/// Generation 7 keeps the six IVs as they are. Generation 6 keeps a single byte the game turns into all six, which
+/// pk3DS reads as <c>value / 8</c>: the real game uses 0 for filler trainers, 150 for gym leaders (≈18) and 200 for the
+/// Champion of X (=25). Going back, 31 is written as <see cref="MaxByte"/> rather than 248, so "the highest" really is
+/// the highest the byte can hold.
+/// </remarks>
+public static class TrainerIvs
+{
+    public const int Max = 31;
+    public const int MaxByte = 255;
+
+    /// <summary>The Generation 6 byte as IVs.</summary>
+    public static int FromByte(int raw) => Math.Clamp(raw / 8, 0, Max);
+
+    /// <summary>IVs as the Generation 6 byte.</summary>
+    public static int ToByte(int ivs) => ivs >= Max ? MaxByte : Math.Clamp(ivs * 8, 0, MaxByte);
+}

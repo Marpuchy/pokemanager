@@ -2746,7 +2746,7 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
     <value>100 leaves them as they are; 120 raises every level of the category by a fifth, capped at 100.</value>
   </data>
   <data name="Trainer_BulkIvsHint" xml:space="preserve">
-    <value>Ordinary trainers have 0, gym leaders 150 and the Champion of X 200. The highest is 255.</value>
+    <value>Ordinary trainers have 0, gym leaders about 18 and the Champion of X about 25. Generation 6 stores it as one byte (0, 150, 200), which is why the value it becomes is shown.</value>
   </data>
   <data name="Trainer_BulkBattleHint" xml:space="preserve">
     <value>The kind of fight the trainer starts. Changing it on a trainer the game does not pair up can leave it fighting alone.</value>
@@ -2768,5 +2768,47 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   </data>
   <data name="Trainer_BulkPick" xml:space="preserve">
     <value>Choose one</value>
+  </data>
+  <data name="Trainer_IvsValue" xml:space="preserve">
+    <value>IVs (0-31)</value>
+  </data>
+  <data name="Trainer_IvsByteHint" xml:space="preserve">
+    <value>= byte {0}</value>
+  </data>
+  <data name="Trainer_IvsPresets" xml:space="preserve">
+    <value>As the game:</value>
+  </data>
+  <data name="Trainer_IvsOrdinary" xml:space="preserve">
+    <value>Ordinary (0)</value>
+  </data>
+  <data name="Trainer_IvsLeader" xml:space="preserve">
+    <value>Gym leader (18)</value>
+  </data>
+  <data name="Trainer_IvsChampion" xml:space="preserve">
+    <value>Champion (25)</value>
+  </data>
+  <data name="Trainer_OnlyRaise" xml:space="preserve">
+    <value>Only raise</value>
+  </data>
+  <data name="Trainer_OnlyRaiseTip" xml:space="preserve">
+    <value>Leaves alone the trainers that already have better IVs, so applying to a whole game does not weaken its bosses.</value>
+  </data>
+  <data name="Trainer_ClearIvs" xml:space="preserve">
+    <value>Clear (0)</value>
+  </data>
+  <data name="Trainer_TeamIvs" xml:space="preserve">
+    <value>IVs of the whole team:</value>
+  </data>
+  <data name="Trainer_ApplyToTeam" xml:space="preserve">
+    <value>Apply to the team</value>
+  </data>
+  <data name="Trainer_IvsUndo" xml:space="preserve">
+    <value>{0} - IVs {1}</value>
+  </data>
+  <data name="Trainer_ClearIvsUndo" xml:space="preserve">
+    <value>{0} - IVs cleared</value>
+  </data>
+  <data name="Trainer_BulkClearIvs" xml:space="preserve">
+    <value>IVs cleared</value>
   </data>
 </root>

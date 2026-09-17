@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Pokemanager.App.Resources;
 using Pokemanager.App.Services;
 using Pokemanager.Model.Editing;
+using Pokemanager.Model.Data;
 using Pokemanager.Model.Dump;
 using Pokemanager.Model.Edits;
 
@@ -71,8 +72,16 @@ public sealed partial class TrainerBulkViewModel(EditorViewModel editor, EditorS
     [ObservableProperty]
     public partial int BattleType { get; set; } = -1;
 
+    /// <summary>IVs, 0-31, for either generation: in Generation 6 the byte it becomes is shown next to it.</summary>
     [ObservableProperty]
-    public partial decimal? Ivs { get; set; } = 255;
+    [NotifyPropertyChangedFor(nameof(IvsHint))]
+    public partial decimal? Ivs { get; set; } = TrainerIvs.Max;
+
+    /// <summary>Do not lower a trainer that already has better IVs (useful on "every trainer").</summary>
+    [ObservableProperty]
+    public partial bool OnlyRaiseIvs { get; set; } = true;
+
+    public string IvsHint => IsGen6 ? string.Format(Strings.Trainer_IvsByteHint, TrainerIvs.ToByte((int)(Ivs ?? 0))) : "";
 
     [ObservableProperty]
     public partial int LevelPercent { get; set; } = 100;
@@ -119,8 +128,8 @@ public sealed partial class TrainerBulkViewModel(EditorViewModel editor, EditorS
     {
         if (Category is not { } category)
             return;
-        int value = (int)Math.Clamp(Ivs ?? 0, 0, 255);
-        Apply(category, Strings.Trainer_BulkIvs, id => SetTeamIvs(id, value));
+        int value = (int)Math.Clamp(Ivs ?? 0, 0, TrainerIvs.Max);
+        Apply(category, Strings.Trainer_BulkIvs, id => SetTeamIvs(id, value, OnlyRaiseIvs));
     }
 
     /// <summary>The highest the game can store: the byte at 255 in Generation 6, 31 in each of the six in Generation 7.</summary>
@@ -129,8 +138,26 @@ public sealed partial class TrainerBulkViewModel(EditorViewModel editor, EditorS
     {
         if (Category is not { } category)
             return;
-        Ivs = 255;
-        Apply(category, Strings.Trainer_BulkMaxIvs, id => SetTeamIvs(id, 255));
+        Ivs = TrainerIvs.Max;
+        Apply(category, Strings.Trainer_BulkMaxIvs, id => SetTeamIvs(id, TrainerIvs.Max, OnlyRaiseIvs));
+    }
+
+    /// <summary>Back to 0: what the game gives its filler trainers.</summary>
+    [RelayCommand]
+    private void ClearIvs()
+    {
+        if (Category is not { } category)
+            return;
+        Ivs = 0;
+        Apply(category, Strings.Trainer_BulkClearIvs, id => SetTeamIvs(id, 0));
+    }
+
+    /// <summary>The values the real game uses, so a category can be put where a gym leader or the Champion sits.</summary>
+    [RelayCommand]
+    private void PickIvs(string value)
+    {
+        if (int.TryParse(value, out int ivs))
+            Ivs = Math.Clamp(ivs, 0, TrainerIvs.Max);
     }
 
     [RelayCommand]
@@ -152,7 +179,9 @@ public sealed partial class TrainerBulkViewModel(EditorViewModel editor, EditorS
         });
     }
 
-    private int SetTeamIvs(int id, int value)
+    /// <param name="ivs">0-31; Generation 6 stores the byte it converts to.</param>
+    /// <param name="onlyRaise">Leave alone the members that already have better IVs.</param>
+    private int SetTeamIvs(int id, int ivs, bool onlyRaise = false)
     {
         int changed = 0;
         for (int slot = 1; slot <= 6; slot++)
@@ -161,11 +190,18 @@ public sealed partial class TrainerBulkViewModel(EditorViewModel editor, EditorS
                 continue;
             if (IsGen6)
             {
-                changed += Set(id, $"p{slot}.ivs", value);
+                int wanted = TrainerIvs.ToByte(ivs);
+                if (onlyRaise && session.GetInt(T, id, $"p{slot}.ivs") >= wanted)
+                    continue;
+                changed += Set(id, $"p{slot}.ivs", wanted);
                 continue;
             }
             foreach (string stat in new[] { "Hp", "Atk", "Def", "Spa", "Spd", "Spe" })
-                changed += Set(id, $"p{slot}.iv{stat}", Math.Min(value, 31));
+            {
+                if (onlyRaise && session.GetInt(T, id, $"p{slot}.iv{stat}") >= ivs)
+                    continue;
+                changed += Set(id, $"p{slot}.iv{stat}", ivs);
+            }
         }
         return changed;
     }

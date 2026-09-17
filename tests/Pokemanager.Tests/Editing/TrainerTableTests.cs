@@ -1,4 +1,4 @@
-using Pokemanager.Model.Data;
+﻿using Pokemanager.Model.Data;
 using Pokemanager.Model.Dump;
 
 namespace Pokemanager.Tests.Editing;
@@ -151,6 +151,24 @@ public class TrainerTableTests
 
         Assert.Equal(record, trainer.WriteData());
         Assert.Equal(member, trainer.WriteTeam());
+    }
+
+    [Fact]
+    public void IvConversion_MatchesTheValuesTheGameUses()
+    {
+        // pk3DS reads the Generation 6 byte as value / 8; these are the numbers measured in the real X dump.
+        Assert.Equal(0, TrainerIvs.FromByte(0));      // filler trainers
+        Assert.Equal(18, TrainerIvs.FromByte(150));   // gym leaders
+        Assert.Equal(25, TrainerIvs.FromByte(200));   // the Champion of X
+        Assert.Equal(31, TrainerIvs.FromByte(255));
+
+        Assert.Equal(0, TrainerIvs.ToByte(0));
+        Assert.Equal(144, TrainerIvs.ToByte(18));
+        Assert.Equal(200, TrainerIvs.ToByte(25));
+        // The highest goes back as 255, not 248, so "the highest" is really the highest the byte holds.
+        Assert.Equal(255, TrainerIvs.ToByte(31));
+        Assert.Equal(255, TrainerIvs.ToByte(99));
+        Assert.Equal(0, TrainerIvs.ToByte(-5));
     }
 
     [Fact]
