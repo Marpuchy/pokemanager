@@ -363,6 +363,31 @@ Tests: tunnel echo through host + two guests (late joiner told, 1400-byte packet
 sealed packets reject other rooms and tampering. Verified `citra-room` starts, listens and exits with the class. Not verified yet:
 two real emulators linking in game through the tunnel. In-game battles between different randomized ROMs may desync (each console
 computes with its own data); trades should work. Azahar's room program and command line not checked.
+
+### Version 3.0 (2026-09-17, in progress) — inside the game: trainer AI and difficulty
+
+Branch **`feature/game-ai`** off `dev`. The user's goal for this version: touch the game's internals, and above all let
+the player make the adventure easier or harder by changing the trainer AI. Full analysis in **`docs/game-ai.md`**
+(where the AI lives, what the real data says, the levers and five proposed models); the short version:
+
+- **Verified on the real X dump**: the AI a trainer uses is one **bitfield byte** in its `trdata` record (X/Y `a/0/3/8`,
+  team in `a/0/4/0`; ORAS `a/0/3/6`+`a/0/3/8`, SM `a/1/0/5`+`a/1/0/6`, USUM `a/1/0/6`+`a/1/0/7`). X uses only bits 0, 1,
+  2 and 7: `0x07` (Basic+Strong+Expert) for **every gym leader, the Elite Four and the Champion**, `0x00`/`0x01` for
+  filler trainers. **`0x07` is the game's own ceiling** — "harder AI" cannot be more flags; "easier" can (561 of 784
+  trainers are above the floor). Bit 7 (pk3DS calls it *UseItem* in Gen 7) matches neither doubles nor carrying items:
+  unresolved.
+- **Verified**: the difficulty is mostly *not* in the AI byte. The IVs byte (0–255, pk3DS reads `IVs = value/8`) is 150
+  for leaders and 200 for Diantha, with **no EVs or natures at all in Gen 6**; only 269 of 784 trainers define their own
+  moves (the rest get their last four level-up moves, which is why randomized trainers are harmless); 59 trainers carry
+  a healing bag (Diantha 4 Full Restores).
+- **Verified**: the routines that decide the moves are **not in `code.bin`** but in a romfs CRO module —
+  Gen 6 `DllBattle.cro` (1 040 384 B in X), Gen 7 `Battle.cro` (UPR's `gen6/gen7_offsets.ini` name them). Patching one
+  means reverse engineering plus a CRR re-hash (pk3DS has `CRO.E_HashCRR`).
+- **Trainers are not in the save**, so difficulty changes need a ROM rebuild and never a save adaptation.
+- Missing plumbing: `GameImporter`/`GameLayout` do not carry `trdata`/`trpoke`/`trclass`, `GameTables` has no trainer
+  table and `ModBuilder` does not repack those GARCs. The pipeline gains a stage:
+  **`dump → randomization → difficulty rules → manual edits → build`**.
+
 ---
 
 ## 3. pk3DS — how to reuse it
