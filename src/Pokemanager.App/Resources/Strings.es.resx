@@ -2493,4 +2493,199 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Trainer_CardCrystals" xml:space="preserve">
     <value>Cristales Z: {0}/{1}</value>
   </data>
+  <data name="Tab_AdvancedTrainers" xml:space="preserve">
+    <value>Avanzado: Entrenadores</value>
+  </data>
+  <data name="Trainer_Unnamed" xml:space="preserve">
+    <value>Entrenador n.º {0}</value>
+  </data>
+  <data name="Trainer_Class" xml:space="preserve">
+    <value>Clase</value>
+  </data>
+  <data name="Trainer_BattleType" xml:space="preserve">
+    <value>Combate</value>
+  </data>
+  <data name="Trainer_Single" xml:space="preserve">
+    <value>Individual</value>
+  </data>
+  <data name="Trainer_Double" xml:space="preserve">
+    <value>Doble</value>
+  </data>
+  <data name="Trainer_Multi" xml:space="preserve">
+    <value>Multi</value>
+  </data>
+  <data name="Trainer_BattleType3" xml:space="preserve">
+    <value>Tipo 3</value>
+  </data>
+  <data name="Trainer_TeamSize" xml:space="preserve">
+    <value>Pokémon</value>
+  </data>
+  <data name="Trainer_TeamCount" xml:space="preserve">
+    <value>{0} Pokémon</value>
+  </data>
+  <data name="Trainer_BagSlot" xml:space="preserve">
+    <value>Objeto {0}</value>
+  </data>
+  <data name="Trainer_Bag" xml:space="preserve">
+    <value>Objetos que usa en combate</value>
+  </data>
+  <data name="Trainer_BagHint" xml:space="preserve">
+    <value>El juego los usa durante el combate: cada miembro del Alto Mando lleva dos Restaurar Todo y la Campeona de X, cuatro.</value>
+  </data>
+  <data name="Trainer_CustomMoves" xml:space="preserve">
+    <value>Movimientos propios</value>
+  </data>
+  <data name="Trainer_CustomMovesTip" xml:space="preserve">
+    <value>Desactivado: el juego le da a cada Pokémon los cuatro últimos movimientos de su tabla por nivel, que es por lo que los entrenadores randomizados suelen ser inofensivos.</value>
+  </data>
+  <data name="Trainer_HeldItems" xml:space="preserve">
+    <value>Objetos equipados</value>
+  </data>
+  <data name="Trainer_Healer" xml:space="preserve">
+    <value>Cura tu equipo al terminar</value>
+  </data>
+  <data name="Trainer_Flag" xml:space="preserve">
+    <value>Indicador</value>
+  </data>
+  <data name="Trainer_Slot" xml:space="preserve">
+    <value>Pokémon {0}</value>
+  </data>
+  <data name="Trainer_Species" xml:space="preserve">
+    <value>Especie</value>
+  </data>
+  <data name="Trainer_Form" xml:space="preserve">
+    <value>Forma</value>
+  </data>
+  <data name="Trainer_Level" xml:space="preserve">
+    <value>Nivel</value>
+  </data>
+  <data name="Trainer_LevelShort" xml:space="preserve">
+    <value>Nv. {0}</value>
+  </data>
+  <data name="Trainer_Ability" xml:space="preserve">
+    <value>Habilidad</value>
+  </data>
+  <data name="Trainer_AbilityAny" xml:space="preserve">
+    <value>Cualquiera (1 o 2)</value>
+  </data>
+  <data name="Trainer_Ability1" xml:space="preserve">
+    <value>Habilidad 1</value>
+  </data>
+  <data name="Trainer_Ability2" xml:space="preserve">
+    <value>Habilidad 2</value>
+  </data>
+  <data name="Trainer_AbilityHidden" xml:space="preserve">
+    <value>Habilidad oculta</value>
+  </data>
+  <data name="Trainer_AbilityAnyHint" xml:space="preserve">
+    <value>{0} o {1}</value>
+  </data>
+  <data name="Trainer_Gender" xml:space="preserve">
+    <value>Género</value>
+  </data>
+  <data name="Trainer_GenderAuto" xml:space="preserve">
+    <value>Según la especie</value>
+  </data>
+  <data name="Trainer_GenderMale" xml:space="preserve">
+    <value>Macho</value>
+  </data>
+  <data name="Trainer_GenderFemale" xml:space="preserve">
+    <value>Hembra</value>
+  </data>
+  <data name="Trainer_Item" xml:space="preserve">
+    <value>Objeto equipado</value>
+  </data>
+  <data name="Trainer_Move" xml:space="preserve">
+    <value>Movimiento {0}</value>
+  </data>
+  <data name="Trainer_Nature" xml:space="preserve">
+    <value>Naturaleza</value>
+  </data>
+  <data name="Trainer_IvByte" xml:space="preserve">
+    <value>IV (0-255)</value>
+  </data>
+  <data name="Trainer_IvByteHint" xml:space="preserve">
+    <value>≈ {0} en cada IV</value>
+  </data>
+  <data name="Trainer_IvByteTip" xml:space="preserve">
+    <value>La sexta generación guarda un solo byte y el juego lo convierte en los seis IV. Los entrenadores normales tienen 0, los líderes 150 y la Campeona de X, 200.</value>
+  </data>
+  <data name="Trainer_Ivs" xml:space="preserve">
+    <value>IV</value>
+  </data>
+  <data name="Trainer_Evs" xml:space="preserve">
+    <value>EV</value>
+  </data>
+  <data name="Trainer_Record" xml:space="preserve">
+    <value>Entrenador</value>
+  </data>
+  <data name="Trainer_Unreadable" xml:space="preserve">
+    <value>Este registro no es de los que la aplicación sabe leer, así que se vuelve a meter en la ROM tal cual está.</value>
+  </data>
+  <data name="Trainer_NoTrainers" xml:space="preserve">
+    <value>Esta carpeta de juego todavía no tiene entrenadores: la importó una versión anterior. Vuelve a abrir el proyecto con la ROM de origen en su sitio y se añaden.</value>
+  </data>
+  <data name="Trainer_Hint" xml:space="preserve">
+    <value>Los entrenadores no están en la partida, así que cambiarlos solo pide reconstruir la ROM.</value>
+  </data>
+  <data name="Ai_Title" xml:space="preserve">
+    <value>Inteligencia artificial</value>
+  </data>
+  <data name="Ai_Basic" xml:space="preserve">
+    <value>Básica</value>
+  </data>
+  <data name="Ai_Strong" xml:space="preserve">
+    <value>Fuerte</value>
+  </data>
+  <data name="Ai_Expert" xml:space="preserve">
+    <value>Experta</value>
+  </data>
+  <data name="Ai_Doubles" xml:space="preserve">
+    <value>Dobles</value>
+  </data>
+  <data name="Ai_NoWhiteout" xml:space="preserve">
+    <value>Sin derrota</value>
+  </data>
+  <data name="Ai_BattleRoyal" xml:space="preserve">
+    <value>Combate Real</value>
+  </data>
+  <data name="Ai_PokeChange" xml:space="preserve">
+    <value>Cambia de Pokémon</value>
+  </data>
+  <data name="Ai_UseItem" xml:space="preserve">
+    <value>Usa objetos</value>
+  </data>
+  <data name="Ai_BitText" xml:space="preserve">
+    <value>bit {0} · 0x{1:X2}</value>
+  </data>
+  <data name="Ai_Value" xml:space="preserve">
+    <value>0x{0:X2} — {1}</value>
+  </data>
+  <data name="Ai_None" xml:space="preserve">
+    <value>sin banderas</value>
+  </data>
+  <data name="Ai_Tip" xml:space="preserve">
+    <value>Los nombres vienen de pk3DS; lo que cambia cada bandera en un combate no está documentado. Básica + Fuerte + Experta (0x07) es lo que el juego le da a todos los líderes de gimnasio, al Alto Mando y a la Campeona, y es su propio máximo.</value>
+  </data>
+  <data name="Ai_PresetNone" xml:space="preserve">
+    <value>Ninguna (0x00)</value>
+  </data>
+  <data name="Ai_PresetBasic" xml:space="preserve">
+    <value>Normal (0x01)</value>
+  </data>
+  <data name="Ai_PresetLeader" xml:space="preserve">
+    <value>Líder de gimnasio (0x07)</value>
+  </data>
+  <data name="Ai_Presets" xml:space="preserve">
+    <value>Valores que usa el juego:</value>
+  </data>
+  <data name="Trainer_MoneyRate" xml:space="preserve">
+    <value>Multiplicador de dinero</value>
+  </data>
+  <data name="Trainer_MovesIgnored" xml:space="preserve">
+    <value>Estos movimientos se guardan, pero el juego no los usará mientras «Movimientos propios» esté desactivado.</value>
+  </data>
+  <data name="Trainer_ItemIgnored" xml:space="preserve">
+    <value>Este objeto se guarda, pero el juego no lo usará mientras «Objetos equipados» esté desactivado.</value>
+  </data>
 </root>

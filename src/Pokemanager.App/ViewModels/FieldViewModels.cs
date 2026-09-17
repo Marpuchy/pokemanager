@@ -71,6 +71,42 @@ public sealed class StatFieldViewModel(EditorSession session, string table, int 
     }));
 }
 
+/// <summary>One bit of an int field, shown as a check box: the AI flags of a trainer.</summary>
+/// <param name="bit">0-based bit number.</param>
+public sealed class BitFieldViewModel(EditorSession session, string table, int id, string field, string label, int bit, string tip)
+    : FieldViewModel(session, table, id, field, label)
+{
+    public string Tip { get; } = tip;
+
+    /// <summary>"bit 2 · 0x04", so the value in the file is always visible.</summary>
+    public string BitText => string.Format(Strings.Ai_BitText, bit, 1 << bit);
+
+    public bool IsSet
+    {
+        get => (Session.GetInt(Table, Id, Field) & (1 << bit)) != 0;
+        set
+        {
+            int current = Session.GetInt(Table, Id, Field);
+            Write(value ? current | (1 << bit) : current & ~(1 << bit));
+        }
+    }
+
+    protected override string FormatOriginal(int value) => ((value & (1 << bit)) != 0).ToString();
+}
+
+/// <summary>A field shown as a check box (the trainer's healer flag).</summary>
+public sealed class BoolFieldViewModel(EditorSession session, string table, int id, string field, string label)
+    : FieldViewModel(session, table, id, field, label)
+{
+    public bool IsSet
+    {
+        get => Session.GetInt(Table, Id, Field) != 0;
+        set => Write(value ? 1 : 0);
+    }
+
+    protected override string FormatOriginal(int value) => (value != 0).ToString();
+}
+
 public sealed class ChoiceFieldViewModel(EditorSession session, string table, int id, string field, string label, IReadOnlyList<string> options)
     : FieldViewModel(session, table, id, field, label)
 {

@@ -22,6 +22,7 @@ public partial class EditorViewModel : ObservableObject
     private readonly AppSettings settings;
     private List<ListEntryViewModel> allSpecies = [];
     private List<ListEntryViewModel> allMoves = [];
+    private List<ListEntryViewModel> allTrainers = [];
 
     public string ProjectPath { get; }
     public GameDump Dump { get; }
@@ -50,6 +51,7 @@ public partial class EditorViewModel : ObservableObject
 
     public ObservableCollection<ListEntryViewModel> Species { get; } = [];
     public ObservableCollection<ListEntryViewModel> Moves { get; } = [];
+    public ObservableCollection<ListEntryViewModel> Trainers { get; } = [];
 
     [ObservableProperty]
     public partial string SpeciesFilter { get; set; } = "";
@@ -71,16 +73,25 @@ public partial class EditorViewModel : ObservableObject
     public partial string MoveFilter { get; set; } = "";
 
     [ObservableProperty]
+    public partial string TrainerFilter { get; set; } = "";
+
+    [ObservableProperty]
     public partial ListEntryViewModel? SelectedSpecies { get; set; }
 
     [ObservableProperty]
     public partial ListEntryViewModel? SelectedMove { get; set; }
 
     [ObservableProperty]
+    public partial ListEntryViewModel? SelectedTrainer { get; set; }
+
+    [ObservableProperty]
     public partial SpeciesDetailViewModel? SpeciesDetail { get; set; }
 
     [ObservableProperty]
     public partial MoveDetailViewModel? MoveDetail { get; set; }
+
+    [ObservableProperty]
+    public partial TrainerDetailViewModel? TrainerDetail { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(DirtyText))]
@@ -178,13 +189,23 @@ public partial class EditorViewModel : ObservableObject
             .Select(i => new ListEntryViewModel(Session, moveTables, i, Names.Moves[i], types: () => (Session.Current.Moves[i].Type, Session.Current.Moves[i].Type), moveCategory: () => Session.Current.Moves[i].Category))
             .ToList();
 
-        int? species = SelectedSpecies?.Id, move = SelectedMove?.Id;
+        string[] trainerTables = [GameTables.Trainers];
+        allTrainers = Enumerable.Range(0, Session.Current.Trainers.Length)
+            .Select(i => new ListEntryViewModel(Session, trainerTables, i, "",
+                liveName: () => Names.TrainerLabel(i, Session.GetInt(GameTables.Trainers, i, "class")),
+                strip: () => TrainerDetailViewModel.AiColor(Session.GetInt(GameTables.Trainers, i, "ai"))))
+            .ToList();
+
+        int? species = SelectedSpecies?.Id, move = SelectedMove?.Id, trainer = SelectedTrainer?.Id;
         SpeciesDetail = null;
         MoveDetail = null;
+        TrainerDetail = null;
         ApplyFilter(Species, allSpecies, SpeciesFilter);
         ApplyFilter(Moves, allMoves, MoveFilter);
+        ApplyFilter(Trainers, allTrainers, TrainerFilter);
         SelectedSpecies = Species.FirstOrDefault(s => s.Id == species) ?? Species.FirstOrDefault();
         SelectedMove = Moves.FirstOrDefault(m => m.Id == move) ?? Moves.FirstOrDefault();
+        SelectedTrainer = Trainers.FirstOrDefault(t => t.Id == trainer) ?? Trainers.FirstOrDefault();
 
         Session.Changed += OnSessionChanged;
         OnPropertyChanged(nameof(EditCountText));
@@ -195,12 +216,15 @@ public partial class EditorViewModel : ObservableObject
     private void OnSessionChanged(object? sender, EditKey key)
     {
         bool move = key.Table is GameTables.Moves or GameTables.MoveTexts;
-        string name = move
-            ? key.Id < Names.Moves.Count ? Names.Moves[key.Id] : $"#{key.Id}"
-            : key.Id < Names.PersonalEntries.Count ? Names.PersonalEntries[key.Id] : $"#{key.Id}";
+        bool trainer = key.Table is GameTables.Trainers;
+        string name = trainer
+            ? Names.TrainerLabel(key.Id, Session.GetInt(GameTables.Trainers, key.Id, "class"))
+            : move
+                ? key.Id < Names.Moves.Count ? Names.Moves[key.Id] : $"#{key.Id}"
+                : key.Id < Names.PersonalEntries.Count ? Names.PersonalEntries[key.Id] : $"#{key.Id}";
         MarkDirty($"{name} · {key.Field}");
         OnPropertyChanged(nameof(EditCountText));
-        var list = move ? allMoves : allSpecies;
+        var list = trainer ? allTrainers : move ? allMoves : allSpecies;
         list.FirstOrDefault(e => e.Id == key.Id)?.Refresh();
     }
 
@@ -320,12 +344,14 @@ public partial class EditorViewModel : ObservableObject
             (r.LastBuiltRom, r.InstalledSeed) = (lastBuilt, installed);
             Session.Project.Locke = locke;
 
-            foreach (var entry in allSpecies.Concat(allMoves))
+            foreach (var entry in allSpecies.Concat(allMoves).Concat(allTrainers))
                 entry.Refresh();
             if (SpeciesDetail is { } species)
                 SpeciesDetail = new SpeciesDetailViewModel(Session, Names, species.Id, Sprites.ForPersonalEntry(species.Id));
             if (MoveDetail is { } move)
                 MoveDetail = new MoveDetailViewModel(Session, Names, move.Id);
+            if (TrainerDetail is { } trainer)
+                TrainerDetail = new TrainerDetailViewModel(Session, Names, Sprites, trainer.Id);
             Randomizer.ReloadFromProject();
             Locke.Refresh();
             IsDirty = true;
@@ -354,6 +380,20 @@ public partial class EditorViewModel : ObservableObject
         ApplyFilter(Moves, allMoves, value);
         if (keep is not null && Moves.Contains(keep))
             SelectedMove = keep;
+    }
+
+    partial void OnTrainerFilterChanged(string value)
+    {
+        var keep = SelectedTrainer;
+        ApplyFilter(Trainers, allTrainers, value);
+        if (keep is not null && Trainers.Contains(keep))
+            SelectedTrainer = keep;
+    }
+
+    partial void OnSelectedTrainerChanged(ListEntryViewModel? value)
+    {
+        if (value is not null && value.Id != TrainerDetail?.Id)
+            TrainerDetail = new TrainerDetailViewModel(Session, Names, Sprites, value.Id);
     }
 
     partial void OnSelectedSpeciesChanged(ListEntryViewModel? value)

@@ -30,6 +30,17 @@
                   HorizontalAlignment="Stretch" MaxDropDownHeight="360" />
       </Grid>
     </DataTemplate>
+    <!-- One bit of a field, as a check box: the AI flags of a trainer (the bit and its value stay visible) -->
+    <DataTemplate DataType="vm:BitFieldViewModel">
+      <Grid ColumnDefinitions="Auto,*" Margin="0,1" ToolTip.Tip="{Binding Tip}">
+        <CheckBox IsChecked="{Binding IsSet}" Content="{Binding Label}" />
+        <TextBlock Grid.Column="1" Classes="hint" Text="{Binding BitText}" VerticalAlignment="Center" Margin="8,0,0,0" />
+      </Grid>
+    </DataTemplate>
+    <!-- Boolean field as a check box -->
+    <DataTemplate DataType="vm:BoolFieldViewModel">
+      <CheckBox IsChecked="{Binding IsSet}" Content="{Binding Label}" Margin="0,1" ToolTip.Tip="{Binding OriginalTip}" />
+    </DataTemplate>
     <DataTemplate DataType="vm:ListEntryViewModel">
       <!-- Modified entries: amber row with an orange bar on the left, bold name and a "Modified" tag.
            The negative margin cancels the item padding on the left so the bar sits at the edge; the right is kept clear of the scroll bar, which is drawn over the items. -->
@@ -438,6 +449,143 @@
             </ContentControl.ContentTemplate>
           </ContentControl>
         </Grid>
+        </DockPanel>
+      </TabItem>
+
+      <!-- ================= Advanced: Trainers ================= -->
+      <TabItem Header="{x:Static r:Strings.Tab_AdvancedTrainers}">
+        <DockPanel>
+          <Border DockPanel.Dock="Top" Padding="8,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+            <TextBlock Classes="hint" VerticalAlignment="Center" Text="{x:Static r:Strings.Trainer_Hint}" />
+          </Border>
+          <Grid ColumnDefinitions="300,*">
+            <DockPanel Margin="8">
+              <TextBox DockPanel.Dock="Top" Text="{Binding TrainerFilter}" PlaceholderText="{x:Static r:Strings.Search_Watermark}" Margin="0,0,0,6" />
+              <TextBlock DockPanel.Dock="Bottom" Classes="hint" TextWrapping="Wrap" Margin="0,6,0,0"
+                         Text="{x:Static r:Strings.Trainer_NoTrainers}" IsVisible="{Binding !Trainers.Count}" />
+              <ListBox ItemsSource="{Binding Trainers}" SelectedItem="{Binding SelectedTrainer}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" />
+            </DockPanel>
+
+            <ContentControl Grid.Column="1" Content="{Binding TrainerDetail}">
+              <ContentControl.ContentTemplate>
+                <DataTemplate x:DataType="vm:TrainerDetailViewModel">
+                  <ScrollViewer Margin="8,8,12,8">
+                    <StackPanel Spacing="8">
+                      <!-- Header in the colour of the AI level: grey none, blue basic, amber two flags, red the game's own maximum -->
+                      <Border Classes="detail-header" Background="{Binding AiBrush}">
+                        <Grid ColumnDefinitions="*,Auto">
+                          <StackPanel Spacing="4" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="Bold" Foreground="White" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="{Binding AiText}" Foreground="White" Opacity="0.95" />
+                          </StackPanel>
+                          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                            <Border Classes="badge">
+                              <StackPanel>
+                                <TextBlock Classes="badge-label" Text="{x:Static r:Strings.Trainer_TeamSize}" />
+                                <TextBlock Classes="badge-value" Text="{Binding Count.Value}" />
+                              </StackPanel>
+                            </Border>
+                            <Button Content="{x:Static r:Strings.Detail_Revert}" Command="{Binding RevertCommand}" IsEnabled="{Binding IsModified}" />
+                          </StackPanel>
+                        </Grid>
+                      </Border>
+
+                      <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Trainer_Unreadable}" IsVisible="{Binding IsUnreadable}" />
+
+                      <WrapPanel IsVisible="{Binding !IsUnreadable}">
+                        <!-- Artificial intelligence -->
+                        <Border Classes="card detail">
+                          <StackPanel Spacing="4">
+                            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Ai_Title}" />
+                            <ItemsControl ItemsSource="{Binding AiFlags}" />
+                            <TextBlock Classes="hint" Text="{x:Static r:Strings.Ai_Presets}" Margin="0,4,0,0" />
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                              <Button Content="{x:Static r:Strings.Ai_PresetNone}" Command="{Binding SetAiCommand}" CommandParameter="0" />
+                              <Button Content="{x:Static r:Strings.Ai_PresetBasic}" Command="{Binding SetAiCommand}" CommandParameter="1" />
+                              <Button Content="{x:Static r:Strings.Ai_PresetLeader}" Command="{Binding SetAiCommand}" CommandParameter="7" />
+                            </StackPanel>
+                            <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="320" Text="{x:Static r:Strings.Ai_Tip}" Margin="0,4,0,0" />
+                          </StackPanel>
+                        </Border>
+
+                        <!-- The record itself -->
+                        <Border Classes="card detail">
+                          <StackPanel Spacing="4">
+                            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_Record}" />
+                            <ItemsControl ItemsSource="{Binding Record}" />
+                            <ContentControl Content="{Binding Count}" />
+                            <ItemsControl ItemsSource="{Binding Gen6Flags}" Margin="0,4,0,0" />
+                            <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="320" Text="{x:Static r:Strings.Trainer_CustomMovesTip}" IsVisible="{Binding IsGen6}" />
+                          </StackPanel>
+                        </Border>
+
+                        <!-- Items the trainer uses during the battle -->
+                        <Border Classes="card detail">
+                          <StackPanel Spacing="4">
+                            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_Bag}" />
+                            <ItemsControl ItemsSource="{Binding Bag}" />
+                            <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="320" Text="{x:Static r:Strings.Trainer_BagHint}" />
+                          </StackPanel>
+                        </Border>
+                      </WrapPanel>
+
+                      <!-- The team: one card per Pokémon, headed in the species' types as the ROM has them now -->
+                      <ItemsControl ItemsSource="{Binding Members}" IsVisible="{Binding !IsUnreadable}">
+                        <ItemsControl.ItemsPanel>
+                          <ItemsPanelTemplate>
+                            <WrapPanel />
+                          </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate x:DataType="vm:TrainerMemberViewModel">
+                            <Border Classes="card detail">
+                              <StackPanel Spacing="4">
+                                <Border Classes="detail-header" Background="{Binding TypeBackground}" Padding="6,4" Margin="0,0,0,4">
+                                  <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="40" Height="30" Margin="0,0,8,0" />
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                      <TextBlock Text="{Binding SpeciesName}" FontWeight="Bold" Foreground="{Binding TypeForeground}" TextTrimming="CharacterEllipsis" />
+                                      <TextBlock Text="{Binding Header}" Foreground="{Binding TypeForeground}" Opacity="0.85" FontSize="10" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="2" Text="{Binding LevelText}" Foreground="{Binding TypeForeground}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                  </Grid>
+                                </Border>
+                                <ContentControl Content="{Binding Species}" />
+                                <ContentControl Content="{Binding Form}" />
+                                <ContentControl Content="{Binding Level}" />
+                                <ContentControl Content="{Binding Ability}" />
+                                <TextBlock Classes="hint" Text="{Binding AbilityHint}" Margin="190,0,0,0" />
+                                <ContentControl Content="{Binding Gender}" />
+                                <ContentControl Content="{Binding Item}" />
+                                <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="240" Margin="190,0,0,0"
+                                           Text="{x:Static r:Strings.Trainer_ItemIgnored}" IsVisible="{Binding ItemIgnored}" />
+                                <ItemsControl ItemsSource="{Binding Moves}" />
+                                <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="240" Margin="190,0,0,0"
+                                           Text="{x:Static r:Strings.Trainer_MovesIgnored}" IsVisible="{Binding MovesIgnored}" />
+                                <!-- Generation 6: one byte for every IV -->
+                                <StackPanel IsVisible="{Binding IsGen6}" ToolTip.Tip="{x:Static r:Strings.Trainer_IvByteTip}">
+                                  <ContentControl Content="{Binding IvByte}" />
+                                  <TextBlock Classes="hint" Text="{Binding IvByteText}" Margin="190,0,0,0" />
+                                </StackPanel>
+                                <!-- Generation 7: the six IVs, the six EVs and the nature -->
+                                <StackPanel IsVisible="{Binding IsGen7}" Spacing="2">
+                                  <ContentControl Content="{Binding Nature}" />
+                                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_Ivs}" />
+                                  <ItemsControl ItemsSource="{Binding Ivs}" />
+                                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_Evs}" />
+                                  <ItemsControl ItemsSource="{Binding Evs}" />
+                                </StackPanel>
+                              </StackPanel>
+                            </Border>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                    </StackPanel>
+                  </ScrollViewer>
+                </DataTemplate>
+              </ContentControl.ContentTemplate>
+            </ContentControl>
+          </Grid>
         </DockPanel>
       </TabItem>
     </TabControl>

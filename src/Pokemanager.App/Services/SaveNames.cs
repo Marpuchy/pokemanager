@@ -1,4 +1,4 @@
-using PKHeX.Core;
+﻿using PKHeX.Core;
 using Pokemanager.App.Resources;
 using GameLanguage = Pokemanager.Model.Dump.GameLanguage;
 
@@ -55,7 +55,8 @@ public sealed class SaveNames
 
     public string AbilityName(int ability) => ability > 0 && ability < Abilities.Count ? Abilities[ability] : "—";
 
-    private static string PkhexLanguage(GameLanguage language) => language switch
+    /// <summary>PKHeX language code for a game text language; shared with <see cref="GameNames"/>.</summary>
+    internal static string PkhexLanguage(GameLanguage language) => language switch
     {
         GameLanguage.JapaneseKana or GameLanguage.JapaneseKanji => "ja",
         GameLanguage.French => "fr",

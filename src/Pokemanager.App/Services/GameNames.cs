@@ -1,4 +1,4 @@
-using pk3DS.Core;
+﻿using pk3DS.Core;
 using Pokemanager.App.Resources;
 using Pokemanager.Model.Data;
 using Pokemanager.Model.Dump;
@@ -14,6 +14,21 @@ public sealed class GameNames
     public IReadOnlyList<string> Abilities { get; }
     public IReadOnlyList<string> Items { get; }
     public IReadOnlyList<string> Moves { get; }
+
+    /// <summary>Trainer names, by trainer id; the game leaves a placeholder for the unnamed ones.</summary>
+    public IReadOnlyList<string> TrainerNames { get; }
+
+    /// <summary>Trainer class names ("Leader", "Youngster"), by class index.</summary>
+    public IReadOnlyList<string> TrainerClasses { get; }
+
+    /// <summary>Nature names in the game's index order (PKHeX's list, in the project's text language).</summary>
+    public IReadOnlyList<string> Natures { get; }
+
+    /// <summary>Items with "none" in slot 0, for the pickers where 0 means the trainer carries nothing.</summary>
+    public IReadOnlyList<string> ItemChoices { get; }
+
+    /// <summary>Moves with "none" in slot 0 (the game's own entry there is a row of dashes).</summary>
+    public IReadOnlyList<string> MoveChoices { get; }
 
     /// <summary>The bag's description of each item, in the project's text language (empty when the game has none).</summary>
     public IReadOnlyList<string> ItemDescriptions { get; }
@@ -46,11 +61,25 @@ public sealed class GameNames
         Abilities = config.GetText(TextName.AbilityNames);
         Items = config.GetText(TextName.ItemNames);
         Moves = config.GetText(TextName.MoveNames);
+        TrainerNames = config.GetText(TextName.TrainerNames);
+        TrainerClasses = config.GetText(TextName.TrainerClasses);
+        Natures = [.. PKHeX.Core.GameInfo.GetStrings(SaveNames.PkhexLanguage(dump.Language)).natures.Take(25)];
+        ItemChoices = [Strings.Pkm_None, .. Items.Skip(1)];
+        MoveChoices = [Strings.Pkm_None, .. Moves.Skip(1)];
         ItemDescriptions = [.. config.GetText(TextName.ItemFlavor).Select(line => GameText.ToEditable(line).Replace("\\c", "\n").Replace("\\r", "\n").Trim())];
         PersonalEntries = BuildPersonalEntryNames(original, Species, config.MaxSpeciesID);
         var (classifications, entries) = GameText.PokedexFiles(dump.Title);
         Classifications = TextFile(config, classifications);
         PokedexEntries = TextFile(config, entries);
+    }
+
+    /// <summary>"Leader Korrina" — the class as the game names it plus the trainer's name, both in the project's language.</summary>
+    public string TrainerLabel(int id, int trainerClass)
+    {
+        string cls = trainerClass >= 0 && trainerClass < TrainerClasses.Count ? TrainerClasses[trainerClass] : "";
+        string name = id >= 0 && id < TrainerNames.Count ? TrainerNames[id] : "";
+        string label = string.Join(' ', new[] { cls, name }.Where(p => !string.IsNullOrWhiteSpace(p)));
+        return label.Length == 0 ? string.Format(Strings.Trainer_Unnamed, id) : label;
     }
 
     private static string[] TextFile(pk3DS.Core.GameConfig config, int file) =>
