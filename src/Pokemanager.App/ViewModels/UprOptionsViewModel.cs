@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Pokemanager.App.Resources;
@@ -26,13 +26,23 @@ public partial class UprOptionsViewModel : ObservableObject
     /// <summary>There are option changes not yet written to the preset.</summary>
     public bool HasChanges { get; private set; }
 
-    public UprOptionsViewModel(Action markDirty) => this.markDirty = markDirty;
+    private readonly ShopExtrasViewModel? shops;
+
+    /// <param name="shops">
+    /// Our own shop settings, shown on the item options page. Null in the tests, which only exercise the UPR options.
+    /// </param>
+    public UprOptionsViewModel(Action markDirty, ShopExtrasViewModel? shops = null)
+    {
+        this.markDirty = markDirty;
+        this.shops = shops;
+    }
 
     public void Load(UprSettingsDescription description, IReadOnlySet<string> availableTweaks, int generation)
     {
         Groups.Clear();
         byName.Clear();
         var groups = UprOptionCatalog.Groups.ToDictionary(g => g, g => new UprOptionGroupViewModel(g));
+        groups[UprOptionCatalog.Items].Shops = shops;
 
         foreach (var option in description.Options.Where(o => !UprOptionCatalog.IsHidden(o.Name, generation)))
         {
@@ -99,6 +109,14 @@ public sealed class UprOptionGroupViewModel(string id)
     public string Id { get; } = id;
     public string Name { get; } = UprOptionCatalog.GroupLabel(id);
     public ObservableCollection<UprOptionViewModel> Items { get; } = [];
+
+    /// <summary>
+    /// Our own shop settings, on the group that holds the item options and nowhere else. They are not UPR ZX options
+    /// (they live in the project and no seed touches them), but that page is where a player looks for them.
+    /// </summary>
+    public ShopExtrasViewModel? Shops { get; set; }
+
+    public bool HasShops => Shops is not null;
 }
 
 public partial class UprOptionViewModel : ObservableObject

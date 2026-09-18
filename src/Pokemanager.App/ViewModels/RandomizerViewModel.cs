@@ -75,8 +75,8 @@ public partial class RandomizerViewModel : ObservableObject
         this.dialogs = dialogs;
         this.upr = upr;
         this.settings = settings;
-        Options = new UprOptionsViewModel(editor.MarkDirty);
         Shops = new ShopExtrasViewModel(editor);
+        Options = new UprOptionsViewModel(editor.MarkDirty, Shops);
 
         SeedText = Settings.Seed > 0 ? Settings.Seed.ToString() : UprRunner.NewSeed().ToString();
         OutputName = Settings.OutputName ?? DefaultOutputName();
