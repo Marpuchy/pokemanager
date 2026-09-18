@@ -3345,4 +3345,13 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Tip_Field_trainer_evSpe" xml:space="preserve">
     <value>Its Speed EVs, up to 252.</value>
   </data>
+  <data name="Shops_FitAll" xml:space="preserve">
+    <value>{0} of them, and every ordinary Poké Mart sells the lot.</value>
+  </data>
+  <data name="Shops_FitSome" xml:space="preserve">
+    <value>{0} of them: {1} of the {2} ordinary Poké Marts sell the lot, the smaller ones only the last that fit on their shelves.</value>
+  </data>
+  <data name="Shops_FitOverflow" xml:space="preserve">
+    <value>{0} of them and no shop has room for more than {1}: the first ones on the list will not be sold anywhere.</value>
+  </data>
 </root>

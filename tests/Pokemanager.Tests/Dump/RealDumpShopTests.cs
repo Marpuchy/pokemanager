@@ -73,7 +73,9 @@ public class RealDumpShopTests
         // The price, in the item table.
         var layout = GameTitle.X.Layout();
         byte[][] items = new GARC.MemGARC(built["romfs/" + layout.Items]).Files;
+        // The game keeps one price and derives both from it, so free to buy is also worth nothing to sell.
         Assert.Equal(0, new Item(items[GameShops.RareCandy]).BuyPrice);
+        Assert.Equal(0, new Item(items[GameShops.RareCandy]).SellPrice);
         Assert.Equal(200, new Item(items[4]).BuyPrice); // nothing else moved
 
         // The shops, in code.bin.

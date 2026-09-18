@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Pokemanager.App.Resources;
@@ -33,6 +33,48 @@ public sealed partial class ShopExtrasViewModel : ObservableObject
 
     /// <summary>Whether the game is one whose shops this application knows how to change.</summary>
     public bool Supported { get; }
+
+    /// <summary>
+    /// How many extras the biggest ordinary Poké Mart can take, and how many the smallest one can. A shop sells a fixed
+    /// number of things and one slot is always left as the game had it, so a long list does not fit everywhere — and
+    /// what does not fit is not an error, it simply never shows up.
+    /// </summary>
+    private IReadOnlyList<int> Room =>
+        GameShops.For(editor.Session.Current.Title) is { } layout
+            ? [.. layout.Regular.Select(shop => Math.Max(0, layout.Sizes[shop] - 1))]
+            : [];
+
+    /// <summary>How many things are being asked for: the list, plus the Rare Candy when it is switched on.</summary>
+    private int Asked => Extra.Count + (FreeRareCandies ? 1 : 0);
+
+    /// <summary>A line saying where they will and will not appear; empty when there is nothing to say yet.</summary>
+    public string FitText
+    {
+        get
+        {
+            var room = Room;
+            if (!Supported || Asked == 0 || room.Count == 0)
+                return "";
+            int most = room.Max();
+            if (Asked > most)
+                return string.Format(Strings.Shops_FitOverflow, Asked, most);
+            // A shop that can only take fewer than the list sells the last ones of it; the count that means something
+            // is how many Poké Marts sell the whole list.
+            int whole = room.Count(r => r >= Asked);
+            return whole == room.Count
+                ? string.Format(Strings.Shops_FitAll, Asked)
+                : string.Format(Strings.Shops_FitSome, Asked, whole, room.Count);
+        }
+    }
+
+    /// <summary>Whether some of them will not appear in any shop at all, which the card says in orange.</summary>
+    public bool Overflows => Supported && Room.Count > 0 && Asked > Room.Max();
+
+    private void NotifyFit()
+    {
+        OnPropertyChanged(nameof(FitText));
+        OnPropertyChanged(nameof(Overflows));
+    }
 
     public string UnsupportedText => string.Format(Strings.Shops_Unsupported, editor.Session.Current.Title.DisplayName());
 
@@ -69,6 +111,7 @@ public sealed partial class ShopExtrasViewModel : ObservableObject
         if (loading || Settings.FreeRareCandies == value)
             return;
         Settings.FreeRareCandies = value;
+        NotifyFit();
         editor.MarkDirty(Strings.Shops_UndoCandies);
     }
 
@@ -79,6 +122,7 @@ public sealed partial class ShopExtrasViewModel : ObservableObject
             return;
         Settings.ExtraItems.Add(SelectedItem);
         Extra.Add(new ShopItemViewModel(this, SelectedItem, Name(SelectedItem)));
+        NotifyFit();
         editor.MarkDirty(string.Format(Strings.Shops_UndoAdd, Name(SelectedItem)));
     }
 
@@ -87,11 +131,16 @@ public sealed partial class ShopExtrasViewModel : ObservableObject
         if (!Settings.ExtraItems.Remove(item.Id))
             return;
         Extra.Remove(item);
+        NotifyFit();
         editor.MarkDirty(string.Format(Strings.Shops_UndoRemove, item.Name));
     }
 
     /// <summary>The project was replaced (undo, restore): show what it holds now.</summary>
-    public void Refresh() => Load();
+    public void Refresh()
+    {
+        Load();
+        NotifyFit();
+    }
 }
 
 /// <summary>One item on the extra list, with the button that takes it off.</summary>

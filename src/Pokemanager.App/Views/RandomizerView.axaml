@@ -95,6 +95,10 @@
                   </ItemsControl.ItemTemplate>
                 </ItemsControl>
                 <TextBlock Classes="hint" TextWrapping="Wrap" Margin="0,4,0,0" Text="{x:Static r:Strings.Shops_SlotHint}" />
+                <!-- What actually fits: a shop has a fixed number of shelves, so a long list is cut silently otherwise -->
+                <TextBlock Classes="hint" TextWrapping="Wrap" Margin="0,2,0,0" Text="{Binding FitText}" IsVisible="{Binding !Overflows}" />
+                <TextBlock TextWrapping="Wrap" Margin="0,2,0,0" Text="{Binding FitText}" IsVisible="{Binding Overflows}"
+                           Foreground="#C24E00" FontWeight="SemiBold" />
               </StackPanel>
             </StackPanel>
           </Border>

@@ -3345,4 +3345,13 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Tip_Field_trainer_evSpe" xml:space="preserve">
     <value>Sus EV de Velocidad, hasta 252.</value>
   </data>
+  <data name="Shops_FitAll" xml:space="preserve">
+    <value>{0} objetos, y todas las tiendas normales los venden.</value>
+  </data>
+  <data name="Shops_FitSome" xml:space="preserve">
+    <value>{0} objetos: los venden enteros {1} de las {2} tiendas normales; en las pequeñas solo caben los últimos.</value>
+  </data>
+  <data name="Shops_FitOverflow" xml:space="preserve">
+    <value>{0} objetos y en ninguna tienda caben más de {1}: los primeros de la lista no se venderán en ningún sitio.</value>
+  </data>
 </root>
