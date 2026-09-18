@@ -186,6 +186,10 @@
                       <CheckBox IsChecked="{Binding FreeRareCandies}" Content="{x:Static r:Strings.Shops_FreeCandies}"
                                 ToolTip.Tip="{x:Static r:Strings.Shops_FreeCandiesTip}" />
                       <TextBlock Classes="hint" TextWrapping="Wrap" Margin="0,2,0,0" Text="{Binding FitText}" />
+                      <CheckBox IsChecked="{Binding MegaStonesInShops}" Content="{Binding MegaStonesText}" Margin="0,6,0,0"
+                                IsVisible="{Binding HasMegaStones}" ToolTip.Tip="{x:Static r:Strings.Shops_MegaStonesTip}" />
+                      <TextBlock Classes="hint" TextWrapping="Wrap" IsVisible="{Binding HasMegaStones}"
+                                 Text="{x:Static r:Strings.Shops_MegaStonesHint}" />
                     </StackPanel>
                   </StackPanel>
                 </Border>

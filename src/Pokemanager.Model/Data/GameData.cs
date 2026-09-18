@@ -46,8 +46,14 @@ public sealed class GameData
     /// </summary>
     public Item[] Items { get; }
 
+    /// <summary>
+    /// The Mega Stones of this game, read from its own mega evolution table (the item each one needs), sorted and
+    /// without repeats. Empty when the game folder does not have that archive or nothing in it looks like a stone.
+    /// </summary>
+    public int[] MegaStones { get; }
+
     private GameData(GameTitle title, PersonalInfoXY[] personal, Move[] moves, Learnset6[] learnsets, string[] moveDescriptions,
-        Trainer[] trainers, Item[] items)
+        Trainer[] trainers, Item[] items, int[] megaStones)
     {
         Title = title;
         Personal = personal;
@@ -56,6 +62,7 @@ public sealed class GameData
         MoveDescriptions = moveDescriptions;
         Trainers = trainers;
         Items = items;
+        MegaStones = megaStones;
     }
 
     public static GameData Load(string romFsPath, GameTitle title = GameTitle.X) => Load(new RomFsLayers(romFsPath), title);
@@ -70,7 +77,8 @@ public sealed class GameData
             ReadFiles(layers, layout.LevelUp).Select(f => new Learnset6(f)).ToArray(),
             ReadMoveDescriptions(layers, title, moves.Length),
             TrainerArchive.Read(layers, title),
-            ReadItems(layers, title));
+            ReadItems(layers, title),
+            ReadMegaStones(layers, title));
     }
 
     /// <summary>
@@ -84,6 +92,38 @@ public sealed class GameData
             byte[][] files = ReadFiles(layers, title.Layout().Items);
             int size = System.Runtime.InteropServices.Marshal.SizeOf<Item>();
             return files.All(f => f.Length == size) ? [.. files.Select(f => new Item(f))] : [];
+        }
+        catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException or InvalidDataException or ArgumentException)
+        {
+            return [];
+        }
+    }
+
+    /// <summary>
+    /// The item of every mega evolution the game defines. pk3DS reads the archive as 8-byte entries of form, method,
+    /// argument and a spare; method 1 is "hold this item", and the argument is the stone. Verified on the real X dump:
+    /// 30 stones, exactly the items whose names end in -ite minus the Eviolite, which is not one.
+    /// </summary>
+    private static int[] ReadMegaStones(RomFsLayers layers, GameTitle title)
+    {
+        try
+        {
+            int items = ReadItems(layers, title).Length;
+            if (items == 0)
+                return [];
+            var stones = new SortedSet<int>();
+            foreach (byte[] file in ReadFiles(layers, title.Layout().MegaEvolutions))
+            {
+                var mega = new MegaEvolutions(file);
+                if (mega.Method is null)
+                    continue;
+                for (int i = 0; i < mega.Method.Length; i++)
+                {
+                    if (mega.Method[i] == 1 && mega.Argument[i] > 0 && mega.Argument[i] < items)
+                        stones.Add(mega.Argument[i]);
+                }
+            }
+            return [.. stones];
         }
         catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException or InvalidDataException or ArgumentException)
         {

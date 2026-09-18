@@ -130,6 +130,47 @@ public class RealDumpShopTests
     }
 
     [Fact]
+    public void MegaStones_AreReadFromTheGameAndDealtOutOverTheShops()
+    {
+        string dumpDir = RequireDump();
+        var data = GameData.Load(Path.Combine(dumpDir, "romfs"));
+        // X defines thirty mega evolutions, and their stones are items 656-685.
+        Assert.Equal(30, data.MegaStones.Length);
+        Assert.Equal(656, data.MegaStones[0]);
+        Assert.Equal(685, data.MegaStones[^1]);
+        Assert.DoesNotContain(538, data.MegaStones); // the Eviolite only sounds like one
+
+        var project = new Project { DumpDirectory = dumpDir };
+        project.Shops.MegaStonesInShops = true;
+        var session = EditorSession.Open(project);
+
+        var built = ModBuilder.BuildEdits(session);
+
+        var shops = GameShops.For(GameTitle.X)!;
+        byte[] original = File.ReadAllBytes(Path.Combine(dumpDir, "exefs", "code.bin"));
+        int offset = GameShops.Find(original, shops, 718)!.Value;
+        int[] table = GameShops.Read(built[ModBuilder.CodeFile], offset, shops);
+
+        // Every stone is sold somewhere, and no shop lost everything it had.
+        var sold = shops.Regular.SelectMany(s => table.Skip(shops.Start(s)).Take(shops.Sizes[s])).ToHashSet();
+        foreach (int stone in data.MegaStones)
+            Assert.Contains(stone, sold);
+        int[] before = GameShops.Read(original, offset, shops);
+        foreach (int shop in shops.Regular)
+        {
+            var now = table.Skip(shops.Start(shop)).Take(shops.Sizes[shop]).ToList();
+            var was = before.Skip(shops.Start(shop)).Take(shops.Sizes[shop]).ToList();
+            Assert.Contains(now, item => was.Contains(item));
+        }
+        // Shops that are not ordinary Poké Marts are untouched.
+        foreach (int shop in Enumerable.Range(0, shops.Sizes.Length).Except(shops.Regular))
+        {
+            Assert.Equal(before.Skip(shops.Start(shop)).Take(shops.Sizes[shop]),
+                table.Skip(shops.Start(shop)).Take(shops.Sizes[shop]));
+        }
+    }
+
+    [Fact]
     public void AHandEditedPrice_WinsOverTheFreeCandies()
     {
         string dumpDir = RequireDump();

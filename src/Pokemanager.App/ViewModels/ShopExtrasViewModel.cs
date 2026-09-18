@@ -89,6 +89,15 @@ public sealed partial class ShopExtrasViewModel : ObservableObject
     [ObservableProperty]
     public partial bool FreeRareCandies { get; set; }
 
+    [ObservableProperty]
+    public partial bool MegaStonesInShops { get; set; }
+
+    /// <summary>"42 Mega Stones", so the option says what the game actually has instead of a promise.</summary>
+    public string MegaStonesText => string.Format(Strings.Shops_MegaStonesCount, editor.Session.Current.MegaStones.Length);
+
+    /// <summary>A game with no mega evolutions at all (or a folder imported before this version) does not offer it.</summary>
+    public bool HasMegaStones => editor.Session.Current.MegaStones.Length > 0;
+
     /// <summary>
     /// Let the randomizer use every item of the game. Unlike the rest of this card it belongs to the randomization, so
     /// changing it means the ROM has to be randomized again — the seed alone no longer describes the result.
@@ -115,6 +124,7 @@ public sealed partial class ShopExtrasViewModel : ObservableObject
     {
         loading = true;
         FreeRareCandies = Settings.FreeRareCandies;
+        MegaStonesInShops = Settings.MegaStonesInShops;
         Extra.Clear();
         foreach (int id in Settings.ExtraItems)
             Extra.Add(new ShopItemViewModel(this, id, Name(id)));
@@ -122,6 +132,15 @@ public sealed partial class ShopExtrasViewModel : ObservableObject
     }
 
     private string Name(int id) => id >= 0 && id < ItemNames.Count ? ItemNames[id] : $"#{id}";
+
+    partial void OnMegaStonesInShopsChanged(bool value)
+    {
+        if (loading || Settings.MegaStonesInShops == value)
+            return;
+        Settings.MegaStonesInShops = value;
+        NotifyFit();
+        editor.MarkDirty(Strings.Shops_UndoMegaStones);
+    }
 
     partial void OnFreeRareCandiesChanged(bool value)
     {

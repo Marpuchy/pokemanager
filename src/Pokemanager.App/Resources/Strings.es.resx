@@ -3369,4 +3369,16 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Items_AllowAllUndo" xml:space="preserve">
     <value>Permitir todos los objetos</value>
   </data>
+  <data name="Shops_MegaStonesCount" xml:space="preserve">
+    <value>Megapiedras a la venta desde el principio ({0})</value>
+  </data>
+  <data name="Shops_MegaStonesTip" xml:space="preserve">
+    <value>Pone las megapiedras del propio juego en las tiendas normales, para poder megaevolucionar antes de que el juego te deje.</value>
+  </data>
+  <data name="Shops_MegaStonesHint" xml:space="preserve">
+    <value>Hay más de las que caben en una sola tienda, así que se reparten: cada tienda vende unas cuantas y entre todas están todas.</value>
+  </data>
+  <data name="Shops_UndoMegaStones" xml:space="preserve">
+    <value>Megapiedras en las tiendas</value>
+  </data>
 </root>

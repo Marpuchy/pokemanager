@@ -1,4 +1,4 @@
-namespace Pokemanager.Model.Projects;
+﻿namespace Pokemanager.Model.Projects;
 
 /// <summary>
 /// Changes to the game's shops, applied when the ROM is built. They are part of the project, not of the randomizer's
@@ -23,8 +23,16 @@ public sealed class ShopSettings
     /// </summary>
     public List<int> ExtraItems { get; set; } = [];
 
-    /// <summary>Whether anything at all has to be done at build time.</summary>
-    public bool IsEmpty => !FreeRareCandies && ExtraItems.Count == 0;
+    /// <summary>
+    /// The game's Mega Stones on sale in the ordinary Poké Marts, so a run can mega evolve before the point the game
+    /// decides. They are **dealt out** across those shops rather than all put in each: there are thirty in X and
+    /// forty-two in Generation 7, and no single shop has that many shelves.
+    /// </summary>
+    public bool MegaStonesInShops { get; set; }
 
-    public ShopSettings Clone() => new() { FreeRareCandies = FreeRareCandies, ExtraItems = [.. ExtraItems] };
+    /// <summary>Whether anything at all has to be done at build time.</summary>
+    public bool IsEmpty => !FreeRareCandies && !MegaStonesInShops && ExtraItems.Count == 0;
+
+    public ShopSettings Clone() =>
+        new() { FreeRareCandies = FreeRareCandies, MegaStonesInShops = MegaStonesInShops, ExtraItems = [.. ExtraItems] };
 }

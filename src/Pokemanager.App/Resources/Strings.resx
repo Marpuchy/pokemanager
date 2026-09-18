@@ -3369,4 +3369,16 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Items_AllowAllUndo" xml:space="preserve">
     <value>Allow every item</value>
   </data>
+  <data name="Shops_MegaStonesCount" xml:space="preserve">
+    <value>Mega Stones on sale from the start ({0})</value>
+  </data>
+  <data name="Shops_MegaStonesTip" xml:space="preserve">
+    <value>Puts the game's own Mega Stones in the ordinary Poké Marts, so a run can mega evolve before the game would let it.</value>
+  </data>
+  <data name="Shops_MegaStonesHint" xml:space="preserve">
+    <value>There are more of them than any single shop has shelves, so they are dealt out: each Poké Mart sells a few and between them they sell the lot.</value>
+  </data>
+  <data name="Shops_UndoMegaStones" xml:space="preserve">
+    <value>Mega Stones in the shops</value>
+  </data>
 </root>

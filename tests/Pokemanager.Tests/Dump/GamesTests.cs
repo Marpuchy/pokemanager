@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using Pokemanager.Model.Data;
 using Pokemanager.Model.Dump;
 
@@ -41,9 +41,10 @@ public class GamesTests
         Assert.Contains("a/1/0/7", files);
         Assert.Contains("a/0/1/9", files); // items, read for the shops since 3.0
         Assert.Contains("Shop.cro", files); // and what the shops sell, which Gen 7 keeps apart
-        Assert.Equal(8 + 10, files.Count);
+        Assert.Contains("a/0/1/5", files); // mega evolutions: where the Mega Stones are named
+        Assert.Equal(9 + 10, files.Count);
         var x = GameImporter.RequiredFiles(GameTitle.X).ToList();
-        Assert.Equal(7 + 8, x.Count);
+        Assert.Equal(8 + 8, x.Count); // one fewer than Generation 7: it keeps the shops in code.bin
         Assert.Contains("a/0/3/8", x);
         Assert.Contains("a/0/4/0", x);
         Assert.Contains("a/2/2/0", x);

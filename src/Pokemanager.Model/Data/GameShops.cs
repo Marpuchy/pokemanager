@@ -112,28 +112,42 @@ public static class GameShops
     }
 
     /// <summary>
-    /// Puts <paramref name="extra"/> in every ordinary Poké Mart, replacing the last slots of each so the table keeps its
-    /// size (the game's code knows how many items each shop has, and it is not in the table). **One slot of every shop
-    /// is always left as the game had it**, so a one-item stall is not turned into a shop that sells nothing else.
+    /// Fills the last slots of every ordinary Poké Mart. <paramref name="everywhere"/> goes in all of them (one item,
+    /// like the Rare Candies); <paramref name="spread"/> is dealt out across them instead, shop by shop, because a set
+    /// like the Mega Stones does not fit in any single one — the game gives each shop a fixed number of shelves and
+    /// that number is in its code, not in this table. **One slot of every shop is always left as the game had it.**
     /// </summary>
     /// <returns>How many slots changed.</returns>
-    public static int AddToRegularShops(int[] table, ShopLayout layout, IReadOnlyList<int> extra)
+    public static int AddToRegularShops(int[] table, ShopLayout layout, IReadOnlyList<int> everywhere,
+        IReadOnlyList<int>? spread = null)
     {
-        int changed = 0;
+        var rest = (spread ?? []).Distinct().ToList();
+        int changed = 0, cursor = 0;
         foreach (int shop in layout.Regular)
         {
-            int start = layout.Start(shop), size = layout.Sizes[shop];
+            int start = layout.Start(shop), size = layout.Sizes[shop], room = Math.Max(0, size - 1);
             var current = table.Skip(start).Take(size).ToList();
-            // What is already sold there is left where it is; the rest go in the last slots, newest last.
-            var missing = extra.Where(id => !current.Contains(id)).Distinct().ToList();
-            int room = Math.Max(0, size - 1);
-            for (int i = 0; i < missing.Count && i < room; i++)
+            var wanted = new List<int>();
+
+            foreach (int id in everywhere.Distinct())
             {
-                int slot = start + size - 1 - i;
-                int id = missing[missing.Count - 1 - i];
-                if (table[slot] == id)
+                if (wanted.Count < room && !current.Contains(id))
+                    wanted.Add(id);
+            }
+            while (wanted.Count < room && cursor < rest.Count)
+            {
+                int id = rest[cursor++];
+                if (!current.Contains(id))
+                    wanted.Add(id);
+            }
+
+            // They take the end of the shelf, in the order they were asked for.
+            for (int i = 0; i < wanted.Count; i++)
+            {
+                int slot = start + size - wanted.Count + i;
+                if (table[slot] == wanted[i])
                     continue;
-                table[slot] = id;
+                table[slot] = wanted[i];
                 changed++;
             }
         }
