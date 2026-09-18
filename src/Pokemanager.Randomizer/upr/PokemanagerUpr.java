@@ -4,8 +4,9 @@
 //   java -Xmx4096M -cp PokeRandoZX.jar PokemanagerUpr.java <command> ...
 //
 // Commands:
-//   randomize <settings.rnqs> <rom> <output> <seed> <log>
+//   randomize <settings.rnqs> <rom> <output> <seed> <log> [all-items]
 //       Like CliRandomizer, but with a fixed seed (Randomizer.randomize(file, log, seed)).
+//       all-items = 1 lets the item randomization use every item of the game (see unlockItems).
 //       LayeredFS output: <output>/<TitleID>/{romfs/..., code.bin}.
 //   pack <rom> <titleFolder> <output.cxi> <seed>
 //       Base ROM + the files in <titleFolder> (romfs/... and code.bin) -> .cxi via ctr.NCCH.saveAsNCCH.
@@ -51,7 +52,10 @@ public class PokemanagerUpr {
         try {
             if (args.length == 0) usage();
             switch (args[0]) {
-                case "randomize" -> { need(args, 6); randomize(args[1], args[2], args[3], Long.parseLong(args[4]), args[5]); }
+                case "randomize" -> {
+                    if (args.length != 6 && args.length != 7) usage();
+                    randomize(args[1], args[2], args[3], Long.parseLong(args[4]), args[5], args.length == 7 && "1".equals(args[6]));
+                }
                 case "pack" -> { need(args, 5); pack(args[1], args[2], args[3], Long.parseLong(args[4])); }
                 case "describe-settings" -> {
                     if (args.length != 2 && args.length != 3) usage();
@@ -68,7 +72,8 @@ public class PokemanagerUpr {
 
     // ---------------------------------------------------------------- randomize
 
-    private static void randomize(String settingsPath, String romPath, String output, long seed, String logPath) throws Exception {
+    private static void randomize(String settingsPath, String romPath, String output, long seed, String logPath,
+                                  boolean allItems) throws Exception {
         Settings settings = readSettings(settingsPath);
         settings.setCustomNames(FileFunctions.getCustomNames());
         RomHandler handler = loadRom(romPath);
@@ -81,6 +86,8 @@ public class PokemanagerUpr {
             System.out.println("WARNING:OLD_PRESET");
         }
 
+        if (allItems) unlockItems(handler);
+
         ByteArrayOutputStream logBytes = new ByteArrayOutputStream();
         PrintStream log = new PrintStream(logBytes, false, "UTF-8");
         ResourceBundle bundle = ResourceBundle.getBundle("com/dabomstew/pkrandom/newgui/Bundle");
@@ -89,6 +96,38 @@ public class PokemanagerUpr {
         log.close();
         Files.write(new File(logPath).toPath(), logBytes.toByteArray());
         System.out.println("OK " + seed);
+    }
+
+    /**
+     * Lets the item randomization use every item the game has.
+     *
+     * <p>UPR ZX chooses from two lists of its own: everything it allows, and the same minus what it calls bad items.
+     * Both leave out whatever a game never gives the player — in Sun/Moon and Ultra Sun/Ultra Moon that is the
+     * Z-crystals, the TMs and most of what Generation 7 added: only 466 of the 960 item ids are allowed.</p>
+     *
+     * <p>This opens the <b>allowed</b> list to every id the game has a name for and leaves the non-bad one alone, so
+     * the randomizer's own "ban bad items" goes on deciding: with it on you keep UPR's curated pool, with it off
+     * anything the game has can come up. That matters because most of what is unlocked is key items and leftovers
+     * (measured on Pokémon X: Point Card, S.S. Ticket, Holo Caster…), which is exactly what that option is for.</p>
+     */
+    private static void unlockItems(RomHandler handler) throws Exception {
+        boolean[] allowed = itemFlags(handler.getAllowedItems());
+        String[] names = handler.getItemNames();
+
+        int unlocked = 0;
+        for (int i = 1; i < allowed.length; i++) {
+            // Ids the game has no item for: leaving them out is what keeps this from putting rubbish in the ROM.
+            if (i >= names.length || names[i] == null || names[i].isBlank() || names[i].startsWith("???")) continue;
+            if (!allowed[i]) { allowed[i] = true; unlocked++; }
+        }
+        System.out.println("ITEMS:" + unlocked);
+    }
+
+    /** The flags inside an {@code ItemList}; the class keeps them private and offers no way to allow one back. */
+    private static boolean[] itemFlags(Object itemList) throws Exception {
+        Field f = itemList.getClass().getDeclaredField("items");
+        f.setAccessible(true);
+        return (boolean[]) f.get(itemList);
     }
 
     // ---------------------------------------------------------------- pack

@@ -3354,4 +3354,19 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Shops_FitOverflow" xml:space="preserve">
     <value>{0} objetos y en ninguna tienda caben más de {1}: los primeros de la lista no se venderán en ningún sitio.</value>
   </data>
+  <data name="Items_AllowAllTitle" xml:space="preserve">
+    <value>Objetos que puede usar el randomizer</value>
+  </data>
+  <data name="Items_AllowAll" xml:space="preserve">
+    <value>Permitir todos los objetos del juego</value>
+  </data>
+  <data name="Items_AllowAllHint" xml:space="preserve">
+    <value>El randomizer elige de una lista suya que deja fuera lo que un juego nunca te da: en Sol y Luna, los cristales Z, las MT y casi todo lo que añadió la séptima generación, 466 de sus 960 objetos. Con esto activado puede salir cualquier cosa que el juego tenga como objeto. Manda «prohibir objetos malos» de arriba: si la dejas marcada sigues teniendo la lista de siempre, y conviene saberlo porque buena parte de lo que se desbloquea son objetos clave (Tarjeta Punto, Billete Barco, Holocasco).</value>
+  </data>
+  <data name="Items_AllowAllTip" xml:space="preserve">
+    <value>Solo cambia lo que el randomizer de arriba puede colocar (objetos del suelo, tiendas, Recogida), y solo donde «prohibir objetos malos» esté desactivado. Hay que volver a randomizar la ROM.</value>
+  </data>
+  <data name="Items_AllowAllUndo" xml:space="preserve">
+    <value>Permitir todos los objetos</value>
+  </data>
 </root>

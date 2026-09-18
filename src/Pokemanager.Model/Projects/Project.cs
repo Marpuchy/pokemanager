@@ -10,6 +10,15 @@ namespace Pokemanager.Model.Projects;
 /// <summary>Project randomization: the UPR ZX preset (embedded) and the seed.</summary>
 public sealed class RandomizationSettings
 {
+    /// <summary>
+    /// Let the item randomization use every item the game has. UPR ZX chooses from a list of its own that leaves out
+    /// whatever the game never hands the player — in Generation 7 that is the Z-crystals, the TMs and most of what the
+    /// generation added (466 of 960 ids). With this on, every id the game has a name for can come up, and the
+    /// randomizer's own filters (ban bad items, ban regular shop items, ban overpowered ones) go on working: what UPR
+    /// calls a bad item stays bad.
+    /// </summary>
+    public bool AllowAllItems { get; set; }
+
     public bool Enabled { get; set; }
 
     /// <summary>Display name of the preset (usually the name of the source .rnqs).</summary>
@@ -44,6 +53,7 @@ public sealed class RandomizationSettings
     /// <summary>Takes every value of <paramref name="other"/> (undo keeps the same instance, which views hold).</summary>
     public void CopyFrom(RandomizationSettings other)
     {
+        AllowAllItems = other.AllowAllItems;
         Enabled = other.Enabled;
         PresetName = other.PresetName;
         Preset = other.Preset;

@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using Pokemanager.Randomizer.Resources;
@@ -32,9 +32,10 @@ public sealed class UprRunner(UprTools tools)
     };
 
     /// <summary>Randomizes and leaves the LayeredFS output in <paramref name="outputDirectory"/> (empty or missing).</summary>
+    /// <param name="allItems">Let the item randomization use every item of the game (see the launcher's unlockItems).</param>
     public async Task<UprResult> RandomizeAsync(
         string presetFile, string romFile, long seed, string outputDirectory,
-        IProgress<string>? progress = null, CancellationToken cancellationToken = default)
+        IProgress<string>? progress = null, CancellationToken cancellationToken = default, bool allItems = false)
     {
         if (Directory.Exists(outputDirectory) && Directory.EnumerateFileSystemEntries(outputDirectory).Any())
             throw new IOException(string.Format(Strings.Upr_OutputNotEmpty, outputDirectory));
@@ -42,7 +43,9 @@ public sealed class UprRunner(UprTools tools)
         string logPath = Path.Combine(outputDirectory, "upr.log");
 
         progress?.Report(string.Format(Strings.Upr_Randomizing, seed));
-        string output = await RunAsync(["randomize", presetFile, romFile, outputDirectory, seed.ToString(), logPath], progress, cancellationToken);
+        string output = await RunAsync(
+            ["randomize", presetFile, romFile, outputDirectory, seed.ToString(), logPath, allItems ? "1" : "0"],
+            progress, cancellationToken);
 
         string? titleDir = Directory.GetDirectories(outputDirectory).FirstOrDefault(d => Path.GetFileName(d).Length == 16);
         if (titleDir is null || !File.Exists(logPath))

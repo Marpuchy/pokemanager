@@ -89,6 +89,23 @@ public sealed partial class ShopExtrasViewModel : ObservableObject
     [ObservableProperty]
     public partial bool FreeRareCandies { get; set; }
 
+    /// <summary>
+    /// Let the randomizer use every item of the game. Unlike the rest of this card it belongs to the randomization, so
+    /// changing it means the ROM has to be randomized again — the seed alone no longer describes the result.
+    /// </summary>
+    public bool AllowAllItems
+    {
+        get => editor.Session.Project.Randomization.AllowAllItems;
+        set
+        {
+            if (editor.Session.Project.Randomization.AllowAllItems == value)
+                return;
+            editor.Session.Project.Randomization.AllowAllItems = value;
+            OnPropertyChanged();
+            editor.MarkDirty(Strings.Items_AllowAllUndo);
+        }
+    }
+
     public string RareCandyName =>
         GameShops.RareCandy < ItemNames.Count ? ItemNames[GameShops.RareCandy] : $"#{GameShops.RareCandy}";
 
@@ -140,6 +157,7 @@ public sealed partial class ShopExtrasViewModel : ObservableObject
     {
         Load();
         NotifyFit();
+        OnPropertyChanged(nameof(AllowAllItems));
     }
 }
 

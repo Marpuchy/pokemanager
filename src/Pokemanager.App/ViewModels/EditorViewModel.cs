@@ -592,7 +592,7 @@ public partial class EditorViewModel : ObservableObject
 
             UprResult? random = null;
             if (r.Enabled)
-                random = await upr.Cache.GetOrCreateAsync(new UprRunner(tools), tools, baseRom, r.Preset!, r.Seed, progress);
+                random = await upr.Cache.GetOrCreateAsync(new UprRunner(tools), tools, baseRom, r.Preset!, r.Seed, progress, allItems: r.AllowAllItems);
 
             ReloadBaseIfNeeded(random is null ? null : Path.Combine(random.TitleDirectory, "romfs"));
 

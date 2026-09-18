@@ -82,16 +82,25 @@ public static class ModBuilder
             return;
         // Generation 6 keeps the table in the executable; Generation 7 in a romfs module of its own.
         byte[]? data = layout.File is { } file ? ReadRomFsFile(session, file) : ReadCode(session, randomizedTitleDirectory);
-        if (data is null || GameShops.Find(data, layout, session.Current.Items.Length) is not { } offset)
+        if (data is null)
             return;
 
-        var table = GameShops.Read(data, offset, layout);
+        // Generation 6 finds the table by the ids the game ships in it, and a randomization that rewrites the shops can
+        // take those away. The game's own file always has them, and the randomizer does not move anything (verified: the
+        // executable keeps its length and only the values change), so the offset is looked for there and used here.
+        int? offset = GameShops.Find(data, layout, session.Current.Items.Length);
+        if (offset is null && layout.File is null && ReadCode(session, null) is { } original && original.Length == data.Length)
+            offset = GameShops.Find(original, layout, session.Current.Items.Length);
+        if (offset is null)
+            return;
+
+        var table = GameShops.Read(data, offset.Value, layout);
         List<int> extra = [.. shops.ExtraItems];
         if (shops.FreeRareCandies)
             extra.Add(GameShops.RareCandy);
         if (GameShops.AddToRegularShops(table, layout, extra) == 0)
             return;
-        GameShops.Write(data, offset, layout, table);
+        GameShops.Write(data, offset.Value, layout, table);
         outputs[layout.File is { } shopFile ? "romfs/" + shopFile : CodeFile] = data;
     }
 
