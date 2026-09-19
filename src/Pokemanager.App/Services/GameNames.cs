@@ -73,6 +73,10 @@ public sealed class GameNames
         PokedexEntries = TextFile(config, entries);
     }
 
+    /// <summary>The class as the game names it, or an empty string when the id is not one.</summary>
+    public string TrainerClassName(int trainerClass) =>
+        trainerClass >= 0 && trainerClass < TrainerClasses.Count ? TrainerClasses[trainerClass] : "";
+
     /// <summary>"Leader Korrina" — the class as the game names it plus the trainer's name, both in the project's language.</summary>
     public string TrainerLabel(int id, int trainerClass)
     {

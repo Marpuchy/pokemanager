@@ -44,7 +44,8 @@
     <DataTemplate DataType="vm:ListEntryViewModel">
       <!-- Modified entries: amber row with an orange bar on the left, bold name and a "Modified" tag.
            The negative margin cancels the item padding on the left so the bar sits at the edge; the right is kept clear of the scroll bar, which is drawn over the items. -->
-      <Border Classes="entry" Classes.modified="{Binding IsModified}" Margin="-6,-2,10,-2" Padding="3,2,4,2">
+      <!-- MinHeight: a trainer class without a picture would make a shorter row than one with it. -->
+      <Border Classes="entry" Classes.modified="{Binding IsModified}" Margin="-6,-2,10,-2" Padding="3,2,4,2" MinHeight="34">
         <Grid ColumnDefinitions="Auto,Auto,48,*,Auto">
           <!-- Type color strip (two halves for two types) -->
           <Border Width="5" Margin="0,2,6,2" Background="{Binding TypeBrush}" />
@@ -485,12 +486,13 @@
                 <ListBox.ItemTemplate>
                   <DataTemplate x:DataType="vm:TrainerCategoryViewModel">
                     <Border Classes="entry" Classes.modified="{Binding IsModified}" Margin="-6,-2,10,-2" Padding="3,3,4,3">
-                      <Grid ColumnDefinitions="*,Auto">
-                        <StackPanel>
+                      <Grid ColumnDefinitions="Auto,*,Auto">
+                        <Image Source="{Binding Sprite}" IsVisible="{Binding HasSprite}" Width="34" Height="34" Margin="0,0,6,0" />
+                        <StackPanel Grid.Column="1">
                           <TextBlock Classes="entry-name" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
                           <TextBlock Classes="hint" Text="{Binding Summary}" TextTrimming="CharacterEllipsis" />
                         </StackPanel>
-                        <TextBlock Grid.Column="1" Classes="hint" Text="{Binding CountText}" VerticalAlignment="Center" Margin="6,0,0,0" />
+                        <TextBlock Grid.Column="2" Classes="hint" Text="{Binding CountText}" VerticalAlignment="Center" Margin="6,0,0,0" />
                       </Grid>
                     </Border>
                   </DataTemplate>
@@ -600,12 +602,15 @@
                     <StackPanel Spacing="8">
                       <!-- Header in the colour of the AI level: grey none, blue basic, amber two flags, red the game's own maximum -->
                       <Border Classes="detail-header" Background="{Binding AiBrush}">
-                        <Grid ColumnDefinitions="*,Auto">
-                          <StackPanel Spacing="4" VerticalAlignment="Center">
+                        <Grid ColumnDefinitions="Auto,*,Auto">
+                          <Border Classes="icon-circle" Width="56" Height="56" Margin="0,0,10,0" IsVisible="{Binding HasSprite}">
+                            <Image Source="{Binding Sprite}" Width="48" Height="48" />
+                          </Border>
+                          <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
                             <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="Bold" Foreground="White" TextTrimming="CharacterEllipsis" />
                             <TextBlock Text="{Binding AiText}" Foreground="White" Opacity="0.95" />
                           </StackPanel>
-                          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                          <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                             <Border Classes="badge">
                               <StackPanel>
                                 <TextBlock Classes="badge-label" Text="{x:Static r:Strings.Trainer_TeamSize}" />
@@ -738,6 +743,96 @@
             </ContentControl>
           </Grid>
         </DockPanel>
+      </TabItem>
+      <!-- ================= Advanced: Game ================= -->
+      <TabItem Header="{x:Static r:Strings.Tab_AdvancedGame}">
+        <ScrollViewer>
+          <StackPanel Margin="12" Spacing="10" DataContext="{Binding GameTweaks}" x:DataType="vm:GameTweaksViewModel">
+            <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="900" HorizontalAlignment="Left" Text="{x:Static r:Strings.Game_Hint}" />
+
+            <!-- A change to the game's executable, found by the bytes around it -->
+            <Border Classes="card" Width="470" HorizontalAlignment="Left">
+              <StackPanel Spacing="4">
+                <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_ShinyTitle}" />
+                <CheckBox IsChecked="{Binding AlwaysShiny}" IsEnabled="{Binding ShinySupported}" ToolTip.Tip="{Binding ShinyTip}"
+                          Content="{x:Static r:Strings.Game_Shiny}" />
+              </StackPanel>
+            </Border>
+
+            <!-- Sweeps: ordinary edits over a whole table -->
+            <TextBlock Classes="card-title" Margin="2,6,0,0" Text="{x:Static r:Strings.Game_SweepsTitle}" />
+            <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="900" HorizontalAlignment="Left" Text="{x:Static r:Strings.Game_SweepsHint}" />
+            <WrapPanel>
+              <Border Classes="card detail" Width="330" ToolTip.Tip="{x:Static r:Strings.Tip_GameExperience}">
+                <StackPanel Spacing="6">
+                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_Experience}" />
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <NumericUpDown Width="130" Value="{Binding ExperiencePercent}" Minimum="10" Maximum="1000" Increment="10"
+                                   FormatString="0" ParsingNumberStyle="Integer" />
+                    <Button Content="{x:Static r:Strings.Game_Apply}" Command="{Binding ApplyExperienceCommand}" />
+                    <Button Content="{x:Static r:Strings.Game_Reset}" Command="{Binding ResetCommand}" CommandParameter="baseExp"
+                            ToolTip.Tip="{x:Static r:Strings.Game_ResetTip}" />
+                  </StackPanel>
+                </StackPanel>
+              </Border>
+
+              <Border Classes="card detail" Width="330" ToolTip.Tip="{x:Static r:Strings.Tip_GameCatchRate}">
+                <StackPanel Spacing="6">
+                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_CatchRate}" />
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <NumericUpDown Width="130" Value="{Binding CatchRatePercent}" Minimum="10" Maximum="1000" Increment="10"
+                                   FormatString="0" ParsingNumberStyle="Integer" />
+                    <Button Content="{x:Static r:Strings.Game_Apply}" Command="{Binding ApplyCatchRateCommand}" />
+                    <Button Content="{x:Static r:Strings.Game_Reset}" Command="{Binding ResetCommand}" CommandParameter="catchRate"
+                            ToolTip.Tip="{x:Static r:Strings.Game_ResetTip}" />
+                  </StackPanel>
+                </StackPanel>
+              </Border>
+
+              <Border Classes="card detail" Width="330" ToolTip.Tip="{x:Static r:Strings.Tip_GameHatch}">
+                <StackPanel Spacing="6">
+                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_Hatch}" />
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <NumericUpDown Width="130" Value="{Binding HatchPercent}" Minimum="10" Maximum="500" Increment="10"
+                                   FormatString="0" ParsingNumberStyle="Integer" />
+                    <Button Content="{x:Static r:Strings.Game_Apply}" Command="{Binding ApplyHatchCommand}" />
+                    <Button Content="{x:Static r:Strings.Game_Reset}" Command="{Binding ResetCommand}" CommandParameter="hatchCycles"
+                            ToolTip.Tip="{x:Static r:Strings.Game_ResetTip}" />
+                  </StackPanel>
+                </StackPanel>
+              </Border>
+
+              <Border Classes="card detail" Width="330" ToolTip.Tip="{x:Static r:Strings.Tip_GameFriendship}">
+                <StackPanel Spacing="6">
+                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_Friendship}" />
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <NumericUpDown Width="130" Value="{Binding FriendshipValue}" Minimum="0" Maximum="255" Increment="5"
+                                   FormatString="0" ParsingNumberStyle="Integer" />
+                    <Button Content="{x:Static r:Strings.Game_Apply}" Command="{Binding ApplyFriendshipCommand}" />
+                    <Button Content="{x:Static r:Strings.Game_Reset}" Command="{Binding ResetCommand}" CommandParameter="baseFriendship"
+                            ToolTip.Tip="{x:Static r:Strings.Game_ResetTip}" />
+                  </StackPanel>
+                </StackPanel>
+              </Border>
+
+              <Border Classes="card detail" Width="330" ToolTip.Tip="{x:Static r:Strings.Tip_GameMoney}">
+                <StackPanel Spacing="6">
+                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_Money}" />
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <NumericUpDown Width="130" Value="{Binding MoneyPercent}" Minimum="10" Maximum="1000" Increment="10"
+                                   FormatString="0" ParsingNumberStyle="Integer" />
+                    <Button Content="{x:Static r:Strings.Game_Apply}" Command="{Binding ApplyMoneyCommand}" />
+                    <Button Content="{x:Static r:Strings.Game_Reset}" Command="{Binding ResetCommand}" CommandParameter="money"
+                            ToolTip.Tip="{x:Static r:Strings.Game_ResetTip}" />
+                  </StackPanel>
+                </StackPanel>
+              </Border>
+            </WrapPanel>
+
+            <TextBlock Text="{Binding Result}" FontWeight="SemiBold"
+                       IsVisible="{Binding Result, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+          </StackPanel>
+        </ScrollViewer>
       </TabItem>
     </TabControl>
   </DockPanel>

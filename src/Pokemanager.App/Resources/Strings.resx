@@ -3336,4 +3336,109 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Items_MegaStonesUndo" xml:space="preserve">
     <value>Mega Stones in the pool</value>
   </data>
+  <data name="Tab_AdvancedGame" xml:space="preserve">
+    <value>Advanced: Game</value>
+  </data>
+  <data name="Game_Hint" xml:space="preserve">
+    <value>Changes to the whole game, not to one Pokémon or trainer. They are applied when the ROM is built; the randomizer is not involved and the seed does not touch them.</value>
+  </data>
+  <data name="Game_ShinyTitle" xml:space="preserve">
+    <value>Shiny Pokémon</value>
+  </data>
+  <data name="Game_Shiny" xml:space="preserve">
+    <value>Every Pokémon can come out shiny</value>
+  </data>
+  <data name="Game_ShinyTip" xml:space="preserve">
+    <value>Takes the condition off the check the game uses to decide it, so everything that is not shiny-locked comes out shiny. The games keep no shiny rate that can be dialled up or down: it is their own odds (1 in 4096) or all of them.</value>
+  </data>
+  <data name="Game_ShinyUnsupported" xml:space="preserve">
+    <value>This game's executable does not hold the check this application knows how to change.</value>
+  </data>
+  <data name="Game_ShinyUndo" xml:space="preserve">
+    <value>Shiny Pokémon</value>
+  </data>
+  <data name="Game_SweepsTitle" xml:space="preserve">
+    <value>The whole game at once</value>
+  </data>
+  <data name="Game_SweepsHint" xml:space="preserve">
+    <value>These write ordinary edits over every entry of a table: they show up in the advanced tabs, undo in one step and can be put back.</value>
+  </data>
+  <data name="Game_Experience" xml:space="preserve">
+    <value>Experience from battles (%)</value>
+  </data>
+  <data name="Game_ExperienceTip" xml:space="preserve">
+    <value>Multiplies the experience every species gives when it is beaten. 200 doubles how fast the game levels you up.</value>
+  </data>
+  <data name="Game_ExperienceUndo" xml:space="preserve">
+    <value>Experience from battles</value>
+  </data>
+  <data name="Game_CatchRate" xml:space="preserve">
+    <value>Catch rate (%)</value>
+  </data>
+  <data name="Game_CatchRateTip" xml:space="preserve">
+    <value>Multiplies how easy every species is to catch, up to the game's own maximum of 255.</value>
+  </data>
+  <data name="Game_CatchRateUndo" xml:space="preserve">
+    <value>Catch rate</value>
+  </data>
+  <data name="Game_Hatch" xml:space="preserve">
+    <value>Egg cycles (%)</value>
+  </data>
+  <data name="Game_HatchTip" xml:space="preserve">
+    <value>Multiplies how long every egg takes to hatch: 50 hatches them in half the steps.</value>
+  </data>
+  <data name="Game_HatchUndo" xml:space="preserve">
+    <value>Egg cycles</value>
+  </data>
+  <data name="Game_Friendship" xml:space="preserve">
+    <value>Friendship on catching</value>
+  </data>
+  <data name="Game_FriendshipTip" xml:space="preserve">
+    <value>The friendship every species starts with, 0 to 255. Evolutions and moves that ask for friendship depend on it.</value>
+  </data>
+  <data name="Game_FriendshipUndo" xml:space="preserve">
+    <value>Friendship on catching</value>
+  </data>
+  <data name="Game_Money" xml:space="preserve">
+    <value>Money from trainers (%)</value>
+  </data>
+  <data name="Game_MoneyTip" xml:space="preserve">
+    <value>Multiplies what beating a trainer pays. The game multiplies this number by the level of their last Pokémon.</value>
+  </data>
+  <data name="Game_MoneyUndo" xml:space="preserve">
+    <value>Money from trainers</value>
+  </data>
+  <data name="Game_Apply" xml:space="preserve">
+    <value>Apply</value>
+  </data>
+  <data name="Game_Reset" xml:space="preserve">
+    <value>Put back</value>
+  </data>
+  <data name="Game_ResetTip" xml:space="preserve">
+    <value>Drops the edits of this field, so it goes back to what the game had.</value>
+  </data>
+  <data name="Game_ResetUndo" xml:space="preserve">
+    <value>Back to the game's values</value>
+  </data>
+  <data name="Game_Result" xml:space="preserve">
+    <value>{0} values changed</value>
+  </data>
+  <data name="Tip_GameShiny" xml:space="preserve">
+    <value>Every Pokémon that is not shiny-locked comes out shiny. It needs the ROM built again.</value>
+  </data>
+  <data name="Tip_GameExperience" xml:space="preserve">
+    <value>What the experience of every species becomes, as a percentage of what the game gives.</value>
+  </data>
+  <data name="Tip_GameCatchRate" xml:space="preserve">
+    <value>What the catch rate of every species becomes, as a percentage.</value>
+  </data>
+  <data name="Tip_GameHatch" xml:space="preserve">
+    <value>What the egg cycles of every species become, as a percentage.</value>
+  </data>
+  <data name="Tip_GameFriendship" xml:space="preserve">
+    <value>The friendship every species starts with, 0 to 255.</value>
+  </data>
+  <data name="Tip_GameMoney" xml:space="preserve">
+    <value>What the money multiplier of every trainer becomes, as a percentage.</value>
+  </data>
 </root>

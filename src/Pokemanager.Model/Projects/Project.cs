@@ -105,6 +105,9 @@ public sealed class Project
     /// <summary>What the shops of the built ROM sell beyond what the game does. Defaults to nothing.</summary>
     public ShopSettings Shops { get; set; } = new();
 
+    /// <summary>How the built ROM behaves (shiny odds and the like). Defaults to the game's own behaviour.</summary>
+    public GameSettings Tweaks { get; set; } = new();
+
     public EditSet Edits { get; } = new();
 
     public string RomFsPath => Path.Combine(DumpDirectory, "romfs");
@@ -161,17 +164,20 @@ public sealed class Project
     public byte[] CaptureState() => JsonSerializer.SerializeToUtf8Bytes(new ProjectState(
         Edits.All.OrderBy(e => e.Table, StringComparer.Ordinal).ThenBy(e => e.Id).ThenBy(e => e.Field, StringComparer.Ordinal)
             .Select(e => new EditEntry(e.Table, e.Id, e.Field, e.Value)).ToList(),
-        Randomization, Locke, Shops), JsonOptions);
+        Randomization, Locke, Shops, Tweaks), JsonOptions);
 
     /// <summary>A state captured with <see cref="CaptureState"/>.</summary>
-    public static (IReadOnlyList<Edit> Edits, RandomizationSettings Randomization, LockeSettings Locke, ShopSettings Shops) ReadState(byte[] state)
+    public static (IReadOnlyList<Edit> Edits, RandomizationSettings Randomization, LockeSettings Locke, ShopSettings Shops, GameSettings Tweaks) ReadState(byte[] state)
     {
         var s = JsonSerializer.Deserialize<ProjectState>(state, JsonOptions) ?? throw new InvalidDataException("Empty project state.");
-        return ([.. s.Edits.Select(e => new Edit(e.Table, e.Id, e.Field, e.Value))], s.Randomization, s.Locke, s.Shops ?? new ShopSettings());
+        return ([.. s.Edits.Select(e => new Edit(e.Table, e.Id, e.Field, e.Value))], s.Randomization, s.Locke,
+            s.Shops ?? new ShopSettings(), s.Tweaks ?? new GameSettings());
     }
 
     /// <param name="Shops">Null in states captured before 3.0.</param>
-    private sealed record ProjectState(List<EditEntry> Edits, RandomizationSettings Randomization, LockeSettings Locke, ShopSettings? Shops = null);
+    /// <param name="Tweaks">Null in states captured before the game options existed.</param>
+    private sealed record ProjectState(List<EditEntry> Edits, RandomizationSettings Randomization, LockeSettings Locke,
+        ShopSettings? Shops = null, GameSettings? Tweaks = null);
 
     public static Project Load(string path)
     {

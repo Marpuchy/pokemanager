@@ -73,6 +73,9 @@ public partial class EditorViewModel : ObservableObject
 
     public TrainerBulkViewModel TrainerBulk { get; private set; } = null!;
 
+    /// <summary>Advanced: Game — what the built ROM does differently, beyond a single Pokémon or trainer.</summary>
+    public GameTweaksViewModel GameTweaks { get; }
+
     [ObservableProperty]
     public partial string SpeciesFilter { get; set; } = "";
 
@@ -169,6 +172,7 @@ public partial class EditorViewModel : ObservableObject
         History = new HistoryViewModel(this, dialogs, projectPath);
         SaveEditor = new SaveEditorViewModel(this, settings);
         Locke = new LockeViewModel(this);
+        GameTweaks = new GameTweaksViewModel(this, session);
 
         ProjectUndo = new SnapshotHistory(() => Session.Project.CaptureState(), RestoreProjectState);
         ProjectUndo.Changed += NotifyUndo;
@@ -216,10 +220,18 @@ public partial class EditorViewModel : ObservableObject
             .ToList();
 
         string[] trainerTables = [GameTables.Trainers];
+        int generation = Session.Current.Title.Generation();
         allTrainers = Enumerable.Range(0, Session.Current.Trainers.Length)
-            .Select(i => new ListEntryViewModel(Session, trainerTables, i, "",
-                liveName: () => Names.TrainerLabel(i, Session.GetInt(GameTables.Trainers, i, "class")),
-                strip: () => TrainerDetailViewModel.AiColor(Session.GetInt(GameTables.Trainers, i, "ai"))))
+            .Select(i =>
+            {
+                // The picture of the class is fetched the first time a row asks for it, and the row is told when it lands.
+                ListEntryViewModel entry = null!;
+                return entry = new ListEntryViewModel(Session, trainerTables, i, "",
+                    icon: () => TrainerClassSprites.Get(Names.TrainerClassName(Session.GetInt(GameTables.Trainers, i, "class")),
+                        generation, () => entry.RefreshIcon()),
+                    liveName: () => Names.TrainerLabel(i, Session.GetInt(GameTables.Trainers, i, "class")),
+                    strip: () => TrainerDetailViewModel.AiColor(Session.GetInt(GameTables.Trainers, i, "ai")));
+            })
             .ToList();
 
         TrainerBulk ??= new TrainerBulkViewModel(this, Session);
@@ -401,7 +413,7 @@ public partial class EditorViewModel : ObservableObject
     /// <summary>Puts a captured project state back: edits through the session (so every view follows), then the settings.</summary>
     private void RestoreProjectState(byte[] state)
     {
-        var (edits, randomization, locke, shops) = Project.ReadState(state);
+        var (edits, randomization, locke, shops, tweaks) = Project.ReadState(state);
         restoringProject = true;
         Session.Changed -= OnSessionChanged;
         try
@@ -421,7 +433,9 @@ public partial class EditorViewModel : ObservableObject
             (r.LastBuiltRom, r.InstalledSeed) = (lastBuilt, installed);
             Session.Project.Locke = locke;
             Session.Project.Shops = shops;
+            Session.Project.Tweaks = tweaks;
             Randomizer?.Shops.Refresh();
+            GameTweaks?.Refresh();
 
             foreach (var entry in allSpecies.Concat(allMoves).Concat(allTrainers))
                 entry.Refresh();

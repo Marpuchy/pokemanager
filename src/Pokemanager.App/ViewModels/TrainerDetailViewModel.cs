@@ -35,6 +35,13 @@ public sealed partial class TrainerDetailViewModel : ObservableObject
     public string Number => $"#{Id:000}";
     public string Title => names.TrainerLabel(Id, session.GetInt(T, Id, "class"));
 
+    /// <summary>The picture of the trainer's class, when there is one for it; null hides its slot in the header.</summary>
+    public Avalonia.Media.Imaging.Bitmap? Sprite =>
+        Services.TrainerClassSprites.Get(names.TrainerClassName(session.GetInt(T, Id, "class")), Generation,
+            () => { OnPropertyChanged(nameof(Sprite)); OnPropertyChanged(nameof(HasSprite)); });
+
+    public bool HasSprite => Sprite is not null;
+
     /// <summary>Bits 0-2 as one list; see <see cref="AiLevelFieldViewModel"/> for why it is not three check boxes.</summary>
     public AiLevelFieldViewModel AiLevel { get; }
 

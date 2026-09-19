@@ -51,6 +51,7 @@ public static class ModBuilder
         }
 
         BuildShops(session, randomizedTitleDirectory, outputs);
+        BuildGameSettings(session, randomizedTitleDirectory, outputs);
         return outputs;
     }
 
@@ -100,6 +101,22 @@ public static class ModBuilder
             return;
         GameShops.Write(data, offset.Value, layout, table);
         outputs[layout.File is { } shopFile ? "romfs/" + shopFile : CodeFile] = data;
+    }
+
+    /// <summary>
+    /// How the game itself behaves: changes to the executable that are found by the bytes around them. The shops may
+    /// have written it already, so the buffer they left is the one that is changed.
+    /// </summary>
+    private static void BuildGameSettings(EditorSession session, string? randomizedTitleDirectory, Dictionary<string, byte[]> outputs)
+    {
+        var game = session.Project.Tweaks;
+        if (game.IsEmpty)
+            return;
+        byte[]? code = outputs.TryGetValue(CodeFile, out byte[]? built) ? built : ReadCode(session, randomizedTitleDirectory);
+        if (code is null)
+            return;
+        if (game.AlwaysShiny && GameCode.MakeEveryPokemonShiny(code))
+            outputs[CodeFile] = code;
     }
 
     /// <summary>

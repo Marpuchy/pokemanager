@@ -3336,4 +3336,109 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Items_MegaStonesUndo" xml:space="preserve">
     <value>Megapiedras en el pool</value>
   </data>
+  <data name="Tab_AdvancedGame" xml:space="preserve">
+    <value>Avanzado: Juego</value>
+  </data>
+  <data name="Game_Hint" xml:space="preserve">
+    <value>Cambios de todo el juego, no de un Pokémon o un entrenador. Se aplican al crear la ROM; el randomizer no entra aquí y la semilla no los toca.</value>
+  </data>
+  <data name="Game_ShinyTitle" xml:space="preserve">
+    <value>Pokémon variocolor</value>
+  </data>
+  <data name="Game_Shiny" xml:space="preserve">
+    <value>Todos los Pokémon pueden salir variocolor</value>
+  </data>
+  <data name="Game_ShinyTip" xml:space="preserve">
+    <value>Le quita la condición a la comprobación con la que el juego lo decide, así que todo lo que no esté bloqueado sale variocolor. Los juegos no guardan una probabilidad que se pueda subir o bajar: o sus probabilidades (1 entre 4096) o todos.</value>
+  </data>
+  <data name="Game_ShinyUnsupported" xml:space="preserve">
+    <value>El ejecutable de este juego no tiene la comprobación que esta aplicación sabe cambiar.</value>
+  </data>
+  <data name="Game_ShinyUndo" xml:space="preserve">
+    <value>Pokémon variocolor</value>
+  </data>
+  <data name="Game_SweepsTitle" xml:space="preserve">
+    <value>Todo el juego de una vez</value>
+  </data>
+  <data name="Game_SweepsHint" xml:space="preserve">
+    <value>Esto escribe cambios normales en todas las entradas de una tabla: salen en las pestañas avanzadas, se deshacen de una vez y se pueden devolver a su sitio.</value>
+  </data>
+  <data name="Game_Experience" xml:space="preserve">
+    <value>Experiencia de los combates (%)</value>
+  </data>
+  <data name="Game_ExperienceTip" xml:space="preserve">
+    <value>Multiplica la experiencia que da cada especie al derrotarla. 200 hace que subas de nivel el doble de rápido.</value>
+  </data>
+  <data name="Game_ExperienceUndo" xml:space="preserve">
+    <value>Experiencia de los combates</value>
+  </data>
+  <data name="Game_CatchRate" xml:space="preserve">
+    <value>Ratio de captura (%)</value>
+  </data>
+  <data name="Game_CatchRateTip" xml:space="preserve">
+    <value>Multiplica lo fácil que es capturar cada especie, hasta el máximo del juego, 255.</value>
+  </data>
+  <data name="Game_CatchRateUndo" xml:space="preserve">
+    <value>Ratio de captura</value>
+  </data>
+  <data name="Game_Hatch" xml:space="preserve">
+    <value>Ciclos de huevo (%)</value>
+  </data>
+  <data name="Game_HatchTip" xml:space="preserve">
+    <value>Multiplica lo que tarda en eclosionar cada huevo: 50 los saca en la mitad de pasos.</value>
+  </data>
+  <data name="Game_HatchUndo" xml:space="preserve">
+    <value>Ciclos de huevo</value>
+  </data>
+  <data name="Game_Friendship" xml:space="preserve">
+    <value>Amistad al capturar</value>
+  </data>
+  <data name="Game_FriendshipTip" xml:space="preserve">
+    <value>La amistad con la que empieza cada especie, de 0 a 255. Las evoluciones y movimientos que piden amistad dependen de esto.</value>
+  </data>
+  <data name="Game_FriendshipUndo" xml:space="preserve">
+    <value>Amistad al capturar</value>
+  </data>
+  <data name="Game_Money" xml:space="preserve">
+    <value>Dinero de los entrenadores (%)</value>
+  </data>
+  <data name="Game_MoneyTip" xml:space="preserve">
+    <value>Multiplica lo que paga ganar a un entrenador. El juego multiplica este número por el nivel de su último Pokémon.</value>
+  </data>
+  <data name="Game_MoneyUndo" xml:space="preserve">
+    <value>Dinero de los entrenadores</value>
+  </data>
+  <data name="Game_Apply" xml:space="preserve">
+    <value>Aplicar</value>
+  </data>
+  <data name="Game_Reset" xml:space="preserve">
+    <value>Devolver</value>
+  </data>
+  <data name="Game_ResetTip" xml:space="preserve">
+    <value>Quita los cambios de este campo, así que vuelve a lo que tenía el juego.</value>
+  </data>
+  <data name="Game_ResetUndo" xml:space="preserve">
+    <value>Vuelta a los valores del juego</value>
+  </data>
+  <data name="Game_Result" xml:space="preserve">
+    <value>{0} valores cambiados</value>
+  </data>
+  <data name="Tip_GameShiny" xml:space="preserve">
+    <value>Todos los Pokémon que no estén bloqueados salen variocolor. Hace falta volver a crear la ROM.</value>
+  </data>
+  <data name="Tip_GameExperience" xml:space="preserve">
+    <value>En qué se queda la experiencia de cada especie, en porcentaje de lo que da el juego.</value>
+  </data>
+  <data name="Tip_GameCatchRate" xml:space="preserve">
+    <value>En qué se queda el ratio de captura de cada especie, en porcentaje.</value>
+  </data>
+  <data name="Tip_GameHatch" xml:space="preserve">
+    <value>En qué se quedan los ciclos de huevo de cada especie, en porcentaje.</value>
+  </data>
+  <data name="Tip_GameFriendship" xml:space="preserve">
+    <value>La amistad con la que empieza cada especie, de 0 a 255.</value>
+  </data>
+  <data name="Tip_GameMoney" xml:space="preserve">
+    <value>En qué se queda el multiplicador de dinero de cada entrenador, en porcentaje.</value>
+  </data>
 </root>

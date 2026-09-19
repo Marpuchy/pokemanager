@@ -24,6 +24,13 @@ public sealed class TrainerCategoryViewModel(EditorSession session, string name,
 
     public IReadOnlyList<int> Trainers { get; } = trainers;
 
+    /// <summary>The picture of the class, when Showdown has one under this name; null hides its slot in the row.</summary>
+    public Avalonia.Media.Imaging.Bitmap? Sprite =>
+        Services.TrainerClassSprites.Get(Name, session.Current.Title.Generation(),
+            () => { OnPropertyChanged(nameof(Sprite)); OnPropertyChanged(nameof(HasSprite)); });
+
+    public bool HasSprite => Sprite is not null;
+
     public string CountText => string.Format(Strings.Trainer_CategoryCount, Trainers.Count);
 
     /// <summary>"AI 0x07 · levels 25-59", so a class can be told from another without opening it.</summary>

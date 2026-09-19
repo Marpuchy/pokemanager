@@ -24,7 +24,16 @@ public sealed class ListEntryViewModel(EditorSession session, IReadOnlyList<stri
     public string Number => $"#{Id:000}";
     public bool IsModified => tables.Any(t => session.IsModified(t, Id));
     public Bitmap? Icon => icon?.Invoke();
-    public bool HasIcon => icon is not null;
+
+    /// <summary>A picture that is not there yet (a trainer class being fetched) hides its slot instead of leaving a hole.</summary>
+    public bool HasIcon => Icon is not null;
+
+    /// <summary>The picture arrived after the row was drawn.</summary>
+    public void RefreshIcon()
+    {
+        OnPropertyChanged(nameof(Icon));
+        OnPropertyChanged(nameof(HasIcon));
+    }
 
     public IBrush TypeBrush => types?.Invoke() is var (t1, t2) ? TypeColors.Background(t1, t2) : strip?.Invoke() ?? Brushes.Transparent;
 
