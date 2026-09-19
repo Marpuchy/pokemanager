@@ -52,14 +52,26 @@ public static class SaveUpdater
     /// PKHeX detection, or by exact size when it does not recognize the file (a save the game has not fully initialized):
     /// X/Y 0x65600, Omega Ruby/Alpha Sapphire 0x76000, Sun/Moon 0x6BE00, Ultra Sun/Ultra Moon 0x6CC00.
     /// </summary>
-    internal static SaveFile? Parse(byte[] data) => SaveUtil.GetSaveFile(data) ?? data.Length switch
+    /// <remarks>
+    /// **PKHeX parses a copy, never the caller's bytes.** Loading a Generation 7 save clears its MemeCrypto signature
+    /// (the signed SHA-256 of the block checksum table, <c>0x6C100</c> in Ultra Sun/Ultra Moon) **in the array it is
+    /// given**. Writing re-signs, so that is harmless for PKHeX's own copy — but the writer used to "verify" the bytes it
+    /// was about to write by parsing them, and so wrote them with the signature wiped. The game treats an unsigned save as
+    /// corrupted (measured on the user's Ultra Moon, 2026-09-19: the only difference between the save the game accepted
+    /// and the one it refused was those 0x80 bytes, all zero).
+    /// </remarks>
+    internal static SaveFile? Parse(byte[] source)
     {
-        SizeXY => new SAV6XY(data),
-        0x76000 => new SAV6AO(data),
-        0x6BE00 => new SAV7SM(data),
-        0x6CC00 => new SAV7USUM(data),
-        _ => null,
-    };
+        byte[] data = source.ToArray();
+        return SaveUtil.GetSaveFile(data) ?? data.Length switch
+        {
+            SizeXY => new SAV6XY(data),
+            0x76000 => new SAV6AO(data),
+            0x6BE00 => new SAV7SM(data),
+            0x6CC00 => new SAV7USUM(data),
+            _ => null,
+        };
+    }
 
     /// <summary>The 3DS games Pokemanager edits: X/Y, Omega Ruby/Alpha Sapphire, Sun/Moon, Ultra Sun/Ultra Moon.</summary>
     public static bool IsSupported(SaveFile sav) => sav is SAV6XY or SAV6AO or SAV7SM or SAV7USUM;

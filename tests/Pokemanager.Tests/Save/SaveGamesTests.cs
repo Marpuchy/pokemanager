@@ -108,4 +108,28 @@ public sealed class SaveGamesTests : IDisposable
         doc.MegaEvolutionUnlocked = true;
         Assert.True(doc.MegaEvolutionUnlocked);
     }
+
+    /// <summary>
+    /// Generation 7 saves carry a signature over their checksum table, and the game refuses a save without one. PKHeX
+    /// wipes it in the bytes it parses, and the writer used to parse the very bytes it wrote: every save written by the
+    /// application came out unsigned. A save written now is the one PKHeX itself would write — signed.
+    /// </summary>
+    [Theory]
+    [InlineData("SM")]
+    [InlineData("USUM")]
+    public void A_written_generation_7_save_keeps_its_signature(string game)
+    {
+        var doc = Open(game);
+        doc.GiveItem(50, 5);
+        doc.Write(Path.Combine(dir, "backups"));
+
+        byte[] disk = File.ReadAllBytes(doc.SavePath);
+        byte[] resigned = SaveUpdater.Parse(disk)!.Write().ToArray();
+        Assert.Equal(resigned, disk);
+        if (game == "USUM")
+        {
+            // Measured on the user's Ultra Moon: the SHA-256 of the checksum table heads the signature.
+            Assert.Equal(System.Security.Cryptography.SHA256.HashData(disk.AsSpan(0x6CA00, 0x150)), disk.AsSpan(0x6C100, 0x20).ToArray());
+        }
+    }
 }
