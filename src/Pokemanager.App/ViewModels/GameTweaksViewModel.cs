@@ -4,6 +4,7 @@ using Pokemanager.App.Resources;
 using Pokemanager.App.Services;
 using Pokemanager.Bridge;
 using Pokemanager.Model.Data;
+using Pokemanager.Model.Dump;
 using Pokemanager.Model.Projects;
 using Pokemanager.Save;
 using Pokemanager.Model.Editing;
@@ -26,6 +27,7 @@ public sealed partial class GameTweaksViewModel : ObservableObject
         this.editor = editor;
         this.session = session;
         ShinySupported = Supported();
+        WildAndStaticSupported = session.Current.Title.Layout().Wild.Length > 0;
     }
 
     /// <summary>Whether this application can find the shiny branch in the game's executable.</summary>
@@ -45,6 +47,56 @@ public sealed partial class GameTweaksViewModel : ObservableObject
             OnPropertyChanged();
             editor.MarkDirty(Strings.Game_ShinyUndo);
         }
+    }
+
+    // ------------------------------------------------------------------ levels
+
+    /// <summary>Wild and fixed Pokémon levels can be changed: the tables are known in Generation 7 only.</summary>
+    public bool WildAndStaticSupported { get; }
+
+    public string WildStaticTip => WildAndStaticSupported ? Strings.Tip_GameLevelsWild : Strings.Game_LevelsGen7Only;
+
+    public decimal TrainerLevelPercent
+    {
+        get => (decimal)session.Project.Tweaks.TrainerLevelPercent;
+        set => SetLevel(value, () => session.Project.Tweaks.TrainerLevelPercent, v => session.Project.Tweaks.TrainerLevelPercent = v);
+    }
+
+    public decimal WildLevelPercent
+    {
+        get => (decimal)session.Project.Tweaks.WildLevelPercent;
+        set => SetLevel(value, () => session.Project.Tweaks.WildLevelPercent, v => session.Project.Tweaks.WildLevelPercent = v);
+    }
+
+    public decimal StaticLevelPercent
+    {
+        get => (decimal)session.Project.Tweaks.StaticLevelPercent;
+        set => SetLevel(value, () => session.Project.Tweaks.StaticLevelPercent, v => session.Project.Tweaks.StaticLevelPercent = v);
+    }
+
+    /// <summary>The value "Everything" puts in the three.</summary>
+    [ObservableProperty]
+    public partial decimal AllLevelPercent { get; set; }
+
+    [RelayCommand]
+    private void ApplyAllLevels()
+    {
+        TrainerLevelPercent = AllLevelPercent;
+        if (WildAndStaticSupported)
+        {
+            WildLevelPercent = AllLevelPercent;
+            StaticLevelPercent = AllLevelPercent;
+        }
+    }
+
+    private void SetLevel(decimal value, Func<double> get, Action<double> set, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+    {
+        double wanted = (double)Math.Round(value, 2);
+        if (get() == wanted)
+            return;
+        set(wanted);
+        OnPropertyChanged(name);
+        editor.MarkDirty(Strings.Game_LevelsUndo);
     }
 
     // ------------------------------------------------------------------ sweeps over a whole table
@@ -203,7 +255,13 @@ public sealed partial class GameTweaksViewModel : ObservableObject
     }
 
     /// <summary>The project was replaced (undo, restore): show what it holds now.</summary>
-    public void Refresh() => OnPropertyChanged(nameof(AlwaysShiny));
+    public void Refresh()
+    {
+        OnPropertyChanged(nameof(AlwaysShiny));
+        OnPropertyChanged(nameof(TrainerLevelPercent));
+        OnPropertyChanged(nameof(WildLevelPercent));
+        OnPropertyChanged(nameof(StaticLevelPercent));
+    }
 
     private bool Supported()
     {

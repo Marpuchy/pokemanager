@@ -3603,4 +3603,34 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Welcome_ReplaceConfirm" xml:space="preserve">
     <value>Delete it and create</value>
   </data>
+  <data name="Game_LevelsTitle" xml:space="preserve">
+    <value>Levels (%)</value>
+  </data>
+  <data name="Game_LevelsAll" xml:space="preserve">
+    <value>Everything</value>
+  </data>
+  <data name="Game_LevelsTrainers" xml:space="preserve">
+    <value>Trainers</value>
+  </data>
+  <data name="Game_LevelsWild" xml:space="preserve">
+    <value>Wild Pokémon</value>
+  </data>
+  <data name="Game_LevelsStatic" xml:space="preserve">
+    <value>Fixed, gifts and totems</value>
+  </data>
+  <data name="Game_LevelsUndo" xml:space="preserve">
+    <value>Levels</value>
+  </data>
+  <data name="Game_LevelsGen7Only" xml:space="preserve">
+    <value>Only in Sun/Moon and Ultra Sun/Ultra Moon for now: this application does not read the wild and fixed Pokémon of X/Y and Omega Ruby/Alpha Sapphire yet.</value>
+  </data>
+  <data name="Tip_GameLevels" xml:space="preserve">
+    <value>Raises or lowers the level of what you meet by a percentage, over the levels the ROM already has (randomization included). Applied when the ROM is built; a trainer level edited by hand keeps its value. -16.67 undoes a +20 %.</value>
+  </data>
+  <data name="Tip_GameLevelsAll" xml:space="preserve">
+    <value>Puts this percentage in every row below.</value>
+  </data>
+  <data name="Tip_GameLevelsWild" xml:space="preserve">
+    <value>The level range of every wild encounter table (grass, water, SOS allies...).</value>
+  </data>
 </root>

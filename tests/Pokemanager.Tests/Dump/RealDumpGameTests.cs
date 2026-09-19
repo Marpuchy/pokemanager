@@ -1,6 +1,8 @@
 using Pokemanager.Model.Build;
 using Pokemanager.Model.Data;
 using Pokemanager.Model.Editing;
+using Pokemanager.Model.Dump;
+using Pokemanager.Model.Edits;
 using Pokemanager.Model.Projects;
 
 namespace Pokemanager.Tests.Dump;
@@ -74,6 +76,31 @@ public class RealDumpGameTests
                 Assert.True(ExperienceTable.Read(capped[rate], level) > ExperienceTable.Read(capped[rate], level - 1));
             Assert.True(ExperienceTable.Read(capped[rate], 21) >= ExperienceTable.Unreachable);
         }
+    }
+
+    /// <summary>Trainer levels scaled at build time, except one edited by hand, which keeps its value.</summary>
+    [Fact]
+    public void TrainerLevels_AreScaled_ButAHandEditWins()
+    {
+        var project = new Project { DumpDirectory = RequireDump() };
+        project.Tweaks.TrainerLevelPercent = 20;
+        var session = EditorSession.Open(project);
+        var korrina = Enumerable.Range(0, session.Current.Trainers.Length)
+            .First(i => !session.Current.Trainers[i].Unreadable && session.Current.Trainers[i].Count == 3 && session.Current.Trainers[i].Ai == 0x07);
+        int[] before = [.. session.Current.Trainers[korrina].Team.Select(m => m.Level)];
+        session.SetInt(GameTables.Trainers, korrina, "p1.level", 40);
+
+        var built = ModBuilder.BuildEdits(session);
+
+        var layout = session.Current.Title.Layout();
+        var data = new pk3DS.Core.CTR.GARC.MemGARC(built["romfs/" + layout.TrainerData]).Files;
+        var team = new pk3DS.Core.CTR.GARC.MemGARC(built["romfs/" + layout.TrainerPokemon]).Files;
+        int[] after = [.. Trainer.Read(session.Current.Title, data[korrina], team[korrina]).Team.Select(m => m.Level)];
+        Assert.Equal(40, after[0]);
+        for (int slot = 1; slot < before.Length; slot++)
+            Assert.Equal(GameLevels.Scale(before[slot], 20), after[slot]);
+        // The editor's own copy is not touched by a build.
+        Assert.Equal(before[1], session.Current.Trainers[korrina].Team.ElementAt(1).Level);
     }
 
     [Fact]

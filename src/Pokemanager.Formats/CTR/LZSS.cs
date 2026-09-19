@@ -241,6 +241,26 @@ public static class LZSS
         return decompressedSize;
     }
 
+    /// <summary>LZ11 in memory (Pokemanager addition: the file-based entry points need temporary files).</summary>
+    public static byte[] Decompress(byte[] data)
+    {
+        using var input = new MemoryStream(data);
+        using var output = new MemoryStream();
+        Decompress(input, data.Length, output);
+        return output.ToArray();
+    }
+
+    /// <summary>LZ11 in memory, with the original algorithm (Pokemanager addition).</summary>
+    public static byte[] Compress(byte[] data)
+    {
+        if (data.Length == 0)
+            return [0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
+        using var input = new MemoryStream(data);
+        using var output = new MemoryStream();
+        Compress(input, data.Length, output, true);
+        return output.ToArray();
+    }
+
     public static int Compress(string infile, string outfile)
     {
         // make sure the output directory exists

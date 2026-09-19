@@ -3603,4 +3603,34 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Welcome_ReplaceConfirm" xml:space="preserve">
     <value>Borrarlo y crear</value>
   </data>
+  <data name="Game_LevelsTitle" xml:space="preserve">
+    <value>Niveles (%)</value>
+  </data>
+  <data name="Game_LevelsAll" xml:space="preserve">
+    <value>Todo</value>
+  </data>
+  <data name="Game_LevelsTrainers" xml:space="preserve">
+    <value>Entrenadores</value>
+  </data>
+  <data name="Game_LevelsWild" xml:space="preserve">
+    <value>Pokémon salvajes</value>
+  </data>
+  <data name="Game_LevelsStatic" xml:space="preserve">
+    <value>Estáticos, regalos y dominantes</value>
+  </data>
+  <data name="Game_LevelsUndo" xml:space="preserve">
+    <value>Niveles</value>
+  </data>
+  <data name="Game_LevelsGen7Only" xml:space="preserve">
+    <value>De momento solo en Sol/Luna y Ultra Sol/Ultra Luna: esta aplicación todavía no lee los salvajes ni los estáticos de X/Y y Rubí Omega/Zafiro Alfa.</value>
+  </data>
+  <data name="Tip_GameLevels" xml:space="preserve">
+    <value>Sube o baja el nivel de lo que te encuentras en un porcentaje, sobre los niveles que ya tiene la ROM (aleatorización incluida). Se aplica al crear la ROM; un nivel de entrenador editado a mano conserva su valor. -16,67 deshace un +20 %.</value>
+  </data>
+  <data name="Tip_GameLevelsAll" xml:space="preserve">
+    <value>Pone este porcentaje en todas las filas de abajo.</value>
+  </data>
+  <data name="Tip_GameLevelsWild" xml:space="preserve">
+    <value>El rango de niveles de todas las tablas de encuentros salvajes (hierba, agua, aliados SOS...).</value>
+  </data>
 </root>

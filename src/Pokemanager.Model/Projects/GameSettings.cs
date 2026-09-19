@@ -19,8 +19,29 @@ public sealed class GameSettings
     /// </summary>
     public int? LevelCap { get; set; }
 
-    /// <summary>Whether anything at all has to be done at build time.</summary>
-    public bool IsEmpty => !AlwaysShiny && LevelCap is null;
+    /// <summary>
+    /// Trainers' Pokémon levels raised or lowered by this percentage (0 = as the ROM has them). A trainer level edited
+    /// by hand keeps its value. See <see cref="Data.GameLevels"/>.
+    /// </summary>
+    public double TrainerLevelPercent { get; set; }
 
-    public GameSettings Clone() => new() { AlwaysShiny = AlwaysShiny, LevelCap = LevelCap };
+    /// <summary>Wild Pokémon levels, as a percentage (Generation 7).</summary>
+    public double WildLevelPercent { get; set; }
+
+    /// <summary>The fixed Pokémon — legendaries, gifts, totems and their allies — as a percentage (Generation 7).</summary>
+    public double StaticLevelPercent { get; set; }
+
+    public bool HasLevelChanges => TrainerLevelPercent != 0 || WildLevelPercent != 0 || StaticLevelPercent != 0;
+
+    /// <summary>Whether anything at all has to be done at build time.</summary>
+    public bool IsEmpty => !AlwaysShiny && LevelCap is null && !HasLevelChanges;
+
+    public GameSettings Clone() => new()
+    {
+        AlwaysShiny = AlwaysShiny,
+        LevelCap = LevelCap,
+        TrainerLevelPercent = TrainerLevelPercent,
+        WildLevelPercent = WildLevelPercent,
+        StaticLevelPercent = StaticLevelPercent,
+    };
 }

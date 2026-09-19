@@ -755,6 +755,35 @@
               </StackPanel>
             </Border>
 
+            <!-- Levels of what the player meets, applied when the ROM is built -->
+            <Border Classes="card" Width="470" HorizontalAlignment="Left" ToolTip.Tip="{x:Static r:Strings.Tip_GameLevels}">
+              <StackPanel Spacing="4">
+                <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_LevelsTitle}" />
+                <Grid ColumnDefinitions="200,Auto,Auto" Margin="0,2">
+                  <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsAll}" />
+                  <NumericUpDown Grid.Column="1" Width="130" Value="{Binding AllLevelPercent}" Minimum="-90" Maximum="400" Increment="5"
+                                 FormatString="0.##" />
+                  <Button Grid.Column="2" Margin="6,0,0,0" Content="{x:Static r:Strings.Game_Apply}" Command="{Binding ApplyAllLevelsCommand}"
+                          ToolTip.Tip="{x:Static r:Strings.Tip_GameLevelsAll}" />
+                </Grid>
+                <Grid ColumnDefinitions="200,Auto" Margin="0,2">
+                  <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsTrainers}" />
+                  <NumericUpDown Grid.Column="1" Width="130" Value="{Binding TrainerLevelPercent}" Minimum="-90" Maximum="400" Increment="5"
+                                 FormatString="0.##" />
+                </Grid>
+                <Grid ColumnDefinitions="200,Auto" Margin="0,2">
+                  <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsWild}" />
+                  <NumericUpDown Grid.Column="1" Width="130" Value="{Binding WildLevelPercent}" Minimum="-90" Maximum="400" Increment="5"
+                                 FormatString="0.##" IsEnabled="{Binding WildAndStaticSupported}" ToolTip.Tip="{Binding WildStaticTip}" />
+                </Grid>
+                <Grid ColumnDefinitions="200,Auto" Margin="0,2">
+                  <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsStatic}" />
+                  <NumericUpDown Grid.Column="1" Width="130" Value="{Binding StaticLevelPercent}" Minimum="-90" Maximum="400" Increment="5"
+                                 FormatString="0.##" IsEnabled="{Binding WildAndStaticSupported}" ToolTip.Tip="{Binding WildStaticTip}" />
+                </Grid>
+              </StackPanel>
+            </Border>
+
             <!-- Sweeps: ordinary edits over a whole table -->
             <TextBlock Classes="card-title" Margin="2,6,0,0" Text="{x:Static r:Strings.Game_SweepsTitle}" />
             <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="900" HorizontalAlignment="Left" Text="{x:Static r:Strings.Game_SweepsHint}" />

@@ -213,6 +213,7 @@ public static class ModBuilder
     {
         var game = session.Project.Tweaks;
         BuildLevelCap(session, outputs);
+        BuildLevels(session, outputs);
         if (!game.AlwaysShiny)
             return;
         byte[]? code = outputs.TryGetValue(CodeFile, out byte[]? built) ? built : ReadCode(session, randomizedTitleDirectory);
@@ -221,6 +222,74 @@ public static class ModBuilder
         if (game.AlwaysShiny && GameCode.MakeEveryPokemonShiny(code))
             outputs[CodeFile] = code;
     }
+
+    /// <summary>
+    /// The level modifiers of the game options, on top of the randomization and under the hand edits: a trainer level
+    /// edited by hand is not scaled. Trainers in every generation; wild and fixed Pokémon in Generation 7, where the
+    /// tables are known (the wild archive is read from the ROM, it is too big to import).
+    /// </summary>
+    private static void BuildLevels(EditorSession session, Dictionary<string, byte[]> outputs)
+    {
+        var game = session.Project.Tweaks;
+        var title = session.Current.Title;
+        var layout = title.Layout();
+
+        if (game.TrainerLevelPercent != 0)
+        {
+            var data = BuiltOrRead(session, outputs, layout.TrainerData);
+            var team = BuiltOrRead(session, outputs, layout.TrainerPokemon);
+            byte[][] dataFiles = data.Files, teamFiles = team.Files;
+            var editedLevels = session.Project.Edits.All
+                .Where(e => e.Table == GameTables.Trainers && e.Field.EndsWith(".level", StringComparison.Ordinal))
+                .Select(e => (e.Id, e.Field)).ToHashSet();
+            int changed = 0;
+            for (int id = 0; id < Math.Min(dataFiles.Length, teamFiles.Length); id++)
+            {
+                var trainer = Trainer.Read(title, dataFiles[id], teamFiles[id]);
+                if (trainer.Unreadable)
+                    continue;
+                var members = trainer.Team.ToList();
+                bool touched = false;
+                for (int slot = 0; slot < members.Count; slot++)
+                {
+                    if (editedLevels.Contains((id, $"p{slot + 1}.level")))
+                        continue;
+                    int scaled = GameLevels.Scale(members[slot].Level, game.TrainerLevelPercent);
+                    if (scaled == members[slot].Level)
+                        continue;
+                    members[slot].Level = scaled;
+                    touched = true;
+                    changed++;
+                }
+                if (touched)
+                    teamFiles[id] = trainer.WriteTeam().ToArray();
+            }
+            if (changed > 0)
+            {
+                outputs["romfs/" + layout.TrainerData] = GARC.PackGARC(dataFiles, data.Version, data.ContentPadding).Data;
+                outputs["romfs/" + layout.TrainerPokemon] = GARC.PackGARC(teamFiles, team.Version, team.ContentPadding).Data;
+            }
+        }
+
+        if (game.WildLevelPercent != 0 && layout.Wild.Length > 0 && ReadAnywhere(session, layout.Wild) is { } wild)
+        {
+            byte[][] files = wild.Files;
+            if (GameLevels.ScaleWild7(files, game.WildLevelPercent) > 0)
+                outputs["romfs/" + layout.Wild] = GARC.PackGARC(files, wild.Version, wild.ContentPadding).Data;
+        }
+
+        if (game.StaticLevelPercent != 0 && layout.Statics.Length > 0)
+        {
+            var statics = BuiltOrRead(session, outputs, layout.Statics);
+            byte[][] files = statics.Files;
+            if (GameLevels.ScaleStatics7(files, game.StaticLevelPercent) > 0)
+                outputs["romfs/" + layout.Statics] = GARC.PackGARC(files, statics.Version, statics.ContentPadding).Data;
+        }
+    }
+
+    /// <summary>An archive as this build already wrote it, or as the session's layers have it.</summary>
+    private static GARC.MemGARC BuiltOrRead(EditorSession session, Dictionary<string, byte[]> outputs, string path) =>
+        outputs.TryGetValue("romfs/" + path, out byte[]? built) ? new GARC.MemGARC(built) : ReadGarc(session, path);
 
     /// <summary>The level cap, written into the experience table: every level above it needs more than can be earned.</summary>
     private static void BuildLevelCap(EditorSession session, Dictionary<string, byte[]> outputs)

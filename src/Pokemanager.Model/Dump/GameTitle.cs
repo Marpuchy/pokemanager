@@ -46,6 +46,11 @@ public enum GameFamily
 /// The experience each level needs, one file per growth rate (101 <c>u32</c>, level 0 to 100). Found by its values in the
 /// real games: the archive just before the personal one in every family.
 /// </param>
+/// <param name="Wild">
+/// Generation 7: the wild encounter archive, which differs between the two versions of a pair (UPR ZX's offsets: Sun
+/// and Ultra Sun <c>a/0/8/2</c>, Moon and Ultra Moon <c>a/0/8/3</c>). Empty in Generation 6, whose tables this
+/// application does not read yet. Far too big to import (483 MB in Ultra Moon): it is read from the ROM while building.
+/// </param>
 public sealed record GameLayout(
     string Personal,
     string Moves,
@@ -66,7 +71,8 @@ public sealed record GameLayout(
     string Statics = "",
     int StoryText = 0,
     int StarterTextFile = -1,
-    string Experience = "");
+    string Experience = "",
+    string Wild = "");
 
 /// <summary>
 /// Images of badges or trials inside a layout archive (darc in Gen 6, SARC inside ALYT in Gen 7), matched by file name; an
@@ -154,11 +160,13 @@ public static class GameTitleExtensions
             Icons: ["a/0/6/2", "a/0/6/1", "a/0/6/3"], ItemIcons: ["a/0/6/1", "a/0/6/0", "a/0/6/3"],
             Milestones: TrialStamps("a/2/3/8", "a/2/3/9", "a/2/4/0", "a/2/4/1", "a/2/4/2"), FileCount: 311,
             TrainerData: "a/1/0/5", TrainerPokemon: "a/1/0/6", Items: "a/0/1/9", MegaEvolutions: "a/0/1/5",
-            Statics: "a/1/5/5", StoryText: 40, StarterTextFile: 41, Experience: "a/0/1/6"),
+            Statics: "a/1/5/5", StoryText: 40, StarterTextFile: 41, Experience: "a/0/1/6",
+            Wild: title == GameTitle.Moon ? "a/0/8/3" : "a/0/8/2"),
         _ => new GameLayout("a/0/1/7", "a/0/1/1", "a/0/1/3", "a/0/1/4", 30, 10, MovesPacked: true, SpeciesCount: 808,
             Icons: ["a/0/6/2"], ItemIcons: ["a/0/6/1"], Milestones: TrialStamps("a/2/4/2", "a/2/9/6", "a/2/9/7"), FileCount: 333,
             TrainerData: "a/1/0/6", TrainerPokemon: "a/1/0/7", Items: "a/0/1/9", MegaEvolutions: "a/0/1/5",
-            Statics: "a/1/5/9", StoryText: 40, StarterTextFile: 39, Experience: "a/0/1/6"),
+            Statics: "a/1/5/9", StoryText: 40, StarterTextFile: 39, Experience: "a/0/1/6",
+            Wild: title == GameTitle.UltraMoon ? "a/0/8/3" : "a/0/8/2"),
     };
 
     /// <summary>Gen 6 trainer card: <c>badge_01.bclim</c> … <c>badge_08.bclim</c> in a darc.</summary>
