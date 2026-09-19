@@ -98,9 +98,7 @@ public static class ModBuilder
         List<int> everywhere = [.. shops.ExtraItems];
         if (shops.FreeRareCandies)
             everywhere.Add(GameShops.RareCandy);
-        // The stones are too many for one shop, so they are dealt out over all of them.
-        int[] spread = shops.MegaStonesInShops ? session.Current.MegaStones : [];
-        if (GameShops.AddToRegularShops(table, layout, everywhere, spread) == 0)
+        if (GameShops.AddToRegularShops(table, layout, everywhere) == 0)
             return;
         GameShops.Write(data, offset.Value, layout, table);
         outputs[layout.File is { } shopFile ? "romfs/" + shopFile : CodeFile] = data;

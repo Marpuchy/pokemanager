@@ -19,6 +19,13 @@ public sealed class RandomizationSettings
     /// </summary>
     public bool AllowAllItems { get; set; }
 
+    /// <summary>
+    /// Let the game's Mega Stones come up wherever the randomizer places items. They are not forced anywhere: they
+    /// simply stop counting as "bad items", which in Generation 7 is what keeps every one of them out of a run whose
+    /// preset bans those (UPR ZX allows all 42 and marks all 42 bad; in X they are in both lists already).
+    /// </summary>
+    public bool MegaStonesInPool { get; set; }
+
     public bool Enabled { get; set; }
 
     /// <summary>Display name of the preset (usually the name of the source .rnqs).</summary>
@@ -54,6 +61,7 @@ public sealed class RandomizationSettings
     public void CopyFrom(RandomizationSettings other)
     {
         AllowAllItems = other.AllowAllItems;
+        MegaStonesInPool = other.MegaStonesInPool;
         Enabled = other.Enabled;
         PresetName = other.PresetName;
         Preset = other.Preset;

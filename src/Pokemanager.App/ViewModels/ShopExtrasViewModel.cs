@@ -89,8 +89,22 @@ public sealed partial class ShopExtrasViewModel : ObservableObject
     [ObservableProperty]
     public partial bool FreeRareCandies { get; set; }
 
-    [ObservableProperty]
-    public partial bool MegaStonesInShops { get; set; }
+    /// <summary>
+    /// The game's Mega Stones stop counting as bad items, so the randomizer can place them wherever it places items.
+    /// Part of the randomization, like <see cref="AllowAllItems"/>: the ROM has to be randomized again.
+    /// </summary>
+    public bool MegaStonesInPool
+    {
+        get => editor.Session.Project.Randomization.MegaStonesInPool;
+        set
+        {
+            if (editor.Session.Project.Randomization.MegaStonesInPool == value)
+                return;
+            editor.Session.Project.Randomization.MegaStonesInPool = value;
+            OnPropertyChanged();
+            editor.MarkDirty(Strings.Items_MegaStonesUndo);
+        }
+    }
 
     /// <summary>"42 Mega Stones", so the option says what the game actually has instead of a promise.</summary>
     public string MegaStonesText => string.Format(Strings.Shops_MegaStonesCount, editor.Session.Current.MegaStones.Length);
@@ -124,7 +138,6 @@ public sealed partial class ShopExtrasViewModel : ObservableObject
     {
         loading = true;
         FreeRareCandies = Settings.FreeRareCandies;
-        MegaStonesInShops = Settings.MegaStonesInShops;
         Extra.Clear();
         foreach (int id in Settings.ExtraItems)
             Extra.Add(new ShopItemViewModel(this, id, Name(id)));
@@ -132,15 +145,6 @@ public sealed partial class ShopExtrasViewModel : ObservableObject
     }
 
     private string Name(int id) => id >= 0 && id < ItemNames.Count ? ItemNames[id] : $"#{id}";
-
-    partial void OnMegaStonesInShopsChanged(bool value)
-    {
-        if (loading || Settings.MegaStonesInShops == value)
-            return;
-        Settings.MegaStonesInShops = value;
-        NotifyFit();
-        editor.MarkDirty(Strings.Shops_UndoMegaStones);
-    }
 
     partial void OnFreeRareCandiesChanged(bool value)
     {
@@ -177,6 +181,7 @@ public sealed partial class ShopExtrasViewModel : ObservableObject
         Load();
         NotifyFit();
         OnPropertyChanged(nameof(AllowAllItems));
+        OnPropertyChanged(nameof(MegaStonesInPool));
     }
 }
 

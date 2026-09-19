@@ -21,21 +21,21 @@ public sealed class RandomizationCache(string root)
     /// <summary>
     /// Stable key: changes when the ROM (path, size, date), the preset, the seed, the jar or the item unlock changes.
     /// </summary>
-    public static string Key(string romFile, byte[] preset, long seed, string jarFile, bool allItems = false)
+    public static string Key(string romFile, byte[] preset, long seed, string jarFile, bool allItems = false, IReadOnlyList<int>? goodItems = null)
     {
         var rom = new FileInfo(romFile);
         var jar = new FileInfo(jarFile);
         string material = string.Join('|',
             Path.GetFullPath(romFile).ToUpperInvariant(), rom.Length, rom.LastWriteTimeUtc.Ticks,
             Convert.ToHexString(SHA256.HashData(preset)), seed,
-            jar.Length, jar.LastWriteTimeUtc.Ticks, allItems ? "all-items" : "");
+            jar.Length, jar.LastWriteTimeUtc.Ticks, allItems ? "all-items" : "", string.Join('.', goodItems ?? []));
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(material)))[..24];
     }
 
     /// <summary>Output already generated for those parameters, without running UPR. Null if not cached.</summary>
-    public UprResult? TryGet(string romFile, byte[] preset, long seed, string jarFile, bool allItems = false)
+    public UprResult? TryGet(string romFile, byte[] preset, long seed, string jarFile, bool allItems = false, IReadOnlyList<int>? goodItems = null)
     {
-        string dir = Path.Combine(Root, Key(romFile, preset, seed, jarFile, allItems));
+        string dir = Path.Combine(Root, Key(romFile, preset, seed, jarFile, allItems, goodItems));
         return File.Exists(Path.Combine(dir, CompleteMarker)) ? FindResult(Path.Combine(dir, OutputFolder), seed) : null;
     }
 
@@ -43,17 +43,18 @@ public sealed class RandomizationCache(string root)
     /// <param name="allItems">Part of the key: the same seed with and without it are two different randomizations.</param>
     public async Task<UprResult> GetOrCreateAsync(
         UprRunner runner, UprTools tools, string romFile, byte[] preset, long seed,
-        IProgress<string>? progress = null, CancellationToken cancellationToken = default, bool allItems = false)
+        IProgress<string>? progress = null, CancellationToken cancellationToken = default, bool allItems = false,
+        IReadOnlyList<int>? goodItems = null)
     {
-        if (TryGet(romFile, preset, seed, tools.JarPath, allItems) is { } cached)
+        if (TryGet(romFile, preset, seed, tools.JarPath, allItems, goodItems) is { } cached)
         {
             progress?.Report(string.Format(Strings.Upr_UsingCache, seed));
             // Mark it as used now so Prune keeps it.
-            File.SetLastWriteTimeUtc(Path.Combine(Root, Key(romFile, preset, seed, tools.JarPath, allItems), CompleteMarker), DateTime.UtcNow);
+            File.SetLastWriteTimeUtc(Path.Combine(Root, Key(romFile, preset, seed, tools.JarPath, allItems, goodItems), CompleteMarker), DateTime.UtcNow);
             return cached;
         }
 
-        string dir = Path.Combine(Root, Key(romFile, preset, seed, tools.JarPath, allItems));
+        string dir = Path.Combine(Root, Key(romFile, preset, seed, tools.JarPath, allItems, goodItems));
         if (Directory.Exists(dir))
             Directory.Delete(dir, recursive: true); // incomplete: this cache created it, so it is redone
         Directory.CreateDirectory(dir);
@@ -62,7 +63,7 @@ public sealed class RandomizationCache(string root)
         string presetFile = Path.Combine(dir, "preset.rnqs");
         await File.WriteAllBytesAsync(presetFile, preset, cancellationToken);
 
-        var result = await runner.RandomizeAsync(presetFile, romFile, seed, Path.Combine(dir, OutputFolder), progress, cancellationToken, allItems);
+        var result = await runner.RandomizeAsync(presetFile, romFile, seed, Path.Combine(dir, OutputFolder), progress, cancellationToken, allItems, goodItems);
         await File.WriteAllTextAsync(Path.Combine(dir, CompleteMarker), DateTime.UtcNow.ToString("O"), cancellationToken);
         return result;
     }

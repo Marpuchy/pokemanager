@@ -4,9 +4,10 @@
 //   java -Xmx4096M -cp PokeRandoZX.jar PokemanagerUpr.java <command> ...
 //
 // Commands:
-//   randomize <settings.rnqs> <rom> <output> <seed> <log> [all-items]
+//   randomize <settings.rnqs> <rom> <output> <seed> <log> [all-items] [good-items]
 //       Like CliRandomizer, but with a fixed seed (Randomizer.randomize(file, log, seed)).
 //       all-items = 1 lets the item randomization use every item of the game (see unlockItems).
+//       good-items = item ids separated by commas that stop counting as bad ones (see allowItems).
 //       LayeredFS output: <output>/<TitleID>/{romfs/..., code.bin}.
 //   pack <rom> <titleFolder> <output.cxi> <seed>
 //       Base ROM + the files in <titleFolder> (romfs/... and code.bin) -> .cxi via ctr.NCCH.saveAsNCCH.
@@ -53,8 +54,9 @@ public class PokemanagerUpr {
             if (args.length == 0) usage();
             switch (args[0]) {
                 case "randomize" -> {
-                    if (args.length != 6 && args.length != 7) usage();
-                    randomize(args[1], args[2], args[3], Long.parseLong(args[4]), args[5], args.length == 7 && "1".equals(args[6]));
+                    if (args.length < 6 || args.length > 8) usage();
+                    randomize(args[1], args[2], args[3], Long.parseLong(args[4]), args[5],
+                            args.length >= 7 && "1".equals(args[6]), args.length == 8 ? args[7] : "");
                 }
                 case "pack" -> { need(args, 5); pack(args[1], args[2], args[3], Long.parseLong(args[4])); }
                 case "describe-settings" -> {
@@ -73,7 +75,7 @@ public class PokemanagerUpr {
     // ---------------------------------------------------------------- randomize
 
     private static void randomize(String settingsPath, String romPath, String output, long seed, String logPath,
-                                  boolean allItems) throws Exception {
+                                  boolean allItems, String goodItems) throws Exception {
         Settings settings = readSettings(settingsPath);
         settings.setCustomNames(FileFunctions.getCustomNames());
         RomHandler handler = loadRom(romPath);
@@ -87,6 +89,7 @@ public class PokemanagerUpr {
         }
 
         if (allItems) unlockItems(handler);
+        allowItems(handler, goodItems);
 
         ByteArrayOutputStream logBytes = new ByteArrayOutputStream();
         PrintStream log = new PrintStream(logBytes, false, "UTF-8");
@@ -121,6 +124,31 @@ public class PokemanagerUpr {
             if (!allowed[i]) { allowed[i] = true; unlocked++; }
         }
         System.out.println("ITEMS:" + unlocked);
+    }
+
+    /**
+     * Takes those item ids out of the "bad items" bag, so they can come up wherever the randomizer places items —
+     * shops, the ground, Pickup, a trainer's held item — even with its "ban bad items" on.
+     *
+     * <p>This is what the Mega Stones need in Generation 7: UPR ZX allows all 42 of them but leaves every one out of
+     * its non-bad list (measured), so a preset with that option on can never place one. In X they are in both lists,
+     * which is why they turn up there on their own.</p>
+     */
+    private static void allowItems(RomHandler handler, String ids) throws Exception {
+        if (ids == null || ids.isBlank()) return;
+        boolean[] allowed = itemFlags(handler.getAllowedItems());
+        boolean[] nonBad = itemFlags(handler.getNonBadItems());
+        String[] names = handler.getItemNames();
+        int freed = 0;
+        for (String part : ids.split(",")) {
+            if (part.isBlank()) continue;
+            int i = Integer.parseInt(part.trim());
+            if (i < 1 || i >= allowed.length) continue;
+            if (i >= names.length || names[i] == null || names[i].isBlank()) continue;
+            allowed[i] = true;
+            if (!nonBad[i]) { nonBad[i] = true; freed++; }
+        }
+        System.out.println("GOOD:" + freed);
     }
 
     /** The flags inside an {@code ItemList}; the class keeps them private and offers no way to allow one back. */

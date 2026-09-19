@@ -33,9 +33,11 @@ public sealed class UprRunner(UprTools tools)
 
     /// <summary>Randomizes and leaves the LayeredFS output in <paramref name="outputDirectory"/> (empty or missing).</summary>
     /// <param name="allItems">Let the item randomization use every item of the game (see the launcher's unlockItems).</param>
+    /// <param name="goodItems">Item ids that stop counting as bad ones, so a preset that bans those can still place them.</param>
     public async Task<UprResult> RandomizeAsync(
         string presetFile, string romFile, long seed, string outputDirectory,
-        IProgress<string>? progress = null, CancellationToken cancellationToken = default, bool allItems = false)
+        IProgress<string>? progress = null, CancellationToken cancellationToken = default, bool allItems = false,
+        IReadOnlyList<int>? goodItems = null)
     {
         if (Directory.Exists(outputDirectory) && Directory.EnumerateFileSystemEntries(outputDirectory).Any())
             throw new IOException(string.Format(Strings.Upr_OutputNotEmpty, outputDirectory));
@@ -44,7 +46,10 @@ public sealed class UprRunner(UprTools tools)
 
         progress?.Report(string.Format(Strings.Upr_Randomizing, seed));
         string output = await RunAsync(
-            ["randomize", presetFile, romFile, outputDirectory, seed.ToString(), logPath, allItems ? "1" : "0"],
+            [
+                "randomize", presetFile, romFile, outputDirectory, seed.ToString(), logPath, allItems ? "1" : "0",
+                string.Join(',', goodItems ?? []),
+            ],
             progress, cancellationToken);
 
         string? titleDir = Directory.GetDirectories(outputDirectory).FirstOrDefault(d => Path.GetFileName(d).Length == 16);

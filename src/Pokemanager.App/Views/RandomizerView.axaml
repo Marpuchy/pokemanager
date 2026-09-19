@@ -171,6 +171,10 @@
                         IsVisible="{Binding HasShops}">
                   <StackPanel Spacing="4" DataContext="{Binding Shops}" x:DataType="vm:ShopExtrasViewModel">
                     <TextBlock Classes="card-title" Text="{x:Static r:Strings.Items_AllowAllTitle}" />
+                    <CheckBox IsChecked="{Binding MegaStonesInPool}" Content="{Binding MegaStonesText}"
+                              IsVisible="{Binding HasMegaStones}" ToolTip.Tip="{x:Static r:Strings.Items_MegaStonesTip}" />
+                    <TextBlock Classes="hint" TextWrapping="Wrap" IsVisible="{Binding HasMegaStones}" Margin="0,0,0,6"
+                               Text="{x:Static r:Strings.Items_MegaStonesHint}" />
                     <CheckBox IsChecked="{Binding AllowAllItems}" Content="{x:Static r:Strings.Items_AllowAll}"
                               ToolTip.Tip="{x:Static r:Strings.Items_AllowAllTip}" />
                     <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Items_AllowAllHint}" />
@@ -186,10 +190,6 @@
                       <CheckBox IsChecked="{Binding FreeRareCandies}" Content="{x:Static r:Strings.Shops_FreeCandies}"
                                 ToolTip.Tip="{x:Static r:Strings.Shops_FreeCandiesTip}" />
                       <TextBlock Classes="hint" TextWrapping="Wrap" Margin="0,2,0,0" Text="{Binding FitText}" />
-                      <CheckBox IsChecked="{Binding MegaStonesInShops}" Content="{Binding MegaStonesText}" Margin="0,6,0,0"
-                                IsVisible="{Binding HasMegaStones}" ToolTip.Tip="{x:Static r:Strings.Shops_MegaStonesTip}" />
-                      <TextBlock Classes="hint" TextWrapping="Wrap" IsVisible="{Binding HasMegaStones}"
-                                 Text="{x:Static r:Strings.Shops_MegaStonesHint}" />
                     </StackPanel>
                   </StackPanel>
                 </Border>

@@ -3370,7 +3370,7 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
     <value>Allow every item</value>
   </data>
   <data name="Shops_MegaStonesCount" xml:space="preserve">
-    <value>Mega Stones on sale from the start ({0})</value>
+    <value>Mega Stones among the items that can come up ({0})</value>
   </data>
   <data name="Shops_MegaStonesTip" xml:space="preserve">
     <value>Puts the game's own Mega Stones in the ordinary Poké Marts, so a run can mega evolve before the game would let it.</value>
@@ -3380,5 +3380,14 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   </data>
   <data name="Shops_UndoMegaStones" xml:space="preserve">
     <value>Mega Stones in the shops</value>
+  </data>
+  <data name="Items_MegaStonesTip" xml:space="preserve">
+    <value>The Mega Stones stop counting as bad items, so the randomizer can place them like any other: in a shop, on the ground, in Pickup, on a trainer. The ROM has to be randomized again.</value>
+  </data>
+  <data name="Items_MegaStonesHint" xml:space="preserve">
+    <value>In Generation 7 the randomizer marks every Mega Stone as a bad item, so a preset that bans those never places one. This puts them back among the rest; it does not force them anywhere.</value>
+  </data>
+  <data name="Items_MegaStonesUndo" xml:space="preserve">
+    <value>Mega Stones in the pool</value>
   </data>
 </root>

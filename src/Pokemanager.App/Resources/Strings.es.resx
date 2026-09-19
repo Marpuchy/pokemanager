@@ -3370,7 +3370,7 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>Permitir todos los objetos</value>
   </data>
   <data name="Shops_MegaStonesCount" xml:space="preserve">
-    <value>Megapiedras a la venta desde el principio ({0})</value>
+    <value>Megapiedras entre los objetos que pueden salir ({0})</value>
   </data>
   <data name="Shops_MegaStonesTip" xml:space="preserve">
     <value>Pone las megapiedras del propio juego en las tiendas normales, para poder megaevolucionar antes de que el juego te deje.</value>
@@ -3380,5 +3380,14 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   </data>
   <data name="Shops_UndoMegaStones" xml:space="preserve">
     <value>Megapiedras en las tiendas</value>
+  </data>
+  <data name="Items_MegaStonesTip" xml:space="preserve">
+    <value>Las megapiedras dejan de contar como objetos malos, así que el randomizer puede colocarlas como cualquier otra: en una tienda, por el suelo, en Recogida o en un entrenador. Hay que volver a randomizar la ROM.</value>
+  </data>
+  <data name="Items_MegaStonesHint" xml:space="preserve">
+    <value>En la séptima generación el randomizer marca todas las megapiedras como objeto malo, así que un preset que los prohíba no coloca ninguna. Esto las devuelve al montón; no las obliga a salir en ningún sitio.</value>
+  </data>
+  <data name="Items_MegaStonesUndo" xml:space="preserve">
+    <value>Megapiedras en el pool</value>
   </data>
 </root>
