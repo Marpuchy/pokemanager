@@ -3681,4 +3681,7 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="LevelCap_StepTip" xml:space="preserve">
     <value>The boss's level in this ROM: {0}. Change it to use another cap for this step.</value>
   </data>
+  <data name="Game_LevelsHint" xml:space="preserve">
+    <value>On top of the levels the base ROM already has, not the original game's: a base ROM already at +20 % stays there with 0, and 20 would make it +44 %. -16.67 takes a +20 % away.</value>
+  </data>
 </root>

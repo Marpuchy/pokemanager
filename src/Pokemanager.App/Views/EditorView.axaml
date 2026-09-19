@@ -764,6 +764,7 @@
             <Border Classes="card" Width="470" HorizontalAlignment="Left" ToolTip.Tip="{x:Static r:Strings.Tip_GameLevels}">
               <StackPanel Spacing="4">
                 <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_LevelsTitle}" />
+                <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Game_LevelsHint}" />
                 <Grid ColumnDefinitions="200,Auto,Auto" Margin="0,2">
                   <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsAll}" />
                   <NumericUpDown Grid.Column="1" Width="130" Value="{Binding AllLevelPercent}" Minimum="-90" Maximum="400" Increment="5"
