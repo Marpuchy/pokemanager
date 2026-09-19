@@ -85,6 +85,8 @@ public static class RomBuilder
             if (File.Exists(partial))
                 File.Delete(partial);
             await runner.PackAsync(baseRom, title, partial, seed, progress, cancellationToken);
+            // UPR ZX writes the region sizes one byte at a time: a RomFS that shrank would not load (see NcchHeader).
+            NcchHeader.Repair(partial);
             File.Move(partial, outputRom, overwrite: true);
 
             string? log = null;
