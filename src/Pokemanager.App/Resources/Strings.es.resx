@@ -2811,9 +2811,6 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Trainer_BulkClearIvs" xml:space="preserve">
     <value>IV a cero</value>
   </data>
-  <data name="Shops_Title" xml:space="preserve">
-    <value>Tiendas de la ROM construida</value>
-  </data>
   <data name="Shops_Unsupported" xml:space="preserve">
     <value>Las tiendas de {0} no están en un sitio que la aplicación sepa cambiar todavía.</value>
   </data>
@@ -2823,29 +2820,8 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Shops_FreeCandiesTip" xml:space="preserve">
     <value>Los pone a la venta en todas las tiendas normales y deja su precio a 0. Hacen falta las dos cosas: un objeto gratis que nadie vende no es gratis.</value>
   </data>
-  <data name="Shops_ExtraTitle" xml:space="preserve">
-    <value>Objetos que el juego no vende</value>
-  </data>
-  <data name="Shops_ExtraHint" xml:space="preserve">
-    <value>Se ponen a la venta en las tiendas normales, incluso los que el juego no tiene forma de darte (las Megapiedras de un juego que no las tiene).</value>
-  </data>
-  <data name="Shops_PickItem" xml:space="preserve">
-    <value>Elige un objeto</value>
-  </data>
-  <data name="Shops_Add" xml:space="preserve">
-    <value>Añadir</value>
-  </data>
-  <data name="Shops_SlotHint" xml:space="preserve">
-    <value>Una tienda vende un número fijo de cosas, así que cada objeto añadido ocupa el sitio del último de su estante. Siempre se deja uno de los del juego.</value>
-  </data>
   <data name="Shops_UndoCandies" xml:space="preserve">
     <value>Caramelos Raros gratis</value>
-  </data>
-  <data name="Shops_UndoAdd" xml:space="preserve">
-    <value>{0} a la venta</value>
-  </data>
-  <data name="Shops_UndoRemove" xml:space="preserve">
-    <value>{0} fuera de las tiendas</value>
   </data>
   <data name="Tip_SettingsLanguage" xml:space="preserve">
     <value>Idioma de la aplicación y de los textos del juego que enseña. Se aplica al reiniciar.</value>
@@ -2891,9 +2867,6 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   </data>
   <data name="Tip_RandomizerUpdateSave" xml:space="preserve">
     <value>Adapta tu partida a la ROM nueva: las habilidades y estadísticas de los Pokémon que ya tienes. Antes hace copia de seguridad.</value>
-  </data>
-  <data name="Tip_ShopsPickItem" xml:space="preserve">
-    <value>El objeto que se pone a la venta en todas las tiendas normales.</value>
   </data>
   <data name="Tip_LearnsetLevel" xml:space="preserve">
     <value>El nivel al que aprende el movimiento.</value>
@@ -3345,23 +3318,8 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Tip_Field_trainer_evSpe" xml:space="preserve">
     <value>Sus EV de Velocidad, hasta 252.</value>
   </data>
-  <data name="Shops_FitAll" xml:space="preserve">
-    <value>{0} objetos, y todas las tiendas normales los venden.</value>
-  </data>
-  <data name="Shops_FitSome" xml:space="preserve">
-    <value>{0} objetos: los venden enteros {1} de las {2} tiendas normales; en las pequeñas solo caben los últimos.</value>
-  </data>
-  <data name="Shops_FitOverflow" xml:space="preserve">
-    <value>{0} objetos y en ninguna tienda caben más de {1}: los primeros de la lista no se venderán en ningún sitio.</value>
-  </data>
-  <data name="Items_AllowAllTitle" xml:space="preserve">
-    <value>Objetos que puede usar el randomizer</value>
-  </data>
   <data name="Items_AllowAll" xml:space="preserve">
     <value>Permitir todos los objetos del juego</value>
-  </data>
-  <data name="Items_AllowAllHint" xml:space="preserve">
-    <value>El randomizer elige de una lista suya que deja fuera lo que un juego nunca te da: en Sol y Luna, los cristales Z, las MT y casi todo lo que añadió la séptima generación, 466 de sus 960 objetos. Con esto activado puede salir cualquier cosa que el juego tenga como objeto. Manda «prohibir objetos malos» de arriba: si la dejas marcada sigues teniendo la lista de siempre, y conviene saberlo porque buena parte de lo que se desbloquea son objetos clave (Tarjeta Punto, Billete Barco, Holocasco).</value>
   </data>
   <data name="Items_AllowAllTip" xml:space="preserve">
     <value>Solo cambia lo que el randomizer de arriba puede colocar (objetos del suelo, tiendas, Recogida), y solo donde «prohibir objetos malos» esté desactivado. Hay que volver a randomizar la ROM.</value>
@@ -3372,20 +3330,8 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Shops_MegaStonesCount" xml:space="preserve">
     <value>Megapiedras entre los objetos que pueden salir ({0})</value>
   </data>
-  <data name="Shops_MegaStonesTip" xml:space="preserve">
-    <value>Pone las megapiedras del propio juego en las tiendas normales, para poder megaevolucionar antes de que el juego te deje.</value>
-  </data>
-  <data name="Shops_MegaStonesHint" xml:space="preserve">
-    <value>Hay más de las que caben en una sola tienda, así que se reparten: cada tienda vende unas cuantas y entre todas están todas.</value>
-  </data>
-  <data name="Shops_UndoMegaStones" xml:space="preserve">
-    <value>Megapiedras en las tiendas</value>
-  </data>
   <data name="Items_MegaStonesTip" xml:space="preserve">
     <value>Las megapiedras dejan de contar como objetos malos, así que el randomizer puede colocarlas como cualquier otra: en una tienda, por el suelo, en Recogida o en un entrenador. Hay que volver a randomizar la ROM.</value>
-  </data>
-  <data name="Items_MegaStonesHint" xml:space="preserve">
-    <value>En la séptima generación el randomizer marca todas las megapiedras como objeto malo, así que un preset que los prohíba no coloca ninguna. Esto las devuelve al montón; no las obliga a salir en ningún sitio.</value>
   </data>
   <data name="Items_MegaStonesUndo" xml:space="preserve">
     <value>Megapiedras en el pool</value>

@@ -165,34 +165,23 @@
                   </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <!-- Ours, not UPR ZX's. The first one widens the pool the randomizer above draws from; the second
-                     is a project setting that the seed does not touch. -->
-                <Border Classes="card" Margin="16,4,16,6" HorizontalAlignment="Left" MinWidth="440" MaxWidth="560"
-                        IsVisible="{Binding HasShops}">
-                  <StackPanel Spacing="4" DataContext="{Binding Shops}" x:DataType="vm:ShopExtrasViewModel">
-                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Items_AllowAllTitle}" />
-                    <CheckBox IsChecked="{Binding MegaStonesInPool}" Content="{Binding MegaStonesText}"
-                              IsVisible="{Binding HasMegaStones}" ToolTip.Tip="{x:Static r:Strings.Items_MegaStonesTip}" />
-                    <TextBlock Classes="hint" TextWrapping="Wrap" IsVisible="{Binding HasMegaStones}" Margin="0,0,0,6"
-                               Text="{x:Static r:Strings.Items_MegaStonesHint}" />
-                    <CheckBox IsChecked="{Binding AllowAllItems}" Content="{x:Static r:Strings.Items_AllowAll}"
-                              ToolTip.Tip="{x:Static r:Strings.Items_AllowAllTip}" />
-                    <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Items_AllowAllHint}" />
-                  </StackPanel>
-                </Border>
-
-                <Border Classes="card" Margin="16,4,16,14" HorizontalAlignment="Left" MinWidth="440" MaxWidth="560"
-                        IsVisible="{Binding HasShops}">
-                  <StackPanel Spacing="4" DataContext="{Binding Shops}" x:DataType="vm:ShopExtrasViewModel">
-                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Shops_Title}" />
-                    <TextBlock Classes="hint" TextWrapping="Wrap" Text="{Binding UnsupportedText}" IsVisible="{Binding !Supported}" />
-                    <StackPanel Spacing="4" IsVisible="{Binding Supported}">
-                      <CheckBox IsChecked="{Binding FreeRareCandies}" Content="{x:Static r:Strings.Shops_FreeCandies}"
-                                ToolTip.Tip="{x:Static r:Strings.Shops_FreeCandiesTip}" />
-                      <TextBlock Classes="hint" TextWrapping="Wrap" Margin="0,2,0,0" Text="{Binding FitText}" />
-                    </StackPanel>
-                  </StackPanel>
-                </Border>
+                <!-- Ours, not UPR ZX's, but shown as what they are: more item options. What each one does and which
+                     ones mean randomizing again is in their tooltip, like every other option of this page. -->
+                <StackPanel Margin="16,0,16,14" IsVisible="{Binding HasShops}">
+                  <StackPanel DataContext="{Binding Shops}" x:DataType="vm:ShopExtrasViewModel">
+                  <CheckBox Margin="0,3" IsChecked="{Binding MegaStonesInPool}" IsVisible="{Binding HasMegaStones}"
+                            ToolTip.Tip="{x:Static r:Strings.Items_MegaStonesTip}">
+                    <TextBlock Text="{Binding MegaStonesText}" TextWrapping="Wrap" />
+                  </CheckBox>
+                  <CheckBox Margin="0,3" IsChecked="{Binding AllowAllItems}" ToolTip.Tip="{x:Static r:Strings.Items_AllowAllTip}">
+                    <TextBlock Text="{x:Static r:Strings.Items_AllowAll}" TextWrapping="Wrap" />
+                  </CheckBox>
+                  <CheckBox Margin="0,3" IsChecked="{Binding FreeRareCandies}" IsEnabled="{Binding Supported}"
+                            ToolTip.Tip="{Binding FreeRareCandiesTip}">
+                    <TextBlock Text="{x:Static r:Strings.Shops_FreeCandies}" TextWrapping="Wrap" />
+                  </CheckBox>
+                </StackPanel>
+                </StackPanel>
                 </StackPanel>
               </ScrollViewer>
             </DataTemplate>

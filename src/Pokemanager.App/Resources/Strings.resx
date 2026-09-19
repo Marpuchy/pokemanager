@@ -2811,9 +2811,6 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Trainer_BulkClearIvs" xml:space="preserve">
     <value>IVs cleared</value>
   </data>
-  <data name="Shops_Title" xml:space="preserve">
-    <value>Shops of the built ROM</value>
-  </data>
   <data name="Shops_Unsupported" xml:space="preserve">
     <value>The shops of {0} are not in a place this application can change yet.</value>
   </data>
@@ -2823,29 +2820,8 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Shops_FreeCandiesTip" xml:space="preserve">
     <value>Puts them on sale in every ordinary Poké Mart and sets their price to 0. Both halves are needed: a free item nobody sells is not free.</value>
   </data>
-  <data name="Shops_ExtraTitle" xml:space="preserve">
-    <value>Items the game never sells</value>
-  </data>
-  <data name="Shops_ExtraHint" xml:space="preserve">
-    <value>They go on sale in the ordinary Poké Marts, even ones the game has no way to give you (the Mega Stones of a game without them).</value>
-  </data>
-  <data name="Shops_PickItem" xml:space="preserve">
-    <value>Pick an item</value>
-  </data>
-  <data name="Shops_Add" xml:space="preserve">
-    <value>Add</value>
-  </data>
-  <data name="Shops_SlotHint" xml:space="preserve">
-    <value>A shop sells a fixed number of things, so each added item takes the place of the last one on its shelf. One of the game's own is always kept.</value>
-  </data>
   <data name="Shops_UndoCandies" xml:space="preserve">
     <value>Free Rare Candies</value>
-  </data>
-  <data name="Shops_UndoAdd" xml:space="preserve">
-    <value>{0} on sale</value>
-  </data>
-  <data name="Shops_UndoRemove" xml:space="preserve">
-    <value>{0} off the shops</value>
   </data>
   <data name="Tip_SettingsLanguage" xml:space="preserve">
     <value>Language of the application and of the game texts it shows. It applies when you restart.</value>
@@ -2891,9 +2867,6 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   </data>
   <data name="Tip_RandomizerUpdateSave" xml:space="preserve">
     <value>Adapts your save to the new ROM: the abilities and stats of the Pokémon you already caught. It backs the save up first.</value>
-  </data>
-  <data name="Tip_ShopsPickItem" xml:space="preserve">
-    <value>The item to put on sale in every ordinary Poké Mart.</value>
   </data>
   <data name="Tip_LearnsetLevel" xml:space="preserve">
     <value>The level at which it learns the move.</value>
@@ -3345,23 +3318,8 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Tip_Field_trainer_evSpe" xml:space="preserve">
     <value>Its Speed EVs, up to 252.</value>
   </data>
-  <data name="Shops_FitAll" xml:space="preserve">
-    <value>{0} of them, and every ordinary Poké Mart sells the lot.</value>
-  </data>
-  <data name="Shops_FitSome" xml:space="preserve">
-    <value>{0} of them: {1} of the {2} ordinary Poké Marts sell the lot, the smaller ones only the last that fit on their shelves.</value>
-  </data>
-  <data name="Shops_FitOverflow" xml:space="preserve">
-    <value>{0} of them and no shop has room for more than {1}: the first ones on the list will not be sold anywhere.</value>
-  </data>
-  <data name="Items_AllowAllTitle" xml:space="preserve">
-    <value>Items the randomizer may use</value>
-  </data>
   <data name="Items_AllowAll" xml:space="preserve">
     <value>Allow every item of the game</value>
-  </data>
-  <data name="Items_AllowAllHint" xml:space="preserve">
-    <value>The randomizer picks from a list of its own that leaves out whatever a game never hands the player: in Sun and Moon that is the Z-crystals, the TMs and most of what Generation 7 added, 466 of its 960 items. With this on, anything the game has an item for can turn up. "Ban bad items" above still rules: leave it on and you keep the list of always, which is worth knowing because much of what this unlocks is key items (Point Card, S.S. Ticket, Holo Caster).</value>
   </data>
   <data name="Items_AllowAllTip" xml:space="preserve">
     <value>Only changes what the randomizer above may place (field items, shops, Pickup), and only where "ban bad items" is off. The ROM has to be randomized again.</value>
@@ -3372,20 +3330,8 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Shops_MegaStonesCount" xml:space="preserve">
     <value>Mega Stones among the items that can come up ({0})</value>
   </data>
-  <data name="Shops_MegaStonesTip" xml:space="preserve">
-    <value>Puts the game's own Mega Stones in the ordinary Poké Marts, so a run can mega evolve before the game would let it.</value>
-  </data>
-  <data name="Shops_MegaStonesHint" xml:space="preserve">
-    <value>There are more of them than any single shop has shelves, so they are dealt out: each Poké Mart sells a few and between them they sell the lot.</value>
-  </data>
-  <data name="Shops_UndoMegaStones" xml:space="preserve">
-    <value>Mega Stones in the shops</value>
-  </data>
   <data name="Items_MegaStonesTip" xml:space="preserve">
     <value>The Mega Stones stop counting as bad items, so the randomizer can place them like any other: in a shop, on the ground, in Pickup, on a trainer. The ROM has to be randomized again.</value>
-  </data>
-  <data name="Items_MegaStonesHint" xml:space="preserve">
-    <value>In Generation 7 the randomizer marks every Mega Stone as a bad item, so a preset that bans those never places one. This puts them back among the rest; it does not force them anywhere.</value>
   </data>
   <data name="Items_MegaStonesUndo" xml:space="preserve">
     <value>Mega Stones in the pool</value>

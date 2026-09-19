@@ -17,15 +17,8 @@ public sealed class ShopSettings
     /// </summary>
     public bool FreeRareCandies { get; set; }
 
-    /// <summary>
-    /// Items the game never sells, put on sale in the ordinary Poké Marts: the Mega Stones of Sun and Moon, an
-    /// evolution item a randomized run made necessary, whatever the player decides.
-    /// </summary>
-    public List<int> ExtraItems { get; set; } = [];
-
     /// <summary>Whether anything at all has to be done at build time.</summary>
-    public bool IsEmpty => !FreeRareCandies && ExtraItems.Count == 0;
+    public bool IsEmpty => !FreeRareCandies;
 
-    public ShopSettings Clone() =>
-        new() { FreeRareCandies = FreeRareCandies, ExtraItems = [.. ExtraItems] };
+    public ShopSettings Clone() => new() { FreeRareCandies = FreeRareCandies };
 }

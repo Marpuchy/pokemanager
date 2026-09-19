@@ -106,30 +106,6 @@ public class RealDumpShopTests
     }
 
     [Fact]
-    public void ExtraItems_GoIntoTheOrdinaryShops()
-    {
-        string dumpDir = RequireDump();
-        var project = new Project { DumpDirectory = dumpDir };
-        project.Shops.ExtraItems.AddRange([659, 660]); // two Mega Stones of X
-        var session = EditorSession.Open(project);
-
-        var built = ModBuilder.BuildEdits(session);
-
-        // No price change was asked for, so the item table is not rebuilt.
-        Assert.False(built.ContainsKey("romfs/" + GameTitle.X.Layout().Items));
-        var shops = GameShops.For(GameTitle.X)!;
-        byte[] original = File.ReadAllBytes(Path.Combine(dumpDir, "exefs", "code.bin"));
-        int offset = GameShops.Find(original, shops, 718)!.Value;
-        int[] table = GameShops.Read(built[ModBuilder.CodeFile], offset, shops);
-        foreach (int shop in shops.Regular.Where(s => shops.Sizes[s] > 2))
-        {
-            var sold = table.Skip(shops.Start(shop)).Take(shops.Sizes[shop]).ToList();
-            Assert.Contains(659, sold);
-            Assert.Contains(660, sold);
-        }
-    }
-
-    [Fact]
     public void MegaStones_AreReadFromTheGamesOwnTable()
     {
         var data = GameData.Load(Path.Combine(RequireDump(), "romfs"));

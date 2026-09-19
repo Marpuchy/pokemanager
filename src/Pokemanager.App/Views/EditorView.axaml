@@ -476,6 +476,9 @@
               <TextBox DockPanel.Dock="Top" Text="{Binding TrainerFilter}" PlaceholderText="{x:Static r:Strings.Search_Watermark}" Margin="0,0,10,6" />
               <TextBlock DockPanel.Dock="Bottom" Classes="hint" TextWrapping="Wrap" Margin="0,6,0,0"
                          Text="{x:Static r:Strings.Trainer_NoTrainers}" IsVisible="{Binding !Trainers.Count}" />
+              <!-- Both lists fill what the search box leaves: in a DockPanel every child but the last is docked,
+                   and the first list was taking only the width of its own longest row. -->
+              <Panel>
               <!-- By category: the game's own trainer classes -->
               <ListBox ItemsSource="{Binding TrainerCategories}" SelectedItem="{Binding SelectedTrainerCategory}"
                        IsVisible="{Binding TrainersByCategory}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
@@ -495,6 +498,7 @@
               </ListBox>
               <ListBox ItemsSource="{Binding Trainers}" SelectedItem="{Binding SelectedTrainer}"
                        IsVisible="{Binding !TrainersByCategory}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" />
+              </Panel>
             </DockPanel>
 
             <!-- By category: the settings that would otherwise be repeated trainer by trainer -->

@@ -95,9 +95,7 @@ public static class ModBuilder
             return;
 
         var table = GameShops.Read(data, offset.Value, layout);
-        List<int> everywhere = [.. shops.ExtraItems];
-        if (shops.FreeRareCandies)
-            everywhere.Add(GameShops.RareCandy);
+        List<int> everywhere = shops.FreeRareCandies ? [GameShops.RareCandy] : [];
         if (GameShops.AddToRegularShops(table, layout, everywhere) == 0)
             return;
         GameShops.Write(data, offset.Value, layout, table);
