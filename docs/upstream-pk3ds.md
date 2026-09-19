@@ -38,6 +38,8 @@ They are kept in their own commits, separate from the import ones, so that `git 
    field the constructor reads into `uORAS`, so reading and writing an ORAS trainer changed the file. It now writes the
    field back, and every trainer of a real dump round-trips byte for byte (test
    `RealDumpTrainerTests.EveryTrainer_RoundTripsByteForByte`). Candidate for an upstream PR.
+7. **`CTR/LZSS.cs` gains `Decompress(byte[])` and `Compress(byte[])`**, in-memory wrappers around the stream methods
+   (the public entry points only took file paths). Used for the Generation 7 wild encounter areas (`GameLevels`).
 
 `Properties/Resources.resx` is untouched: its entries are `ResXFileRef`s that the .NET SDK
 compiles without WinForms, and `Exheader` and the `.3ds` build in `CTR.cs` need them.
