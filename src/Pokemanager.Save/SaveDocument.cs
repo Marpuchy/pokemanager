@@ -512,7 +512,7 @@ public sealed class SaveDocument
     public int[] AbilityOptions(ushort species, byte form) => Personal(species, form)?.Abilities.ToArray() ?? [0, 0, 0];
 
     /// <summary>Level from EXP with the ROM's growth rate (what the game shows).</summary>
-    public int Level(PKM pk) => Personal(pk.Species, pk.Form) is { } p ? Experience.GetLevel(pk.EXP, (byte)p.EXPGrowth) : pk.CurrentLevel;
+    public int Level(PKM pk) => Personal(pk.Species, pk.Form) is { } p ? ExperienceLevels.LevelOf(pk, (byte)p.EXPGrowth) : pk.CurrentLevel;
 
     public void SetLevel(PKM pk, int level)
     {

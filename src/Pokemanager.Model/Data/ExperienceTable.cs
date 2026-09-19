@@ -13,11 +13,31 @@ public static class ExperienceTable
     public const int Levels = 101;
 
     /// <summary>
-    /// What every level above the cap needs: far beyond anything a Pokémon can earn (the most any growth rate asks for
-    /// level 100 is 1 640 000), and still growing by one per level, so the table keeps going up — code that measures
-    /// the gap between two levels never divides by zero.
+    /// Where the levels above the cap start: far beyond anything a Pokémon can earn (the most any growth rate asks for
+    /// level 100 is 1 640 000).
     /// </summary>
-    public const uint Unreachable = 0x40000000;
+    /// <remarks>
+    /// Level <c>n</c> above the cap needs <c>CappedBase + n × CappedStep</c>. **The gap between two of them has to be
+    /// huge**: a Rare Candy ignores the cap — it sets the experience of the next level — and the first prototype (levels
+    /// one experience point apart above <c>0x40000000</c>) would then have sent the Pokémon from the cap to 100 in its
+    /// next battle (found on the user's Ultra Moon, 2026-09-19: three candies took a level-17 Tepig to 20 with a cap of
+    /// 18). With 16.7 million between levels a candy moves one level and battles move none. The value also **says the
+    /// level** (<see cref="LevelOfCapped"/>), so a save read with the normal table can still be understood, and the
+    /// biggest one (level 100) stays below 2³¹.
+    /// </remarks>
+    public const uint CappedBase = 0x10000000;
+
+    public const uint CappedStep = 0x01000000;
+
+    /// <summary>The first prototype's region (levels one point apart from here): only its level stored in the party says the level.</summary>
+    public const uint PrototypeBase = 0x40000000;
+
+    /// <summary>The level an experience value above the cap stands for, or null when it is an ordinary one.</summary>
+    public static int? LevelOfCapped(uint exp) =>
+        exp is >= CappedBase and < PrototypeBase ? Math.Clamp((int)((exp - CappedBase) / CappedStep), 1, 100) : null;
+
+    /// <summary>The experience that keeps a Pokémon at <paramref name="level"/> above the cap.</summary>
+    public static uint CappedExperience(int level) => CappedBase + ((uint)Math.Clamp(level, 1, 100) * CappedStep);
 
     /// <summary>The total experience of <paramref name="level"/> in one growth rate file.</summary>
     public static uint Read(byte[] file, int level) => BinaryPrimitives.ReadUInt32LittleEndian(file.AsSpan(level * 4));
@@ -35,7 +55,7 @@ public static class ExperienceTable
         foreach (byte[] file in files)
         {
             for (int level = cap + 1; level < Levels; level++)
-                BinaryPrimitives.WriteUInt32LittleEndian(file.AsSpan(level * 4), Unreachable + (uint)(level - cap));
+                BinaryPrimitives.WriteUInt32LittleEndian(file.AsSpan(level * 4), CappedExperience(level));
         }
         return true;
     }
@@ -50,6 +70,6 @@ public static class ExperienceTable
             if (Read(file, level) <= Read(file, level - 1))
                 return false;
         }
-        return Read(file, Levels - 1) < Unreachable;
+        return Read(file, Levels - 1) < CappedBase;
     }
 }

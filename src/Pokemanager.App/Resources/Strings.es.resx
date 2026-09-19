@@ -3684,4 +3684,7 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Game_LevelsHint" xml:space="preserve">
     <value>Se suma a los niveles que ya tiene la ROM base, no a los del juego original: una ROM base que ya está a +20 % se queda así con 0, y con 20 pasaría a +44 %. -16,67 quita un +20 %.</value>
   </data>
+  <data name="Change_Experience" xml:space="preserve">
+    <value>experiencia ajustada al tope de nivel (nivel {0})</value>
+  </data>
 </root>

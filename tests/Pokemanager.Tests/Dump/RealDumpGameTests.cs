@@ -74,7 +74,7 @@ public class RealDumpGameTests
                 Assert.Equal(ExperienceTable.Read(original[rate], level), ExperienceTable.Read(capped[rate], level));
             for (int level = 21; level <= 100; level++)
                 Assert.True(ExperienceTable.Read(capped[rate], level) > ExperienceTable.Read(capped[rate], level - 1));
-            Assert.True(ExperienceTable.Read(capped[rate], 21) >= ExperienceTable.Unreachable);
+            Assert.Equal(ExperienceTable.CappedExperience(21), ExperienceTable.Read(capped[rate], 21));
         }
     }
 

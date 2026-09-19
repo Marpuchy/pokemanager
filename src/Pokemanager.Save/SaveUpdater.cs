@@ -17,6 +17,9 @@ public enum ChangeKind
 
     /// <summary>Before/After hold the six party stats: HP, Atk, Def, Spe, SpA, SpD.</summary>
     Stats,
+
+    /// <summary>The experience was fitted to the ROM's level cap; Before and After hold the level, which does not change.</summary>
+    Experience,
 }
 
 /// <summary>A change applied to a Pokémon in the save.</summary>
@@ -77,12 +80,15 @@ public static class SaveUpdater
     public static bool IsSupported(SaveFile sav) => sav is SAV6XY or SAV6AO or SAV7SM or SAV7USUM;
 
     /// <summary>Computes the changes without writing anything.</summary>
-    public static SaveUpdateResult Preview(string savePath, GameData rom) => Run(savePath, rom, backupRoot: null, write: false);
+    public static SaveUpdateResult Preview(string savePath, GameData rom, int? levelCap = null) =>
+        Run(savePath, rom, backupRoot: null, write: false, levelCap);
 
     /// <summary>Applies the changes: backup in <paramref name="backupRoot"/>, write, and verification by re-reading the file.</summary>
-    public static SaveUpdateResult Apply(string savePath, GameData rom, string backupRoot) => Run(savePath, rom, backupRoot, write: true);
+    /// <param name="levelCap">The level cap of the ROM the save will be played on (null: none): experience is fitted to it.</param>
+    public static SaveUpdateResult Apply(string savePath, GameData rom, string backupRoot, int? levelCap = null) =>
+        Run(savePath, rom, backupRoot, write: true, levelCap);
 
-    private static SaveUpdateResult Run(string savePath, GameData rom, string? backupRoot, bool write)
+    private static SaveUpdateResult Run(string savePath, GameData rom, string? backupRoot, bool write, int? levelCap)
     {
         var sav = Load(savePath);
         if (!IsSupported(sav))
@@ -99,7 +105,7 @@ public static class SaveUpdater
             if (pk.Species == 0)
                 continue;
             checkedCount++;
-            if (UpdatePokemon(pk, rom, new SaveSlot(null, i), changes))
+            if (UpdatePokemon(pk, rom, new SaveSlot(null, i), changes, levelCap))
                 sav.SetPartySlotAtIndex(pk, i, EntityImportSettings.None);
         }
 
@@ -111,7 +117,7 @@ public static class SaveUpdater
                 if (pk.Species == 0)
                     continue;
                 checkedCount++;
-                if (UpdatePokemon(pk, rom, new SaveSlot(box, slot), changes))
+                if (UpdatePokemon(pk, rom, new SaveSlot(box, slot), changes, levelCap))
                     sav.SetBoxSlotAtIndex(pk, box, slot, EntityImportSettings.None);
             }
         }
@@ -125,13 +131,18 @@ public static class SaveUpdater
         return new SaveUpdateResult(savePath, backup, checkedCount, changes);
     }
 
-    private static bool UpdatePokemon(PKM pk, GameData rom, SaveSlot slot, List<PokemonChange> changes)
+    private static bool UpdatePokemon(PKM pk, GameData rom, SaveSlot slot, List<PokemonChange> changes, int? levelCap)
     {
         var personal = Personal(rom, pk);
         if (personal is null)
             return false;
 
         bool changed = false;
+        if (ExperienceLevels.Fit(pk, (byte)personal.EXPGrowth, levelCap) is { } fitted)
+        {
+            changes.Add(new PokemonChange(slot, pk.Species, ChangeKind.Experience, [fitted], [fitted]));
+            changed = true;
+        }
         int newAbility = personal.Abilities[AbilityIndex(pk.AbilityNumber)];
         if (newAbility != 0 && pk.Ability != newAbility)
         {
@@ -190,7 +201,7 @@ public static class SaveUpdater
     internal static int[] CalculateStats(PKM pk, pk3DS.Core.Structures.PersonalInfo.PersonalInfoXY personal)
     {
         // The level comes from EXP with the ROM's growth rate, which the randomizer may have changed.
-        int level = Experience.GetLevel(pk.EXP, (byte)personal.EXPGrowth);
+        int level = ExperienceLevels.LevelOf(pk, (byte)personal.EXPGrowth);
         int[] baseStats = [personal.HP, personal.ATK, personal.DEF, personal.SPE, personal.SPA, personal.SPD];
         int[] ivs = [pk.IV_HP, pk.IV_ATK, pk.IV_DEF, pk.IV_SPE, pk.IV_SPA, pk.IV_SPD];
         if (pk is IHyperTrain ht)

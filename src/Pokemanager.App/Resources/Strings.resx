@@ -3684,4 +3684,7 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Game_LevelsHint" xml:space="preserve">
     <value>On top of the levels the base ROM already has, not the original game's: a base ROM already at +20 % stays there with 0, and 20 would make it +44 %. -16.67 takes a +20 % away.</value>
   </data>
+  <data name="Change_Experience" xml:space="preserve">
+    <value>experience fitted to the level cap (level {0})</value>
+  </data>
 </root>

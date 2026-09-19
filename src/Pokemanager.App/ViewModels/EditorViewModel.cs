@@ -981,7 +981,8 @@ public partial class EditorViewModel : ObservableObject
     {
         SetStatus(string.Format(Strings.Status_AdaptingSave, savePath));
         string backups = Path.Combine(AppSettings.BackupRoot, settings.EffectiveEmulatorName);
-        var result = await Task.Run(() => SaveUpdater.Apply(savePath, Session.Current, backups));
+        int? cap = Session.Project.Tweaks.LevelCap;
+        var result = await Task.Run(() => SaveUpdater.Apply(savePath, Session.Current, backups, cap));
         SaveUpdater.PruneBackups(backups, keep: 10);
         return result;
     }

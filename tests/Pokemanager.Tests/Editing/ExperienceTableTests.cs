@@ -25,8 +25,12 @@ public class ExperienceTableTests
         foreach (byte[] file in files)
         {
             Assert.Equal(8000u, ExperienceTable.Read(file, 20));
-            Assert.Equal(ExperienceTable.Unreachable + 1, ExperienceTable.Read(file, 21));
-            Assert.Equal(ExperienceTable.Unreachable + 80, ExperienceTable.Read(file, 100));
+            Assert.Equal(ExperienceTable.CappedExperience(21), ExperienceTable.Read(file, 21));
+            Assert.Equal(ExperienceTable.CappedExperience(100), ExperienceTable.Read(file, 100));
+            // A candy past the cap lands on a value that says its level, and the next level is 16.7 million away.
+            Assert.Equal(21, ExperienceTable.LevelOfCapped(ExperienceTable.Read(file, 21)));
+            Assert.Equal(ExperienceTable.CappedStep, ExperienceTable.Read(file, 22) - ExperienceTable.Read(file, 21));
+            Assert.True(ExperienceTable.Read(file, 100) < int.MaxValue);
         }
     }
 
