@@ -111,6 +111,8 @@ public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
 
     public bool IsOpen => Document is not null;
 
+    partial void OnDocumentChanged(SaveDocument? value) => editor.OnSaveChanged();
+
     /// <summary>Why there is no document (no emulator, no save, unreadable…).</summary>
     [ObservableProperty]
     public partial string Message { get; set; } = Strings.Save_NotLoaded;
@@ -400,6 +402,7 @@ public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
         RefreshProblems();
         Trainer?.RefreshCard();
         Trainer?.RefreshCrystals();
+        editor.OnSaveChanged();
         if (!restoring && Document is not null)
             Undo.Record(SelectedSlot is { } slot && Pokemon is not null ? $"{SlotLabel(slot)} · {label}" : label);
     }

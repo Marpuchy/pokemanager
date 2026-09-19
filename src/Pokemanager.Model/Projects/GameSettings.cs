@@ -20,6 +20,15 @@ public sealed class GameSettings
     public int? LevelCap { get; set; }
 
     /// <summary>
+    /// The cap follows the player's progress (see <see cref="Data.LevelCaps"/>): the application sets <see cref="LevelCap"/>
+    /// from the save's badges or Z-crystals, and a new milestone asks for a rebuild.
+    /// </summary>
+    public bool LevelCapByMilestones { get; set; }
+
+    /// <summary>Levels the player chose for some steps of the plan (step index → level), over the computed ones.</summary>
+    public Dictionary<int, int> LevelCapOverrides { get; set; } = [];
+
+    /// <summary>
     /// Trainers' Pokémon levels raised or lowered by this percentage (0 = as the ROM has them). A trainer level edited
     /// by hand keeps its value. See <see cref="Data.GameLevels"/>.
     /// </summary>
@@ -40,6 +49,8 @@ public sealed class GameSettings
     {
         AlwaysShiny = AlwaysShiny,
         LevelCap = LevelCap,
+        LevelCapByMilestones = LevelCapByMilestones,
+        LevelCapOverrides = new(LevelCapOverrides),
         TrainerLevelPercent = TrainerLevelPercent,
         WildLevelPercent = WildLevelPercent,
         StaticLevelPercent = StaticLevelPercent,

@@ -103,6 +103,31 @@ public class RealDumpGameTests
         Assert.Equal(before[1], session.Current.Trainers[korrina].Team.ElementAt(1).Level);
     }
 
+    /// <summary>
+    /// The level cap plan of Pokémon X: each gym leader's ace and the league, as the game has them (Viola's Vivillon 12
+    /// … Wulfric's Avalugg 59, Diantha 68), then the same plan moved by the trainer level option.
+    /// </summary>
+    [Fact]
+    public void LevelCapPlan_IsTheLeadersAces()
+    {
+        var project = new Project { DumpDirectory = RequireDump() };
+        var session = EditorSession.Open(project);
+
+        var plan = LevelCaps.Plan(session)!;
+
+        Assert.Equal([12, 25, 32, 34, 37, 42, 48, 59, 68], plan.Select(s => s.Level));
+        Assert.Equal(LevelCapMilestone.League, plan[^1].Milestone);
+        Assert.Equal(0, LevelCaps.Current(plan, s => false));
+        Assert.Equal(3, LevelCaps.Current(plan, s => s.Milestone == LevelCapMilestone.Badge && s.Value < 3));
+        Assert.Equal(-1, LevelCaps.Current(plan, s => true));
+
+        project.Tweaks.TrainerLevelPercent = 20;
+        project.Tweaks.LevelCapOverrides[0] = 15;
+        var raised = LevelCaps.Plan(session)!;
+        Assert.Equal([15, 30, 38, 41, 44, 50, 58, 71, 82], raised.Select(s => s.Level));
+        Assert.Equal(14, raised[0].Computed);
+    }
+
     [Fact]
     public void WithoutTheOption_TheExecutableIsNotBuilt()
     {

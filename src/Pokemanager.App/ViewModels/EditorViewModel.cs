@@ -77,6 +77,9 @@ public partial class EditorViewModel : ObservableObject
     /// <summary>Advanced: Game — what the built ROM does differently, beyond a single Pokémon or trainer.</summary>
     public GameTweaksViewModel GameTweaks { get; }
 
+    /// <summary>The level cap by milestones and the indicator of the cap the save is on.</summary>
+    public LevelCapViewModel LevelCap { get; }
+
     [ObservableProperty]
     public partial string SpeciesFilter { get; set; } = "";
 
@@ -177,6 +180,7 @@ public partial class EditorViewModel : ObservableObject
         SaveEditor = new SaveEditorViewModel(this, settings);
         Locke = new LockeViewModel(this);
         GameTweaks = new GameTweaksViewModel(this, session);
+        LevelCap = new LevelCapViewModel(this);
 
         ProjectUndo = new SnapshotHistory(() => Session.Project.CaptureState(), RestoreProjectState);
         ProjectUndo.Changed += NotifyUndo;
@@ -191,6 +195,14 @@ public partial class EditorViewModel : ObservableObject
 
         ready = true;
         RefreshRomNotice();
+        LevelCap.Refresh();
+    }
+
+    /// <summary>The save editor opened or changed its save: the level cap follows the milestones in it.</summary>
+    public void OnSaveChanged()
+    {
+        if (ready)
+            LevelCap.Refresh();
     }
 
     /// <summary>
@@ -441,6 +453,7 @@ public partial class EditorViewModel : ObservableObject
             Session.Project.Tweaks = tweaks;
             Randomizer?.Shops.Refresh();
             GameTweaks?.Refresh();
+            LevelCap?.Refresh();
 
             foreach (var entry in allSpecies.Concat(allMoves).Concat(allTrainers))
                 entry.Refresh();

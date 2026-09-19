@@ -207,6 +207,11 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
 
     public string TrainerText { get; } = "";
 
+    /// <summary>The level cap the save is on, when the project uses the cap by milestones.</summary>
+    public string LevelCapText { get; } = "";
+
+    public bool HasLevelCap => LevelCapText.Length > 0;
+
     public ObservableCollection<PartyMemberViewModel> Party { get; } = [];
 
     public ObservableCollection<BadgeItemViewModel> Badges { get; } = [];
@@ -272,6 +277,7 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
                     $"{doc.PlayedHours}:{doc.PlayedMinutes:00}", settings.EffectiveEmulatorName, File.GetLastWriteTime(savePath));
                 for (int i = 0; i < doc.PartyCount; i++)
                     Party.Add(new PartyMemberViewModel(doc, names, Sprites, new SaveSlot(null, i), m => Selected = m));
+                LevelCapText = LevelCapViewModel.Indicator(loaded.Session, doc, itemNames) ?? "";
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SaveUpdateException)
             {

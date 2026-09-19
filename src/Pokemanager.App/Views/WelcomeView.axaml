@@ -76,6 +76,10 @@
           <WrapPanel>
             <StackPanel Spacing="4" Margin="0,0,24,0">
               <TextBlock Classes="card-title" Text="{Binding BadgesText}" />
+              <Border Background="#E8F1FB" BorderBrush="#3A7BD5" BorderThickness="1" CornerRadius="2" Padding="8,2" Margin="0,0,0,4"
+                      HorizontalAlignment="Left" IsVisible="{Binding HasLevelCap}">
+                <TextBlock Text="{Binding LevelCapText}" FontWeight="SemiBold" Foreground="#1F4E8C" />
+              </Border>
               <ItemsControl ItemsSource="{Binding Badges}">
                 <ItemsControl.ItemsPanel>
                   <ItemsPanelTemplate>

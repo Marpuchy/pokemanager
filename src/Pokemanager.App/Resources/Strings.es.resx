@@ -3633,4 +3633,52 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Tip_GameLevelsWild" xml:space="preserve">
     <value>El rango de niveles de todas las tablas de encuentros salvajes (hierba, agua, aliados SOS...).</value>
   </data>
+  <data name="LevelCap_Title" xml:space="preserve">
+    <value>Tope de nivel</value>
+  </data>
+  <data name="LevelCap_Enable" xml:space="preserve">
+    <value>Tope de nivel por hitos</value>
+  </data>
+  <data name="Tip_LevelCapEnabled" xml:space="preserve">
+    <value>Hasta conseguir la siguiente medalla (cristal Z en Ultra Sol/Ultra Luna), ningún Pokémon puede pasar del nivel del jefe que la da; tras la última, el nivel de la Liga hasta el Salón de la Fama. El tope se escribe en la tabla de experiencia de la ROM: cuando el juego guarda con un hito nuevo se desbloquea el siguiente, y se aplica al crear la ROM y volver a abrir el juego. Los niveles salen de los jefes de esta ROM, con las opciones de nivel incluidas; cada uno se puede cambiar.</value>
+  </data>
+  <data name="LevelCap_Unsupported" xml:space="preserve">
+    <value>Todavía no disponible para Sol/Luna: sus dominantes y kahunas no se han comprobado en una ROM real.</value>
+  </data>
+  <data name="LevelCap_Undo" xml:space="preserve">
+    <value>Tope de nivel</value>
+  </data>
+  <data name="LevelCap_Off" xml:space="preserve">
+    <value>El tope por hitos está desactivado.</value>
+  </data>
+  <data name="LevelCap_NoSave" xml:space="preserve">
+    <value>Todavía no hay partida de la que leer los hitos.</value>
+  </data>
+  <data name="LevelCap_None" xml:space="preserve">
+    <value>Sin tope: ya has entrado en el Salón de la Fama.</value>
+  </data>
+  <data name="LevelCap_Current" xml:space="preserve">
+    <value>Tope actual: nivel {0}, hasta {1}.</value>
+  </data>
+  <data name="LevelCap_Badge" xml:space="preserve">
+    <value>Tope de nivel {0}</value>
+  </data>
+  <data name="LevelCap_BadgeNone" xml:space="preserve">
+    <value>sin tope</value>
+  </data>
+  <data name="LevelCap_Unlocked" xml:space="preserve">
+    <value>Tope de nivel desbloqueado: {0}. Cierra el juego y crea la ROM para aplicarlo.</value>
+  </data>
+  <data name="LevelCap_League" xml:space="preserve">
+    <value>la Liga Pokémon (Salón de la Fama)</value>
+  </data>
+  <data name="LevelCap_StateCurrent" xml:space="preserve">
+    <value>◀ ahora</value>
+  </data>
+  <data name="LevelCap_StateEarned" xml:space="preserve">
+    <value>✓</value>
+  </data>
+  <data name="LevelCap_StepTip" xml:space="preserve">
+    <value>Nivel del jefe en esta ROM: {0}. Cámbialo para usar otro tope en este tramo.</value>
+  </data>
 </root>

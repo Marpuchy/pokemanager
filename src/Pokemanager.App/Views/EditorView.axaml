@@ -125,6 +125,11 @@
         </StackPanel>
         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
           <ProgressBar IsIndeterminate="True" Width="80" IsVisible="{Binding IsBusy}" />
+          <!-- The level cap the save is on: always in sight while the cap by milestones is on -->
+          <Border Background="#E8F1FB" BorderBrush="#3A7BD5" BorderThickness="1" CornerRadius="2" Padding="8,2" VerticalAlignment="Center"
+                  IsVisible="{Binding LevelCap.ShowBadge}" ToolTip.Tip="{Binding LevelCap.CurrentText}">
+            <TextBlock Text="{Binding LevelCap.BadgeText}" FontWeight="SemiBold" Foreground="#1F4E8C" />
+          </Border>
           <Button Content="{Binding UndoText}" Command="{Binding UndoCommand}" ToolTip.Tip="{Binding UndoTip}" />
           <Button Content="{Binding RedoText}" Command="{Binding RedoCommand}" ToolTip.Tip="{Binding RedoTip}" />
           <Border Width="1" Background="#C8C8C8" Margin="2,2" />
@@ -781,6 +786,39 @@
                   <NumericUpDown Grid.Column="1" Width="130" Value="{Binding StaticLevelPercent}" Minimum="-90" Maximum="400" Increment="5"
                                  FormatString="0.##" IsEnabled="{Binding WildAndStaticSupported}" ToolTip.Tip="{Binding WildStaticTip}" />
                 </Grid>
+              </StackPanel>
+            </Border>
+
+            <!-- The level cap by milestones: the plan, where the save is, and the cap the next ROM gets -->
+            <Border Classes="card" Width="470" HorizontalAlignment="Left" DataContext="{Binding LevelCap}" x:DataType="vm:LevelCapViewModel">
+              <Border.Styles>
+                <Style Selector="Border.current">
+                  <Setter Property="Background" Value="#E8F1FB" />
+                </Style>
+                <Style Selector="Border.current TextBlock">
+                  <Setter Property="FontWeight" Value="SemiBold" />
+                </Style>
+              </Border.Styles>
+              <StackPanel Spacing="4">
+                <TextBlock Classes="card-title" Text="{x:Static r:Strings.LevelCap_Title}" />
+                <CheckBox IsChecked="{Binding Enabled}" IsEnabled="{Binding Supported}" ToolTip.Tip="{Binding EnabledTip}"
+                          Content="{x:Static r:Strings.LevelCap_Enable}" />
+                <TextBlock Text="{Binding CurrentText}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                <ItemsControl ItemsSource="{Binding Steps}" IsVisible="{Binding Enabled}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:LevelCapStepViewModel">
+                      <Border Classes="info-row" Classes.current="{Binding IsCurrent}" Padding="4,1">
+                        <Grid ColumnDefinitions="24,*,90,Auto">
+                          <Image Source="{Binding Icon}" Width="20" Height="20" IsVisible="{Binding HasIcon}" />
+                          <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Name}" />
+                          <NumericUpDown Grid.Column="2" Value="{Binding Level}" Minimum="1" Maximum="100" Increment="1" FormatString="0"
+                                         ParsingNumberStyle="Integer" ToolTip.Tip="{Binding Tip}" />
+                          <TextBlock Grid.Column="3" Margin="8,0,0,0" MinWidth="60" VerticalAlignment="Center" Text="{Binding State}" />
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
               </StackPanel>
             </Border>
 

@@ -39,6 +39,13 @@ public partial class MainWindowViewModel : ObservableObject
 
     partial void OnCurrentPageChanged(ObservableObject value) => OnPropertyChanged(nameof(Title));
 
+    /// <summary>A closed editor stops watching the save for the level cap.</summary>
+    partial void OnCurrentPageChanging(ObservableObject? oldValue, ObservableObject newValue)
+    {
+        if (oldValue is EditorViewModel editor && !ReferenceEquals(oldValue, newValue))
+            editor.LevelCap.Dispose();
+    }
+
     /// <summary>The multiplayer room: it lives with the app, whichever page is shown.</summary>
     public RoomViewModel Room { get; }
 

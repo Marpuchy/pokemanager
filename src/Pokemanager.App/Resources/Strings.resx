@@ -3633,4 +3633,52 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Tip_GameLevelsWild" xml:space="preserve">
     <value>The level range of every wild encounter table (grass, water, SOS allies...).</value>
   </data>
+  <data name="LevelCap_Title" xml:space="preserve">
+    <value>Level cap</value>
+  </data>
+  <data name="LevelCap_Enable" xml:space="preserve">
+    <value>Level cap by milestones</value>
+  </data>
+  <data name="Tip_LevelCapEnabled" xml:space="preserve">
+    <value>Until you get the next badge (Z-crystal in Ultra Sun/Ultra Moon), no Pokémon can go above the level of the boss that gives it; after the last one, the league's level until the Hall of Fame. The cap is written into the ROM's experience table: when the game saves with a new milestone the next cap is unlocked, and it takes effect when you build the ROM and open the game again. The levels come from this ROM's own bosses, level options included; each one can be changed.</value>
+  </data>
+  <data name="LevelCap_Unsupported" xml:space="preserve">
+    <value>Not available for Sun/Moon yet: its totems and kahunas have not been checked on a real ROM.</value>
+  </data>
+  <data name="LevelCap_Undo" xml:space="preserve">
+    <value>Level cap</value>
+  </data>
+  <data name="LevelCap_Off" xml:space="preserve">
+    <value>The cap by milestones is off.</value>
+  </data>
+  <data name="LevelCap_NoSave" xml:space="preserve">
+    <value>No save to read the milestones from yet.</value>
+  </data>
+  <data name="LevelCap_None" xml:space="preserve">
+    <value>No cap: the Hall of Fame has been entered.</value>
+  </data>
+  <data name="LevelCap_Current" xml:space="preserve">
+    <value>Current cap: level {0}, until {1}.</value>
+  </data>
+  <data name="LevelCap_Badge" xml:space="preserve">
+    <value>Level cap {0}</value>
+  </data>
+  <data name="LevelCap_BadgeNone" xml:space="preserve">
+    <value>no cap</value>
+  </data>
+  <data name="LevelCap_Unlocked" xml:space="preserve">
+    <value>Level cap unlocked: {0}. Close the game and build the ROM to apply it.</value>
+  </data>
+  <data name="LevelCap_League" xml:space="preserve">
+    <value>the Pokémon League (Hall of Fame)</value>
+  </data>
+  <data name="LevelCap_StateCurrent" xml:space="preserve">
+    <value>◀ now</value>
+  </data>
+  <data name="LevelCap_StateEarned" xml:space="preserve">
+    <value>✓</value>
+  </data>
+  <data name="LevelCap_StepTip" xml:space="preserve">
+    <value>The boss's level in this ROM: {0}. Change it to use another cap for this step.</value>
+  </data>
 </root>

@@ -30,6 +30,9 @@ public sealed partial class GameTweaksViewModel : ObservableObject
         WildAndStaticSupported = session.Current.Title.Layout().Wild.Length > 0;
     }
 
+    /// <summary>The level cap card of this page (it lives on the editor, which also shows its indicator).</summary>
+    public LevelCapViewModel LevelCap => editor.LevelCap;
+
     /// <summary>Whether this application can find the shiny branch in the game's executable.</summary>
     public bool ShinySupported { get; }
 
@@ -97,6 +100,7 @@ public sealed partial class GameTweaksViewModel : ObservableObject
         set(wanted);
         OnPropertyChanged(name);
         editor.MarkDirty(Strings.Game_LevelsUndo);
+        editor.LevelCap.Refresh(); // the caps are the bosses' levels, which just moved
     }
 
     // ------------------------------------------------------------------ sweeps over a whole table
