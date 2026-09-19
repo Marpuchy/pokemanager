@@ -3501,25 +3501,94 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Dex_ShowAbilitiesTip" xml:space="preserve">
     <value>Si la ficha te dice las habilidades de la especie. Empieza apagado para que mirar un Pokémon no te destripe lo que le dio la randomización.</value>
   </data>
-  <data name="Save_ResetTitle" xml:space="preserve">
+  <data name="Game_ResetTitle" xml:space="preserve">
     <value>Empezar el juego de cero</value>
   </data>
-  <data name="Save_ResetConfirm" xml:space="preserve">
-    <value>Empezar de cero</value>
+  <data name="Game_ResetMessage" xml:space="preserve">
+    <value>La partida de {0} se copia a las copias de seguridad y se saca de la carpeta del emulador, así que el juego empezará una aventura nueva. Partida: {1}</value>
   </data>
-  <data name="Save_ResetDone" xml:space="preserve">
+  <data name="Game_ResetConfirm" xml:space="preserve">
+    <value>Continuar</value>
+  </data>
+  <data name="Game_ResetAgain" xml:space="preserve">
+    <value>Última oportunidad: la aventura de {0} desaparece y el juego empieza desde el principio. Solo la copia de seguridad la tendrá.</value>
+  </data>
+  <data name="Game_ResetConfirmAgain" xml:space="preserve">
+    <value>Sí, empezar de cero</value>
+  </data>
+  <data name="Game_ResetDone" xml:space="preserve">
     <value>El juego empezará una aventura nueva. La partida anterior está en {0}</value>
   </data>
-  <data name="Save_ResetFailed" xml:space="preserve">
+  <data name="Game_ResetFailed" xml:space="preserve">
     <value>No se ha podido apartar la partida: {0}</value>
   </data>
-  <data name="Save_Reset" xml:space="preserve">
-    <value>Empezar de cero…</value>
+  <data name="Game_ResetNoSave" xml:space="preserve">
+    <value>No hay ninguna partida que reiniciar.</value>
   </data>
-  <data name="Save_ResetTip" xml:space="preserve">
-    <value>Guarda una copia de la partida y la saca de la carpeta del emulador, así que el juego empieza una aventura nueva. El emulador tiene que estar cerrado.</value>
+  <data name="Game_ResetCard" xml:space="preserve">
+    <value>Empezar de cero</value>
   </data>
-  <data name="Save_ResetMessage" xml:space="preserve">
-    <value>La partida de {0} se copia a las copias de seguridad y se saca de la carpeta del emulador, así que el juego empezará una aventura nueva. Partida: {1}</value>
+  <data name="Trainer_UnlockBoxesTitle" xml:space="preserve">
+    <value>Abrir todas las cajas</value>
+  </data>
+  <data name="Trainer_UnlockBoxesMessage" xml:space="preserve">
+    <value>La partida tiene {0} de {1} cajas abiertas. El juego las va abriendo según avanzas; abrirlas todas es un cambio que el juego no hace solo.</value>
+  </data>
+  <data name="Trainer_UnlockBoxesAgain" xml:space="preserve">
+    <value>No hay ningún botón para volver a cerrarlas. ¿Las abrimos todas?</value>
+  </data>
+  <data name="Trainer_UnlockBoxesConfirm" xml:space="preserve">
+    <value>Sí, abrirlas todas</value>
+  </data>
+  <data name="Role_Hau" xml:space="preserve">
+    <value>Tilo {0}</value>
+  </data>
+  <data name="Character_GLADION" xml:space="preserve">
+    <value>Gladio</value>
+  </data>
+  <data name="Character_GUZMA" xml:space="preserve">
+    <value>Guzmán</value>
+  </data>
+  <data name="Character_LUSAMINE" xml:space="preserve">
+    <value>Samina</value>
+  </data>
+  <data name="Character_MALLOW" xml:space="preserve">
+    <value>Mayla</value>
+  </data>
+  <data name="Character_LANA" xml:space="preserve">
+    <value>Nereida</value>
+  </data>
+  <data name="Character_SOPHOCLES" xml:space="preserve">
+    <value>Chris</value>
+  </data>
+  <data name="Character_FABA" xml:space="preserve">
+    <value>Fabio</value>
+  </data>
+  <data name="Character_DULSE" xml:space="preserve">
+    <value>Zosi</value>
+  </data>
+  <data name="Character_LYSANDRE" xml:space="preserve">
+    <value>Lysson</value>
+  </data>
+  <data name="Character_ARCHIE" xml:space="preserve">
+    <value>Aquiles</value>
+  </data>
+  <data name="Character_MAXIE" xml:space="preserve">
+    <value>Magno</value>
+  </data>
+  <data name="Character_WALLY" xml:space="preserve">
+    <value>Pepe</value>
+  </data>
+  <data name="Trainer_ClassWithId" xml:space="preserve">
+    <value>{0} ({1})</value>
+  </data>
+  <data name="Trainer_CategoryNoClass" xml:space="preserve">
+    <value>Sin clase</value>
+  </data>
+  <data name="Game_StartOver" xml:space="preserve">
+    <value>Empezar el juego de cero…</value>
+  </data>
+  <data name="Game_StartOverTip" xml:space="preserve">
+    <value>Copia la partida a las copias de seguridad y la saca de la carpeta del emulador, así que el juego empieza una aventura nueva. Pregunta dos veces y el emulador tiene que estar cerrado.</value>
   </data>
 </root>

@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using Pokemanager.App.Resources;
 using Pokemanager.Model.Data;
 
@@ -11,7 +11,7 @@ namespace Pokemanager.App.Services;
 public static class TrainerRoleNames
 {
     /// <summary>The label of a tag from <see cref="TrainerRoles"/>, or null when the trainer is an ordinary one.</summary>
-    public static string? Of(string? tag)
+    public static string? Of(string? tag, bool gen7 = false)
     {
         if (string.IsNullOrEmpty(tag))
             return null;
@@ -19,7 +19,13 @@ public static class TrainerRoleNames
         {
             // "THEMED:LYSANDRE-LEADER" is the character, and the game already tells you who they are.
             string name = tag["THEMED:".Length..].Replace("-LEADER", "", StringComparison.Ordinal);
-            return name.Length == 0 ? null : Capitalize(name);
+            if (name.Length == 0)
+                return null;
+            // The games translate these people (Hau is Tilo in Spanish, Lusamine is Samina): the name the player reads
+            // is the one that helps. The ones with no translation of their own keep the international name.
+            return Strings.ResourceManager.GetString("Character_" + name, Strings.Culture) is { Length: > 0 } translated
+                ? translated
+                : Capitalize(name);
         }
         // "RIVAL5-2" is the same fight with another starter: the number of the fight is what matters.
         string family = tag.Split('-')[0];
@@ -33,7 +39,10 @@ public static class TrainerRoleNames
             "CHAMPION" => Strings.Role_Champion,
             "UBER" => Strings.Role_Uber,
             _ when family.StartsWith("RIVAL", StringComparison.Ordinal) => Format(Strings.Role_Rival, number),
-            _ when family.StartsWith("FRIEND", StringComparison.Ordinal) => Format(Strings.Role_Friend, number),
+            // In Sun/Moon and Ultra Sun/Ultra Moon the friend who keeps challenging you is Hau, and the player knows him
+            // by name, not as "friend 7".
+            _ when family.StartsWith("FRIEND", StringComparison.Ordinal) =>
+                Format(gen7 ? Strings.Role_Hau : Strings.Role_Friend, number),
             "STRONG" => Strings.Role_Strong,
             _ => null,
         };

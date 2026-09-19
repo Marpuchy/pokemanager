@@ -1,7 +1,11 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Pokemanager.App.Resources;
+using Pokemanager.App.Services;
+using Pokemanager.Bridge;
 using Pokemanager.Model.Data;
+using Pokemanager.Model.Projects;
+using Pokemanager.Save;
 using Pokemanager.Model.Editing;
 using Pokemanager.Model.Edits;
 
@@ -125,6 +129,59 @@ public sealed partial class GameTweaksViewModel : ObservableObject
             }
         }
         Result = string.Format(Strings.Game_Result, changed);
+    }
+
+    /// <summary>
+    /// Starts the game over: the save is copied to the backups and taken out of the emulator's folder, so the game
+    /// begins a new adventure. It asks **twice** — the first time explaining what happens, the second as the last
+    /// chance — because there is no button that brings the adventure back, only the copy it leaves behind.
+    /// </summary>
+    [RelayCommand]
+    private async Task ResetGame()
+    {
+        var save = editor.SaveEditor;
+        save.EnsureOpen();
+        if (save.Document is not { } document)
+        {
+            editor.SetStatus(Strings.Game_ResetNoSave, error: true);
+            return;
+        }
+        if (EmulatorUserFolders.RunningEmulators(editor.Settings.EffectiveEmulatorName) is { Count: > 0 } running)
+        {
+            editor.SetStatus(string.Format(Strings.Status_CloseEmulator, string.Join(", ", running)), error: true);
+            return;
+        }
+
+        string path = document.SavePath;
+        var first = new QuestionViewModel(Strings.Game_ResetTitle,
+            string.Format(Strings.Game_ResetMessage, document.TrainerName, path), Strings.Game_ResetConfirm, Strings.Common_Cancel, []);
+        if (!await editor.Dialogs.AskAsync(first))
+            return;
+        var second = new QuestionViewModel(Strings.Game_ResetTitle,
+            string.Format(Strings.Game_ResetAgain, document.TrainerName), Strings.Game_ResetConfirmAgain, Strings.Common_Cancel, []);
+        if (!await editor.Dialogs.AskAsync(second))
+            return;
+
+        try
+        {
+            editor.History.History.Record(editor.Session.Project, VersionKind.BeforeSaveEdit,
+                romPath: editor.Session.Project.Randomization.LastBuiltRom, savePath: path);
+            editor.History.History.Prune();
+
+            string backups = Path.Combine(AppSettings.BackupRoot, editor.Settings.EffectiveEmulatorName);
+            string backup = document.Reset(backups);
+            SaveUpdater.PruneBackups(backups, keep: 10);
+
+            // Read the folder again: there is no save there now, and the page has to say so.
+            save.Open();
+            editor.History.Refresh();
+            editor.Randomizer.RefreshSave();
+            editor.SetStatus(string.Format(Strings.Game_ResetDone, backup));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SaveUpdateException)
+        {
+            editor.SetStatus(string.Format(Strings.Game_ResetFailed, ex.Message), error: true);
+        }
     }
 
     /// <summary>The project was replaced (undo, restore): show what it holds now.</summary>

@@ -140,6 +140,9 @@ public partial class EditorViewModel : ObservableObject
     public string GameText => string.Format(Strings.Editor_GameText, Dump.Title.DisplayName(), Dump.Title.TitleIdHex(), Session.Project.DumpDirectory);
     public string EditCountText => Session.Project.Edits.Count == 1 ? Strings.Editor_EditCountOne : string.Format(Strings.Editor_EditCount, Session.Project.Edits.Count);
     public string DirtyText => IsDirty ? Strings.Editor_Unsaved : Strings.Editor_Saved;
+    /// <summary>The application settings, for the pages that need the emulator folder or the backups.</summary>
+    public AppSettings Settings => settings;
+
     public string EmulatorText => string.Format(Strings.Editor_Emulator, settings.EffectiveEmulatorName);
 
     /// <summary>Which base the advanced editor uses: the original game or a seed's randomization.</summary>
@@ -241,8 +244,8 @@ public partial class EditorViewModel : ObservableObject
                     Tip(d)))
                 .Where(c => c.Trainers.Count > 0),
             .. Enumerable.Range(0, Session.Current.Trainers.Length)
-                .GroupBy(ClassName)
-                .Select(g => new TrainerCategoryViewModel(Session, g.Key, [.. g]))
+                .GroupBy(i => Session.GetInt(GameTables.Trainers, i, "class"))
+                .Select(g => new TrainerCategoryViewModel(Session, ClassLabel(g.Key), [.. g]))
                 .OrderByDescending(c => c.Trainers.Count)
                 .ThenBy(c => c.Name, StringComparer.CurrentCulture),
         ];
@@ -500,7 +503,7 @@ public partial class EditorViewModel : ObservableObject
     private string TrainerName(int trainer)
     {
         string label = Names.TrainerLabel(trainer, Session.GetInt(GameTables.Trainers, trainer, "class"));
-        return TrainerRoleNames.Of(TrainerRoles.TagOf(Session.Current.Title, trainer)) is { } role
+        return TrainerRoleNames.Of(TrainerRoles.TagOf(Session.Current.Title, trainer), Session.Current.Title.Generation() == 7) is { } role
             ? string.Format(Strings.Trainer_WithRole, role, label)
             : label;
     }
@@ -512,6 +515,19 @@ public partial class EditorViewModel : ObservableObject
         TrainerDifficulty.Important => Strings.Role_ImportantTip,
         _ => Strings.Role_OrdinaryTip,
     };
+
+    /// <summary>
+    /// The name of a class, with its id when another class shares the name: the games do that on purpose (two "Pokémon
+    /// Trainer" classes in X), and a ROM with randomized names does it by chance.
+    /// </summary>
+    private string ClassLabel(int id)
+    {
+        string name = Names.TrainerClassName(id);
+        if (string.IsNullOrWhiteSpace(name))
+            return string.Format(Strings.Trainer_ClassWithId, Strings.Trainer_CategoryNoClass, id);
+        bool shared = Names.TrainerClasses.Count(n => n == name) > 1;
+        return shared ? string.Format(Strings.Trainer_ClassWithId, name, id) : name;
+    }
 
     /// <summary>The class name of a trainer, which is what groups the categories.</summary>
     private string ClassName(int trainer)

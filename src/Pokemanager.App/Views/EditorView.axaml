@@ -827,6 +827,15 @@
 
             <TextBlock Text="{Binding Result}" FontWeight="SemiBold"
                        IsVisible="{Binding Result, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+
+            <!-- The save, not the ROM: it asks twice because nothing brings the adventure back but the copy. -->
+            <Border Classes="card" Width="470" HorizontalAlignment="Left" Margin="0,10,0,0">
+              <StackPanel Spacing="4">
+                <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_ResetCard}" />
+                <Button Content="{x:Static r:Strings.Game_StartOver}" Command="{Binding ResetGameCommand}"
+                        ToolTip.Tip="{x:Static r:Strings.Game_StartOverTip}" HorizontalAlignment="Left" />
+              </StackPanel>
+            </Border>
           </StackPanel>
         </ScrollViewer>
       </TabItem>

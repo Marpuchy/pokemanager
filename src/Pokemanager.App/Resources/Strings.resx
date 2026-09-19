@@ -3501,25 +3501,94 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Dex_ShowAbilitiesTip" xml:space="preserve">
     <value>Whether the entry tells you the species' abilities. It starts off so looking a Pokémon up does not spoil what a randomization gave it.</value>
   </data>
-  <data name="Save_ResetTitle" xml:space="preserve">
+  <data name="Game_ResetTitle" xml:space="preserve">
     <value>Start the game over</value>
   </data>
-  <data name="Save_ResetConfirm" xml:space="preserve">
-    <value>Start over</value>
+  <data name="Game_ResetMessage" xml:space="preserve">
+    <value>The save of {0} is copied to the backups and taken out of the emulator's folder, so the game starts a new adventure. Save: {1}</value>
   </data>
-  <data name="Save_ResetDone" xml:space="preserve">
+  <data name="Game_ResetConfirm" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="Game_ResetAgain" xml:space="preserve">
+    <value>Last chance: {0}'s adventure goes away and the game starts from the beginning. Only the copy in the backups will have it.</value>
+  </data>
+  <data name="Game_ResetConfirmAgain" xml:space="preserve">
+    <value>Yes, start over</value>
+  </data>
+  <data name="Game_ResetDone" xml:space="preserve">
     <value>The game will start a new adventure. The old save is in {0}</value>
   </data>
-  <data name="Save_ResetFailed" xml:space="preserve">
+  <data name="Game_ResetFailed" xml:space="preserve">
     <value>The save could not be put away: {0}</value>
   </data>
-  <data name="Save_Reset" xml:space="preserve">
-    <value>Start over…</value>
+  <data name="Game_ResetNoSave" xml:space="preserve">
+    <value>There is no save to start over.</value>
   </data>
-  <data name="Save_ResetTip" xml:space="preserve">
-    <value>Keeps a copy of the save and takes it out of the emulator's folder, so the game starts a new adventure. The emulator has to be closed.</value>
+  <data name="Game_ResetCard" xml:space="preserve">
+    <value>Start over</value>
   </data>
-  <data name="Save_ResetMessage" xml:space="preserve">
-    <value>The save of {0} is copied to the backups and taken out of the emulator's folder, so the game starts a new adventure. Save: {1}</value>
+  <data name="Trainer_UnlockBoxesTitle" xml:space="preserve">
+    <value>Open every box</value>
+  </data>
+  <data name="Trainer_UnlockBoxesMessage" xml:space="preserve">
+    <value>The save has {0} of {1} boxes open. The game opens them as the story goes; opening them all is a change the game cannot make by itself.</value>
+  </data>
+  <data name="Trainer_UnlockBoxesAgain" xml:space="preserve">
+    <value>There is no button to close them again. Open all of them?</value>
+  </data>
+  <data name="Trainer_UnlockBoxesConfirm" xml:space="preserve">
+    <value>Yes, open them all</value>
+  </data>
+  <data name="Role_Hau" xml:space="preserve">
+    <value>Hau {0}</value>
+  </data>
+  <data name="Character_GLADION" xml:space="preserve">
+    <value>Gladion</value>
+  </data>
+  <data name="Character_GUZMA" xml:space="preserve">
+    <value>Guzma</value>
+  </data>
+  <data name="Character_LUSAMINE" xml:space="preserve">
+    <value>Lusamine</value>
+  </data>
+  <data name="Character_MALLOW" xml:space="preserve">
+    <value>Mallow</value>
+  </data>
+  <data name="Character_LANA" xml:space="preserve">
+    <value>Lana</value>
+  </data>
+  <data name="Character_SOPHOCLES" xml:space="preserve">
+    <value>Sophocles</value>
+  </data>
+  <data name="Character_FABA" xml:space="preserve">
+    <value>Faba</value>
+  </data>
+  <data name="Character_DULSE" xml:space="preserve">
+    <value>Dulse</value>
+  </data>
+  <data name="Character_LYSANDRE" xml:space="preserve">
+    <value>Lysandre</value>
+  </data>
+  <data name="Character_ARCHIE" xml:space="preserve">
+    <value>Archie</value>
+  </data>
+  <data name="Character_MAXIE" xml:space="preserve">
+    <value>Maxie</value>
+  </data>
+  <data name="Character_WALLY" xml:space="preserve">
+    <value>Wally</value>
+  </data>
+  <data name="Trainer_ClassWithId" xml:space="preserve">
+    <value>{0} ({1})</value>
+  </data>
+  <data name="Trainer_CategoryNoClass" xml:space="preserve">
+    <value>No class</value>
+  </data>
+  <data name="Game_StartOver" xml:space="preserve">
+    <value>Start the game over…</value>
+  </data>
+  <data name="Game_StartOverTip" xml:space="preserve">
+    <value>Copies the save to the backups and takes it out of the emulator's folder, so the game begins a new adventure. It asks twice and the emulator has to be closed.</value>
   </data>
 </root>

@@ -151,6 +151,9 @@ public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
 
     public Avalonia.Media.Imaging.Bitmap? NewSpeciesIcon => Sprites.For(NewSpecies);
 
+    /// <summary>The editor this save belongs to, for the pages that have to ask the user something.</summary>
+    public EditorViewModel Editor => editor;
+
     public PokemonSprites Sprites => editor.Sprites;
 
     /// <summary>Game texts of the project (Pokédex entries, classifications).</summary>
@@ -501,50 +504,6 @@ public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
         }
         Open();
         editor.SetStatus(Strings.Save_Reloaded);
-    }
-
-    /// <summary>
-    /// Starts the game over: the save is put away so the console finds none and begins a new adventure. Nothing is
-    /// thrown away — it goes to the backups and to the project history first, and the emulator has to be closed, like
-    /// every other write.
-    /// </summary>
-    [RelayCommand]
-    private async Task ResetGame()
-    {
-        if (Document is null)
-            return;
-        if (EmulatorUserFolders.RunningEmulators(settings.EffectiveEmulatorName) is { Count: > 0 } running)
-        {
-            editor.SetStatus(string.Format(Strings.Status_CloseEmulator, string.Join(", ", running)), error: true);
-            return;
-        }
-
-        string path = Document.SavePath;
-        var question = new QuestionViewModel(Strings.Save_ResetTitle,
-            string.Format(Strings.Save_ResetMessage, Document.TrainerName, path),
-            Strings.Save_ResetConfirm, Strings.Common_Cancel, []);
-        if (!await editor.Dialogs.AskAsync(question))
-            return;
-
-        try
-        {
-            editor.History.History.Record(editor.Session.Project, VersionKind.BeforeSaveEdit,
-                romPath: editor.Session.Project.Randomization.LastBuiltRom, savePath: path);
-            editor.History.History.Prune();
-
-            string backups = Path.Combine(AppSettings.BackupRoot, settings.EffectiveEmulatorName);
-            string backup = Document.Reset(backups);
-            SaveUpdater.PruneBackups(backups, keep: 10);
-
-            Open();
-            editor.History.Refresh();
-            editor.Randomizer.RefreshSave();
-            editor.SetStatus(string.Format(Strings.Save_ResetDone, backup));
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SaveUpdateException)
-        {
-            editor.SetStatus(string.Format(Strings.Save_ResetFailed, ex.Message), error: true);
-        }
     }
 
     [RelayCommand]
