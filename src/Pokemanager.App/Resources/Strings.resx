@@ -3441,4 +3441,10 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Tip_GameMoney" xml:space="preserve">
     <value>What the money multiplier of every trainer becomes, as a percentage.</value>
   </data>
+  <data name="Rnd_Starters" xml:space="preserve">
+    <value>Starters of this ROM</value>
+  </data>
+  <data name="Rnd_StartersTip" xml:space="preserve">
+    <value>What the game really gives when you choose. In Sun/Moon and Ultra Sun/Ultra Moon the three on the table are still the models the game shipped with, so this is the only place to see them before choosing; the text of the scene is rewritten with these names when the ROM is built.</value>
+  </data>
 </root>

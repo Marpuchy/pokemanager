@@ -52,6 +52,7 @@ public static class ModBuilder
 
         BuildShops(session, randomizedTitleDirectory, outputs);
         BuildGameSettings(session, randomizedTitleDirectory, outputs);
+        BuildStarterText(session, outputs);
         return outputs;
     }
 
@@ -101,6 +102,107 @@ public static class ModBuilder
             return;
         GameShops.Write(data, offset.Value, layout, table);
         outputs[layout.File is { } shopFile ? "romfs/" + shopFile : CodeFile] = data;
+    }
+
+    /// <summary>
+    /// Generation 7: the scene where the player picks a starter names the three of them in its text, and a randomization
+    /// rewrites **only the English one** (measured in the user's Ultra Moon: the English file names the randomized three,
+    /// the Spanish one still says Rowlet, Litten and Popplio). So the game tells a Spanish player they are choosing
+    /// Litten and hands them something else. Every language's scene is rewritten here with the species the ROM gives:
+    /// each name the game ships with is swapped for the one in the same slot, which leaves the sentence alone.
+    /// </summary>
+    private static void BuildStarterText(EditorSession session, Dictionary<string, byte[]> outputs)
+    {
+        var title = session.Current.Title;
+        var layout = title.Layout();
+        if (layout.StarterTextFile < 0 || GameStarters.Read(session.Layers, title) is not { } starters)
+            return;
+        int[] shipped = GameStarters.Vanilla(title);
+        if (starters.SequenceEqual(shipped))
+            return;
+
+        for (int language = 0; language < layout.LanguageCount; language++)
+        {
+            if (GameText.StoryArchive(title, language) is not { } storyPath)
+                return;
+            var names = ReadAnywhere(session, GameText.Archive(title, language));
+            var story = ReadAnywhere(session, storyPath);
+            if (names is null || story is null)
+                continue;
+
+            string[] lines;
+            List<GameStarters.StarterSwap> swaps;
+            try
+            {
+                string[] species = GameText.Read(title, names.Files[GameText.SpeciesNameFile(title)]);
+                string[] types = TypeNames(title, names);
+                swaps = [];
+                for (int slot = 0; slot < shipped.Length; slot++)
+                {
+                    if (shipped[slot] >= species.Length || starters[slot] >= species.Length)
+                        continue;
+                    swaps.Add(new GameStarters.StarterSwap(species[shipped[slot]], species[starters[slot]],
+                        TypeName(types, TypeOf(session, shipped[slot])), TypeName(types, TypeOf(session, starters[slot]))));
+                }
+                lines = GameText.Read(title, story.Files[layout.StarterTextFile]);
+            }
+            catch (Exception ex) when (ex is IndexOutOfRangeException or ArgumentOutOfRangeException or InvalidDataException)
+            {
+                continue; // a language whose files are not what this expects
+            }
+
+            if (GameStarters.Rewrite(lines, swaps) == 0)
+                continue;
+            byte[][] files = story.Files;
+            files[layout.StarterTextFile] = GameText.Write(title, lines);
+            outputs["romfs/" + storyPath] = GARC.PackGARC(files, story.Version, story.ContentPadding).Data;
+        }
+    }
+
+    /// <summary>The first type of a species as the ROM has it now (a randomization may have changed it).</summary>
+    private static int TypeOf(EditorSession session, int species) =>
+        species > 0 && species < session.Current.Personal.Length ? session.Current.Personal[species].Types[0] : -1;
+
+    private static string? TypeName(string[] types, int type) => (uint)type < types.Length ? types[type] : null;
+
+    /// <summary>The type names of a language, or an empty list when that text is not where it is expected.</summary>
+    private static string[] TypeNames(GameTitle title, GARC.MemGARC names)
+    {
+        try
+        {
+            int file = GameText.TypeNameFile(title);
+            return file < 0 ? [] : GameText.Read(title, names.Files[file]);
+        }
+        catch (Exception ex) when (ex is IndexOutOfRangeException or ArgumentOutOfRangeException or InvalidDataException)
+        {
+            return [];
+        }
+    }
+    /// <summary>
+    /// A GARC from the session's layers or, when no layer has it, straight out of the base ROM — the story text is far
+    /// too big to keep a copy of and is only needed while a ROM is being built.
+    /// </summary>
+    private static GARC.MemGARC? ReadAnywhere(EditorSession session, string path)
+    {
+        try
+        {
+            return ReadGarc(session, path);
+        }
+        catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException)
+        {
+        }
+        try
+        {
+            if (session.Project.ResolveRomFile() is not { } rom || !File.Exists(rom))
+                return null;
+            using var reader = RomReader.Open(rom);
+            return reader.ReadRomFs(path) is { } data ? new GARC.MemGARC(data) : null;
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or ArgumentException or RomReadException
+                                       or IndexOutOfRangeException or EndOfStreamException)
+        {
+            return null;
+        }
     }
 
     /// <summary>

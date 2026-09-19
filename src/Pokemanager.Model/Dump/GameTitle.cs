@@ -36,6 +36,12 @@ public enum GameFamily
 /// <param name="TrainerPokemon">The teams, one file per trainer, entries the size the trainer's record says.</param>
 /// <param name="Items">Item data: one file per item, price included.</param>
 /// <param name="MegaEvolutions">One file per species: how each of its mega evolutions is triggered, the stone included.</param>
+/// <param name="Statics">
+/// Generation 7: the Pokémon that wait in a fixed place, the three starters first (20 bytes each in file 0). Empty in
+/// Generation 6, which keeps them in a CRO module.
+/// </param>
+/// <param name="StoryText">First of the per-language story text archives (index = pk3DS language), or 0 when unknown.</param>
+/// <param name="StarterTextFile">The file of the story text where the starter scene talks, or -1 when unknown.</param>
 public sealed record GameLayout(
     string Personal,
     string Moves,
@@ -52,7 +58,10 @@ public sealed record GameLayout(
     string TrainerData,
     string TrainerPokemon,
     string Items,
-    string MegaEvolutions);
+    string MegaEvolutions,
+    string Statics = "",
+    int StoryText = 0,
+    int StarterTextFile = -1);
 
 /// <summary>
 /// Images of badges or trials inside a layout archive (darc in Gen 6, SARC inside ALYT in Gen 7), matched by file name; an
@@ -137,10 +146,12 @@ public static class GameTitleExtensions
         GameFamily.SM => new GameLayout("a/0/1/7", "a/0/1/1", "a/0/1/3", "a/0/1/4", 30, 10, MovesPacked: true, SpeciesCount: 803,
             Icons: ["a/0/6/2", "a/0/6/1", "a/0/6/3"], ItemIcons: ["a/0/6/1", "a/0/6/0", "a/0/6/3"],
             Milestones: TrialStamps("a/2/3/8", "a/2/3/9", "a/2/4/0", "a/2/4/1", "a/2/4/2"), FileCount: 311,
-            TrainerData: "a/1/0/5", TrainerPokemon: "a/1/0/6", Items: "a/0/1/9", MegaEvolutions: "a/0/1/5"),
+            TrainerData: "a/1/0/5", TrainerPokemon: "a/1/0/6", Items: "a/0/1/9", MegaEvolutions: "a/0/1/5",
+            Statics: "a/1/5/5", StoryText: 40, StarterTextFile: 41),
         _ => new GameLayout("a/0/1/7", "a/0/1/1", "a/0/1/3", "a/0/1/4", 30, 10, MovesPacked: true, SpeciesCount: 808,
             Icons: ["a/0/6/2"], ItemIcons: ["a/0/6/1"], Milestones: TrialStamps("a/2/4/2", "a/2/9/6", "a/2/9/7"), FileCount: 333,
-            TrainerData: "a/1/0/6", TrainerPokemon: "a/1/0/7", Items: "a/0/1/9", MegaEvolutions: "a/0/1/5"),
+            TrainerData: "a/1/0/6", TrainerPokemon: "a/1/0/7", Items: "a/0/1/9", MegaEvolutions: "a/0/1/5",
+            Statics: "a/1/5/9", StoryText: 40, StarterTextFile: 39),
     };
 
     /// <summary>Gen 6 trainer card: <c>badge_01.bclim</c> … <c>badge_08.bclim</c> in a darc.</summary>

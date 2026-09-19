@@ -203,6 +203,9 @@ public static class GameImporter
         yield return layout.TrainerPokemon;
         yield return layout.Items;
         yield return layout.MegaEvolutions;
+        // Generation 7: the fixed Pokémon, which is where the starters are.
+        if (layout.Statics.Length > 0)
+            yield return layout.Statics;
         // Generation 7 keeps what the shops sell in a module of its own instead of in the executable.
         if (Data.GameShops.For(game)?.File is { } shopFile)
             yield return shopFile;

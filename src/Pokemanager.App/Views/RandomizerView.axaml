@@ -81,6 +81,25 @@
             <TextBlock Classes="error" Text="{Binding OutputError}" IsVisible="{Binding OutputError, Converter={x:Static ObjectConverters.IsNotNull}}" />
             <TextBlock Classes="hint" Text="{Binding OutputPath}" TextWrapping="Wrap" />
             <TextBlock Classes="hint" Foreground="#E07B00" IsVisible="{Binding OutputExists}" Text="{x:Static r:Strings.Rnd_OutputExists}" />
+            <!-- What the ROM really gives at the start: the scene still shows the models the game shipped with. -->
+            <StackPanel Spacing="2" Margin="0,8,0,0" IsVisible="{Binding HasStarters}" ToolTip.Tip="{x:Static r:Strings.Rnd_StartersTip}">
+              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Rnd_Starters}" />
+              <ItemsControl ItemsSource="{Binding Starters}">
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" Spacing="10" />
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:StarterViewModel">
+                    <StackPanel>
+                      <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="40" Height="30" />
+                      <TextBlock Text="{Binding Name}" HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="110" />
+                    </StackPanel>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
           </StackPanel>
           </Border>
 

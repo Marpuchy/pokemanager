@@ -3441,4 +3441,10 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Tip_GameMoney" xml:space="preserve">
     <value>En qué se queda el multiplicador de dinero de cada entrenador, en porcentaje.</value>
   </data>
+  <data name="Rnd_Starters" xml:space="preserve">
+    <value>Iniciales de esta ROM</value>
+  </data>
+  <data name="Rnd_StartersTip" xml:space="preserve">
+    <value>Lo que da el juego de verdad al elegir. En Sol/Luna y Ultrasol/Ultraluna los tres de la mesa siguen siendo los modelos originales del juego, así que este es el único sitio donde verlos antes de elegir; el texto de la escena se reescribe con estos nombres al crear la ROM.</value>
+  </data>
 </root>

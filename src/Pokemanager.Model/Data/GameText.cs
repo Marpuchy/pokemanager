@@ -33,6 +33,17 @@ public static class GameText
     /// <summary>File of the move descriptions inside a text archive.</summary>
     public static int MoveDescriptionFile(GameTitle title) => References(title).First(r => r.Name == TextName.MoveFlavor).Index;
 
+    /// <summary>File of the type names inside a text archive, or -1 when the game has no such file listed.</summary>
+    public static int TypeNameFile(GameTitle title) =>
+        References(title).FirstOrDefault(r => r.Name == TextName.Types)?.Index ?? -1;
+
+    /// <summary>File of the species names inside a text archive.</summary>
+    public static int SpeciesNameFile(GameTitle title) => References(title).First(r => r.Name == TextName.SpeciesNames).Index;
+
+    /// <summary>Path of a per-language story text archive (the scenes people talk in), or null when the game has none known.</summary>
+    public static string? StoryArchive(GameTitle title, int language) =>
+        title.Layout().StoryText is var first and > 0 ? GameImporter.GarcPath(first + language) : null;
+
     private static TextReference[] References(GameTitle title) => title.Family() switch
     {
         GameFamily.XY => TextReference.GameText_XY,
