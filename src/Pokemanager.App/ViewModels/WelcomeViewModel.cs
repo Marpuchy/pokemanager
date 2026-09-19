@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Pokemanager.App.Resources;
@@ -174,8 +174,36 @@ public partial class WelcomeViewModel : ObservableObject
 
     private static string ProjectFilePath(string name) => Path.Combine(AppSettings.ProjectsRoot, name + ".json");
 
-    internal void Forget(RecentProjectItem item)
+    /// <summary>The project file and its <c>.history</c> folder; only those two.</summary>
+    private static void DeleteProjectFiles(string projectPath)
     {
+        string history = ProjectHistory.DirectoryFor(projectPath);
+        if (Directory.Exists(history))
+            Directory.Delete(history, recursive: true);
+        if (File.Exists(projectPath))
+            File.Delete(projectPath);
+    }
+
+    /// <summary>
+    /// Deletes a project after asking: its file and its history, nothing else. The ROM it was made from, the game data
+    /// imported from it, the ROMs it built and the emulator's save are not the project's and stay where they are — so
+    /// a new project can take the same name afterwards.
+    /// </summary>
+    internal async Task DeleteAsync(RecentProjectItem item)
+    {
+        var question = new QuestionViewModel(Strings.Welcome_DeleteTitle, string.Format(Strings.Welcome_DeleteMessage, item.Name, item.Path),
+            Strings.Welcome_DeleteConfirm, Strings.Common_Cancel, []);
+        if (!await dialogs.AskAsync(question))
+            return;
+        try
+        {
+            DeleteProjectFiles(item.Path);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            Error = string.Format(Strings.Welcome_DeleteFailed, ex.Message);
+            return;
+        }
         main.Settings.ForgetProject(item.Path);
         bool wasSelected = SelectedProject == item;
         LoadRecentProjects();
@@ -246,8 +274,39 @@ public partial class WelcomeViewModel : ObservableObject
         string projectPath = ProjectFilePath(name);
         if (File.Exists(projectPath))
         {
-            Error = string.Format(Strings.Welcome_ProjectExists, projectPath);
-            return;
+            // Listed: it is a project the player can see, so the name is taken. Not listed: one an earlier version only
+            // took off the list, and the player may not even know it is there — offer to replace it.
+            if (RecentProjects.Any(p => string.Equals(p.Path, projectPath, StringComparison.OrdinalIgnoreCase)))
+            {
+                Error = string.Format(Strings.Welcome_ProjectExists, projectPath);
+                return;
+            }
+            var replace = new QuestionViewModel(Strings.Welcome_ReplaceTitle, string.Format(Strings.Welcome_ReplaceMessage, name, projectPath),
+                Strings.Welcome_ReplaceConfirm, Strings.Common_Cancel, []);
+            if (!await dialogs.AskAsync(replace))
+                return;
+            try
+            {
+                DeleteProjectFiles(projectPath);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                Error = string.Format(Strings.Welcome_DeleteFailed, ex.Message);
+                return;
+            }
+        }
+        else if (Directory.Exists(ProjectHistory.DirectoryFor(projectPath)))
+        {
+            // A history left behind by a project deleted by hand would become this project's history.
+            try
+            {
+                Directory.Delete(ProjectHistory.DirectoryFor(projectPath), recursive: true);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                Error = string.Format(Strings.Welcome_DeleteFailed, ex.Message);
+                return;
+            }
         }
 
         string rom = Path.GetFullPath(RomPath);

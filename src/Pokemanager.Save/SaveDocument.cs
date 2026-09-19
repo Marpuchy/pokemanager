@@ -837,16 +837,54 @@ public sealed class SaveDocument
     }
 
     /// <summary>
-    /// Starts the game over: the save is copied to the backups and then taken off the console's folder, so the game
-    /// finds none and begins a new adventure. Nothing is lost — the copy is what the backups and the project history
-    /// are for.
+    /// Starts the game over, the way the console does it: the whole save data goes, not just the file.
     /// </summary>
-    /// <returns>Path of the copy that was kept.</returns>
+    /// <remarks>
+    /// **Measured in the user's Citra folder**: a game's save is a folder (<c>data/00000001/</c>, holding <c>main</c>) and a
+    /// 16-byte <c>data/00000001.metadata</c> next to it — the archive's format. With both gone the game finds its save
+    /// data unformatted and starts a clean adventure; with only <c>main</c> gone (what this did before) the archive is
+    /// still there, the file is not, and the game reports the save as **corrupted**. So both are moved to the backups,
+    /// together, and can be put back the same way. The path is checked to be that shape first, so nothing else is ever
+    /// removed.
+    /// </remarks>
+    /// <returns>The folder the old save data was moved to.</returns>
     public string Reset(string backupRoot)
     {
-        string backup = SaveWriter.BackUp(SavePath, backupRoot);
-        File.Delete(SavePath);
+        string folder = Path.GetDirectoryName(Path.GetFullPath(SavePath))
+                        ?? throw new SaveUpdateException(string.Format(Strings.Save_ResetNotSaveData, SavePath));
+        string metadata = folder + ".metadata";
+        string name = Path.GetFileName(folder);
+        bool shaped = name.Length == 8 && name.All(Uri.IsHexDigit)
+                      && string.Equals(Path.GetFileName(Path.GetDirectoryName(folder)), "data", StringComparison.OrdinalIgnoreCase);
+        if (!shaped)
+            throw new SaveUpdateException(string.Format(Strings.Save_ResetNotSaveData, SavePath));
+
+        string target = Path.Combine(backupRoot, DateTime.Now.ToString("yyyyMMdd-HHmmss") + "-start-over");
+        for (int n = 1; Directory.Exists(target); n++)
+            target = Path.Combine(backupRoot, DateTime.Now.ToString("yyyyMMdd-HHmmss") + "-start-over-" + n);
+        Directory.CreateDirectory(target);
+
+        // Copy first, check the copy, and only then take the originals away.
+        string copiedFolder = Path.Combine(target, name);
+        CopyFolder(folder, copiedFolder);
+        if (File.Exists(metadata))
+            File.Copy(metadata, Path.Combine(target, name + ".metadata"));
+        if (!File.ReadAllBytes(Path.Combine(copiedFolder, Path.GetFileName(SavePath))).AsSpan().SequenceEqual(File.ReadAllBytes(SavePath)))
+            throw new SaveUpdateException(string.Format(Strings.Save_ResetCopyFailed, target));
+
+        Directory.Delete(folder, recursive: true);
+        if (File.Exists(metadata))
+            File.Delete(metadata);
         IsDirty = false;
-        return backup;
+        return target;
+    }
+
+    private static void CopyFolder(string from, string to)
+    {
+        Directory.CreateDirectory(to);
+        foreach (string file in Directory.GetFiles(from))
+            File.Copy(file, Path.Combine(to, Path.GetFileName(file)));
+        foreach (string sub in Directory.GetDirectories(from))
+            CopyFolder(sub, Path.Combine(to, Path.GetFileName(sub)));
     }
 }

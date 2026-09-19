@@ -33,9 +33,6 @@
   <data name="Welcome_Recent" xml:space="preserve">
     <value>Proyectos recientes</value>
   </data>
-  <data name="Welcome_RemoveTip" xml:space="preserve">
-    <value>Quitar de la lista (no borra el archivo)</value>
-  </data>
   <data name="Welcome_NewProject" xml:space="preserve">
     <value>Nuevo proyecto</value>
   </data>
@@ -3504,9 +3501,6 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Game_ResetTitle" xml:space="preserve">
     <value>Empezar el juego de cero</value>
   </data>
-  <data name="Game_ResetMessage" xml:space="preserve">
-    <value>La partida de {0} se copia a las copias de seguridad y se saca de la carpeta del emulador, así que el juego empezará una aventura nueva. Partida: {1}</value>
-  </data>
   <data name="Game_ResetConfirm" xml:space="preserve">
     <value>Continuar</value>
   </data>
@@ -3516,29 +3510,11 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Game_ResetConfirmAgain" xml:space="preserve">
     <value>Sí, empezar de cero</value>
   </data>
-  <data name="Game_ResetDone" xml:space="preserve">
-    <value>El juego empezará una aventura nueva. La partida anterior está en {0}</value>
-  </data>
   <data name="Game_ResetFailed" xml:space="preserve">
     <value>No se ha podido apartar la partida: {0}</value>
   </data>
   <data name="Game_ResetNoSave" xml:space="preserve">
     <value>No hay ninguna partida que reiniciar.</value>
-  </data>
-  <data name="Game_ResetCard" xml:space="preserve">
-    <value>Empezar de cero</value>
-  </data>
-  <data name="Trainer_UnlockBoxesTitle" xml:space="preserve">
-    <value>Abrir todas las cajas</value>
-  </data>
-  <data name="Trainer_UnlockBoxesMessage" xml:space="preserve">
-    <value>La partida tiene {0} de {1} cajas abiertas. El juego las va abriendo según avanzas; abrirlas todas es un cambio que el juego no hace solo.</value>
-  </data>
-  <data name="Trainer_UnlockBoxesAgain" xml:space="preserve">
-    <value>No hay ningún botón para volver a cerrarlas. ¿Las abrimos todas?</value>
-  </data>
-  <data name="Trainer_UnlockBoxesConfirm" xml:space="preserve">
-    <value>Sí, abrirlas todas</value>
   </data>
   <data name="Role_Hau" xml:space="preserve">
     <value>Tilo {0}</value>
@@ -3588,7 +3564,43 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Game_StartOver" xml:space="preserve">
     <value>Empezar el juego de cero…</value>
   </data>
+  <data name="Game_ResetCard" xml:space="preserve">
+    <value>La partida</value>
+  </data>
+  <data name="Game_UnlockBoxesTip" xml:space="preserve">
+    <value>Abre todas las cajas del PC en la partida, como haría la historia al final. El cambio queda en el editor de la partida hasta que la escribas.</value>
+  </data>
   <data name="Game_StartOverTip" xml:space="preserve">
-    <value>Copia la partida a las copias de seguridad y la saca de la carpeta del emulador, así que el juego empieza una aventura nueva. Pregunta dos veces y el emulador tiene que estar cerrado.</value>
+    <value>Mueve los datos de guardado (la carpeta de la partida y el archivo que la acompaña) a las copias de seguridad, así que el juego empieza una aventura nueva como en una consola nueva. Pregunta dos veces y el emulador tiene que estar cerrado.</value>
+  </data>
+  <data name="Game_ResetMessage" xml:space="preserve">
+    <value>Los datos de guardado de {0} (la carpeta de la partida y el archivo que va a su lado) se mueven a las copias de seguridad, así que el juego no encuentra partida y empieza una aventura nueva. Quitar solo el archivo haría que el juego dijera que la partida está corrupta. Partida: {1}</value>
+  </data>
+  <data name="Game_ResetDone" xml:space="preserve">
+    <value>El juego empezará una aventura nueva. Los datos anteriores están en {0} (copia los dos elementos de vuelta a la carpeta data del emulador para volver a ella).</value>
+  </data>
+  <data name="Welcome_RemoveTip" xml:space="preserve">
+    <value>Borrar este proyecto (su archivo y su historial). La ROM, los datos del juego y la partida no se tocan.</value>
+  </data>
+  <data name="Welcome_DeleteTitle" xml:space="preserve">
+    <value>Borrar proyecto</value>
+  </data>
+  <data name="Welcome_DeleteMessage" xml:space="preserve">
+    <value>El proyecto {0} y su historial de versiones se borran para siempre. La ROM de la que salió, las ROMs que generó y la partida del emulador se quedan donde están. Proyecto: {1}</value>
+  </data>
+  <data name="Welcome_DeleteConfirm" xml:space="preserve">
+    <value>Borrar</value>
+  </data>
+  <data name="Welcome_DeleteFailed" xml:space="preserve">
+    <value>No se ha podido borrar el proyecto: {0}</value>
+  </data>
+  <data name="Welcome_ReplaceTitle" xml:space="preserve">
+    <value>Sustituir proyecto</value>
+  </data>
+  <data name="Welcome_ReplaceMessage" xml:space="preserve">
+    <value>Ya hay un proyecto llamado {0} que no está en la lista (una versión anterior solo quitaba los proyectos de la lista). ¿Borrarlo junto con su historial y crear el nuevo? Proyecto: {1}</value>
+  </data>
+  <data name="Welcome_ReplaceConfirm" xml:space="preserve">
+    <value>Borrarlo y crear</value>
   </data>
 </root>

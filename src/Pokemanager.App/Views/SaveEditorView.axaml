@@ -755,7 +755,6 @@
                       <TextBlock Classes="row-label" Text="{x:Static r:Strings.Trainer_BoxesUnlocked}" />
                       <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="0,4">
                         <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerBoxesUnlockedValue}" Value="{Binding BoxesUnlocked}" Minimum="1" Maximum="{Binding BoxCount}" Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="130" />
-                        <Button Content="{x:Static r:Strings.Trainer_UnlockBoxes}" Command="{Binding UnlockAllBoxesCommand}" />
                       </StackPanel>
                     </Grid>
                   </StackPanel>
@@ -891,7 +890,6 @@
                   <TextBlock Grid.Row="3" Grid.Column="1" Classes="hint" Margin="12,0,0,0" VerticalAlignment="Center" Text="{x:Static r:Strings.Trainer_UnlockSuperTrainingHint}" IsVisible="{Binding HasGen6Extras}" />
                   <Button Grid.Row="4" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Trainer_FillPuffs}" Command="{Binding FillPuffsCommand}" IsVisible="{Binding HasGen6Extras}" />
                   <TextBlock Grid.Row="4" Grid.Column="1" Classes="hint" Margin="12,0,0,0" VerticalAlignment="Center" Text="{Binding PuffText}" IsVisible="{Binding HasGen6Extras}" />
-                  <Button Grid.Row="5" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Trainer_UnlockBoxes}" Command="{Binding UnlockAllBoxesCommand}" />
                 </Grid>
               </StackPanel>
             </TabItem>

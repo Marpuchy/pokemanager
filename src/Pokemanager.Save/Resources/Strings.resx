@@ -105,4 +105,10 @@
   <data name="Save_NotSupported" xml:space="preserve">
     <value>The save is not from a supported game ({0}). Pokemanager edits Pokémon X, Y, Omega Ruby, Alpha Sapphire, Sun, Moon, Ultra Sun and Ultra Moon saves.</value>
   </data>
+  <data name="Save_ResetNotSaveData" xml:space="preserve">
+    <value>'{0}' is not in a save data folder of the emulator, so nothing was removed.</value>
+  </data>
+  <data name="Save_ResetCopyFailed" xml:space="preserve">
+    <value>The copy in {0} does not match the save, so nothing was removed.</value>
+  </data>
 </root>

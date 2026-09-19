@@ -1035,4 +1035,10 @@
   <data name="Tip_ShinyChance" xml:space="preserve">
     <value>Raises the chance of a wild Pokémon being shiny.</value>
   </data>
+  <data name="Tip_TrainersLevelModified" xml:space="preserve">
+    <value>Raises or lowers the level of every trainer's Pokémon by a percentage, as part of the randomization. Advanced: Trainers can still change it per class on top.</value>
+  </data>
+  <data name="Tip_TrainersLevelModifier" xml:space="preserve">
+    <value>The percentage, from -50 to +50: +20 turns a level 30 Pokémon into a level 36 one.</value>
+  </data>
 </root>

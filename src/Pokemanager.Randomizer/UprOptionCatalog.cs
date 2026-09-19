@@ -27,13 +27,11 @@ public static class UprOptionCatalog
     public static IReadOnlyList<string> Groups { get; } = [Traits, Evolutions, Starters, Moves, Trainers, Wild, Totems, TmsTutors, Items, Misc];
 
     /// <summary>
-    /// Options the application does not show. <c>LimitPokemon</c> is not supported; the two trainer level ones are
-    /// **the same thing as the level percentage of Advanced: Trainers**, which is better (per trainer class, and it can
-    /// be changed without randomizing again), so they are not offered twice. A preset that sets them keeps its value
-    /// and still applies it: what a shared <c>.rnqs</c> does is not changed behind its author's back.
+    /// Options the application does not show. <c>LimitPokemon</c> is not supported. The trainer level percentage is
+    /// shown (the user wants it with the other trainer options) even though Advanced: Trainers has one per class too:
+    /// UPR ZX's applies to every trainer as part of the randomization, the advanced one on top of it.
     /// </summary>
-    public static IReadOnlySet<string> Hidden { get; } =
-        new HashSet<string> { "LimitPokemon", "TrainersLevelModified", "TrainersLevelModifier" };
+    public static IReadOnlySet<string> Hidden { get; } = new HashSet<string> { "LimitPokemon" };
 
     /// <summary>Whether an option is hidden for a game of <paramref name="generation"/> (6 or 7).</summary>
     public static bool IsHidden(string name, int generation) =>
@@ -121,6 +119,8 @@ public static class UprOptionCatalog
         ["TrainersEnforceMainPlaythrough"] = new(Trainers, "TrainersMod"),
         ["TrainersForceFullyEvolved"] = new(Trainers),
         ["TrainersForceFullyEvolvedLevel"] = new(Trainers, "TrainersForceFullyEvolved", 30, 65),
+        ["TrainersLevelModified"] = new(Trainers),
+        ["TrainersLevelModifier"] = new(Trainers, "TrainersLevelModified", -50, 50),
         ["EliteFourUniquePokemonNumber"] = new(Trainers, Min: 0, Max: 2),
         ["AllowTrainerAlternateFormes"] = new(Trainers),
         ["SwapTrainerMegaEvos"] = new(Trainers),

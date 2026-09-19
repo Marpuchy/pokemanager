@@ -334,26 +334,11 @@ public partial class SaveTrainerViewModel : ObservableObject
         OnPropertyChanged(nameof(PuffText));
     }
 
-    /// <summary>
-    /// Opens every box of the PC. It asks twice: the game itself opens them as the story goes, so a save that has
-    /// them all open is a save that has been tampered with, and there is no button to close them again.
-    /// </summary>
-    [RelayCommand]
-    private async Task UnlockAllBoxes()
+    /// <summary>Opens every box of the PC. The button lives in Advanced: Game; this is what it does to the save.</summary>
+    public void UnlockAllBoxes()
     {
-        var first = new QuestionViewModel(Strings.Trainer_UnlockBoxesTitle,
-            string.Format(Strings.Trainer_UnlockBoxesMessage, doc.BoxesUnlocked, doc.BoxCount),
-            Strings.Game_ResetConfirm, Strings.Common_Cancel, []);
-        if (!await owner.Editor.Dialogs.AskAsync(first))
-            return;
-        var second = new QuestionViewModel(Strings.Trainer_UnlockBoxesTitle, Strings.Trainer_UnlockBoxesAgain,
-            Strings.Trainer_UnlockBoxesConfirm, Strings.Common_Cancel, []);
-        if (!await owner.Editor.Dialogs.AskAsync(second))
-            return;
-
-        doc.BoxesUnlocked = doc.BoxCount;
+        Unlock(() => doc.BoxesUnlocked = doc.BoxCount, Strings.Trainer_UnlockBoxes);
         OnPropertyChanged(nameof(BoxesUnlocked));
-        Changed();
     }
 
     private void Unlock(Action action, string what)

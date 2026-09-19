@@ -184,6 +184,24 @@ public sealed partial class GameTweaksViewModel : ObservableObject
         }
     }
 
+    /// <summary>
+    /// Opens every box of the PC in the save being edited, like the save page's other unlocks: the change is in the
+    /// editor until the save is written, so it can still be undone there.
+    /// </summary>
+    [RelayCommand]
+    private void UnlockBoxes()
+    {
+        var save = editor.SaveEditor;
+        save.EnsureOpen();
+        if (save.Trainer is not { } trainer)
+        {
+            editor.SetStatus(Strings.Game_ResetNoSave, error: true);
+            return;
+        }
+        trainer.UnlockAllBoxes();
+        editor.SetStatus(string.Format(Strings.Trainer_Unlocked, Strings.Trainer_UnlockBoxes));
+    }
+
     /// <summary>The project was replaced (undo, restore): show what it holds now.</summary>
     public void Refresh() => OnPropertyChanged(nameof(AlwaysShiny));
 

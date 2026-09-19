@@ -1035,4 +1035,10 @@
   <data name="Tip_ShinyChance" xml:space="preserve">
     <value>Sube la probabilidad de que un Pokémon salvaje sea variocolor.</value>
   </data>
+  <data name="Tip_TrainersLevelModified" xml:space="preserve">
+    <value>Sube o baja el nivel de los Pokémon de todos los entrenadores en un porcentaje, como parte de la aleatorización. En Avanzado: Entrenadores se puede seguir cambiando por clase encima.</value>
+  </data>
+  <data name="Tip_TrainersLevelModifier" xml:space="preserve">
+    <value>El porcentaje, de -50 a +50: +20 convierte un Pokémon de nivel 30 en uno de nivel 36.</value>
+  </data>
 </root>

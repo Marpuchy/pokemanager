@@ -832,8 +832,12 @@
             <Border Classes="card" Width="470" HorizontalAlignment="Left" Margin="0,10,0,0">
               <StackPanel Spacing="4">
                 <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_ResetCard}" />
-                <Button Content="{x:Static r:Strings.Game_StartOver}" Command="{Binding ResetGameCommand}"
-                        ToolTip.Tip="{x:Static r:Strings.Game_StartOverTip}" HorizontalAlignment="Left" />
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <Button Content="{x:Static r:Strings.Trainer_UnlockBoxes}" Command="{Binding UnlockBoxesCommand}"
+                          ToolTip.Tip="{x:Static r:Strings.Game_UnlockBoxesTip}" />
+                  <Button Content="{x:Static r:Strings.Game_StartOver}" Command="{Binding ResetGameCommand}"
+                          ToolTip.Tip="{x:Static r:Strings.Game_StartOverTip}" />
+                </StackPanel>
               </StackPanel>
             </Border>
           </StackPanel>

@@ -105,4 +105,10 @@
   <data name="Save_NotSupported" xml:space="preserve">
     <value>La partida no es de un juego compatible ({0}). Pokemanager edita partidas de Pokémon X, Y, Rubí Omega, Zafiro Alfa, Sol, Luna, Ultrasol y Ultraluna.</value>
   </data>
+  <data name="Save_ResetNotSaveData" xml:space="preserve">
+    <value>'{0}' no está en una carpeta de partida del emulador, así que no se ha quitado nada.</value>
+  </data>
+  <data name="Save_ResetCopyFailed" xml:space="preserve">
+    <value>La copia de {0} no coincide con la partida, así que no se ha quitado nada.</value>
+  </data>
 </root>

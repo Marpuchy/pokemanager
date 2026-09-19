@@ -33,9 +33,6 @@
   <data name="Welcome_Recent" xml:space="preserve">
     <value>Recent projects</value>
   </data>
-  <data name="Welcome_RemoveTip" xml:space="preserve">
-    <value>Remove from the list (does not delete the file)</value>
-  </data>
   <data name="Welcome_NewProject" xml:space="preserve">
     <value>New project</value>
   </data>
@@ -3504,9 +3501,6 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Game_ResetTitle" xml:space="preserve">
     <value>Start the game over</value>
   </data>
-  <data name="Game_ResetMessage" xml:space="preserve">
-    <value>The save of {0} is copied to the backups and taken out of the emulator's folder, so the game starts a new adventure. Save: {1}</value>
-  </data>
   <data name="Game_ResetConfirm" xml:space="preserve">
     <value>Continue</value>
   </data>
@@ -3516,29 +3510,11 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Game_ResetConfirmAgain" xml:space="preserve">
     <value>Yes, start over</value>
   </data>
-  <data name="Game_ResetDone" xml:space="preserve">
-    <value>The game will start a new adventure. The old save is in {0}</value>
-  </data>
   <data name="Game_ResetFailed" xml:space="preserve">
     <value>The save could not be put away: {0}</value>
   </data>
   <data name="Game_ResetNoSave" xml:space="preserve">
     <value>There is no save to start over.</value>
-  </data>
-  <data name="Game_ResetCard" xml:space="preserve">
-    <value>Start over</value>
-  </data>
-  <data name="Trainer_UnlockBoxesTitle" xml:space="preserve">
-    <value>Open every box</value>
-  </data>
-  <data name="Trainer_UnlockBoxesMessage" xml:space="preserve">
-    <value>The save has {0} of {1} boxes open. The game opens them as the story goes; opening them all is a change the game cannot make by itself.</value>
-  </data>
-  <data name="Trainer_UnlockBoxesAgain" xml:space="preserve">
-    <value>There is no button to close them again. Open all of them?</value>
-  </data>
-  <data name="Trainer_UnlockBoxesConfirm" xml:space="preserve">
-    <value>Yes, open them all</value>
   </data>
   <data name="Role_Hau" xml:space="preserve">
     <value>Hau {0}</value>
@@ -3588,7 +3564,43 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Game_StartOver" xml:space="preserve">
     <value>Start the game over…</value>
   </data>
+  <data name="Game_ResetCard" xml:space="preserve">
+    <value>The save</value>
+  </data>
+  <data name="Game_UnlockBoxesTip" xml:space="preserve">
+    <value>Opens every box of the PC in the save, as the story would by the end. The change stays in the save editor until you write the save.</value>
+  </data>
   <data name="Game_StartOverTip" xml:space="preserve">
-    <value>Copies the save to the backups and takes it out of the emulator's folder, so the game begins a new adventure. It asks twice and the emulator has to be closed.</value>
+    <value>Moves the save data (the save folder and the file that goes with it) to the backups, so the game begins a new adventure as on a new console. It asks twice and the emulator has to be closed.</value>
+  </data>
+  <data name="Game_ResetMessage" xml:space="preserve">
+    <value>The save data of {0} (the save folder and the file next to it) is moved to the backups, so the game finds no save and starts a new adventure. Taking only the file would make the game say the save is corrupted. Save: {1}</value>
+  </data>
+  <data name="Game_ResetDone" xml:space="preserve">
+    <value>The game will start a new adventure. The old save data is in {0} (copy both items back into the emulator's data folder to return to it).</value>
+  </data>
+  <data name="Welcome_RemoveTip" xml:space="preserve">
+    <value>Delete this project (its file and its history). The ROM, the game data and the save are not touched.</value>
+  </data>
+  <data name="Welcome_DeleteTitle" xml:space="preserve">
+    <value>Delete project</value>
+  </data>
+  <data name="Welcome_DeleteMessage" xml:space="preserve">
+    <value>The project {0} and its version history are deleted for good. The ROM it was made from, the ROMs it built and the emulator's save stay where they are. Project: {1}</value>
+  </data>
+  <data name="Welcome_DeleteConfirm" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Welcome_DeleteFailed" xml:space="preserve">
+    <value>The project could not be deleted: {0}</value>
+  </data>
+  <data name="Welcome_ReplaceTitle" xml:space="preserve">
+    <value>Replace project</value>
+  </data>
+  <data name="Welcome_ReplaceMessage" xml:space="preserve">
+    <value>There is already a project called {0} that is not in the list (an earlier version only took projects off the list). Delete it and its history and create the new one? Project: {1}</value>
+  </data>
+  <data name="Welcome_ReplaceConfirm" xml:space="preserve">
+    <value>Delete it and create</value>
   </data>
 </root>

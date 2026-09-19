@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.Input;
 using Pokemanager.App.Resources;
 using Pokemanager.App.Services;
 
@@ -15,5 +15,5 @@ public partial class RecentProjectItem(WelcomeViewModel owner, RecentProject rec
     private void Manage() => owner.Manage(this);
 
     [RelayCommand]
-    private void Forget() => owner.Forget(this);
+    private Task Forget() => owner.DeleteAsync(this);
 }
