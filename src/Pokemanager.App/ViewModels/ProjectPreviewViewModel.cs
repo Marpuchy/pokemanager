@@ -353,6 +353,52 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
     [RelayCommand]
     private void Manage() => main.Manage(Loaded);
 
+    /// <summary>What the last ▶ Play did (or why it could not), under the project's summary.</summary>
+    [ObservableProperty]
+    public partial string PlayStatus { get; private set; } = "";
+
+    [ObservableProperty]
+    public partial bool PlayFailed { get; private set; }
+
+    /// <summary>
+    /// ▶ Play without opening the editor: the project's last built ROM in the emulator, as the editor's button does. The
+    /// editor also warns when the project has changes the ROM does not; here the project is the saved one, so what is
+    /// built is what there is.
+    /// </summary>
+    [RelayCommand]
+    private async Task Play()
+    {
+        var project = Loaded.Project;
+        var r = project.Randomization;
+        string? rom = r.LastBuiltRom is { } built && File.Exists(built)
+            ? built
+            : !r.Enabled && project.Edits.Count == 0 ? project.ResolveRomFile() : null;
+        if (rom is null) { ShowPlay(Strings.Play_BuildFirst, error: true); return; }
+        var settings = main.Settings;
+        if (EmulatorUserFolders.RunningEmulators(settings.EffectiveEmulatorName) is { Count: > 0 } running)
+        {
+            ShowPlay(string.Format(Strings.Play_AlreadyRunning, string.Join(", ", running)), error: true);
+            return;
+        }
+        string? exe = await Task.Run(() => settings.EffectiveEmulatorExecutable(rom, project.DumpDirectory));
+        if (exe is null) { ShowPlay(Strings.Play_NoProgram, error: true); return; }
+        try
+        {
+            EmulatorExecutables.Launch(exe, rom);
+            ShowPlay(string.Format(Strings.Play_Started, EmulatorExecutables.NameOf(exe), Path.GetFileName(rom)), error: false);
+        }
+        catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or IOException or InvalidOperationException)
+        {
+            ShowPlay(string.Format(Strings.Play_Failed, exe, ex.Message), error: true);
+        }
+    }
+
+    private void ShowPlay(string text, bool error)
+    {
+        PlayStatus = text;
+        PlayFailed = error;
+    }
+
     /// <summary>Opens the editor on the save editor with the selected Pokémon.</summary>
     [RelayCommand]
     private void ManagePokemon()
