@@ -149,7 +149,7 @@ public sealed class Project
     public void Save(string path)
     {
         var file = new ProjectFile(CurrentFormat, DumpDirectory, RomFile, Language, EmulatorUserDirectory, Randomization,
-            Edits.All.Select(e => new EditEntry(e.Table, e.Id, e.Field, e.Value)).ToList(), Locke, Game);
+            Edits.All.Select(e => new EditEntry(e.Table, e.Id, e.Field, e.Value)).ToList(), Locke, Game, Shops, Tweaks);
 
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
         string tmp = path + ".tmp";
@@ -195,6 +195,8 @@ public sealed class Project
             Randomization = file.Randomization ?? new RandomizationSettings(), // format 1 did not have it
             Locke = file.Locke ?? new LockeSettings(), // added later in format 2
             Game = file.Game ?? GameTitle.X, // added with other games; earlier projects were X/Y
+            Shops = file.Shops ?? new ShopSettings(), // 3.0
+            Tweaks = file.Tweaks ?? new GameSettings(), // 3.0
         };
         foreach (var e in file.Edits ?? [])
             project.Edits.Set(e.Table, e.Id, e.Field, e.Value);
@@ -210,7 +212,9 @@ public sealed class Project
         RandomizationSettings? Randomization,
         List<EditEntry>? Edits,
         LockeSettings? Locke = null,
-        GameTitle? Game = null);
+        GameTitle? Game = null,
+        ShopSettings? Shops = null,
+        GameSettings? Tweaks = null);
 
     private sealed record EditEntry(string Table, int Id, string Field, JsonNode Value);
 }
