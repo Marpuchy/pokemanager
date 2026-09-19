@@ -50,6 +50,32 @@ public class RealDumpGameTests
         Assert.DoesNotContain(built.Keys, k => k.StartsWith("romfs/", StringComparison.Ordinal));
     }
 
+    /// <summary>The level cap changes the experience table and nothing else, and only above the cap.</summary>
+    [Fact]
+    public void LevelCap_RaisesOnlyTheLevelsAboveIt()
+    {
+        string dumpDir = RequireDump();
+        var project = new Project { DumpDirectory = dumpDir };
+        project.Tweaks.LevelCap = 20;
+        var session = EditorSession.Open(project);
+
+        var built = ModBuilder.BuildEdits(session);
+
+        Assert.Equal(["romfs/a/2/1/7"], built.Keys);
+        var original = new pk3DS.Core.CTR.GARC.MemGARC(File.ReadAllBytes(Path.Combine(dumpDir, "romfs", "a", "2", "1", "7"))).Files;
+        var capped = new pk3DS.Core.CTR.GARC.MemGARC(built["romfs/a/2/1/7"]).Files;
+        Assert.Equal(8, capped.Length);
+        for (int rate = 0; rate < capped.Length; rate++)
+        {
+            Assert.True(ExperienceTable.IsTable(original[rate]));
+            for (int level = 0; level <= 20; level++)
+                Assert.Equal(ExperienceTable.Read(original[rate], level), ExperienceTable.Read(capped[rate], level));
+            for (int level = 21; level <= 100; level++)
+                Assert.True(ExperienceTable.Read(capped[rate], level) > ExperienceTable.Read(capped[rate], level - 1));
+            Assert.True(ExperienceTable.Read(capped[rate], 21) >= ExperienceTable.Unreachable);
+        }
+    }
+
     [Fact]
     public void WithoutTheOption_TheExecutableIsNotBuilt()
     {

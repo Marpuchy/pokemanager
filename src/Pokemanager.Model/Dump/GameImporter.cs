@@ -203,6 +203,7 @@ public static class GameImporter
         yield return layout.TrainerPokemon;
         yield return layout.Items;
         yield return layout.MegaEvolutions;
+        yield return layout.Experience;
         // Generation 7: the fixed Pokémon, which is where the starters are.
         if (layout.Statics.Length > 0)
             yield return layout.Statics;

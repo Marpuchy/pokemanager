@@ -212,13 +212,29 @@ public static class ModBuilder
     private static void BuildGameSettings(EditorSession session, string? randomizedTitleDirectory, Dictionary<string, byte[]> outputs)
     {
         var game = session.Project.Tweaks;
-        if (game.IsEmpty)
+        BuildLevelCap(session, outputs);
+        if (!game.AlwaysShiny)
             return;
         byte[]? code = outputs.TryGetValue(CodeFile, out byte[]? built) ? built : ReadCode(session, randomizedTitleDirectory);
         if (code is null)
             return;
         if (game.AlwaysShiny && GameCode.MakeEveryPokemonShiny(code))
             outputs[CodeFile] = code;
+    }
+
+    /// <summary>The level cap, written into the experience table: every level above it needs more than can be earned.</summary>
+    private static void BuildLevelCap(EditorSession session, Dictionary<string, byte[]> outputs)
+    {
+        if (session.Project.Tweaks.LevelCap is not { } cap)
+            return;
+        string path = session.Current.Title.Layout().Experience;
+        if (path.Length == 0 || !File.Exists(session.Layers.Resolve(path)))
+            return;
+        var garc = ReadGarc(session, path);
+        byte[][] files = garc.Files; // read once: every read of Files is a new copy
+        if (!ExperienceTable.Cap(files, cap))
+            return;
+        outputs["romfs/" + path] = GARC.PackGARC(files, garc.Version, garc.ContentPadding).Data;
     }
 
     /// <summary>
