@@ -76,7 +76,6 @@ public partial class RandomizerViewModel : ObservableObject
         this.upr = upr;
         this.settings = settings;
         Shops = new ShopExtrasViewModel(editor);
-        RefreshStarters();
         Options = new UprOptionsViewModel(editor.MarkDirty, Shops);
 
         SeedText = Settings.Seed > 0 ? Settings.Seed.ToString() : UprRunner.NewSeed().ToString();
@@ -246,28 +245,6 @@ public partial class RandomizerViewModel : ObservableObject
         }
     }
 
-    /// <summary>
-    /// The three the built ROM offers at the start, with the sprite and name of what it really gives: the scene's own
-    /// models are still the ones the game shipped with, so this is the only place the player can see them before
-    /// choosing. Empty when the game keeps them where this application does not read them (Generation 6).
-    /// </summary>
-    public ObservableCollection<StarterViewModel> Starters { get; } = [];
-
-    public bool HasStarters => Starters.Count > 0;
-
-    /// <summary>Reads them again: the layers changed (a randomization ran, or the project was reopened).</summary>
-    public void RefreshStarters()
-    {
-        Starters.Clear();
-        var session = editor.Session;
-        if (Model.Data.GameStarters.Read(session.Layers, session.Current.Title) is { } starters)
-        {
-            foreach (int species in starters)
-                Starters.Add(new StarterViewModel(species, editor.Names.Species.ElementAtOrDefault(species) ?? $"#{species}", editor.Sprites.For(species)));
-        }
-        OnPropertyChanged(nameof(HasStarters));
-    }
-
     /// <summary>The project's randomization settings were put back (undo): show them again.</summary>
     public void ReloadFromProject()
     {
@@ -424,7 +401,6 @@ public partial class RandomizerViewModel : ObservableObject
     public void OnBuilt(UprResult? random, SaveUpdateResult? save)
     {
         RefreshSave();
-        RefreshStarters();
         if (random is not null)
             LoadLog(random.LogPath);
 
@@ -522,5 +498,3 @@ public partial class RandomizerViewModel : ObservableObject
     }
 }
 
-/// <summary>One of the three the game offers at the start: what it really gives, with its picture.</summary>
-public sealed record StarterViewModel(int Species, string Name, Avalonia.Media.Imaging.Bitmap? Icon);

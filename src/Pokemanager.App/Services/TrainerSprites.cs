@@ -1,4 +1,4 @@
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Text.RegularExpressions;
 using Avalonia.Media.Imaging;
 
@@ -16,8 +16,6 @@ public static partial class TrainerSprites
     private static readonly Dictionary<string, Bitmap?> Bitmaps = [];
     private static readonly SemaphoreSlim IndexLock = new(1, 1);
     private static IReadOnlyList<string>? index;
-    private static HashSet<string>? names;
-    private static bool asking;
 
     /// <summary>Some well-known ones to show before searching.</summary>
     public static IReadOnlyList<string> Featured { get; } =
@@ -31,24 +29,6 @@ public static partial class TrainerSprites
     [GeneratedRegex(@"href=""([a-z0-9\-]+)\.png""")]
     private static partial Regex PngLink();
 
-    /// <summary>
-    /// The names already in hand, for callers that cannot wait (a list row being drawn). Empty until the list has been
-    /// read once, which asking for it starts in the background.
-    /// </summary>
-    public static IReadOnlySet<string> Cached
-    {
-        get
-        {
-            if (names is { } known)
-                return known;
-            if (!asking)
-            {
-                asking = true;
-                _ = Task.Run(async () => names = [.. await IndexAsync()]);
-            }
-            return System.Collections.Frozen.FrozenSet<string>.Empty;
-        }
-    }
 
     /// <summary>Every sprite name: cached list (refreshed after a week), downloaded when there is none.</summary>
     public static async Task<IReadOnlyList<string>> IndexAsync(CancellationToken cancel = default)

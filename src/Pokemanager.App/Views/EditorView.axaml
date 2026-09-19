@@ -44,8 +44,7 @@
     <DataTemplate DataType="vm:ListEntryViewModel">
       <!-- Modified entries: amber row with an orange bar on the left, bold name and a "Modified" tag.
            The negative margin cancels the item padding on the left so the bar sits at the edge; the right is kept clear of the scroll bar, which is drawn over the items. -->
-      <!-- MinHeight: a trainer class without a picture would make a shorter row than one with it. -->
-      <Border Classes="entry" Classes.modified="{Binding IsModified}" Margin="-6,-2,10,-2" Padding="3,2,4,2" MinHeight="34">
+      <Border Classes="entry" Classes.modified="{Binding IsModified}" Margin="-6,-2,10,-2" Padding="3,2,4,2">
         <Grid ColumnDefinitions="Auto,Auto,48,*,Auto">
           <!-- Type color strip (two halves for two types) -->
           <Border Width="5" Margin="0,2,6,2" Background="{Binding TypeBrush}" />
@@ -485,14 +484,14 @@
                        IsVisible="{Binding TrainersByCategory}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ListBox.ItemTemplate>
                   <DataTemplate x:DataType="vm:TrainerCategoryViewModel">
-                    <Border Classes="entry" Classes.modified="{Binding IsModified}" Margin="-6,-2,10,-2" Padding="3,3,4,3">
-                      <Grid ColumnDefinitions="Auto,*,Auto">
-                        <Image Source="{Binding Sprite}" IsVisible="{Binding HasSprite}" Width="34" Height="34" Margin="0,0,6,0" />
-                        <StackPanel Grid.Column="1">
+                    <Border Classes="entry" Classes.modified="{Binding IsModified}" Margin="-6,-2,10,-2" Padding="3,3,4,3"
+                            ToolTip.Tip="{Binding Tip}">
+                      <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel>
                           <TextBlock Classes="entry-name" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
                           <TextBlock Classes="hint" Text="{Binding Summary}" TextTrimming="CharacterEllipsis" />
                         </StackPanel>
-                        <TextBlock Grid.Column="2" Classes="hint" Text="{Binding CountText}" VerticalAlignment="Center" Margin="6,0,0,0" />
+                        <TextBlock Grid.Column="1" Classes="hint" Text="{Binding CountText}" VerticalAlignment="Center" Margin="6,0,0,0" />
                       </Grid>
                     </Border>
                   </DataTemplate>
@@ -602,15 +601,12 @@
                     <StackPanel Spacing="8">
                       <!-- Header in the colour of the AI level: grey none, blue basic, amber two flags, red the game's own maximum -->
                       <Border Classes="detail-header" Background="{Binding AiBrush}">
-                        <Grid ColumnDefinitions="Auto,*,Auto">
-                          <Border Classes="icon-circle" Width="56" Height="56" Margin="0,0,10,0" IsVisible="{Binding HasSprite}">
-                            <Image Source="{Binding Sprite}" Width="48" Height="48" />
-                          </Border>
-                          <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
+                        <Grid ColumnDefinitions="*,Auto">
+                          <StackPanel Spacing="4" VerticalAlignment="Center">
                             <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="Bold" Foreground="White" TextTrimming="CharacterEllipsis" />
                             <TextBlock Text="{Binding AiText}" Foreground="White" Opacity="0.95" />
                           </StackPanel>
-                          <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
                             <Border Classes="badge">
                               <StackPanel>
                                 <TextBlock Classes="badge-label" Text="{x:Static r:Strings.Trainer_TeamSize}" />

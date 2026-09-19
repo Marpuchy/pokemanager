@@ -70,6 +70,7 @@
           <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Top">
             <TextBlock Classes="dot" Text="● " VerticalAlignment="Center" IsVisible="{Binding IsDirty}" />
             <TextBlock Classes="hint" Text="{x:Static r:Strings.Save_Unwritten}" VerticalAlignment="Center" IsVisible="{Binding IsDirty}" />
+            <Button Content="{x:Static r:Strings.Save_Reset}" Command="{Binding ResetGameCommand}" ToolTip.Tip="{x:Static r:Strings.Save_ResetTip}" />
             <Button Content="{x:Static r:Strings.Save_ReloadButton}" Command="{Binding ReloadCommand}" />
             <Button Classes="accent" Content="{x:Static r:Strings.Save_WriteButton}" Command="{Binding WriteCommand}" ToolTip.Tip="{x:Static r:Strings.Save_WriteTip}" />
           </StackPanel>
@@ -933,6 +934,8 @@
               <StackPanel Orientation="Horizontal" Spacing="6">
                 <Button Content="{x:Static r:Strings.Dex_AllSeen}" Command="{Binding AllSeenCommand}" />
                 <Button Content="{x:Static r:Strings.Dex_AllCaught}" Command="{Binding AllCaughtCommand}" />
+                <CheckBox IsChecked="{Binding ShowAbilities}" Content="{x:Static r:Strings.Adv_ShowAbilities}"
+                          ToolTip.Tip="{x:Static r:Strings.Dex_ShowAbilitiesTip}" />
               </StackPanel>
               <TextBlock Classes="hint" Text="{Binding CountText}" />
             </StackPanel>
@@ -1023,6 +1026,23 @@
                       <Border Classes="card" ToolTip.Tip="{x:Static r:Strings.Dex_DataHint}">
                         <StackPanel>
                           <TextBlock Classes="card-title" Margin="0,0,0,4" Text="{x:Static r:Strings.Dex_DataTitle}" />
+                          <ItemsControl ItemsSource="{Binding Abilities}"
+                                        IsVisible="{Binding $parent[UserControl].((vm:SaveEditorViewModel)DataContext).Dex.ShowAbilities}">
+                            <ItemsControl.ItemTemplate>
+                              <DataTemplate x:DataType="vm:DexInfoLine">
+                                <Border Classes="info-row">
+                                  <Grid ColumnDefinitions="130,*">
+                                    <TextBlock Classes="hint" VerticalAlignment="Center" Text="{Binding Label}" />
+                                    <TextBlock Grid.Column="1" FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding Value}" />
+                                  </Grid>
+                                </Border>
+                              </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                          </ItemsControl>
+                          <Border Classes="info-row"
+                                  IsVisible="{Binding !$parent[UserControl].((vm:SaveEditorViewModel)DataContext).Dex.ShowAbilities}">
+                            <TextBlock Classes="hint" Text="{x:Static r:Strings.Dex_AbilitiesHidden}" VerticalAlignment="Center" />
+                          </Border>
                           <ItemsControl ItemsSource="{Binding Info}">
                             <ItemsControl.ItemTemplate>
                               <DataTemplate x:DataType="vm:DexInfoLine">

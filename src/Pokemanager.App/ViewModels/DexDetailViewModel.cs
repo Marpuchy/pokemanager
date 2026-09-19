@@ -1,4 +1,4 @@
-using Avalonia.Media;
+﻿using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Pokemanager.App.Resources;
 using Pokemanager.App.Services;
@@ -46,11 +46,14 @@ public sealed class DexDetailViewModel : ObservableObject
         Weight = string.Format(Strings.Dex_Weight, p.Weight / 10.0);
 
         int[] abilities = [.. p.Abilities];
-        var info = new List<DexInfoLine>
-        {
+        Abilities =
+        [
             new(Strings.Field_Ability1, names.AbilityName(abilities[0])),
             new(Strings.Field_Ability2, names.AbilityName(abilities[1])),
             new(Strings.Field_AbilityHidden, names.AbilityName(abilities[2])),
+        ];
+        var info = new List<DexInfoLine>
+        {
             new(Strings.Dex_EggGroups, string.Join(" · ", new[] { p.EggGroups[0], p.EggGroups[1] }.Distinct()
                 .Select(g => g >= 0 && g < GameNames.EggGroups.Count ? GameNames.EggGroups[g] : "?"))),
             new(Strings.Dex_GenderRatio, p.Gender switch
@@ -93,6 +96,12 @@ public sealed class DexDetailViewModel : ObservableObject
     public IBrush TypeForeground { get; }
     public IReadOnlyList<TypeChip> TypeChips { get; }
     public IReadOnlyList<DexInfoLine> Info { get; } = [];
+
+    /// <summary>
+    /// The three abilities, apart from the rest: a player checking what a randomization did to a species may not want
+    /// to be told what it can have, so the page keeps them hidden until asked (like Advanced: Pokémon).
+    /// </summary>
+    public IReadOnlyList<DexInfoLine> Abilities { get; } = [];
     public IReadOnlyList<DexStatLine> Stats { get; } = [];
     public int Total { get; }
 

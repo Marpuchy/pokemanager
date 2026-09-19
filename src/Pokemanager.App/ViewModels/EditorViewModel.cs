@@ -5,6 +5,7 @@ using Pokemanager.App.Resources;
 using Pokemanager.App.Services;
 using Pokemanager.Bridge;
 using Pokemanager.Model.Build;
+using Pokemanager.Model.Data;
 using Pokemanager.Model.Dump;
 using Pokemanager.Model.Editing;
 using Pokemanager.Model.Edits;
@@ -220,24 +221,25 @@ public partial class EditorViewModel : ObservableObject
             .ToList();
 
         string[] trainerTables = [GameTables.Trainers];
-        int generation = Session.Current.Title.Generation();
         allTrainers = Enumerable.Range(0, Session.Current.Trainers.Length)
-            .Select(i =>
-            {
-                // The picture of the class is fetched the first time a row asks for it, and the row is told when it lands.
-                ListEntryViewModel entry = null!;
-                return entry = new ListEntryViewModel(Session, trainerTables, i, "",
-                    icon: () => TrainerClassSprites.Get(Names.TrainerClassName(Session.GetInt(GameTables.Trainers, i, "class")),
-                        generation, () => entry.RefreshIcon()),
-                    liveName: () => Names.TrainerLabel(i, Session.GetInt(GameTables.Trainers, i, "class")),
-                    strip: () => TrainerDetailViewModel.AiColor(Session.GetInt(GameTables.Trainers, i, "ai")));
-            })
+            .Select(i => new ListEntryViewModel(Session, trainerTables, i, "",
+                // The part they play goes in the name: a ROM with randomized names is a list of strangers otherwise,
+                // and this is what lets "rival" or "leader" be typed in the search box.
+                liveName: () => TrainerName(i),
+                strip: () => TrainerDetailViewModel.AiColor(Session.GetInt(GameTables.Trainers, i, "ai"))))
             .ToList();
 
         TrainerBulk ??= new TrainerBulkViewModel(this, Session);
         allCategories =
         [
             new TrainerCategoryViewModel(Session, Strings.Trainer_CategoryAll, [.. Enumerable.Range(0, Session.Current.Trainers.Length)]),
+            // By how hard they are meant to be, which is what a difficulty change is usually about.
+            .. Enum.GetValues<TrainerDifficulty>()
+                .OrderByDescending(d => d)
+                .Select(d => new TrainerCategoryViewModel(Session, TrainerRoleNames.Of(d),
+                    [.. Enumerable.Range(0, Session.Current.Trainers.Length).Where(i => TrainerRoles.DifficultyOf(Session.Current.Title, i) == d)],
+                    Tip(d)))
+                .Where(c => c.Trainers.Count > 0),
             .. Enumerable.Range(0, Session.Current.Trainers.Length)
                 .GroupBy(ClassName)
                 .Select(g => new TrainerCategoryViewModel(Session, g.Key, [.. g]))
@@ -494,6 +496,23 @@ public partial class EditorViewModel : ObservableObject
     partial void OnSelectedTrainerCategoryChanged(TrainerCategoryViewModel? value) => TrainerBulk.Category = value;
 
     /// <summary>After a bulk change: every row and the open trainer show the new values.</summary>
+    /// <summary>"Gym leader 3 - Korrina", or just the name when the trainer has no part of their own.</summary>
+    private string TrainerName(int trainer)
+    {
+        string label = Names.TrainerLabel(trainer, Session.GetInt(GameTables.Trainers, trainer, "class"));
+        return TrainerRoleNames.Of(TrainerRoles.TagOf(Session.Current.Title, trainer)) is { } role
+            ? string.Format(Strings.Trainer_WithRole, role, label)
+            : label;
+    }
+
+    /// <summary>What a difficulty group means, on hover.</summary>
+    private static string Tip(TrainerDifficulty difficulty) => difficulty switch
+    {
+        TrainerDifficulty.Boss => Strings.Role_BossesTip,
+        TrainerDifficulty.Important => Strings.Role_ImportantTip,
+        _ => Strings.Role_OrdinaryTip,
+    };
+
     /// <summary>The class name of a trainer, which is what groups the categories.</summary>
     private string ClassName(int trainer)
     {

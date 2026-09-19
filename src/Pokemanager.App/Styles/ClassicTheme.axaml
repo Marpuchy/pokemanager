@@ -1,5 +1,6 @@
-<Styles xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:c="using:Pokemanager.App.Controls">
   <!--
     Classic desktop look, close to PKHeX (WinForms) and Universal Pokémon Randomizer ZX: light grey window, white tab pages,
     square compact controls with thin grey borders, blue highlight, 12 px Segoe UI and group boxes instead of cards.
@@ -217,6 +218,10 @@
 
   <!-- ============================== Combo boxes ============================== -->
   <Style Selector="ComboBox">
+    <!-- Typing inside any dropdown jumps to what you type: the lists here are hundreds of items long. Avalonia's own
+         search only looks at the start of the row, and the rows here begin with a number ("#025 Pikachu"). -->
+    <Setter Property="c:TypeAhead.IsEnabled" Value="True" />
+    <Setter Property="IsTextSearchEnabled" Value="False" />
     <Setter Property="Background" Value="White" />
     <Setter Property="BorderBrush" Value="{StaticResource ClassicInputBorderBrush}" />
     <Setter Property="BorderThickness" Value="1" />

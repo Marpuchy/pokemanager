@@ -1,4 +1,4 @@
-using PKHeX.Core;
+﻿using PKHeX.Core;
 using pk3DS.Core.Structures.PersonalInfo;
 using Pokemanager.Save.Resources;
 using GameData = Pokemanager.Model.Data.GameData;
@@ -834,5 +834,19 @@ public sealed class SaveDocument
         diskBytes = updated;
         IsDirty = false;
         return new SaveWriteResult(SavePath, backup);
+    }
+
+    /// <summary>
+    /// Starts the game over: the save is copied to the backups and then taken off the console's folder, so the game
+    /// finds none and begins a new adventure. Nothing is lost — the copy is what the backups and the project history
+    /// are for.
+    /// </summary>
+    /// <returns>Path of the copy that was kept.</returns>
+    public string Reset(string backupRoot)
+    {
+        string backup = SaveWriter.BackUp(SavePath, backupRoot);
+        File.Delete(SavePath);
+        IsDirty = false;
+        return backup;
     }
 }

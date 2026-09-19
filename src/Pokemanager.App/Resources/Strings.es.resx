@@ -3447,4 +3447,79 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Rnd_StartersTip" xml:space="preserve">
     <value>Lo que da el juego de verdad al elegir. En Sol/Luna y Ultrasol/Ultraluna los tres de la mesa siguen siendo los modelos originales del juego, así que este es el único sitio donde verlos antes de elegir; el texto de la escena se reescribe con estos nombres al crear la ROM.</value>
   </data>
+  <data name="Role_GymLeader" xml:space="preserve">
+    <value>Líder de gimnasio {0}</value>
+  </data>
+  <data name="Role_Gym" xml:space="preserve">
+    <value>Gimnasio {0}</value>
+  </data>
+  <data name="Role_Elite" xml:space="preserve">
+    <value>Alto Mando {0}</value>
+  </data>
+  <data name="Role_Champion" xml:space="preserve">
+    <value>Campeón</value>
+  </data>
+  <data name="Role_Uber" xml:space="preserve">
+    <value>Jefe del post-juego</value>
+  </data>
+  <data name="Role_Rival" xml:space="preserve">
+    <value>Rival {0}</value>
+  </data>
+  <data name="Role_Friend" xml:space="preserve">
+    <value>Amigo {0}</value>
+  </data>
+  <data name="Role_Strong" xml:space="preserve">
+    <value>Entrenador fuerte</value>
+  </data>
+  <data name="Role_Bosses" xml:space="preserve">
+    <value>Jefes</value>
+  </data>
+  <data name="Role_Important" xml:space="preserve">
+    <value>Importantes</value>
+  </data>
+  <data name="Role_Ordinary" xml:space="preserve">
+    <value>Normales</value>
+  </data>
+  <data name="Role_BossesTip" xml:space="preserve">
+    <value>Líderes de gimnasio y kahunas, Alto Mando, Campeón y los jefes del post-juego.</value>
+  </data>
+  <data name="Role_ImportantTip" xml:space="preserve">
+    <value>El rival, el amigo que te reta una y otra vez, los jefes del equipo y los personajes de la historia.</value>
+  </data>
+  <data name="Role_OrdinaryTip" xml:space="preserve">
+    <value>Todos los demás: los entrenadores de las rutas, los gimnasios y los edificios.</value>
+  </data>
+  <data name="Role_None" xml:space="preserve">
+    <value>Ningún entrenador de este juego está en este grupo.</value>
+  </data>
+  <data name="Trainer_WithRole" xml:space="preserve">
+    <value>{0} - {1}</value>
+  </data>
+  <data name="Dex_AbilitiesHidden" xml:space="preserve">
+    <value>Habilidades ocultas</value>
+  </data>
+  <data name="Dex_ShowAbilitiesTip" xml:space="preserve">
+    <value>Si la ficha te dice las habilidades de la especie. Empieza apagado para que mirar un Pokémon no te destripe lo que le dio la randomización.</value>
+  </data>
+  <data name="Save_ResetTitle" xml:space="preserve">
+    <value>Empezar el juego de cero</value>
+  </data>
+  <data name="Save_ResetConfirm" xml:space="preserve">
+    <value>Empezar de cero</value>
+  </data>
+  <data name="Save_ResetDone" xml:space="preserve">
+    <value>El juego empezará una aventura nueva. La partida anterior está en {0}</value>
+  </data>
+  <data name="Save_ResetFailed" xml:space="preserve">
+    <value>No se ha podido apartar la partida: {0}</value>
+  </data>
+  <data name="Save_Reset" xml:space="preserve">
+    <value>Empezar de cero…</value>
+  </data>
+  <data name="Save_ResetTip" xml:space="preserve">
+    <value>Guarda una copia de la partida y la saca de la carpeta del emulador, así que el juego empieza una aventura nueva. El emulador tiene que estar cerrado.</value>
+  </data>
+  <data name="Save_ResetMessage" xml:space="preserve">
+    <value>La partida de {0} se copia a las copias de seguridad y se saca de la carpeta del emulador, así que el juego empezará una aventura nueva. Partida: {1}</value>
+  </data>
 </root>

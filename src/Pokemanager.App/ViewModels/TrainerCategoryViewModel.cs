@@ -13,9 +13,12 @@ namespace Pokemanager.App.ViewModels;
 /// A group of trainers to edit in one go. The groups are the game's own trainer classes (Leader, Youngster, Elite
 /// Four…), not tiers we invented, plus "every trainer" at the top.
 /// </summary>
-public sealed class TrainerCategoryViewModel(EditorSession session, string name, IReadOnlyList<int> trainers)
+public sealed class TrainerCategoryViewModel(EditorSession session, string name, IReadOnlyList<int> trainers, string? tip = null)
     : ObservableObject
 {
+    /// <summary>What the group is, on hover; the class groups say it in their own name.</summary>
+    public string? Tip { get; } = tip;
+
     /// <summary>
     /// The class name as the game writes it. Several class entries share a name (the game has more than one "Pokémon
     /// Trainer" and more than one "Team Flare"), and they are one category here: the player reads the name, not the id.
@@ -24,12 +27,6 @@ public sealed class TrainerCategoryViewModel(EditorSession session, string name,
 
     public IReadOnlyList<int> Trainers { get; } = trainers;
 
-    /// <summary>The picture of the class, when Showdown has one under this name; null hides its slot in the row.</summary>
-    public Avalonia.Media.Imaging.Bitmap? Sprite =>
-        Services.TrainerClassSprites.Get(Name, session.Current.Title.Generation(),
-            () => { OnPropertyChanged(nameof(Sprite)); OnPropertyChanged(nameof(HasSprite)); });
-
-    public bool HasSprite => Sprite is not null;
 
     public string CountText => string.Format(Strings.Trainer_CategoryCount, Trainers.Count);
 

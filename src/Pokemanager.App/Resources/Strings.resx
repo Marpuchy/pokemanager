@@ -3447,4 +3447,79 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Rnd_StartersTip" xml:space="preserve">
     <value>What the game really gives when you choose. In Sun/Moon and Ultra Sun/Ultra Moon the three on the table are still the models the game shipped with, so this is the only place to see them before choosing; the text of the scene is rewritten with these names when the ROM is built.</value>
   </data>
+  <data name="Role_GymLeader" xml:space="preserve">
+    <value>Gym leader {0}</value>
+  </data>
+  <data name="Role_Gym" xml:space="preserve">
+    <value>Gym {0}</value>
+  </data>
+  <data name="Role_Elite" xml:space="preserve">
+    <value>Elite Four {0}</value>
+  </data>
+  <data name="Role_Champion" xml:space="preserve">
+    <value>Champion</value>
+  </data>
+  <data name="Role_Uber" xml:space="preserve">
+    <value>Post-game boss</value>
+  </data>
+  <data name="Role_Rival" xml:space="preserve">
+    <value>Rival {0}</value>
+  </data>
+  <data name="Role_Friend" xml:space="preserve">
+    <value>Friend {0}</value>
+  </data>
+  <data name="Role_Strong" xml:space="preserve">
+    <value>Strong trainer</value>
+  </data>
+  <data name="Role_Bosses" xml:space="preserve">
+    <value>Bosses</value>
+  </data>
+  <data name="Role_Important" xml:space="preserve">
+    <value>Important</value>
+  </data>
+  <data name="Role_Ordinary" xml:space="preserve">
+    <value>Ordinary</value>
+  </data>
+  <data name="Role_BossesTip" xml:space="preserve">
+    <value>Gym leaders and kahunas, the Elite Four, the Champion and the post-game bosses.</value>
+  </data>
+  <data name="Role_ImportantTip" xml:space="preserve">
+    <value>The rival, the friend who keeps challenging you, the team bosses and the story characters.</value>
+  </data>
+  <data name="Role_OrdinaryTip" xml:space="preserve">
+    <value>Everyone else: the trainers of the routes, the gyms and the buildings.</value>
+  </data>
+  <data name="Role_None" xml:space="preserve">
+    <value>No trainer of this game is in this group.</value>
+  </data>
+  <data name="Trainer_WithRole" xml:space="preserve">
+    <value>{0} - {1}</value>
+  </data>
+  <data name="Dex_AbilitiesHidden" xml:space="preserve">
+    <value>Abilities hidden</value>
+  </data>
+  <data name="Dex_ShowAbilitiesTip" xml:space="preserve">
+    <value>Whether the entry tells you the species' abilities. It starts off so looking a Pokémon up does not spoil what a randomization gave it.</value>
+  </data>
+  <data name="Save_ResetTitle" xml:space="preserve">
+    <value>Start the game over</value>
+  </data>
+  <data name="Save_ResetConfirm" xml:space="preserve">
+    <value>Start over</value>
+  </data>
+  <data name="Save_ResetDone" xml:space="preserve">
+    <value>The game will start a new adventure. The old save is in {0}</value>
+  </data>
+  <data name="Save_ResetFailed" xml:space="preserve">
+    <value>The save could not be put away: {0}</value>
+  </data>
+  <data name="Save_Reset" xml:space="preserve">
+    <value>Start over…</value>
+  </data>
+  <data name="Save_ResetTip" xml:space="preserve">
+    <value>Keeps a copy of the save and takes it out of the emulator's folder, so the game starts a new adventure. The emulator has to be closed.</value>
+  </data>
+  <data name="Save_ResetMessage" xml:space="preserve">
+    <value>The save of {0} is copied to the backups and taken out of the emulator's folder, so the game starts a new adventure. Save: {1}</value>
+  </data>
 </root>

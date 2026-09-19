@@ -503,6 +503,50 @@ public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
         editor.SetStatus(Strings.Save_Reloaded);
     }
 
+    /// <summary>
+    /// Starts the game over: the save is put away so the console finds none and begins a new adventure. Nothing is
+    /// thrown away — it goes to the backups and to the project history first, and the emulator has to be closed, like
+    /// every other write.
+    /// </summary>
+    [RelayCommand]
+    private async Task ResetGame()
+    {
+        if (Document is null)
+            return;
+        if (EmulatorUserFolders.RunningEmulators(settings.EffectiveEmulatorName) is { Count: > 0 } running)
+        {
+            editor.SetStatus(string.Format(Strings.Status_CloseEmulator, string.Join(", ", running)), error: true);
+            return;
+        }
+
+        string path = Document.SavePath;
+        var question = new QuestionViewModel(Strings.Save_ResetTitle,
+            string.Format(Strings.Save_ResetMessage, Document.TrainerName, path),
+            Strings.Save_ResetConfirm, Strings.Common_Cancel, []);
+        if (!await editor.Dialogs.AskAsync(question))
+            return;
+
+        try
+        {
+            editor.History.History.Record(editor.Session.Project, VersionKind.BeforeSaveEdit,
+                romPath: editor.Session.Project.Randomization.LastBuiltRom, savePath: path);
+            editor.History.History.Prune();
+
+            string backups = Path.Combine(AppSettings.BackupRoot, settings.EffectiveEmulatorName);
+            string backup = Document.Reset(backups);
+            SaveUpdater.PruneBackups(backups, keep: 10);
+
+            Open();
+            editor.History.Refresh();
+            editor.Randomizer.RefreshSave();
+            editor.SetStatus(string.Format(Strings.Save_ResetDone, backup));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SaveUpdateException)
+        {
+            editor.SetStatus(string.Format(Strings.Save_ResetFailed, ex.Message), error: true);
+        }
+    }
+
     [RelayCommand]
     private void Write()
     {
@@ -800,6 +844,13 @@ public partial class SaveDexViewModel : ObservableObject
     /// <summary>The selected species as the game's Pokédex shows it, with the data of the ROM played.</summary>
     [ObservableProperty]
     public partial DexDetailViewModel? Detail { get; private set; }
+
+    /// <summary>
+    /// Whether the entry shows the species' abilities. Off on every open and not remembered: a player looking up what a
+    /// randomization did to a Pokémon should not be told its abilities unless they ask (as in Advanced: Pokémon).
+    /// </summary>
+    [ObservableProperty]
+    public partial bool ShowAbilities { get; set; }
 
     public SaveDexViewModel(SaveEditorViewModel owner, SaveDocument doc, SaveNames names)
     {
