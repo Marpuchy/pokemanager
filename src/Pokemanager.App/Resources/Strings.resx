@@ -3912,4 +3912,10 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Modified_AndMore" xml:space="preserve">
     <value>{0}…</value>
   </data>
+  <data name="Status_SaveNotAdapted" xml:space="preserve">
+    <value>The save was not adapted: {0}</value>
+  </data>
+  <data name="Rnd_SaveNotSavedYet" xml:space="preserve">
+    <value>{0} save: the game has not saved this adventure yet. Save once in game and it will be adapted.</value>
+  </data>
 </root>

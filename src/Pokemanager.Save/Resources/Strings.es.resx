@@ -111,4 +111,7 @@
   <data name="Save_ResetCopyFailed" xml:space="preserve">
     <value>La copia de {0} no coincide con la partida, así que no se ha quitado nada.</value>
   </data>
+  <data name="Save_NotSavedYet" xml:space="preserve">
+    <value>El juego todavía no ha guardado esta partida, así que no hay nada que adaptar en el save. Guarda una vez dentro del juego.</value>
+  </data>
 </root>

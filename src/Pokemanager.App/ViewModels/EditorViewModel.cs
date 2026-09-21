@@ -742,8 +742,21 @@ public partial class EditorViewModel : ObservableObject
                 removedMods += await Task.Run(() => ModInstaller.Uninstall(EmulatorUserFolders.ModDirectory(emulator.Path, Dump.Title.TitleIdHex())).Count);
 
             SaveUpdateResult? saveResult = null;
+            string saveProblem = "";
             if (savePath is not null && File.Exists(savePath))
-                saveResult = await ApplySaveUpdateAsync(savePath);
+            {
+                // The ROM is already built at this point. A save that cannot be adapted (a new adventure the game has
+                // not saved yet, a damaged file) is worth saying, but it must not undo the build: without this the ROM
+                // was written and the project still said it had unbuilt changes.
+                try
+                {
+                    saveResult = await ApplySaveUpdateAsync(savePath);
+                }
+                catch (Exception ex) when (ex is SaveUpdateException or IOException or UnauthorizedAccessException)
+                {
+                    saveProblem = ex.Message;
+                }
+            }
 
             r.InstalledSeed = random?.Seed;
             await SaveAsync();
@@ -755,9 +768,11 @@ public partial class EditorViewModel : ObservableObject
 
             string what = random is null ? Strings.Status_NotRandomized : string.Format(Strings.Status_Seed, random.Seed);
             string mods = removedMods > 0 ? string.Format(Strings.Status_ModsRemoved, removedMods) : "";
-            string save = saveResult is null ? "" : saveResult.Changes.Count == 0
-                ? Strings.Status_SaveUnchanged
-                : string.Format(Strings.Status_SaveUpdated, saveResult.Changes.Count);
+            string save = saveProblem.Length > 0
+                ? string.Format(Strings.Status_SaveNotAdapted, saveProblem)
+                : saveResult is null ? "" : saveResult.Changes.Count == 0
+                    ? Strings.Status_SaveUnchanged
+                    : string.Format(Strings.Status_SaveUpdated, saveResult.Changes.Count);
             SetStatus(string.Format(Strings.Status_RomBuilt, what, built.RomPath, save, mods, settings.EffectiveEmulatorName));
         }
         catch (UprException ex)

@@ -1,4 +1,4 @@
-using PKHeX.Core;
+﻿using PKHeX.Core;
 using Pokemanager.Save.Resources;
 using GameData = Pokemanager.Model.Data.GameData;
 
@@ -79,6 +79,25 @@ public static class SaveUpdater
     /// <summary>The 3DS games Pokemanager edits: X/Y, Omega Ruby/Alpha Sapphire, Sun/Moon, Ultra Sun/Ultra Moon.</summary>
     public static bool IsSupported(SaveFile sav) => sav is SAV6XY or SAV6AO or SAV7SM or SAV7USUM;
 
+    /// <summary>
+    /// A save the game has made room for but has never written: a new adventure that has not been saved in game yet.
+    /// </summary>
+    /// <remarks>
+    /// **Measured on the user's Pokémon X (2026-09-21)**: after starting the adventure over, the game creates the save
+    /// archive again and the file exists with every checksum region invalid, no trainer, no play time and nothing in the
+    /// party. It is not a damaged save — there is simply nothing in it yet — and it must be said in those words, because
+    /// "the checksums are not valid" reads like the adventure was lost.
+    /// </remarks>
+    public static bool NotSavedYet(SaveFile sav) =>
+        !sav.ChecksumsValid && sav.OT.Length == 0 && sav.PartyCount == 0 && sav.PlayedHours == 0 && sav.PlayedMinutes == 0;
+
+    /// <summary>Why this save cannot be worked on, or null when it can.</summary>
+    public static string? Problem(SaveFile sav) =>
+        !IsSupported(sav) ? string.Format(Strings.Save_NotSupported, sav.GetType().Name)
+        : NotSavedYet(sav) ? Strings.Save_NotSavedYet
+        : !sav.ChecksumsValid ? Strings.Save_BadChecksums
+        : null;
+
     /// <summary>Computes the changes without writing anything.</summary>
     public static SaveUpdateResult Preview(string savePath, GameData rom, int? levelCap = null) =>
         Run(savePath, rom, backupRoot: null, write: false, levelCap);
@@ -91,10 +110,8 @@ public static class SaveUpdater
     private static SaveUpdateResult Run(string savePath, GameData rom, string? backupRoot, bool write, int? levelCap)
     {
         var sav = Load(savePath);
-        if (!IsSupported(sav))
-            throw new SaveUpdateException(string.Format(Strings.Save_NotSupported, sav.GetType().Name));
-        if (!sav.ChecksumsValid)
-            throw new SaveUpdateException(Strings.Save_BadChecksums);
+        if (Problem(sav) is { } problem)
+            throw new SaveUpdateException(problem);
 
         var changes = new List<PokemonChange>();
         int checkedCount = 0;

@@ -111,4 +111,7 @@
   <data name="Save_ResetCopyFailed" xml:space="preserve">
     <value>The copy in {0} does not match the save, so nothing was removed.</value>
   </data>
+  <data name="Save_NotSavedYet" xml:space="preserve">
+    <value>The game has not saved this adventure yet, so there is nothing in the save to adapt. Save once in game.</value>
+  </data>
 </root>

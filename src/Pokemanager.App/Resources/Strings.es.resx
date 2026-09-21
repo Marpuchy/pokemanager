@@ -3912,4 +3912,10 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Modified_AndMore" xml:space="preserve">
     <value>{0}…</value>
   </data>
+  <data name="Status_SaveNotAdapted" xml:space="preserve">
+    <value>El save no se ha adaptado: {0}</value>
+  </data>
+  <data name="Rnd_SaveNotSavedYet" xml:space="preserve">
+    <value>Save de {0}: el juego aún no ha guardado esta partida. Guarda una vez dentro del juego y se adaptará.</value>
+  </data>
 </root>

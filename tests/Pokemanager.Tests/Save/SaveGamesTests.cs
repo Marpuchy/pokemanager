@@ -39,6 +39,33 @@ public sealed class SaveGamesTests : IDisposable
         return doc;
     }
 
+    /// <summary>
+    /// After starting the adventure over, the game makes the save file again and leaves it unwritten: no trainer, no
+    /// play time, no checksums. That is not a damaged save and must not be reported as one — the user read "the save
+    /// checksums are not valid" and thought the build had broken (2026-09-21).
+    /// </summary>
+    [Fact]
+    public void A_save_the_game_has_not_written_yet_is_told_apart_from_a_damaged_one()
+    {
+        string path = Path.Combine(dir, "unwritten-main");
+        File.WriteAllBytes(path, new byte[0x65600]);
+
+        var sav = SaveUpdater.Load(path);
+        Assert.True(SaveUpdater.NotSavedYet(sav));
+        Assert.Equal(Pokemanager.Save.Resources.Strings.Save_NotSavedYet, SaveUpdater.Problem(sav));
+        var thrown = Assert.Throws<SaveUpdateException>(() => SaveDocument.Open(path, GameData.Load(romfs.RomFs)));
+        Assert.Equal(Pokemanager.Save.Resources.Strings.Save_NotSavedYet, thrown.Message);
+
+        // A save with a trainer and time in it, but broken, still says the checksums are wrong.
+        var played = Blank("XY");
+        played.OT = "Test";
+        byte[] damaged = played.Write().ToArray();
+        damaged[0x1000] ^= 0xFF;
+        string other = Path.Combine(dir, "damaged-main");
+        File.WriteAllBytes(other, damaged);
+        Assert.Equal(Pokemanager.Save.Resources.Strings.Save_BadChecksums, SaveUpdater.Problem(SaveUpdater.Load(other)));
+    }
+
     [Theory]
     [MemberData(nameof(Games))]
     public void Opens_CreatesPokemon_WritesAndRereads(string game)

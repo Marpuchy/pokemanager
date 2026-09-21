@@ -195,6 +195,10 @@ public partial class RandomizerViewModel : ObservableObject
             try
             {
                 var sav = SaveUpdater.Load(path);
+                // A new adventure the game has not saved yet has no trainer and nothing in the party: say that instead
+                // of showing an empty name and a zero.
+                if (SaveUpdater.NotSavedYet(sav))
+                    return string.Format(Strings.Rnd_SaveNotSavedYet, EmulatorName);
                 return string.Format(Strings.Rnd_SaveInfo, EmulatorName, sav.OT, sav.PartyCount, File.GetLastWriteTime(path));
             }
             catch (Exception ex) when (ex is IOException or SaveUpdateException or UnauthorizedAccessException)

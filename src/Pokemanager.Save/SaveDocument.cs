@@ -60,8 +60,8 @@ public sealed class SaveDocument
             SAV7USUM usum => usum.Inventory,
             _ => throw new SaveUpdateException(string.Format(Strings.Save_NotSupported, sav.GetType().Name)),
         };
-        if (!sav.ChecksumsValid)
-            throw new SaveUpdateException(Strings.Save_BadChecksums);
+        if (SaveUpdater.Problem(sav) is { } problem)
+            throw new SaveUpdateException(problem);
         return new SaveDocument(savePath, sav, bag, rom, bytes);
     }
 
