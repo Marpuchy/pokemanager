@@ -580,7 +580,7 @@
     <value>No game-breaking moves</value>
   </data>
   <data name="Opt_ShinyChance" xml:space="preserve">
-    <value>Increased shiny chance</value>
+    <value>Trainers: their Pokémon can be shiny</value>
   </data>
   <data name="Tweak_FASTEST_TEXT" xml:space="preserve">
     <value>Fastest text</value>
@@ -1033,7 +1033,7 @@
     <value>Keeps the moves that break the game out of everything at once.</value>
   </data>
   <data name="Tip_ShinyChance" xml:space="preserve">
-    <value>Raises the chance of a wild Pokémon being shiny.</value>
+    <value>UPR ZX&apos;s own option: a 1/256 chance of a trainer&apos;s Pokémon being shiny. It is not the shiny Pokémon option of this card, which is about the ones you find.</value>
   </data>
   <data name="Tip_TrainersLevelModified" xml:space="preserve">
     <value>Raises or lowers the level of every trainer's Pokémon by a percentage, as part of the randomization. Advanced: Trainers can still change it per class on top.</value>

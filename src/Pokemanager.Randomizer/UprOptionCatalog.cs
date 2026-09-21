@@ -26,16 +26,32 @@ public static class UprOptionCatalog
 
     public static IReadOnlyList<string> Groups { get; } = [Traits, Evolutions, Starters, Moves, Trainers, Wild, Totems, TmsTutors, Items, Misc];
 
-    /// <summary>
-    /// Options the application does not show. <c>LimitPokemon</c> is not supported. The trainer level percentage is
-    /// shown (the user wants it with the other trainer options) even though Advanced: Trainers has one per class too:
-    /// UPR ZX's applies to every trainer as part of the randomization, the advanced one on top of it.
-    /// </summary>
+    /// <summary>Options the application does not show at all: <c>LimitPokemon</c> is not supported.</summary>
     public static IReadOnlySet<string> Hidden { get; } = new HashSet<string> { "LimitPokemon" };
 
-    /// <summary>Whether an option is hidden for a game of <paramref name="generation"/> (6 or 7).</summary>
+    /// <summary>
+    /// The randomizer's own level modifiers, which this application also has — and **the same thing must not be in two
+    /// places**. Ours wins because it is written when the ROM is built, so it can be changed without randomizing again;
+    /// the value a preset carries is still shown next to ours, with a button to clear it.
+    /// </summary>
+    public static IReadOnlyList<(string Toggle, string Percent)> LevelModifiers { get; } =
+    [
+        ("TrainersLevelModified", "TrainersLevelModifier"),
+        ("WildLevelsModified", "WildLevelModifier"),
+        ("StaticLevelModified", "StaticLevelModifier"),
+        ("TotemLevelsModified", "TotemLevelModifier"),
+    ];
+
+    /// <summary>
+    /// Whether an option is hidden for a game of <paramref name="generation"/> (6 or 7). The trainer level modifier is
+    /// hidden everywhere; the wild, static and totem ones only in Generation 7, which is where this application writes
+    /// those levels itself.
+    /// </summary>
     public static bool IsHidden(string name, int generation) =>
-        Hidden.Contains(name) || (generation < 7 && Describe(name).Group == Totems);
+        Hidden.Contains(name)
+        || (generation < 7 && Describe(name).Group == Totems)
+        || name is "TrainersLevelModified" or "TrainersLevelModifier"
+        || (generation >= 7 && LevelModifiers.Any(m => m.Toggle == name || m.Percent == name));
 
     public static IReadOnlyDictionary<string, UprOptionInfo> Options { get; } = new Dictionary<string, UprOptionInfo>
     {

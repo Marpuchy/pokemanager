@@ -3831,4 +3831,25 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Items_SeeRulesTab" xml:space="preserve">
     <value>Lo que añade esta aplicación sobre objetos (megapiedras, todos los objetos, caramelos gratis, piedras a la venta) está en Reglas y tiendas.</value>
   </data>
+  <data name="Options_OursHint" xml:space="preserve">
+    <value>No es del randomizer: se escribe al crear la ROM, así que cambiarlo no obliga a aleatorizar de nuevo.</value>
+  </data>
+  <data name="Options_TrainerLevels" xml:space="preserve">
+    <value>Niveles y dinero de los entrenadores</value>
+  </data>
+  <data name="Options_WildLevels" xml:space="preserve">
+    <value>Niveles de los salvajes</value>
+  </data>
+  <data name="Options_StaticLevels" xml:space="preserve">
+    <value>Niveles de estáticos, regalos y dominantes</value>
+  </data>
+  <data name="Tab_GameBuild" xml:space="preserve">
+    <value>Crear y opciones</value>
+  </data>
+  <data name="Options_PresetModifier" xml:space="preserve">
+    <value>El preajuste también suma aquí un {0} %. Con esta opción basta: la del randomizador se sumaría encima.</value>
+  </data>
+  <data name="Options_ClearPreset" xml:space="preserve">
+    <value>Poner a 0 la del preajuste</value>
+  </data>
 </root>

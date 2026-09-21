@@ -76,7 +76,7 @@ public partial class RandomizerViewModel : ObservableObject
         this.upr = upr;
         this.settings = settings;
         Shops = new ShopExtrasViewModel(editor);
-        Options = new UprOptionsViewModel(editor.MarkDirty, Shops);
+        Options = new UprOptionsViewModel(editor.MarkDirty, Shops, () => editor.GameTweaks);
 
         SeedText = Settings.Seed > 0 ? Settings.Seed.ToString() : UprRunner.NewSeed().ToString();
         OutputName = Settings.OutputName ?? DefaultOutputName();
@@ -306,6 +306,8 @@ public partial class RandomizerViewModel : ObservableObject
             var description = await runner.DescribeSettingsAsync(Settings.Preset);
             var available = BaseRom is { } rom ? await upr.AvailableTweaksAsync(rom) : new HashSet<string>();
             Options.Load(description, available, editor.Dump.Title.Generation());
+            // The options this application hides have no control of their own: our cards say what the preset carries.
+            editor.GameTweaks.RefreshPreset();
         }
         catch (Exception ex) when (ex is UprException or IOException or System.Text.Json.JsonException)
         {

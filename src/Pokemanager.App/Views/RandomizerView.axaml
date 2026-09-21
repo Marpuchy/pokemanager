@@ -153,9 +153,180 @@
                   </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <!-- The application's own item and shop options are in Rules and shops, all together -->
-                <TextBlock Classes="hint" Margin="16,0,16,14" TextWrapping="Wrap" IsVisible="{Binding HasShops}"
-                           Text="{x:Static r:Strings.Items_SeeRulesTab}" />
+                <!-- Ours for the same subject, under the randomizer's own: they are written when the ROM is built, so
+                     each card says when it acts and nothing about a subject lives on another page. -->
+                <WrapPanel Margin="16,0,16,14">
+                  <!-- Items and shops -->
+                  <Border Classes="card" Width="470" IsVisible="{Binding HasShops}">
+                   <StackPanel DataContext="{Binding Shops}" x:DataType="vm:ShopExtrasViewModel">
+                    <StackPanel Spacing="4">
+                      <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_ItemsTitle}" />
+                      <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Options_OursHint}" />
+                      <CheckBox Margin="0,3" IsChecked="{Binding MegaStonesInPool}" IsVisible="{Binding HasMegaStones}"
+                                ToolTip.Tip="{x:Static r:Strings.Items_MegaStonesTip}">
+                        <TextBlock Text="{Binding MegaStonesText}" TextWrapping="Wrap" />
+                      </CheckBox>
+                      <CheckBox Margin="0,3" IsChecked="{Binding AllowAllItems}" ToolTip.Tip="{x:Static r:Strings.Items_AllowAllTip}">
+                        <TextBlock Text="{x:Static r:Strings.Items_AllowAll}" TextWrapping="Wrap" />
+                      </CheckBox>
+                      <CheckBox Margin="0,3" IsChecked="{Binding FreeRareCandies}" IsEnabled="{Binding Supported}"
+                                ToolTip.Tip="{Binding FreeRareCandiesTip}">
+                        <TextBlock Text="{x:Static r:Strings.Shops_FreeCandies}" TextWrapping="Wrap" />
+                      </CheckBox>
+                      <CheckBox Margin="0,3" IsChecked="{Binding MegaStonesOnSale}" IsEnabled="{Binding Supported}"
+                                IsVisible="{Binding HasMegaStones}" ToolTip.Tip="{x:Static r:Strings.Shops_MegaStonesOnSaleTip}">
+                        <TextBlock Text="{Binding MegaStonesOnSaleText}" TextWrapping="Wrap" />
+                      </CheckBox>
+                    </StackPanel>
+                   </StackPanel>
+                  </Border>
+
+                  <!-- Trainers: the levels of every trainer and what they pay -->
+                  <Border Classes="card" Width="470" IsVisible="{Binding IsTrainers}">
+                    <StackPanel Spacing="4">
+                      <TextBlock Classes="card-title" Text="{x:Static r:Strings.Options_TrainerLevels}" />
+                      <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Game_LevelsHint}" />
+                      <Grid ColumnDefinitions="200,Auto" Margin="0,2">
+                        <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsTrainers}" />
+                        <NumericUpDown Grid.Column="1" Width="130" Value="{Binding Game.TrainerLevelPercent}" Minimum="-90" Maximum="400"
+                                       Increment="5" FormatString="0.##" />
+                      </Grid>
+                      <Grid ColumnDefinitions="200,Auto" Margin="0,2">
+                        <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_Money}" />
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                          <NumericUpDown Width="110" Value="{Binding Game.MoneyPercent}" Minimum="1" Maximum="1000" Increment="5"
+                                         FormatString="0" ParsingNumberStyle="Integer" />
+                          <Button Content="{x:Static r:Strings.Game_Apply}" Command="{Binding Game.ApplyMoneyCommand}" />
+                          <Button Content="{x:Static r:Strings.Game_Reset}" Command="{Binding Game.ResetCommand}" CommandParameter="money"
+                                  ToolTip.Tip="{x:Static r:Strings.Game_ResetTip}" />
+                        </StackPanel>
+                      </Grid>
+                      <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0" IsVisible="{Binding Game.HasPresetTrainerLevel}">
+                        <TextBlock Classes="hint" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="300" Text="{Binding Game.PresetTrainerLevelText}" />
+                        <Button Content="{x:Static r:Strings.Options_ClearPreset}" Command="{Binding Game.ClearPresetTrainerLevelCommand}" />
+                      </StackPanel>
+                      <TextBlock Text="{Binding Game.Result}" FontWeight="SemiBold"
+                                 IsVisible="{Binding Game.Result, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                    </StackPanel>
+                  </Border>
+
+                  <!-- Wild Pokemon -->
+                  <Border Classes="card" Width="470" IsVisible="{Binding IsWild}">
+                    <StackPanel Spacing="4">
+                      <TextBlock Classes="card-title" Text="{x:Static r:Strings.Options_WildLevels}" />
+                      <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Game_LevelsHint}" />
+                      <Grid ColumnDefinitions="200,Auto" Margin="0,2">
+                        <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsWild}" />
+                        <NumericUpDown Grid.Column="1" Width="130" Value="{Binding Game.WildLevelPercent}" Minimum="-90" Maximum="400"
+                                       Increment="5" FormatString="0.##" ToolTip.Tip="{Binding Game.WildStaticTip}" />
+                      </Grid>                      <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0" IsVisible="{Binding Game.HasPresetWildLevel}">
+                        <TextBlock Classes="hint" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="300" Text="{Binding Game.PresetWildLevelText}" />
+                        <Button Content="{x:Static r:Strings.Options_ClearPreset}" Command="{Binding Game.ClearPresetWildLevelCommand}" />
+                      </StackPanel>
+                    </StackPanel>
+                  </Border>
+
+                  <!-- Fixed Pokemon, gifts and totems -->
+                  <Border Classes="card" Width="470" IsVisible="{Binding IsStatic}">
+                    <StackPanel Spacing="4">
+                      <TextBlock Classes="card-title" Text="{x:Static r:Strings.Options_StaticLevels}" />
+                      <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Game_LevelsHint}" />
+                      <Grid ColumnDefinitions="200,Auto" Margin="0,2">
+                        <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsStatic}" />
+                        <NumericUpDown Grid.Column="1" Width="130" Value="{Binding Game.StaticLevelPercent}" Minimum="-90" Maximum="400"
+                                       Increment="5" FormatString="0.##" ToolTip.Tip="{Binding Game.WildStaticTip}" />
+                      </Grid>                      <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0" IsVisible="{Binding Game.HasPresetStaticLevel}">
+                        <TextBlock Classes="hint" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="300" Text="{Binding Game.PresetStaticLevelText}" />
+                        <Button Content="{x:Static r:Strings.Options_ClearPreset}" Command="{Binding Game.ClearPresetStaticLevelCommand}" />
+                      </StackPanel>
+                    </StackPanel>
+                  </Border>
+
+                  <!-- The personal table of every Pokemon of the game, in one go -->
+                  <Border Classes="card" Width="470" IsVisible="{Binding IsPokemon}">
+                    <StackPanel Spacing="4">
+                      <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_SweepsTitle}" />
+                      <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Game_SweepsHint}" />
+                      <Grid ColumnDefinitions="180,Auto" Margin="0,2">
+                        <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_Experience}" />
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                          <NumericUpDown Width="110" Value="{Binding Game.ExperiencePercent}" Minimum="1" Maximum="1000" Increment="5" FormatString="0" ParsingNumberStyle="Integer" />
+                          <Button Content="{x:Static r:Strings.Game_Apply}" Command="{Binding Game.ApplyExperienceCommand}" />
+                          <Button Content="{x:Static r:Strings.Game_Reset}" Command="{Binding Game.ResetCommand}" CommandParameter="baseExp" />
+                        </StackPanel>
+                      </Grid>
+                      <Grid ColumnDefinitions="180,Auto" Margin="0,2">
+                        <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_CatchRate}" />
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                          <NumericUpDown Width="110" Value="{Binding Game.CatchRatePercent}" Minimum="1" Maximum="1000" Increment="5" FormatString="0" ParsingNumberStyle="Integer" />
+                          <Button Content="{x:Static r:Strings.Game_Apply}" Command="{Binding Game.ApplyCatchRateCommand}" />
+                          <Button Content="{x:Static r:Strings.Game_Reset}" Command="{Binding Game.ResetCommand}" CommandParameter="catchRate" />
+                        </StackPanel>
+                      </Grid>
+                      <Grid ColumnDefinitions="180,Auto" Margin="0,2">
+                        <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_Hatch}" />
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                          <NumericUpDown Width="110" Value="{Binding Game.HatchPercent}" Minimum="1" Maximum="1000" Increment="5" FormatString="0" ParsingNumberStyle="Integer" />
+                          <Button Content="{x:Static r:Strings.Game_Apply}" Command="{Binding Game.ApplyHatchCommand}" />
+                          <Button Content="{x:Static r:Strings.Game_Reset}" Command="{Binding Game.ResetCommand}" CommandParameter="hatchCycles" />
+                        </StackPanel>
+                      </Grid>
+                      <Grid ColumnDefinitions="180,Auto" Margin="0,2">
+                        <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_Friendship}" />
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                          <NumericUpDown Width="110" Value="{Binding Game.FriendshipValue}" Minimum="0" Maximum="255" Increment="5" FormatString="0" ParsingNumberStyle="Integer" />
+                          <Button Content="{x:Static r:Strings.Game_Apply}" Command="{Binding Game.ApplyFriendshipCommand}" />
+                          <Button Content="{x:Static r:Strings.Game_Reset}" Command="{Binding Game.ResetCommand}" CommandParameter="baseFriendship" />
+                        </StackPanel>
+                      </Grid>
+                      <TextBlock Text="{Binding Game.Result}" FontWeight="SemiBold"
+                                 IsVisible="{Binding Game.Result, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                    </StackPanel>
+                  </Border>
+
+                  <!-- The whole game: shiny -->
+                  <Border Classes="card" Width="470" IsVisible="{Binding IsMisc}">
+                    <StackPanel Spacing="4">
+                      <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_ShinyTitle}" />
+                      <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Options_OursHint}" />
+                      <CheckBox IsChecked="{Binding Game.AlwaysShiny}" IsEnabled="{Binding Game.ShinySupported}" ToolTip.Tip="{Binding Game.ShinyTip}"
+                                Content="{x:Static r:Strings.Game_Shiny}" />
+                    </StackPanel>
+                  </Border>
+
+                  <!-- The whole game: the level cap by milestones, with its plan -->
+                  <Border Classes="card" Width="470" IsVisible="{Binding IsMisc}">
+                    <Border.Styles>
+                      <Style Selector="Border.current">
+                        <Setter Property="Background" Value="#E8F1FB" />
+                      </Style>
+                      <Style Selector="Border.current TextBlock">
+                        <Setter Property="FontWeight" Value="SemiBold" />
+                      </Style>
+                    </Border.Styles>
+                    <StackPanel Spacing="4" DataContext="{Binding Game.LevelCap}" x:DataType="vm:LevelCapViewModel">
+                      <TextBlock Classes="card-title" Text="{x:Static r:Strings.LevelCap_Title}" />
+                      <CheckBox IsChecked="{Binding Enabled}" IsEnabled="{Binding Supported}" ToolTip.Tip="{Binding EnabledTip}"
+                                Content="{x:Static r:Strings.LevelCap_Enable}" />
+                      <TextBlock Text="{Binding CurrentText}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                      <ItemsControl ItemsSource="{Binding Steps}" IsVisible="{Binding Enabled}">
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate x:DataType="vm:LevelCapStepViewModel">
+                            <Border Classes="info-row" Classes.current="{Binding IsCurrent}" Padding="4,1">
+                              <Grid ColumnDefinitions="24,*,90,Auto">
+                                <Image Source="{Binding Icon}" Width="20" Height="20" IsVisible="{Binding HasIcon}" />
+                                <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Name}" />
+                                <NumericUpDown Grid.Column="2" Value="{Binding Level}" Minimum="1" Maximum="100" Increment="1" FormatString="0"
+                                               ParsingNumberStyle="Integer" ToolTip.Tip="{Binding Tip}" />
+                                <TextBlock Grid.Column="3" Margin="8,0,0,0" MinWidth="60" VerticalAlignment="Center" Text="{Binding State}" />
+                              </Grid>
+                            </Border>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                    </StackPanel>
+                  </Border>
+                </WrapPanel>
                 </StackPanel>
               </ScrollViewer>
             </DataTemplate>

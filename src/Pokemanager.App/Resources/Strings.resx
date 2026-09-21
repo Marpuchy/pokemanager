@@ -3831,4 +3831,25 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Items_SeeRulesTab" xml:space="preserve">
     <value>What this application adds about items — Mega Stones, every item, free Rare Candies, stones on sale — is in Rules and shops.</value>
   </data>
+  <data name="Options_OursHint" xml:space="preserve">
+    <value>Not the randomizer: written when the ROM is built, so changing it needs no new randomization.</value>
+  </data>
+  <data name="Options_TrainerLevels" xml:space="preserve">
+    <value>Trainer levels and money</value>
+  </data>
+  <data name="Options_WildLevels" xml:space="preserve">
+    <value>Wild levels</value>
+  </data>
+  <data name="Options_StaticLevels" xml:space="preserve">
+    <value>Fixed, gift and totem levels</value>
+  </data>
+  <data name="Tab_GameBuild" xml:space="preserve">
+    <value>Build and options</value>
+  </data>
+  <data name="Options_PresetModifier" xml:space="preserve">
+    <value>The preset also adds {0} % here. Only this option is needed: the randomizer&apos;s own would pile on top of it.</value>
+  </data>
+  <data name="Options_ClearPreset" xml:space="preserve">
+    <value>Put the preset&apos;s to 0</value>
+  </data>
 </root>

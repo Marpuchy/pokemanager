@@ -57,6 +57,64 @@ public sealed partial class GameTweaksViewModel : ObservableObject
 
     // ------------------------------------------------------------------ levels
 
+    // ---- what the preset would add on its own: the same levers, hidden so they are not in two places
+
+    /// <summary>The percentage the randomizer's own option would add to the trainers, when a preset carries one.</summary>
+    public int PresetTrainerLevel => Preset("TrainersLevelModified", "TrainersLevelModifier");
+
+    public bool HasPresetTrainerLevel => PresetTrainerLevel != 0;
+
+    public string PresetTrainerLevelText => string.Format(Strings.Options_PresetModifier, PresetTrainerLevel);
+
+
+    public int PresetWildLevel => Preset("WildLevelsModified", "WildLevelModifier");
+
+    public bool HasPresetWildLevel => PresetWildLevel != 0;
+
+    public string PresetWildLevelText => string.Format(Strings.Options_PresetModifier, PresetWildLevel);
+
+    /// <summary>The fixed Pokémon and the totems have one option each in the randomizer; either one shows here.</summary>
+    public int PresetStaticLevel => Preset("StaticLevelModified", "StaticLevelModifier") is var s and not 0
+        ? s
+        : Preset("TotemLevelsModified", "TotemLevelModifier");
+
+    public bool HasPresetStaticLevel => PresetStaticLevel != 0;
+
+    public string PresetStaticLevelText => string.Format(Strings.Options_PresetModifier, PresetStaticLevel);
+
+    [RelayCommand]
+    private void ClearPresetTrainerLevel() => ClearPreset(("TrainersLevelModified", "TrainersLevelModifier"));
+
+    [RelayCommand]
+    private void ClearPresetWildLevel() => ClearPreset(("WildLevelsModified", "WildLevelModifier"));
+
+    [RelayCommand]
+    private void ClearPresetStaticLevel() =>
+        ClearPreset(("StaticLevelModified", "StaticLevelModifier"), ("TotemLevelsModified", "TotemLevelModifier"));
+
+    private int Preset(string toggle, string percent) => editor.Randomizer.Options.PresetLevelModifier(toggle, percent);
+
+    private void ClearPreset(params (string Toggle, string Percent)[] options)
+    {
+        foreach (var (toggle, percent) in options)
+            editor.Randomizer.Options.ClearLevelModifier(toggle, percent);
+        RefreshPreset();
+    }
+
+    /// <summary>The preset changed (cleared here, imported, or loaded): the warnings follow it.</summary>
+    public void RefreshPreset()
+    {
+        OnPropertyChanged(nameof(PresetTrainerLevel));
+        OnPropertyChanged(nameof(HasPresetTrainerLevel));
+        OnPropertyChanged(nameof(PresetTrainerLevelText));
+        OnPropertyChanged(nameof(PresetWildLevel));
+        OnPropertyChanged(nameof(HasPresetWildLevel));
+        OnPropertyChanged(nameof(PresetWildLevelText));
+        OnPropertyChanged(nameof(PresetStaticLevel));
+        OnPropertyChanged(nameof(HasPresetStaticLevel));
+        OnPropertyChanged(nameof(PresetStaticLevelText));
+    }
+
     /// <summary>Wild and fixed Pokémon levels can be changed: the tables are known in Generation 7 only.</summary>
     public bool WildAndStaticSupported { get; }
 

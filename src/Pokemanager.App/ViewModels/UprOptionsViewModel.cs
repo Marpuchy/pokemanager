@@ -27,14 +27,19 @@ public partial class UprOptionsViewModel : ObservableObject
     public bool HasChanges { get; private set; }
 
     private readonly ShopExtrasViewModel? shops;
+    private readonly Func<GameTweaksViewModel?>? game;
 
     /// <param name="shops">
     /// Our own shop settings, shown on the item options page. Null in the tests, which only exercise the UPR options.
     /// </param>
-    public UprOptionsViewModel(Action markDirty, ShopExtrasViewModel? shops = null)
+    /// <param name="game">
+    /// Our own game options, put on the group each one is about. A function because they are built after this page.
+    /// </param>
+    public UprOptionsViewModel(Action markDirty, ShopExtrasViewModel? shops = null, Func<GameTweaksViewModel?>? game = null)
     {
         this.markDirty = markDirty;
         this.shops = shops;
+        this.game = game;
     }
 
     public void Load(UprSettingsDescription description, IReadOnlySet<string> availableTweaks, int generation)
@@ -43,13 +48,20 @@ public partial class UprOptionsViewModel : ObservableObject
         byName.Clear();
         var groups = UprOptionCatalog.Groups.ToDictionary(g => g, g => new UprOptionGroupViewModel(g));
         groups[UprOptionCatalog.Items].Shops = shops;
+        if (game?.Invoke() is { } tweaks)
+        {
+            foreach (var group in groups.Values)
+                group.Game = tweaks;
+        }
 
-        foreach (var option in description.Options.Where(o => !UprOptionCatalog.IsHidden(o.Name, generation)))
+        foreach (var option in description.Options)
         {
             var info = UprOptionCatalog.Describe(option.Name);
             var vm = new UprOptionViewModel(this, option, info);
             byName[option.Name] = vm;
-            groups[info.Group].Items.Add(vm);
+            // A hidden option keeps its value in the preset (and is written back) but has no control of its own.
+            if (!UprOptionCatalog.IsHidden(option.Name, generation))
+                groups[info.Group].Items.Add(vm);
         }
 
         foreach (var tweak in description.Tweaks.Where(t => availableTweaks.Contains(t.Name)))
@@ -102,21 +114,59 @@ public partial class UprOptionsViewModel : ObservableObject
         byName.Values.Select(v => new KeyValuePair<string, string>(v.Name, v.SerializedValue)).ToList();
 
     public void MarkWritten() => HasChanges = false;
+
+    /// <summary>
+    /// What the preset asks the randomizer to add to a kind of level, when this application hides that option because it
+    /// has its own. 0 when the preset does not touch it.
+    /// </summary>
+    public int PresetLevelModifier(string toggle, string percent) =>
+        byName.TryGetValue(toggle, out var on) && on.BoolValue && byName.TryGetValue(percent, out var value)
+            ? (int)(value.IntValue ?? 0)
+            : 0;
+
+    /// <summary>Puts that modifier back to nothing, so only this application's percentage acts.</summary>
+    public void ClearLevelModifier(string toggle, string percent)
+    {
+        if (byName.TryGetValue(toggle, out var on))
+            on.BoolValue = false;
+        if (byName.TryGetValue(percent, out var value))
+            value.IntValue = 0;
+    }
 }
 
+/// <summary>
+/// One group of options: UPR ZX's own and **this application's for the same subject**, on the same page. They are not
+/// the same kind of thing — the randomizer's are rolled when the ROM is randomized, ours are written when it is built —
+/// so each card says so; but a player looking for "trainer levels" finds everything about it in one place.
+/// </summary>
 public sealed class UprOptionGroupViewModel(string id)
 {
     public string Id { get; } = id;
     public string Name { get; } = UprOptionCatalog.GroupLabel(id);
     public ObservableCollection<UprOptionViewModel> Items { get; } = [];
 
-    /// <summary>
-    /// Our own shop settings, on the group that holds the item options and nowhere else. They are not UPR ZX options
-    /// (they live in the project and no seed touches them), but that page is where a player looks for them.
-    /// </summary>
+    /// <summary>Our own item and shop settings, on the group that holds the item options.</summary>
     public ShopExtrasViewModel? Shops { get; set; }
 
     public bool HasShops => Shops is not null;
+
+    /// <summary>Our own game options; each group shows the ones about its subject.</summary>
+    public GameTweaksViewModel? Game { get; set; }
+
+    public bool HasGame => Game is not null;
+
+    /// <summary>Base stats and the rest of the personal table: the sweeps over every Pokémon of the game.</summary>
+    public bool IsPokemon => HasGame && Id == UprOptionCatalog.Traits;
+
+    public bool IsTrainers => HasGame && Id == UprOptionCatalog.Trainers;
+
+    public bool IsWild => HasGame && Id == UprOptionCatalog.Wild && Game!.WildAndStaticSupported;
+
+    /// <summary>Fixed Pokémon, gifts and totems travel together in the game's static archive.</summary>
+    public bool IsStatic => HasGame && Id == UprOptionCatalog.Starters && Game!.WildAndStaticSupported;
+
+    /// <summary>Everything else about the whole game: shiny and the level cap.</summary>
+    public bool IsMisc => HasGame && Id == UprOptionCatalog.Misc;
 }
 
 public partial class UprOptionViewModel : ObservableObject
