@@ -119,6 +119,57 @@ public class RealDumpShopTests
         Assert.All(data.MegaStones, stone => Assert.InRange(stone, 1, data.Items.Length - 1));
     }
 
+    /// <summary>
+    /// The stones on the shelves without randomizing again: they are dealt out across the ordinary Poké Marts, and every
+    /// shop keeps one slot as the game had it.
+    /// </summary>
+    [Fact]
+    public void MegaStonesOnSale_DealsThemOutAcrossTheOrdinaryShops()
+    {
+        string dumpDir = RequireDump();
+        var project = new Project { DumpDirectory = dumpDir };
+        project.Shops.MegaStonesOnSale = true;
+        var session = EditorSession.Open(project);
+
+        var built = ModBuilder.BuildEdits(session);
+
+        byte[] original = File.ReadAllBytes(Path.Combine(dumpDir, "exefs", "code.bin"));
+        var shops = GameShops.For(GameTitle.X)!;
+        int offset = GameShops.Find(original, shops, 718)!.Value;
+        int[] before = GameShops.Read(original, offset, shops);
+        int[] table = GameShops.Read(built[ModBuilder.CodeFile], offset, shops);
+
+        var sold = shops.Regular.SelectMany(s => table.Skip(shops.Start(s)).Take(shops.Sizes[s])).ToHashSet();
+        Assert.All(session.Current.MegaStones, stone => Assert.Contains(stone, sold));
+        // A stone is never put twice, and the shops that are not ordinary Poké Marts keep every slot.
+        foreach (int shop in Enumerable.Range(0, shops.Sizes.Length).Except(shops.Regular))
+        {
+            Assert.Equal(before.Skip(shops.Start(shop)).Take(shops.Sizes[shop]),
+                table.Skip(shops.Start(shop)).Take(shops.Sizes[shop]));
+        }
+        foreach (int shop in shops.Regular)
+        {
+            var slots = table.Skip(shops.Start(shop)).Take(shops.Sizes[shop]).ToList();
+            Assert.Equal(slots.Count, slots.Distinct().Count());
+            Assert.Contains(before[shops.Start(shop)], slots); // the first slot is the game's own
+        }
+    }
+
+    /// <summary>Which stone each species needs, for the trainers' mega evolution option.</summary>
+    [Fact]
+    public void MegaStones_AreKnownBySpecies()
+    {
+        var data = GameData.Load(Path.Combine(RequireDump(), "romfs"));
+
+        // Charizard and Mewtwo have two stones each and a species keeps one, so the map names 28 of the 30.
+        Assert.Equal(data.MegaStones.Length - 2, data.MegaStoneBySpecies.Values.Distinct().Count());
+        Assert.Equal(data.MegaStoneBySpecies.Count, data.MegaStoneBySpecies.Values.Distinct().Count());
+        Assert.All(data.MegaStoneBySpecies, pair => Assert.Contains(pair.Value, data.MegaStones));
+        Assert.True(data.MegaStoneBySpecies.ContainsKey(6));    // Charizard, which has two
+        Assert.True(data.MegaStoneBySpecies.ContainsKey(150));  // Mewtwo, the other one with two
+        Assert.False(data.MegaStoneBySpecies.ContainsKey(25));  // Pikachu has none
+    }
+
     [Fact]
     public void AHandEditedPrice_WinsOverTheFreeCandies()
     {

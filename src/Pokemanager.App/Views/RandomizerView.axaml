@@ -180,6 +180,10 @@
                             ToolTip.Tip="{Binding FreeRareCandiesTip}">
                     <TextBlock Text="{x:Static r:Strings.Shops_FreeCandies}" TextWrapping="Wrap" />
                   </CheckBox>
+                  <CheckBox Margin="0,3" IsChecked="{Binding MegaStonesOnSale}" IsEnabled="{Binding Supported}"
+                            IsVisible="{Binding HasMegaStones}" ToolTip.Tip="{x:Static r:Strings.Shops_MegaStonesOnSaleTip}">
+                    <TextBlock Text="{Binding MegaStonesOnSaleText}" TextWrapping="Wrap" />
+                  </CheckBox>
                 </StackPanel>
                 </StackPanel>
                 </StackPanel>

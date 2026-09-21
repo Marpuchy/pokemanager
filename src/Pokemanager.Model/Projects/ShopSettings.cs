@@ -17,8 +17,15 @@ public sealed class ShopSettings
     /// </summary>
     public bool FreeRareCandies { get; set; }
 
-    /// <summary>Whether anything at all has to be done at build time.</summary>
-    public bool IsEmpty => !FreeRareCandies;
+    /// <summary>
+    /// The game's own Mega Stones go on sale in the ordinary Poké Marts from the start. In Generation 7 the game only
+    /// sells them after the story, and the randomizer marks every one of them a bad item, so a run with "ban bad items"
+    /// never sees one; this puts them on the shelves without randomizing again.
+    /// </summary>
+    public bool MegaStonesOnSale { get; set; }
 
-    public ShopSettings Clone() => new() { FreeRareCandies = FreeRareCandies };
+    /// <summary>Whether anything at all has to be done at build time.</summary>
+    public bool IsEmpty => !FreeRareCandies && !MegaStonesOnSale;
+
+    public ShopSettings Clone() => new() { FreeRareCandies = FreeRareCandies, MegaStonesOnSale = MegaStonesOnSale };
 }

@@ -50,6 +50,16 @@ public static class LockeRewards
         loaded.Project.Save(loaded.Path);
     }
 
+    /// <summary>
+    /// Forgets this milestone's spin, so its roulette can be rolled again — the same as "Allow again" in the Locke tab.
+    /// What a claimed prize already put in the save stays there: nothing is taken back.
+    /// </summary>
+    public static void Forget(LoadedProject loaded, int badge)
+    {
+        loaded.Project.Locke.ForgetSpin(badge);
+        loaded.Project.Save(loaded.Path);
+    }
+
     /// <summary>Records what the roulette gave (lives and bad luck apply at once) and saves the project.</summary>
     public static void RecordWin(LoadedProject loaded, int badge, LockePrize prize)
     {

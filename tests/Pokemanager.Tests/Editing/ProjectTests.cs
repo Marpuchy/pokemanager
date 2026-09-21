@@ -62,6 +62,7 @@ public sealed class ProjectTests : IDisposable
     {
         var project = new Project { DumpDirectory = dir };
         project.Shops.FreeRareCandies = true;
+        project.Shops.MegaStonesOnSale = true;
         project.Tweaks.AlwaysShiny = true;
         project.Tweaks.WildLevelPercent = -16.67;
         project.Tweaks.StaticLevelPercent = -16.67;
@@ -75,6 +76,7 @@ public sealed class ProjectTests : IDisposable
         var loaded = Project.Load(path);
 
         Assert.True(loaded.Shops.FreeRareCandies);
+        Assert.True(loaded.Shops.MegaStonesOnSale);
         Assert.True(loaded.Tweaks.AlwaysShiny);
         Assert.Equal(-16.67, loaded.Tweaks.WildLevelPercent);
         Assert.Equal(-16.67, loaded.Tweaks.StaticLevelPercent);

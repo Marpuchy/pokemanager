@@ -98,7 +98,9 @@ public static class ModBuilder
 
         var table = GameShops.Read(data, offset.Value, layout);
         List<int> everywhere = shops.FreeRareCandies ? [GameShops.RareCandy] : [];
-        if (GameShops.AddToRegularShops(table, layout, everywhere) == 0)
+        // The stones are dealt out across the shops: no shop has shelves for all of them, between them they do.
+        int[] spread = shops.MegaStonesOnSale ? session.Current.MegaStones : [];
+        if (GameShops.AddToRegularShops(table, layout, everywhere, spread) == 0)
             return;
         GameShops.Write(data, offset.Value, layout, table);
         outputs[layout.File is { } shopFile ? "romfs/" + shopFile : CodeFile] = data;

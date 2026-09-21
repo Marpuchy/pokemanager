@@ -52,8 +52,14 @@ public sealed class GameData
     /// </summary>
     public int[] MegaStones { get; }
 
+    /// <summary>
+    /// The stone each species needs to mega evolve, from the same table (file <c>n</c> of the archive is species
+    /// <c>n</c>). A species with two mega evolutions (Charizard, Mewtwo) keeps the first stone the table names.
+    /// </summary>
+    public IReadOnlyDictionary<int, int> MegaStoneBySpecies { get; }
+
     private GameData(GameTitle title, PersonalInfoXY[] personal, Move[] moves, Learnset6[] learnsets, string[] moveDescriptions,
-        Trainer[] trainers, Item[] items, int[] megaStones)
+        Trainer[] trainers, Item[] items, (int[] Stones, Dictionary<int, int> BySpecies) mega)
     {
         Title = title;
         Personal = personal;
@@ -62,7 +68,8 @@ public sealed class GameData
         MoveDescriptions = moveDescriptions;
         Trainers = trainers;
         Items = items;
-        MegaStones = megaStones;
+        MegaStones = mega.Stones;
+        MegaStoneBySpecies = mega.BySpecies;
     }
 
     public static GameData Load(string romFsPath, GameTitle title = GameTitle.X) => Load(new RomFsLayers(romFsPath), title);
@@ -104,30 +111,34 @@ public sealed class GameData
     /// argument and a spare; method 1 is "hold this item", and the argument is the stone. Verified on the real X dump:
     /// 30 stones, exactly the items whose names end in -ite minus the Eviolite, which is not one.
     /// </summary>
-    private static int[] ReadMegaStones(RomFsLayers layers, GameTitle title)
+    private static (int[] Stones, Dictionary<int, int> BySpecies) ReadMegaStones(RomFsLayers layers, GameTitle title)
     {
         try
         {
             int items = ReadItems(layers, title).Length;
             if (items == 0)
-                return [];
+                return ([], []);
             var stones = new SortedSet<int>();
-            foreach (byte[] file in ReadFiles(layers, title.Layout().MegaEvolutions))
+            var bySpecies = new Dictionary<int, int>();
+            byte[][] files = ReadFiles(layers, title.Layout().MegaEvolutions);
+            for (int species = 0; species < files.Length; species++)
             {
-                var mega = new MegaEvolutions(file);
+                var mega = new MegaEvolutions(files[species]);
                 if (mega.Method is null)
                     continue;
                 for (int i = 0; i < mega.Method.Length; i++)
                 {
-                    if (mega.Method[i] == 1 && mega.Argument[i] > 0 && mega.Argument[i] < items)
-                        stones.Add(mega.Argument[i]);
+                    if (mega.Method[i] != 1 || mega.Argument[i] == 0 || mega.Argument[i] >= items)
+                        continue;
+                    stones.Add(mega.Argument[i]);
+                    bySpecies.TryAdd(species, mega.Argument[i]);
                 }
             }
-            return [.. stones];
+            return ([.. stones], bySpecies);
         }
         catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException or InvalidDataException or ArgumentException)
         {
-            return [];
+            return ([], []);
         }
     }
 

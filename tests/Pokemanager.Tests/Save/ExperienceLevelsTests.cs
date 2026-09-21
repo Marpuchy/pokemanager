@@ -1,4 +1,4 @@
-using PKHeX.Core;
+﻿using PKHeX.Core;
 using Pokemanager.Model.Data;
 using Pokemanager.Save;
 
@@ -50,5 +50,33 @@ public class ExperienceLevelsTests
         var over = Mon(Experience.GetEXP(30, MediumSlow));
         Assert.Equal(30, ExperienceLevels.Fit(over, MediumSlow, cap: 18));
         Assert.Equal(ExperienceTable.CappedExperience(30), over.EXP);
+    }
+
+    /// <summary>
+    /// Level 48 of the encoding is exactly the first prototype's base, and from there the old rule read every coded level
+    /// as a prototype value: in a box, where nothing else says the level, that answered 100 (it put six of the user's
+    /// boxed Pokémon at level 100).
+    /// </summary>
+    [Theory]
+    [InlineData(47)]
+    [InlineData(48)]
+    [InlineData(52)]
+    [InlineData(60)]
+    [InlineData(100)]
+    public void LevelOf_ReadsHighCodedLevels_EvenInABoxWithNoStoredLevel(int level)
+    {
+        var boxed = Mon(ExperienceTable.CappedExperience(level));
+
+        Assert.Equal(level, ExperienceLevels.LevelOf(boxed, MediumSlow));
+        Assert.Null(ExperienceLevels.Fit(boxed, MediumSlow, cap: level - 1)); // already right for a ROM capped under it
+    }
+
+    [Fact]
+    public void Prototype_ValuesAreStillTold_FromTheCodedOnes()
+    {
+        Assert.True(ExperienceTable.IsPrototype(ExperienceTable.PrototypeBase + 2));
+        Assert.False(ExperienceTable.IsPrototype(ExperienceTable.CappedExperience(48)));
+        Assert.Equal(48, ExperienceTable.LevelOfCapped(ExperienceTable.CappedExperience(48)));
+        Assert.Null(ExperienceTable.LevelOfCapped(ExperienceTable.PrototypeBase + 2));
     }
 }

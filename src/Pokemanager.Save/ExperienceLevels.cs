@@ -12,9 +12,11 @@ public static class ExperienceLevels
     /// <summary>The level the game shows for this Pokémon.</summary>
     public static int LevelOf(PKM pk, byte growth)
     {
-        if (pk.EXP >= ExperienceTable.PrototypeBase)
+        if (ExperienceTable.LevelOfCapped(pk.EXP) is { } coded)
+            return coded;
+        if (ExperienceTable.IsPrototype(pk.EXP))
             return pk.Stat_Level is > 0 and <= 100 ? pk.Stat_Level : 100; // the first prototype: only the party level says it
-        return ExperienceTable.LevelOfCapped(pk.EXP) ?? Experience.GetLevel(pk.EXP, growth);
+        return Experience.GetLevel(pk.EXP, growth);
     }
 
     /// <summary>

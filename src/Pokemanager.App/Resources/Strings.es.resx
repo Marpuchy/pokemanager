@@ -3687,4 +3687,40 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Change_Experience" xml:space="preserve">
     <value>experiencia ajustada al tope de nivel (nivel {0})</value>
   </data>
+  <data name="Shops_MegaStonesOnSale" xml:space="preserve">
+    <value>Megapiedras a la venta desde el principio ({0})</value>
+  </data>
+  <data name="Shops_MegaStonesOnSaleTip" xml:space="preserve">
+    <value>Las megapiedras del propio juego se ponen en los estantes de las tiendas normales, repartidas entre ellas (en ninguna caben todas, y en cada tienda se deja un hueco tal y como lo tenía el juego). Es un ajuste del proyecto: se aplica al crear la ROM, sin volver a aleatorizar, así que una partida en curso puede tenerlo.</value>
+  </data>
+  <data name="Shops_UndoMegaStones" xml:space="preserve">
+    <value>Megapiedras a la venta</value>
+  </data>
+  <data name="Trainer_MegaTitle" xml:space="preserve">
+    <value>Megaevolución</value>
+  </data>
+  <data name="Trainer_MegaFromLevel" xml:space="preserve">
+    <value>A partir del nivel</value>
+  </data>
+  <data name="Trainer_BulkMega" xml:space="preserve">
+    <value>Megapiedra al último Pokémon</value>
+  </data>
+  <data name="Trainer_MegaHint" xml:space="preserve">
+    <value>El último Pokémon de cada entrenador de este grupo cuyo equipo llegue a ese nivel lleva su megapiedra, así que megaevoluciona en combate. Una especie sin megaevolución se deja como está.</value>
+  </data>
+  <data name="Trainer_MegaUnsupported" xml:space="preserve">
+    <value>Este juego no tiene megaevoluciones, o su tabla no está en la carpeta del juego importada.</value>
+  </data>
+  <data name="Tip_TrainerMega" xml:space="preserve">
+    <value>A partir de este nivel. Un entrenador cuyo Pokémon lleva la piedra correcta megaevoluciona solo; en la sexta generación también se activa la casilla "usa objetos equipados" del registro, porque sin ella el juego ignora lo que lleve.</value>
+  </data>
+  <data name="Locke_SpinAgain" xml:space="preserve">
+    <value>Tirar otra vez</value>
+  </data>
+  <data name="Locke_SpinAgainTip" xml:space="preserve">
+    <value>Olvida esta tirada para poder volver a girar la ruleta. Un premio ya reclamado se queda en la partida: no se quita nada.</value>
+  </data>
+  <data name="Locke_SpinAgainReady" xml:space="preserve">
+    <value>Tirada olvidada: se puede volver a girar.</value>
+  </data>
 </root>

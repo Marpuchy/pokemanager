@@ -90,6 +90,10 @@ public sealed partial class TrainerBulkViewModel(EditorViewModel editor, EditorS
     [ObservableProperty]
     public partial int LevelPercent { get; set; } = 100;
 
+    /// <summary>From this level on, a trainer's last Pokémon carries the stone that lets it mega evolve.</summary>
+    [ObservableProperty]
+    public partial int MegaFromLevel { get; set; } = 30;
+
     /// <summary>What the last apply did, so a bulk change is never silent.</summary>
     [ObservableProperty]
     public partial string Result { get; set; } = "";
@@ -162,6 +166,45 @@ public sealed partial class TrainerBulkViewModel(EditorViewModel editor, EditorS
     {
         if (int.TryParse(value, out int ivs))
             Ivs = Math.Clamp(ivs, 0, TrainerIvs.Max);
+    }
+
+    /// <summary>The game has mega evolutions and this application found which stone each species needs.</summary>
+    public bool HasMegaStones => session.Current.MegaStoneBySpecies.Count > 0;
+
+    public string MegaTip => HasMegaStones ? Strings.Tip_TrainerMega : Strings.Trainer_MegaUnsupported;
+
+    /// <summary>
+    /// Gives the **last** Pokémon of every trainer of the group its own Mega Stone, when the team reaches
+    /// <see cref="MegaFromLevel"/>. A trainer whose Pokémon holds the right stone mega evolves in battle; a species with
+    /// no mega evolution is left alone, and in Generation 6 the record's "uses held items" flag is switched on, because
+    /// without it the game ignores what the entry carries.
+    /// </summary>
+    [RelayCommand]
+    private void ApplyMegaStones()
+    {
+        if (Category is not { } category || !HasMegaStones)
+            return;
+        int from = Math.Clamp(MegaFromLevel, 1, 100);
+        var stones = session.Current.MegaStoneBySpecies;
+        Apply(category, Strings.Trainer_BulkMega, id =>
+        {
+            int last = 0, highest = 0;
+            for (int slot = 1; slot <= 6; slot++)
+            {
+                if (session.GetInt(T, id, $"p{slot}.species") <= 0)
+                    continue;
+                last = slot;
+                highest = Math.Max(highest, session.GetInt(T, id, $"p{slot}.level"));
+            }
+            if (last == 0 || highest < from)
+                return 0;
+            if (!stones.TryGetValue(session.GetInt(T, id, $"p{last}.species"), out int stone))
+                return 0;
+            int changed = Set(id, $"p{last}.item", stone);
+            if (IsGen6 && changed > 0)
+                changed += Set(id, "heldItems", 1);
+            return changed;
+        });
     }
 
     [RelayCommand]

@@ -3687,4 +3687,40 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Change_Experience" xml:space="preserve">
     <value>experience fitted to the level cap (level {0})</value>
   </data>
+  <data name="Shops_MegaStonesOnSale" xml:space="preserve">
+    <value>Mega Stones on sale from the start ({0})</value>
+  </data>
+  <data name="Shops_MegaStonesOnSaleTip" xml:space="preserve">
+    <value>The game's own Mega Stones go on the shelves of the ordinary Poké Marts, dealt out between them (no shop has room for all of them, and one slot of every shop is left as the game had it). A project setting: it is applied when the ROM is built, without randomizing again, so a run in progress can have it.</value>
+  </data>
+  <data name="Shops_UndoMegaStones" xml:space="preserve">
+    <value>Mega Stones on sale</value>
+  </data>
+  <data name="Trainer_MegaTitle" xml:space="preserve">
+    <value>Mega evolution</value>
+  </data>
+  <data name="Trainer_MegaFromLevel" xml:space="preserve">
+    <value>From level</value>
+  </data>
+  <data name="Trainer_BulkMega" xml:space="preserve">
+    <value>Mega Stone for the last Pokémon</value>
+  </data>
+  <data name="Trainer_MegaHint" xml:space="preserve">
+    <value>The last Pokémon of every trainer of this group whose team reaches that level carries its own Mega Stone, so it mega evolves in battle. A species with no mega evolution is left alone.</value>
+  </data>
+  <data name="Trainer_MegaUnsupported" xml:space="preserve">
+    <value>This game has no mega evolutions, or its table is not in the imported game folder.</value>
+  </data>
+  <data name="Tip_TrainerMega" xml:space="preserve">
+    <value>From this level on. A trainer whose Pokémon holds the right stone mega evolves by itself; in Generation 6 the record's "uses held items" flag is switched on too, because without it the game ignores what the entry carries.</value>
+  </data>
+  <data name="Locke_SpinAgain" xml:space="preserve">
+    <value>Spin again</value>
+  </data>
+  <data name="Locke_SpinAgainTip" xml:space="preserve">
+    <value>Forgets this spin so the wheel can be rolled again. A prize already claimed stays in the save: nothing is taken back.</value>
+  </data>
+  <data name="Locke_SpinAgainReady" xml:space="preserve">
+    <value>Spin forgotten: the wheel can be rolled again.</value>
+  </data>
 </root>

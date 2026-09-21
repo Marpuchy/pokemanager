@@ -26,6 +26,7 @@ public sealed partial class RouletteViewModel : ObservableObject
     private readonly Action<LockePrize> onWin;
     private readonly Func<LockePrize, (bool Ok, string Message)> claim;
     private readonly Action markAdded;
+    private readonly Action forget;
     private LockePrize? won;
 
     public string BadgeName { get; }
@@ -36,7 +37,7 @@ public sealed partial class RouletteViewModel : ObservableObject
     public int WinnerIndex { get; private set; } = -1;
 
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(SpinCommand), nameof(ClaimCommand), nameof(AlreadyAddedCommand))]
+    [NotifyCanExecuteChangedFor(nameof(SpinCommand), nameof(ClaimCommand), nameof(AlreadyAddedCommand), nameof(SpinAgainCommand))]
     public partial RouletteState State { get; set; } = RouletteState.Ready;
 
     [ObservableProperty]
@@ -54,7 +55,7 @@ public sealed partial class RouletteViewModel : ObservableObject
     /// <param name="pending">A prize already won for this badge but not yet put into the save.</param>
     /// <param name="markAdded">The player gave the prize by hand: it counts as given without writing to the save.</param>
     public RouletteViewModel(string badgeName, LockeSettings locke, IReadOnlyList<string> itemNames, LockePrize? pending,
-        Action<LockePrize> onWin, Func<LockePrize, (bool Ok, string Message)> claim, Action markAdded)
+        Action<LockePrize> onWin, Func<LockePrize, (bool Ok, string Message)> claim, Action markAdded, Action forget)
     {
         BadgeName = badgeName;
         this.locke = locke;
@@ -62,6 +63,7 @@ public sealed partial class RouletteViewModel : ObservableObject
         this.onWin = onWin;
         this.claim = claim;
         this.markAdded = markAdded;
+        this.forget = forget;
         Segments = locke.Prizes
             .Select((p, i) => new WheelSegment(LockeRewards.Describe(p, itemNames), Math.Max(0, p.Weight), Palette[i % Palette.Length],
                 LockeRewards.Icon(p), LockeRewards.Glyph(p)))
@@ -77,6 +79,27 @@ public sealed partial class RouletteViewModel : ObservableObject
     }
 
     private bool CanSpin() => State == RouletteState.Ready && Segments.Any(s => s.Weight > 0);
+
+    /// <summary>The spin can be forgotten and rolled again once it is over (the Locke tab's "Allow again", here).</summary>
+    private bool CanSpinAgain() => State is RouletteState.Won or RouletteState.Claimed;
+
+    /// <summary>
+    /// Rolls this milestone again: the recorded spin is forgotten and the wheel goes back to ready. A prize already put
+    /// into the save is not taken back — the player keeps whatever was claimed.
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(CanSpinAgain))]
+    private void SpinAgain()
+    {
+        if (!CanSpinAgain())
+            return;
+        forget();
+        Changed = true;
+        won = null;
+        WinnerIndex = -1;
+        ResultText = Strings.Locke_SpinAgainReady;
+        ResultIsError = false;
+        State = RouletteState.Ready;
+    }
 
     [RelayCommand(CanExecute = nameof(CanSpin))]
     private void Spin()

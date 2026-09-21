@@ -40,6 +40,16 @@ public sealed partial class ShopExtrasViewModel : ObservableObject
     public partial bool FreeRareCandies { get; set; }
 
     /// <summary>
+    /// The game's own stones on the shelves of the ordinary Poké Marts. A project setting like the free candies: it is
+    /// applied when the ROM is built, so a run in progress can have it without randomizing again.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool MegaStonesOnSale { get; set; }
+
+    /// <summary>"Mega Stones on sale from the start (42)".</summary>
+    public string MegaStonesOnSaleText => string.Format(Strings.Shops_MegaStonesOnSale, editor.Session.Current.MegaStones.Length);
+
+    /// <summary>
     /// The game's Mega Stones stop counting as bad items, so the randomizer can place them wherever it places items.
     /// Part of the randomization, like <see cref="AllowAllItems"/>: the ROM has to be randomized again.
     /// </summary>
@@ -85,6 +95,7 @@ public sealed partial class ShopExtrasViewModel : ObservableObject
     {
         loading = true;
         FreeRareCandies = Settings.FreeRareCandies;
+        MegaStonesOnSale = Settings.MegaStonesOnSale;
         loading = false;
     }
 
@@ -94,6 +105,14 @@ public sealed partial class ShopExtrasViewModel : ObservableObject
             return;
         Settings.FreeRareCandies = value;
         editor.MarkDirty(Strings.Shops_UndoCandies);
+    }
+
+    partial void OnMegaStonesOnSaleChanged(bool value)
+    {
+        if (loading || Settings.MegaStonesOnSale == value)
+            return;
+        Settings.MegaStonesOnSale = value;
+        editor.MarkDirty(Strings.Shops_UndoMegaStones);
     }
 
     /// <summary>The project was replaced (undo, restore): show what it holds now.</summary>

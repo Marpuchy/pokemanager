@@ -23,6 +23,8 @@
         <Button Classes="accent" Padding="24,8" Content="{x:Static r:Strings.Locke_Claim}" Command="{Binding ClaimCommand}" />
         <Button Padding="16,8" Content="{x:Static r:Strings.Locke_AlreadyAdded}" Command="{Binding AlreadyAddedCommand}"
                 ToolTip.Tip="{x:Static r:Strings.Locke_AlreadyAddedTip}" />
+        <Button Padding="16,8" Content="{x:Static r:Strings.Locke_SpinAgain}" Command="{Binding SpinAgainCommand}"
+                ToolTip.Tip="{x:Static r:Strings.Locke_SpinAgainTip}" />
         <Button Padding="16,8" Content="{x:Static r:Strings.Locke_Close}" Click="OnClose" />
       </StackPanel>
     </StackPanel>

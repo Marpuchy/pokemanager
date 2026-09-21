@@ -590,6 +590,20 @@
                             <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="430" Text="{x:Static r:Strings.Trainer_BulkLevelHint}" Margin="0,4,0,0" />
                           </StackPanel>
                         </Border>
+
+                        <!-- The last Pokémon of a team that reaches the level carries its own Mega Stone -->
+                        <Border Classes="card detail" Width="470" IsVisible="{Binding HasMegaStones}">
+                          <StackPanel Spacing="4">
+                            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_MegaTitle}" />
+                            <Grid ColumnDefinitions="190,150" Margin="0,2">
+                              <TextBlock Classes="field-label" Text="{x:Static r:Strings.Trainer_MegaFromLevel}" />
+                              <NumericUpDown Grid.Column="1" ToolTip.Tip="{Binding MegaTip}" Value="{Binding MegaFromLevel}" Minimum="1" Maximum="100"
+                                             Increment="5" FormatString="0" ParsingNumberStyle="Integer" />
+                            </Grid>
+                            <Button Content="{x:Static r:Strings.Trainer_BulkApply}" Command="{Binding ApplyMegaStonesCommand}" HorizontalAlignment="Left" />
+                            <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="430" Text="{x:Static r:Strings.Trainer_MegaHint}" Margin="0,4,0,0" />
+                          </StackPanel>
+                        </Border>
                       </WrapPanel>
 
                       <TextBlock Text="{Binding Result}" FontWeight="SemiBold" IsVisible="{Binding Result, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />

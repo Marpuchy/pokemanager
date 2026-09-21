@@ -344,7 +344,8 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
         var roulette = new RouletteViewModel(badge.Name, Loaded.Project.Locke, itemNames, badge.PendingPrize,
             prize => LockeRewards.RecordWin(Loaded, badge.Index, prize),
             prize => LockeRewards.Claim(Loaded, main.Settings, badge.Index, prize, itemNames),
-            () => LockeRewards.MarkAddedByHand(Loaded, badge.Index));
+            () => LockeRewards.MarkAddedByHand(Loaded, badge.Index),
+            () => LockeRewards.Forget(Loaded, badge.Index));
         await main.Dialogs.ShowRouletteAsync(roulette);
         if (roulette.Changed)
             await reload();

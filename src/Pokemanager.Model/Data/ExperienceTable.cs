@@ -29,12 +29,26 @@ public static class ExperienceTable
 
     public const uint CappedStep = 0x01000000;
 
-    /// <summary>The first prototype's region (levels one point apart from here): only its level stored in the party says the level.</summary>
+    /// <summary>
+    /// The first prototype's region: <c>0x40000000 + (level - cap)</c>, so its values sit just above the base. **Level 48
+    /// of the encoding is exactly <c>0x40000000</c>**, so the two cannot be told apart by "above this base": a coded value
+    /// is a whole number of steps above <see cref="CappedBase"/> and a prototype one never is (it is off by 1 to 99).
+    /// Reading a coded level 48 or more as a prototype value was what put six of the user's boxed Pokémon at level 100
+    /// (2026-09-21): in a box nothing else says the level, so the fallback answered 100 and the next build wrote it.
+    /// </summary>
     public const uint PrototypeBase = 0x40000000;
 
+    /// <summary>Whether this is one of the first prototype's values, which do not say their level.</summary>
+    public static bool IsPrototype(uint exp) => exp > PrototypeBase && exp <= PrototypeBase + Levels && LevelOfCapped(exp) is null;
+
     /// <summary>The level an experience value above the cap stands for, or null when it is an ordinary one.</summary>
-    public static int? LevelOfCapped(uint exp) =>
-        exp is >= CappedBase and < PrototypeBase ? Math.Clamp((int)((exp - CappedBase) / CappedStep), 1, 100) : null;
+    public static int? LevelOfCapped(uint exp)
+    {
+        if (exp < CappedBase)
+            return null;
+        uint offset = exp - CappedBase;
+        return offset % CappedStep == 0 && offset / CappedStep is >= 1 and <= Levels - 1 ? (int)(offset / CappedStep) : null;
+    }
 
     /// <summary>The experience that keeps a Pokémon at <paramref name="level"/> above the cap.</summary>
     public static uint CappedExperience(int level) => CappedBase + ((uint)Math.Clamp(level, 1, 100) * CappedStep);
