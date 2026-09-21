@@ -895,7 +895,19 @@
                   <TextBlock Grid.Row="3" Grid.Column="1" Classes="hint" Margin="12,0,0,0" VerticalAlignment="Center" Text="{x:Static r:Strings.Trainer_UnlockSuperTrainingHint}" IsVisible="{Binding HasGen6Extras}" />
                   <Button Grid.Row="4" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Trainer_FillPuffs}" Command="{Binding FillPuffsCommand}" IsVisible="{Binding HasGen6Extras}" />
                   <TextBlock Grid.Row="4" Grid.Column="1" Classes="hint" Margin="12,0,0,0" VerticalAlignment="Center" Text="{Binding PuffText}" IsVisible="{Binding HasGen6Extras}" />
+                  <Button Grid.Row="5" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Trainer_UnlockBoxes}"
+                          Command="{Binding Owner.Editor.GameTweaks.UnlockBoxesCommand}" ToolTip.Tip="{x:Static r:Strings.Game_UnlockBoxesTip}" />
+                  <TextBlock Grid.Row="5" Grid.Column="1" Classes="hint" Margin="12,0,0,0" VerticalAlignment="Center" Text="{x:Static r:Strings.Trainer_UnlockBoxesHint}" />
                 </Grid>
+
+                <!-- Starting over: the whole save goes to the backups, so it asks twice -->
+                <Border Classes="card" HorizontalAlignment="Left" Width="470">
+                  <StackPanel Spacing="4">
+                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_ResetCard}" />
+                    <Button Content="{x:Static r:Strings.Game_StartOver}" Command="{Binding Owner.Editor.GameTweaks.ResetGameCommand}"
+                            ToolTip.Tip="{x:Static r:Strings.Game_StartOverTip}" HorizontalAlignment="Left" />
+                  </StackPanel>
+                </Border>
               </StackPanel>
             </TabItem>
 
@@ -1089,6 +1101,11 @@
             </ContentControl>
           </ScrollViewer>
           </Grid>
+        </TabItem>
+
+        <!-- ================= Locke: it belongs to the run, not to the ROM ================= -->
+        <TabItem Header="{x:Static r:Strings.Tab_Locke}">
+          <ContentControl Content="{Binding Editor.Locke}" />
         </TabItem>
       </TabControl>
     </DockPanel>

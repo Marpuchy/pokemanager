@@ -42,6 +42,9 @@ public partial class SaveTrainerViewModel : ObservableObject
         ApplyRecordFilter();
     }
 
+    /// <summary>The page that holds this one, so the run's own actions (open every box, start over) can be reached.</summary>
+    public SaveEditorViewModel Owner => owner;
+
     /// <summary>The save editor refreshes the trainer card with every change (<see cref="RefreshCard"/>).</summary>
     /// <summary>The game's crystal for a type, when the ROM had the item icons.</summary>
     private static IconImage? Crystal(IconImage?[]? crystals, int type) =>

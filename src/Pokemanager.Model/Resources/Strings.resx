@@ -207,4 +207,7 @@
   <data name="Import_Code" xml:space="preserve">
     <value>Extracting code.bin…</value>
   </data>
+  <data name="Data_NotRules" xml:space="preserve">
+    <value>{0} is not a Pokemanager game rules file.</value>
+  </data>
 </root>

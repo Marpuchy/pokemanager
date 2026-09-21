@@ -51,20 +51,8 @@
             </Grid>
             <TextBlock Classes="error" Text="{Binding SeedError}" IsVisible="{Binding SeedError, Converter={x:Static ObjectConverters.IsNotNull}}" />
             <TextBlock Classes="hint" Text="{x:Static r:Strings.Rnd_SeedHint}" />
-            <Grid ColumnDefinitions="*,Auto" Margin="0,6,0,0">
-              <TextBlock Text="{x:Static r:Strings.Data_RandomizerRow}" VerticalAlignment="Center" TextWrapping="Wrap" />
-              <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
-                <Button Content="{x:Static r:Strings.Data_ImportShort}" Command="{Binding ImportPokemonDataCommand}" />
-                <Button Content="{x:Static r:Strings.Rnd_Export}" Command="{Binding ExportPokemonDataCommand}" />
-              </StackPanel>
-            </Grid>
-            <Grid ColumnDefinitions="*,Auto">
-              <TextBlock Text="{x:Static r:Strings.Data_MovesRow}" VerticalAlignment="Center" TextWrapping="Wrap" />
-              <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
-                <Button Content="{x:Static r:Strings.Data_ImportMovesShort}" Command="{Binding ImportPokemonDataCommand}" />
-                <Button Content="{x:Static r:Strings.Rnd_Export}" Command="{Binding ExportMoveDataCommand}" />
-              </StackPanel>
-            </Grid>
+            <!-- The Pokémon, move, trainer and rule files are all in the Data tab, one file per section -->
+            <TextBlock Classes="hint" Margin="0,6,0,0" TextWrapping="Wrap" Text="{x:Static r:Strings.Data_SeeDataTab}" />
           </StackPanel>
           </Border>
 
@@ -165,27 +153,9 @@
                   </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <!-- Ours, not UPR ZX's, but shown as what they are: more item options. What each one does and which
-                     ones mean randomizing again is in their tooltip, like every other option of this page. -->
-                <StackPanel Margin="16,0,16,14" IsVisible="{Binding HasShops}">
-                  <StackPanel DataContext="{Binding Shops}" x:DataType="vm:ShopExtrasViewModel">
-                  <CheckBox Margin="0,3" IsChecked="{Binding MegaStonesInPool}" IsVisible="{Binding HasMegaStones}"
-                            ToolTip.Tip="{x:Static r:Strings.Items_MegaStonesTip}">
-                    <TextBlock Text="{Binding MegaStonesText}" TextWrapping="Wrap" />
-                  </CheckBox>
-                  <CheckBox Margin="0,3" IsChecked="{Binding AllowAllItems}" ToolTip.Tip="{x:Static r:Strings.Items_AllowAllTip}">
-                    <TextBlock Text="{x:Static r:Strings.Items_AllowAll}" TextWrapping="Wrap" />
-                  </CheckBox>
-                  <CheckBox Margin="0,3" IsChecked="{Binding FreeRareCandies}" IsEnabled="{Binding Supported}"
-                            ToolTip.Tip="{Binding FreeRareCandiesTip}">
-                    <TextBlock Text="{x:Static r:Strings.Shops_FreeCandies}" TextWrapping="Wrap" />
-                  </CheckBox>
-                  <CheckBox Margin="0,3" IsChecked="{Binding MegaStonesOnSale}" IsEnabled="{Binding Supported}"
-                            IsVisible="{Binding HasMegaStones}" ToolTip.Tip="{x:Static r:Strings.Shops_MegaStonesOnSaleTip}">
-                    <TextBlock Text="{Binding MegaStonesOnSaleText}" TextWrapping="Wrap" />
-                  </CheckBox>
-                </StackPanel>
-                </StackPanel>
+                <!-- The application's own item and shop options are in Rules and shops, all together -->
+                <TextBlock Classes="hint" Margin="16,0,16,14" TextWrapping="Wrap" IsVisible="{Binding HasShops}"
+                           Text="{x:Static r:Strings.Items_SeeRulesTab}" />
                 </StackPanel>
               </ScrollViewer>
             </DataTemplate>

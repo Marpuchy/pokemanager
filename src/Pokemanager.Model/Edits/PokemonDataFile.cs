@@ -27,6 +27,9 @@ public enum PokemonDataKind
 
     /// <summary>Moves: type, category, power, accuracy, PP, priority…</summary>
     Moves,
+
+    /// <summary>Trainers: their record (AI, battle type, money, bag) and their teams.</summary>
+    Trainers,
 }
 
 /// <summary>Result of <see cref="PokemonDataFile.ApplyTo"/>.</summary>
@@ -51,7 +54,15 @@ public sealed class PokemonDataFile
     /// <summary>Move data: another extension so the two files are not mixed up.</summary>
     public const string MovesExtension = "mvdata";
 
-    public static string ExtensionOf(PokemonDataKind kind) => kind == PokemonDataKind.Moves ? MovesExtension : Extension;
+    /// <summary>Trainer data: the record and the team of every trainer.</summary>
+    public const string TrainersExtension = "trdata";
+
+    public static string ExtensionOf(PokemonDataKind kind) => kind switch
+    {
+        PokemonDataKind.Moves => MovesExtension,
+        PokemonDataKind.Trainers => TrainersExtension,
+        _ => Extension,
+    };
     public const int CurrentFormat = 1;
     private const string Magic = "pokemanager-pokemon-data";
 
@@ -88,6 +99,7 @@ public sealed class PokemonDataFile
     {
         PokemonDataKind.Pokemon => [GameTables.Personal, GameTables.Learnsets],
         PokemonDataKind.Moves => [GameTables.Moves, GameTables.MoveTexts],
+        PokemonDataKind.Trainers => [GameTables.Trainers],
         _ => [.. GameTables.All.Select(t => t.Name)],
     };
 

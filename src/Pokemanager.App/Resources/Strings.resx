@@ -3732,4 +3732,103 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Tip_BagSearch" xml:space="preserve">
     <value>Narrows the list below to the items whose name contains what you type, without accents or case.</value>
   </data>
+  <data name="Data_KindTrainers" xml:space="preserve">
+    <value>trainers</value>
+  </data>
+  <data name="Data_ExportTrainersTitle" xml:space="preserve">
+    <value>Export trainer data</value>
+  </data>
+  <data name="Data_ExportTrainersMessage" xml:space="preserve">
+    <value>Saves the trainers — their record (AI, battle type, money, bag) and their teams — as a .trdata file that can be imported into another project.</value>
+  </data>
+  <data name="Data_ExportRulesTitle" xml:space="preserve">
+    <value>Export the game's rules</value>
+  </data>
+  <data name="Data_ImportRulesTitle" xml:space="preserve">
+    <value>Import the game's rules</value>
+  </data>
+  <data name="Data_ImportRulesMessage" xml:space="preserve">
+    <value>{0}
+{1}
+
+{2} rules will replace the ones of this project (shiny, level percentages, level cap, shops).{3}</value>
+  </data>
+  <data name="Data_RulesImported" xml:space="preserve">
+    <value>{0} rules imported from {1}. Build the ROM to apply them.</value>
+  </data>
+  <data name="Data_RulesUndo" xml:space="preserve">
+    <value>Game rules imported</value>
+  </data>
+  <data name="Tab_Game" xml:space="preserve">
+    <value>Game (ROM)</value>
+  </data>
+  <data name="Tab_GameRandomizer" xml:space="preserve">
+    <value>Randomize</value>
+  </data>
+  <data name="Tab_GamePokemon" xml:space="preserve">
+    <value>Pokémon</value>
+  </data>
+  <data name="Tab_GameMoves" xml:space="preserve">
+    <value>Moves</value>
+  </data>
+  <data name="Tab_GameTrainers" xml:space="preserve">
+    <value>Trainers</value>
+  </data>
+  <data name="Tab_GameRules" xml:space="preserve">
+    <value>Rules and shops</value>
+  </data>
+  <data name="Tab_Data" xml:space="preserve">
+    <value>Data</value>
+  </data>
+  <data name="Data_TabHint" xml:space="preserve">
+    <value>One file per section, so a set of changes can be carried to another ROM without doing it again. They hold values, never bytes of the game, and importing only writes what this game has.</value>
+  </data>
+  <data name="Data_CardPokemon" xml:space="preserve">
+    <value>Pokémon (.pkdata)</value>
+  </data>
+  <data name="Data_CardPokemonHint" xml:space="preserve">
+    <value>Base stats, types, abilities, items they hold and the moves they learn.</value>
+  </data>
+  <data name="Data_CardMoves" xml:space="preserve">
+    <value>Moves (.mvdata)</value>
+  </data>
+  <data name="Data_CardMovesHint" xml:space="preserve">
+    <value>Type, category, power, accuracy, PP, priority and the description each move shows.</value>
+  </data>
+  <data name="Data_CardTrainers" xml:space="preserve">
+    <value>Trainers (.trdata)</value>
+  </data>
+  <data name="Data_CardTrainersHint" xml:space="preserve">
+    <value>Their record — AI, battle type, money, bag — and their teams.</value>
+  </data>
+  <data name="Data_CardRules" xml:space="preserve">
+    <value>Rules and shops (.gmdata)</value>
+  </data>
+  <data name="Data_CardRulesHint" xml:space="preserve">
+    <value>Shiny, level percentages, level cap and what the shops sell. Importing replaces the ones of this project.</value>
+  </data>
+  <data name="Data_CardPreset" xml:space="preserve">
+    <value>Randomizer preset (.rnqs)</value>
+  </data>
+  <data name="Data_CardPresetHint" xml:space="preserve">
+    <value>The randomizer's own options travel in their preset: import and export it in Randomize, next to the seed.</value>
+  </data>
+  <data name="Data_SeeDataTab" xml:space="preserve">
+    <value>The Pokémon, move, trainer and rule files are in the Data tab.</value>
+  </data>
+  <data name="Trainer_UnlockBoxesHint" xml:space="preserve">
+    <value>Opens every box of the PC. It stays in the editor until you write the save.</value>
+  </data>
+  <data name="Data_ExportShort" xml:space="preserve">
+    <value>Export…</value>
+  </data>
+  <data name="Data_ImportShortButton" xml:space="preserve">
+    <value>Import…</value>
+  </data>
+  <data name="Game_ItemsTitle" xml:space="preserve">
+    <value>Items and shops</value>
+  </data>
+  <data name="Items_SeeRulesTab" xml:space="preserve">
+    <value>What this application adds about items — Mega Stones, every item, free Rare Candies, stones on sale — is in Rules and shops.</value>
+  </data>
 </root>

@@ -3732,4 +3732,103 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Tip_BagSearch" xml:space="preserve">
     <value>Deja en la lista de abajo los objetos cuyo nombre contiene lo que escribes, sin tildes ni mayúsculas.</value>
   </data>
+  <data name="Data_KindTrainers" xml:space="preserve">
+    <value>entrenadores</value>
+  </data>
+  <data name="Data_ExportTrainersTitle" xml:space="preserve">
+    <value>Exportar datos de entrenadores</value>
+  </data>
+  <data name="Data_ExportTrainersMessage" xml:space="preserve">
+    <value>Guarda los entrenadores (su registro: IA, tipo de combate, dinero, mochila, y sus equipos) en un archivo .trdata que se puede importar en otro proyecto.</value>
+  </data>
+  <data name="Data_ExportRulesTitle" xml:space="preserve">
+    <value>Exportar las reglas del juego</value>
+  </data>
+  <data name="Data_ImportRulesTitle" xml:space="preserve">
+    <value>Importar reglas del juego</value>
+  </data>
+  <data name="Data_ImportRulesMessage" xml:space="preserve">
+    <value>{0}
+{1}
+
+{2} reglas sustituirán a las de este proyecto (variocolor, porcentajes de nivel, tope de nivel, tiendas).{3}</value>
+  </data>
+  <data name="Data_RulesImported" xml:space="preserve">
+    <value>{0} reglas importadas de {1}. Crea la ROM para aplicarlas.</value>
+  </data>
+  <data name="Data_RulesUndo" xml:space="preserve">
+    <value>Reglas del juego importadas</value>
+  </data>
+  <data name="Tab_Game" xml:space="preserve">
+    <value>Juego (ROM)</value>
+  </data>
+  <data name="Tab_GameRandomizer" xml:space="preserve">
+    <value>Aleatorizar</value>
+  </data>
+  <data name="Tab_GamePokemon" xml:space="preserve">
+    <value>Pokémon</value>
+  </data>
+  <data name="Tab_GameMoves" xml:space="preserve">
+    <value>Movimientos</value>
+  </data>
+  <data name="Tab_GameTrainers" xml:space="preserve">
+    <value>Entrenadores</value>
+  </data>
+  <data name="Tab_GameRules" xml:space="preserve">
+    <value>Reglas y tiendas</value>
+  </data>
+  <data name="Tab_Data" xml:space="preserve">
+    <value>Datos</value>
+  </data>
+  <data name="Data_TabHint" xml:space="preserve">
+    <value>Un archivo por apartado, para llevarte un conjunto de cambios a otra ROM sin rehacerlo. Guardan valores, nunca bytes del juego, y al importar solo se escribe lo que este juego tiene.</value>
+  </data>
+  <data name="Data_CardPokemon" xml:space="preserve">
+    <value>Pokémon (.pkdata)</value>
+  </data>
+  <data name="Data_CardPokemonHint" xml:space="preserve">
+    <value>Stats base, tipos, habilidades, objetos que llevan y movimientos que aprenden.</value>
+  </data>
+  <data name="Data_CardMoves" xml:space="preserve">
+    <value>Movimientos (.mvdata)</value>
+  </data>
+  <data name="Data_CardMovesHint" xml:space="preserve">
+    <value>Tipo, categoría, potencia, precisión, PP, prioridad y la descripción que muestra cada movimiento.</value>
+  </data>
+  <data name="Data_CardTrainers" xml:space="preserve">
+    <value>Entrenadores (.trdata)</value>
+  </data>
+  <data name="Data_CardTrainersHint" xml:space="preserve">
+    <value>Su registro (IA, tipo de combate, dinero, mochila) y sus equipos.</value>
+  </data>
+  <data name="Data_CardRules" xml:space="preserve">
+    <value>Reglas y tiendas (.gmdata)</value>
+  </data>
+  <data name="Data_CardRulesHint" xml:space="preserve">
+    <value>Variocolor, porcentajes de nivel, tope de nivel y lo que venden las tiendas. Al importar sustituyen a las de este proyecto.</value>
+  </data>
+  <data name="Data_CardPreset" xml:space="preserve">
+    <value>Preset del randomizer (.rnqs)</value>
+  </data>
+  <data name="Data_CardPresetHint" xml:space="preserve">
+    <value>Las opciones del propio randomizer viajan en su preset: se importa y exporta en Aleatorizar, junto a la semilla.</value>
+  </data>
+  <data name="Data_SeeDataTab" xml:space="preserve">
+    <value>Los archivos de Pokémon, movimientos, entrenadores y reglas están en la pestaña Datos.</value>
+  </data>
+  <data name="Trainer_UnlockBoxesHint" xml:space="preserve">
+    <value>Abre todas las cajas del PC. Queda en el editor hasta que escribas la partida.</value>
+  </data>
+  <data name="Data_ExportShort" xml:space="preserve">
+    <value>Exportar…</value>
+  </data>
+  <data name="Data_ImportShortButton" xml:space="preserve">
+    <value>Importar…</value>
+  </data>
+  <data name="Game_ItemsTitle" xml:space="preserve">
+    <value>Objetos y tiendas</value>
+  </data>
+  <data name="Items_SeeRulesTab" xml:space="preserve">
+    <value>Lo que añade esta aplicación sobre objetos (megapiedras, todos los objetos, caramelos gratis, piedras a la venta) está en Reglas y tiendas.</value>
+  </data>
 </root>

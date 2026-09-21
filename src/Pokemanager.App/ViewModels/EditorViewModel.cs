@@ -849,14 +849,79 @@ public partial class EditorViewModel : ObservableObject
     [RelayCommand]
     private Task ExportMoveData() => ExportDataAsync(PokemonDataKind.Moves);
 
+    [RelayCommand]
+    private Task ExportTrainerData() => ExportDataAsync(PokemonDataKind.Trainers);
+
+    /// <summary>
+    /// The rules of the built ROM (game options and shops) as a file of their own, so the same set can be put on another
+    /// project without repeating it by hand.
+    /// </summary>
+    [RelayCommand]
+    private async Task ExportGameRules()
+    {
+        string suggested = Path.GetFileNameWithoutExtension(ProjectPath) + " - rules." + GameRulesFile.Extension;
+        if (await dialogs.PickSaveFileAsync(Strings.Data_ExportRulesTitle, suggested, GameRulesFile.Extension) is not { } path)
+            return;
+        try
+        {
+            var file = GameRulesFile.FromProject(Session.Project, Dump.Title, DataDescription());
+            await Task.Run(() => file.Save(path));
+            SetStatus(string.Format(Strings.Data_Exported, file.ValueCount, path));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            SetStatus(string.Format(Strings.Data_Failed, ex.Message), error: true);
+        }
+    }
+
+    [RelayCommand]
+    private async Task ImportGameRules()
+    {
+        if (await dialogs.PickOpenFileAsync(Strings.Data_ImportRulesTitle, ["*." + GameRulesFile.Extension]) is not { } path)
+            return;
+        GameRulesFile file;
+        try
+        {
+            file = await Task.Run(() => GameRulesFile.Load(path));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException)
+        {
+            SetStatus(string.Format(Strings.Data_Failed, ex.Message), error: true);
+            return;
+        }
+
+        string game = file.Game is { } g && g != Dump.Title ? string.Format(Strings.Data_OtherGame, g.DisplayName(), Dump.Title.DisplayName()) : "";
+        var question = new QuestionViewModel(Strings.Data_ImportRulesTitle,
+            string.Format(Strings.Data_ImportRulesMessage, Path.GetFileName(path), file.Description ?? "—", file.ValueCount, game),
+            Strings.Data_ImportConfirm, Strings.Common_Cancel, []);
+        if (!await dialogs.AskAsync(question))
+            return;
+
+        file.ApplyTo(Session.Project);
+        MarkDirty(Strings.Data_RulesUndo);
+        GameTweaks.Refresh();
+        Randomizer.Shops.Refresh();
+        LevelCap.Refresh();
+        SetStatus(string.Format(Strings.Data_RulesImported, file.ValueCount, Path.GetFileName(path)));
+    }
+
     /// <summary>Exports the Pokémon (.pkdata) or the moves (.mvdata): the changes, or every value.</summary>
     private async Task ExportDataAsync(PokemonDataKind kind)
     {
-        bool moves = kind == PokemonDataKind.Moves;
-        string title = moves ? Strings.Data_ExportMovesTitle : Strings.Data_ExportTitle;
+        string title = kind switch
+        {
+            PokemonDataKind.Moves => Strings.Data_ExportMovesTitle,
+            PokemonDataKind.Trainers => Strings.Data_ExportTrainersTitle,
+            _ => Strings.Data_ExportTitle,
+        };
+        string message = kind switch
+        {
+            PokemonDataKind.Moves => Strings.Data_ExportMovesMessage,
+            PokemonDataKind.Trainers => Strings.Data_ExportTrainersMessage,
+            _ => Strings.Data_ExportMessage,
+        };
         var all = new DialogCheck(Strings.Data_ExportAll);
-        var question = new QuestionViewModel(title, moves ? Strings.Data_ExportMovesMessage : Strings.Data_ExportMessage,
-            Strings.Data_ExportConfirm, Strings.Common_Cancel, [all]);
+        var question = new QuestionViewModel(title, message, Strings.Data_ExportConfirm, Strings.Common_Cancel, [all]);
         if (!await dialogs.AskAsync(question))
             return;
 
@@ -881,7 +946,8 @@ public partial class EditorViewModel : ObservableObject
     [RelayCommand]
     private async Task ImportPokemonData()
     {
-        if (await dialogs.PickOpenFileAsync(Strings.Data_ImportTitle, ["*." + PokemonDataFile.Extension, "*." + PokemonDataFile.MovesExtension]) is not { } path)
+        if (await dialogs.PickOpenFileAsync(Strings.Data_ImportTitle,
+                ["*." + PokemonDataFile.Extension, "*." + PokemonDataFile.MovesExtension, "*." + PokemonDataFile.TrainersExtension]) is not { } path)
             return;
         PokemonDataFile file;
         try
@@ -898,6 +964,7 @@ public partial class EditorViewModel : ObservableObject
         {
             PokemonDataKind.Pokemon => Strings.Data_KindPokemon,
             PokemonDataKind.Moves => Strings.Data_KindMoves,
+            PokemonDataKind.Trainers => Strings.Data_KindTrainers,
             _ => Strings.Data_KindAll,
         };
         string scope = contents + ", " + (file.Scope == PokemonDataScope.All ? Strings.Data_ScopeAll : Strings.Data_ScopeEdits);

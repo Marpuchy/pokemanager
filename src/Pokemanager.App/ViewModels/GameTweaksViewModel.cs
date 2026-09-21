@@ -30,6 +30,9 @@ public sealed partial class GameTweaksViewModel : ObservableObject
         WildAndStaticSupported = session.Current.Title.Layout().Wild.Length > 0;
     }
 
+    /// <summary>The item and shop options, shown on this page: they are the ROM's too, and one place is enough.</summary>
+    public ShopExtrasViewModel Shops => editor.Randomizer.Shops;
+
     /// <summary>The level cap card of this page (it lives on the editor, which also shows its indicator).</summary>
     public LevelCapViewModel LevelCap => editor.LevelCap;
 

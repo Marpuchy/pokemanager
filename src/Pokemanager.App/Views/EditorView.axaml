@@ -161,769 +161,831 @@
     </Border>
 
     <TabControl x:Name="MainTabs" Padding="0" SelectedIndex="{Binding SelectedTab}">
-      <!-- ================= Randomizer ================= -->
-      <TabItem Header="{x:Static r:Strings.Tab_Randomizer}">
-        <ContentControl Content="{Binding Randomizer}" />
-      </TabItem>
-
-      <!-- ================= Save file ================= -->
-      <TabItem x:Name="SaveTab" Header="{x:Static r:Strings.Tab_Save}">
-        <ContentControl Content="{Binding SaveEditor}" />
-      </TabItem>
-
-      <!-- The version history is no longer a tab: it opens from Settings (Dialogs.ShowHistoryAsync) -->
-
-      <!-- ================= Locke ================= -->
-      <TabItem Header="{x:Static r:Strings.Tab_Locke}">
-        <ContentControl Content="{Binding Locke}" />
-      </TabItem>
-      <!-- ================= Advanced: Pokémon ================= -->
-      <TabItem Header="{x:Static r:Strings.Tab_AdvancedPokemon}">
-        <DockPanel>
-        <Border DockPanel.Dock="Top" Padding="8,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
-          <Grid ColumnDefinitions="Auto,6,Auto,*,Auto">
-            <Button Content="{x:Static r:Strings.Data_ImportButton}" Command="{Binding ImportPokemonDataCommand}" />
-            <Button Grid.Column="2" Content="{x:Static r:Strings.Data_ExportButton}" Command="{Binding ExportPokemonDataCommand}" />
-            <TextBlock Grid.Column="3" Classes="hint" Margin="6,0,12,0" VerticalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
-                       Text="{x:Static r:Strings.Data_Hint}" ToolTip.Tip="{x:Static r:Strings.Data_Hint}" />
-            <CheckBox Grid.Column="4" IsChecked="{Binding ShowAbilities}" Content="{x:Static r:Strings.Adv_ShowAbilities}" ToolTip.Tip="{x:Static r:Strings.Adv_ShowAbilitiesTip}" />
-          </Grid>
-        </Border>
-        <Grid ColumnDefinitions="300,*">
-          <DockPanel Margin="8">
-            <TextBox DockPanel.Dock="Top" Text="{Binding SpeciesFilter}" PlaceholderText="{x:Static r:Strings.Search_Watermark}" Margin="0,0,0,6" />
-            <ListBox ItemsSource="{Binding Species}" SelectedItem="{Binding SelectedSpecies}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" />
-          </DockPanel>
-
-          <ContentControl Grid.Column="1" Content="{Binding SpeciesDetail}">
-            <ContentControl.ContentTemplate>
-              <DataTemplate x:DataType="vm:SpeciesDetailViewModel">
-                <DockPanel Margin="8,8,12,8">
-                  <!-- Header in the Pokémon's type colors: sprite, types, abilities and base stat total -->
-                  <Border DockPanel.Dock="Top" Classes="detail-header" Background="{Binding TypeBackground}" Margin="0,0,0,8">
-                    <Grid ColumnDefinitions="Auto,*,Auto">
-                      <Border Background="#50FFFFFF" CornerRadius="2" Width="92" Height="72" Margin="0,0,12,0"
-                              IsVisible="{Binding Icon, Converter={x:Static ObjectConverters.IsNotNull}}">
-                        <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="80" Height="60" />
-                      </Border>
-                      <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
-                        <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="Bold" Foreground="{Binding TypeForeground}" TextTrimming="CharacterEllipsis" />
-                        <ItemsControl ItemsSource="{Binding TypeChips}">
-                          <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                              <StackPanel Orientation="Horizontal" Spacing="4" />
-                            </ItemsPanelTemplate>
-                          </ItemsControl.ItemsPanel>
-                        </ItemsControl>
-                        <TextBlock Text="{Binding AbilitiesText}" Foreground="{Binding TypeForeground}" Opacity="0.9" TextTrimming="CharacterEllipsis"
-                                   IsVisible="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).ShowAbilities}" />
-                        <TextBlock Text="{x:Static r:Strings.Adv_AbilitiesHidden}" Foreground="{Binding TypeForeground}" Opacity="0.7" FontStyle="Italic"
-                                   IsVisible="{Binding !$parent[UserControl].((vm:EditorViewModel)DataContext).ShowAbilities}" />
-                      </StackPanel>
-                      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                        <Border Classes="badge">
-                          <StackPanel>
-                            <TextBlock Classes="badge-label" Text="{x:Static r:Strings.Badge_Total}" />
-                            <TextBlock Classes="badge-value" Text="{Binding BaseStatTotal}" />
-                          </StackPanel>
-                        </Border>
-                        <Button Content="{x:Static r:Strings.Detail_Revert}" Command="{Binding RevertCommand}" IsEnabled="{Binding IsModified}" />
-                      </StackPanel>
-                    </Grid>
-                  </Border>
-                  <TabControl>
-                    <TabItem Header="{x:Static r:Strings.Detail_Data}">
-                      <ScrollViewer>
-                        <WrapPanel Orientation="Horizontal" Margin="0,8,0,0">
-                          <!-- Base stats with bars -->
-                          <Border Classes="card detail">
-                            <StackPanel>
-                              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Section_BaseStats}" />
-                              <ItemsControl ItemsSource="{Binding Stats}">
-                                <ItemsControl.ItemTemplate>
-                                  <DataTemplate x:DataType="vm:StatFieldViewModel">
-                                    <Grid ColumnDefinitions="110,120,190" Margin="0,2" ToolTip.Tip="{Binding OriginalTip}">
-                                      <TextBlock Classes="field-label" Classes.modified="{Binding IsModified}" Text="{Binding Label}" />
-                                      <NumericUpDown Grid.Column="1" Value="{Binding Value}" Minimum="{Binding Min}" Maximum="{Binding Max}"
-                                                     Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
-                                      <Border Grid.Column="2" Margin="10,0,0,0" Height="12" CornerRadius="2" Background="#E8ECEF" VerticalAlignment="Center">
-                                        <Border HorizontalAlignment="Left" Width="{Binding BarWidth}" CornerRadius="2" Background="{Binding BarBrush}"
-                                                BorderBrush="#30000000" BorderThickness="1" />
-                                      </Border>
-                                    </Grid>
-                                  </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                              </ItemsControl>
-                            </StackPanel>
-                          </Border>
-                          <Border Classes="card detail">
-                            <StackPanel>
-                              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Section_Types}" />
-                              <ItemsControl ItemsSource="{Binding Types}" />
-                              <Grid ColumnDefinitions="*,Auto" Width="430" Margin="0,8,0,2">
-                                <TextBlock Classes="card-title" VerticalAlignment="Center" Text="{x:Static r:Strings.Section_Abilities}" />
-                                <Button Grid.Column="1" Content="{x:Static r:Strings.Adv_HideAbilities}"
-                                        Command="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).HideAbilitiesCommand}"
-                                        IsVisible="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).ShowAbilities}" />
-                              </Grid>
-                              <ItemsControl ItemsSource="{Binding Abilities}" IsVisible="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).ShowAbilities}" />
-                              <Grid ColumnDefinitions="*,Auto" Width="430" Margin="0,2" IsVisible="{Binding !$parent[UserControl].((vm:EditorViewModel)DataContext).ShowAbilities}">
-                                <TextBlock Classes="hint" VerticalAlignment="Center" TextWrapping="Wrap" Text="{x:Static r:Strings.Adv_AbilitiesHidden}" />
-                                <Button Grid.Column="1" Content="{x:Static r:Strings.Adv_ShowAbilities}"
-                                        Command="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).RevealAbilitiesCommand}" />
-                              </Grid>
-                            </StackPanel>
-                          </Border>
-                          <Border Classes="card detail">
-                            <StackPanel>
-                              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Section_EvYield}" />
-                              <ItemsControl ItemsSource="{Binding EvYield}" />
-                              <TextBlock Classes="card-title" Margin="0,8,0,2" Text="{x:Static r:Strings.Section_Other}" />
-                              <ItemsControl ItemsSource="{Binding Other}" />
-                            </StackPanel>
-                          </Border>
-                          <Border Classes="card detail">
-                            <StackPanel>
-                              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Section_Breeding}" />
-                              <ItemsControl ItemsSource="{Binding Breeding}" />
-                              <TextBlock Classes="hint" Margin="0,2,0,0" MaxWidth="430" HorizontalAlignment="Left" Text="{x:Static r:Strings.Gender_Hint}" />
-                            </StackPanel>
-                          </Border>
-                          <Border Classes="card detail">
-                            <StackPanel>
-                              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Section_WildItems}" />
-                              <ItemsControl ItemsSource="{Binding Items}" />
-                            </StackPanel>
-                          </Border>
-                          <!-- Generation 7: the species' exclusive Z-move -->
-                          <Border Classes="card detail" IsVisible="{Binding HasZMove}">
-                            <StackPanel>
-                              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Section_ZMove}" />
-                              <TextBlock Classes="hint" MaxWidth="430" HorizontalAlignment="Left" TextWrapping="Wrap" Text="{x:Static r:Strings.ZMove_Hint}" />
-                              <ItemsControl ItemsSource="{Binding ZMove}" Margin="0,4,0,0" />
-                            </StackPanel>
-                          </Border>
-                        </WrapPanel>
-                      </ScrollViewer>
-                    </TabItem>
-
-                    <TabItem>
-                      <TabItem.Header>
-                        <StackPanel Orientation="Horizontal" Spacing="4">
-                          <TextBlock Text="{x:Static r:Strings.Detail_LevelUp}" />
-                          <TextBlock Classes="dot" Text="●" IsVisible="{Binding IsLearnsetModified}" />
-                        </StackPanel>
-                      </TabItem.Header>
-                      <DockPanel>
-                        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="6" Margin="0,10,0,10">
-                          <Button Content="{x:Static r:Strings.LevelUp_Add}" Command="{Binding AddMoveCommand}" />
-                          <Button Content="{x:Static r:Strings.LevelUp_Sort}" Command="{Binding SortLearnsetCommand}" />
-                          <TextBlock Classes="hint" VerticalAlignment="Center" Text="{x:Static r:Strings.LevelUp_Hint}" />
-                        </StackPanel>
-                        <ScrollViewer Padding="0,0,12,8">
-                          <ItemsControl ItemsSource="{Binding Learnset}">
-                            <ItemsControl.ItemTemplate>
-                              <DataTemplate x:DataType="vm:LearnsetRowViewModel">
-                                <Border Background="{Binding MoveType.Background}" CornerRadius="0" Padding="10,5" Margin="0,0,0,6" MinWidth="720"
-                                        BorderBrush="#30000000" BorderThickness="1" HorizontalAlignment="Left">
-                                  <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBlock Classes="field-label" Foreground="{Binding MoveType.Foreground}" FontWeight="SemiBold" Text="{x:Static r:Strings.LevelUp_Level}" />
-                                    <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_LearnsetLevel}" Value="{Binding Level}" Minimum="1" Maximum="100" Increment="1"
-                                                   FormatString="0" ParsingNumberStyle="Integer" Width="130" />
-                                    <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_LearnsetMove}" ItemsSource="{Binding MoveNames}" SelectedIndex="{Binding SelectedMove}"
-                                              Width="260" MaxDropDownHeight="360" />
-                                    <Border Background="#E6FFFFFF" CornerRadius="2" Padding="6,1" VerticalAlignment="Center" MinWidth="70">
-                                      <TextBlock Text="{Binding MoveType.Name}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Center" />
-                                    </Border>
-                                    <Button Content="{x:Static r:Strings.Common_Remove}" Command="{Binding RemoveCommand}" />
-                                  </StackPanel>
-                                </Border>
-                              </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                          </ItemsControl>
-                        </ScrollViewer>
-                      </DockPanel>
-                    </TabItem>
-                  </TabControl>
-                </DockPanel>
-              </DataTemplate>
-            </ContentControl.ContentTemplate>
-          </ContentControl>
-        </Grid>
-        </DockPanel>
-      </TabItem>
-
-      <!-- ================= Advanced: Moves ================= -->
-      <TabItem Header="{x:Static r:Strings.Tab_AdvancedMoves}">
-        <DockPanel>
-        <Border DockPanel.Dock="Top" Padding="8,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
-          <StackPanel Orientation="Horizontal" Spacing="6">
-            <Button Content="{x:Static r:Strings.Data_ImportButton}" Command="{Binding ImportPokemonDataCommand}" />
-            <Button Content="{x:Static r:Strings.Data_ExportMovesButton}" Command="{Binding ExportMoveDataCommand}" />
-            <TextBlock Classes="hint" VerticalAlignment="Center" Text="{x:Static r:Strings.Data_MovesHint}" />
-          </StackPanel>
-        </Border>
-        <Grid ColumnDefinitions="300,*">
-          <DockPanel Margin="8">
-            <TextBox DockPanel.Dock="Top" Text="{Binding MoveFilter}" PlaceholderText="{x:Static r:Strings.Search_Watermark}" Margin="0,0,0,6" />
-            <ListBox ItemsSource="{Binding Moves}" SelectedItem="{Binding SelectedMove}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" />
-          </DockPanel>
-
-          <ContentControl Grid.Column="1" Content="{Binding MoveDetail}">
-            <ContentControl.ContentTemplate>
-              <DataTemplate x:DataType="vm:MoveDetailViewModel">
-                <ScrollViewer Margin="8,8,12,8">
-                  <StackPanel Spacing="8">
-                    <!-- Header in the move's type color: type, category and the numbers that matter -->
-                    <Border Classes="detail-header" Background="{Binding TypeBackground}">
-                      <Grid ColumnDefinitions="Auto,*,Auto">
-                        <!-- Type and category icons -->
-                        <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,14,0" VerticalAlignment="Center">
-                          <Border BorderBrush="#50000000" BorderThickness="1" ToolTip.Tip="{Binding TypeChip.Name}">
-                            <Image Source="{Binding TypeIcon}" Width="44" Height="44" />
-                          </Border>
-                          <Border BorderBrush="#50000000" BorderThickness="1" ToolTip.Tip="{Binding CategoryText}">
-                            <Image Source="{Binding CategoryIcon}" Width="44" Height="44" />
-                          </Border>
-                        </StackPanel>
-                        <StackPanel Grid.Column="1" Spacing="5" VerticalAlignment="Center">
-                          <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="Bold" Foreground="{Binding TypeForeground}" TextTrimming="CharacterEllipsis" />
-                          <StackPanel Orientation="Horizontal" Spacing="6">
-                            <ContentControl Content="{Binding TypeChip}" />
-                            <Border Background="{Binding CategoryBrush}" CornerRadius="2" Padding="6,0" BorderBrush="#60000000" BorderThickness="1">
-                              <TextBlock Text="{Binding CategoryText}" Foreground="White" FontSize="10" FontWeight="SemiBold" />
-                            </Border>
-                          </StackPanel>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-                          <Border Classes="badge">
-                            <StackPanel>
-                              <TextBlock Classes="badge-label" Text="{x:Static r:Strings.Badge_Power}" />
-                              <TextBlock Classes="badge-value" Text="{Binding PowerText}" />
-                            </StackPanel>
-                          </Border>
-                          <Border Classes="badge">
-                            <StackPanel>
-                              <TextBlock Classes="badge-label" Text="{x:Static r:Strings.Badge_Accuracy}" />
-                              <TextBlock Classes="badge-value" Text="{Binding AccuracyText}" />
-                            </StackPanel>
-                          </Border>
-                          <Border Classes="badge">
-                            <StackPanel>
-                              <TextBlock Classes="badge-label" Text="{x:Static r:Strings.Badge_PP}" />
-                              <TextBlock Classes="badge-value" Text="{Binding PpText}" />
-                            </StackPanel>
-                          </Border>
-                          <Button Margin="6,0,0,0" Content="{x:Static r:Strings.Detail_Revert}" Command="{Binding RevertCommand}" IsEnabled="{Binding IsModified}" />
-                        </StackPanel>
-                      </Grid>
-                    </Border>
-
-                    <WrapPanel>
-                      <Border Classes="card detail">
-                        <StackPanel>
-                          <TextBlock Classes="card-title" Text="{x:Static r:Strings.Move_Main}" />
-                          <ItemsControl ItemsSource="{Binding Main}" />
-                        </StackPanel>
-                      </Border>
-                      <Border Classes="card detail">
-                        <StackPanel>
-                          <TextBlock Classes="card-title" Text="{x:Static r:Strings.Move_Details}" />
-                          <ItemsControl ItemsSource="{Binding Details}" />
-                        </StackPanel>
-                      </Border>
-                    </WrapPanel>
-
-                    <!-- Description: English base; an edited one goes to every language of the game -->
-                    <Border Classes="card" MaxWidth="780" HorizontalAlignment="Left">
-                      <StackPanel Spacing="4">
-                        <Grid ColumnDefinitions="*,Auto">
-                          <TextBlock Classes="card-title field-label" Classes.modified="{Binding IsDescriptionModified}" Text="{x:Static r:Strings.Move_Description}" />
-                          <Button Grid.Column="1" Content="{x:Static r:Strings.Move_RevertDescription}" Command="{Binding RevertDescriptionCommand}"
-                                  IsEnabled="{Binding IsDescriptionModified}" />
-                        </Grid>
-                        <TextBox Text="{Binding Description}" AcceptsReturn="True" TextWrapping="Wrap" Height="86" Width="420" HorizontalAlignment="Left"
-                                 VerticalContentAlignment="Top"
-                                 FontFamily="Consolas, Menlo, monospace" />
-                        <TextBlock Classes="hint" Text="{x:Static r:Strings.Move_DescriptionHint}" />
-                        <StackPanel IsVisible="{Binding IsDescriptionModified}" Spacing="1">
-                          <TextBlock Classes="hint" FontWeight="SemiBold" Text="{x:Static r:Strings.Move_DescriptionOriginal}" />
-                          <TextBlock Classes="hint" Text="{Binding OriginalDescription}" />
-                        </StackPanel>
-                      </StackPanel>
-                    </Border>
-                  </StackPanel>
-                </ScrollViewer>
-              </DataTemplate>
-            </ContentControl.ContentTemplate>
-          </ContentControl>
-        </Grid>
-        </DockPanel>
-      </TabItem>
-
-      <!-- ================= Advanced: Trainers ================= -->
-      <TabItem Header="{x:Static r:Strings.Tab_AdvancedTrainers}">
-        <DockPanel>
+      <!-- ================= The ROM: what is built into the game and needs a rebuild ================= -->
+      <TabItem Header="{x:Static r:Strings.Tab_Game}">
+        <TabControl x:Name="GameTabs" Padding="0">
+        <!-- ================= Randomizer ================= -->
+        <TabItem Header="{x:Static r:Strings.Tab_GameRandomizer}">
+          <ContentControl Content="{Binding Randomizer}" />
+        </TabItem>
+        <!-- ================= Advanced: Pokémon ================= -->
+        <TabItem Header="{x:Static r:Strings.Tab_GamePokemon}">
+          <DockPanel>
           <Border DockPanel.Dock="Top" Padding="8,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
-            <Grid ColumnDefinitions="Auto,Auto,12,*,Auto">
-              <RadioButton GroupName="TrainerMode" IsChecked="{Binding TrainersByCategory}" Content="{x:Static r:Strings.Trainer_ModeCategory}"
-                           ToolTip.Tip="{x:Static r:Strings.Trainer_ModeCategoryTip}" Margin="0,0,10,0" />
-              <RadioButton Grid.Column="1" GroupName="TrainerMode" IsChecked="{Binding !TrainersByCategory}" Content="{x:Static r:Strings.Trainer_ModeAll}"
-                           ToolTip.Tip="{x:Static r:Strings.Trainer_ModeAllTip}" />
+            <Grid ColumnDefinitions="Auto,6,Auto,*,Auto">
               <TextBlock Grid.Column="3" Classes="hint" Margin="6,0,12,0" VerticalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
-                         Text="{x:Static r:Strings.Trainer_Hint}" ToolTip.Tip="{x:Static r:Strings.Trainer_Hint}" />
-              <CheckBox Grid.Column="4" IsChecked="{Binding ShowTrainerTeam}" Content="{x:Static r:Strings.Trainer_ShowTeam}"
-                        ToolTip.Tip="{x:Static r:Strings.Trainer_ShowTeamTip}" />
+                         Text="{x:Static r:Strings.Data_Hint}" ToolTip.Tip="{x:Static r:Strings.Data_Hint}" />
+              <CheckBox Grid.Column="4" IsChecked="{Binding ShowAbilities}" Content="{x:Static r:Strings.Adv_ShowAbilities}" ToolTip.Tip="{x:Static r:Strings.Adv_ShowAbilitiesTip}" />
             </Grid>
           </Border>
-          <Grid ColumnDefinitions="360,*">
+          <Grid ColumnDefinitions="300,*">
             <DockPanel Margin="8">
-              <TextBox DockPanel.Dock="Top" Text="{Binding TrainerFilter}" PlaceholderText="{x:Static r:Strings.Search_Watermark}" Margin="0,0,10,6" />
-              <TextBlock DockPanel.Dock="Bottom" Classes="hint" TextWrapping="Wrap" Margin="0,6,0,0"
-                         Text="{x:Static r:Strings.Trainer_NoTrainers}" IsVisible="{Binding !Trainers.Count}" />
-              <!-- Both lists fill what the search box leaves: in a DockPanel every child but the last is docked,
-                   and the first list was taking only the width of its own longest row. -->
-              <Panel>
-              <!-- By category: the game's own trainer classes -->
-              <ListBox ItemsSource="{Binding TrainerCategories}" SelectedItem="{Binding SelectedTrainerCategory}"
-                       IsVisible="{Binding TrainersByCategory}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                <ListBox.ItemTemplate>
-                  <DataTemplate x:DataType="vm:TrainerCategoryViewModel">
-                    <Border Classes="entry" Classes.modified="{Binding IsModified}" Margin="-6,-2,10,-2" Padding="3,3,4,3"
-                            ToolTip.Tip="{Binding Tip}">
-                      <Grid ColumnDefinitions="*,Auto">
-                        <StackPanel>
-                          <TextBlock Classes="entry-name" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
-                          <TextBlock Classes="hint" Text="{Binding Summary}" TextTrimming="CharacterEllipsis" />
-                        </StackPanel>
-                        <TextBlock Grid.Column="1" Classes="hint" Text="{Binding CountText}" VerticalAlignment="Center" Margin="6,0,0,0" />
-                      </Grid>
-                    </Border>
-                  </DataTemplate>
-                </ListBox.ItemTemplate>
-              </ListBox>
-              <ListBox ItemsSource="{Binding Trainers}" SelectedItem="{Binding SelectedTrainer}"
-                       IsVisible="{Binding !TrainersByCategory}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" />
-              </Panel>
+              <TextBox DockPanel.Dock="Top" Text="{Binding SpeciesFilter}" PlaceholderText="{x:Static r:Strings.Search_Watermark}" Margin="0,0,0,6" />
+              <ListBox ItemsSource="{Binding Species}" SelectedItem="{Binding SelectedSpecies}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" />
             </DockPanel>
 
-            <!-- By category: the settings that would otherwise be repeated trainer by trainer -->
-            <ScrollViewer Grid.Column="1" Margin="8,8,12,8" IsVisible="{Binding TrainersByCategory}">
-              <ContentControl Content="{Binding TrainerBulk}">
-                <ContentControl.ContentTemplate>
-                  <DataTemplate x:DataType="vm:TrainerBulkViewModel">
-                    <StackPanel Spacing="8" IsVisible="{Binding Category, Converter={x:Static ObjectConverters.IsNotNull}}">
-                      <Border Classes="detail-header" Background="#4A5568">
-                        <StackPanel Spacing="3">
-                          <TextBlock Text="{Binding Category.Name}" FontSize="18" FontWeight="Bold" Foreground="White" TextTrimming="CharacterEllipsis" />
-                          <TextBlock Foreground="White" Opacity="0.95">
-                            <Run Text="{Binding Category.CountText}" />
-                            <Run Text=" - " />
-                            <Run Text="{Binding Category.Summary}" />
-                          </TextBlock>
-                        </StackPanel>
-                      </Border>
-
-                      <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Trainer_BulkHint}" />
-
-                      <WrapPanel>
-                        <Border Classes="card detail" Width="470">
-                          <StackPanel Spacing="4">
-                            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Ai_Title}" />
-                            <Grid ColumnDefinitions="190,240" Margin="0,2">
-                              <TextBlock Classes="field-label" Text="{x:Static r:Strings.Ai_Level}" />
-                              <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_TrainerAiLevelPick}" Grid.Column="1" ItemsSource="{Binding AiLevels}" SelectedIndex="{Binding AiLevel}" HorizontalAlignment="Stretch"
-                                        PlaceholderText="{x:Static r:Strings.Trainer_BulkPick}" />
-                            </Grid>
-                            <Button Content="{x:Static r:Strings.Trainer_BulkApply}" Command="{Binding ApplyAiCommand}" HorizontalAlignment="Left" />
-                            <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="430" Text="{x:Static r:Strings.Ai_Tip}" Margin="0,4,0,0" />
-                          </StackPanel>
-                        </Border>
-
-                        <Border Classes="card detail" Width="470">
-                          <StackPanel Spacing="4">
-                            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_BattleType}" />
-                            <Grid ColumnDefinitions="190,240" Margin="0,2">
-                              <TextBlock Classes="field-label" Text="{x:Static r:Strings.Trainer_BattleType}" />
-                              <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_TrainerBattleTypePick}" Grid.Column="1" ItemsSource="{Binding BattleTypes}" SelectedIndex="{Binding BattleType}" HorizontalAlignment="Stretch"
-                                        PlaceholderText="{x:Static r:Strings.Trainer_BulkPick}" />
-                            </Grid>
-                            <Button Content="{x:Static r:Strings.Trainer_BulkApply}" Command="{Binding ApplyBattleTypeCommand}" HorizontalAlignment="Left" />
-                            <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="430" Text="{x:Static r:Strings.Trainer_BulkBattleHint}" Margin="0,4,0,0" />
-                          </StackPanel>
-                        </Border>
-
-                        <Border Classes="card detail" Width="470">
-                          <StackPanel Spacing="4">
-                            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_Ivs}" />
-                            <Grid ColumnDefinitions="190,150,Auto" Margin="0,2">
-                              <TextBlock Classes="field-label" Text="{x:Static r:Strings.Trainer_IvsValue}" />
-                              <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerIvsValue}" Grid.Column="1" Value="{Binding Ivs}" Minimum="0" Maximum="31" Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
-                              <TextBlock Grid.Column="2" Classes="hint" Text="{Binding IvsHint}" VerticalAlignment="Center" Margin="8,0,0,0" />
-                            </Grid>
-                            <!-- The values the real game uses, so a class can be put where a leader or the Champion sits -->
-                            <StackPanel Orientation="Horizontal" Spacing="4">
-                              <TextBlock Classes="hint" Text="{x:Static r:Strings.Trainer_IvsPresets}" VerticalAlignment="Center" />
-                              <Button Content="{x:Static r:Strings.Trainer_IvsOrdinary}" Command="{Binding PickIvsCommand}" CommandParameter="0" />
-                              <Button Content="{x:Static r:Strings.Trainer_IvsLeader}" Command="{Binding PickIvsCommand}" CommandParameter="18" />
-                              <Button Content="{x:Static r:Strings.Trainer_IvsChampion}" Command="{Binding PickIvsCommand}" CommandParameter="25" />
-                            </StackPanel>
-                            <CheckBox IsChecked="{Binding OnlyRaiseIvs}" Content="{x:Static r:Strings.Trainer_OnlyRaise}"
-                                      ToolTip.Tip="{x:Static r:Strings.Trainer_OnlyRaiseTip}" />
-                            <StackPanel Orientation="Horizontal" Spacing="4">
-                              <Button Content="{x:Static r:Strings.Trainer_BulkApply}" Command="{Binding ApplyIvsCommand}" />
-                              <Button Content="{x:Static r:Strings.Trainer_MaxIvs}" Command="{Binding MaxIvsCommand}" />
-                              <Button Content="{x:Static r:Strings.Trainer_ClearIvs}" Command="{Binding ClearIvsCommand}" />
-                            </StackPanel>
-                            <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="430" Text="{x:Static r:Strings.Trainer_BulkIvsHint}" Margin="0,4,0,0" />
-                          </StackPanel>
-                        </Border>
-
-                        <Border Classes="card detail" Width="470">
-                          <StackPanel Spacing="4">
-                            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_Level}" />
-                            <Grid ColumnDefinitions="190,150" Margin="0,2">
-                              <TextBlock Classes="field-label" Text="{x:Static r:Strings.Trainer_BulkLevelPercent}" />
-                              <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerLevelPercentValue}" Grid.Column="1" Value="{Binding LevelPercent}" Minimum="10" Maximum="300" Increment="5" FormatString="0" ParsingNumberStyle="Integer" />
-                            </Grid>
-                            <Button Content="{x:Static r:Strings.Trainer_BulkApply}" Command="{Binding ApplyLevelsCommand}" HorizontalAlignment="Left" />
-                            <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="430" Text="{x:Static r:Strings.Trainer_BulkLevelHint}" Margin="0,4,0,0" />
-                          </StackPanel>
-                        </Border>
-
-                        <!-- The last Pokémon of a team that reaches the level carries its own Mega Stone -->
-                        <Border Classes="card detail" Width="470" IsVisible="{Binding HasMegaStones}">
-                          <StackPanel Spacing="4">
-                            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_MegaTitle}" />
-                            <Grid ColumnDefinitions="190,150" Margin="0,2">
-                              <TextBlock Classes="field-label" Text="{x:Static r:Strings.Trainer_MegaFromLevel}" />
-                              <NumericUpDown Grid.Column="1" ToolTip.Tip="{Binding MegaTip}" Value="{Binding MegaFromLevel}" Minimum="1" Maximum="100"
-                                             Increment="5" FormatString="0" ParsingNumberStyle="Integer" />
-                            </Grid>
-                            <Button Content="{x:Static r:Strings.Trainer_BulkApply}" Command="{Binding ApplyMegaStonesCommand}" HorizontalAlignment="Left" />
-                            <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="430" Text="{x:Static r:Strings.Trainer_MegaHint}" Margin="0,4,0,0" />
-                          </StackPanel>
-                        </Border>
-                      </WrapPanel>
-
-                      <TextBlock Text="{Binding Result}" FontWeight="SemiBold" IsVisible="{Binding Result, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
-                    </StackPanel>
-                  </DataTemplate>
-                </ContentControl.ContentTemplate>
-              </ContentControl>
-            </ScrollViewer>
-
-            <ContentControl Grid.Column="1" Content="{Binding TrainerDetail}" IsVisible="{Binding !TrainersByCategory}">
+            <ContentControl Grid.Column="1" Content="{Binding SpeciesDetail}">
               <ContentControl.ContentTemplate>
-                <DataTemplate x:DataType="vm:TrainerDetailViewModel">
-                  <ScrollViewer Margin="8,8,12,8">
-                    <StackPanel Spacing="8">
-                      <!-- Header in the colour of the AI level: grey none, blue basic, amber two flags, red the game's own maximum -->
-                      <Border Classes="detail-header" Background="{Binding AiBrush}">
-                        <Grid ColumnDefinitions="*,Auto">
-                          <StackPanel Spacing="4" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="Bold" Foreground="White" TextTrimming="CharacterEllipsis" />
-                            <TextBlock Text="{Binding AiText}" Foreground="White" Opacity="0.95" />
-                          </StackPanel>
-                          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                            <Border Classes="badge">
+                <DataTemplate x:DataType="vm:SpeciesDetailViewModel">
+                  <DockPanel Margin="8,8,12,8">
+                    <!-- Header in the Pokémon's type colors: sprite, types, abilities and base stat total -->
+                    <Border DockPanel.Dock="Top" Classes="detail-header" Background="{Binding TypeBackground}" Margin="0,0,0,8">
+                      <Grid ColumnDefinitions="Auto,*,Auto">
+                        <Border Background="#50FFFFFF" CornerRadius="2" Width="92" Height="72" Margin="0,0,12,0"
+                                IsVisible="{Binding Icon, Converter={x:Static ObjectConverters.IsNotNull}}">
+                          <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="80" Height="60" />
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+                          <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="Bold" Foreground="{Binding TypeForeground}" TextTrimming="CharacterEllipsis" />
+                          <ItemsControl ItemsSource="{Binding TypeChips}">
+                            <ItemsControl.ItemsPanel>
+                              <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="4" />
+                              </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                          </ItemsControl>
+                          <TextBlock Text="{Binding AbilitiesText}" Foreground="{Binding TypeForeground}" Opacity="0.9" TextTrimming="CharacterEllipsis"
+                                     IsVisible="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).ShowAbilities}" />
+                          <TextBlock Text="{x:Static r:Strings.Adv_AbilitiesHidden}" Foreground="{Binding TypeForeground}" Opacity="0.7" FontStyle="Italic"
+                                     IsVisible="{Binding !$parent[UserControl].((vm:EditorViewModel)DataContext).ShowAbilities}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                          <Border Classes="badge">
+                            <StackPanel>
+                              <TextBlock Classes="badge-label" Text="{x:Static r:Strings.Badge_Total}" />
+                              <TextBlock Classes="badge-value" Text="{Binding BaseStatTotal}" />
+                            </StackPanel>
+                          </Border>
+                          <Button Content="{x:Static r:Strings.Detail_Revert}" Command="{Binding RevertCommand}" IsEnabled="{Binding IsModified}" />
+                        </StackPanel>
+                      </Grid>
+                    </Border>
+                    <TabControl>
+                      <TabItem Header="{x:Static r:Strings.Detail_Data}">
+                        <ScrollViewer>
+                          <WrapPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <!-- Base stats with bars -->
+                            <Border Classes="card detail">
                               <StackPanel>
-                                <TextBlock Classes="badge-label" Text="{x:Static r:Strings.Trainer_TeamSize}" />
-                                <TextBlock Classes="badge-value" Text="{Binding Count.Value}" />
+                                <TextBlock Classes="card-title" Text="{x:Static r:Strings.Section_BaseStats}" />
+                                <ItemsControl ItemsSource="{Binding Stats}">
+                                  <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:StatFieldViewModel">
+                                      <Grid ColumnDefinitions="110,120,190" Margin="0,2" ToolTip.Tip="{Binding OriginalTip}">
+                                        <TextBlock Classes="field-label" Classes.modified="{Binding IsModified}" Text="{Binding Label}" />
+                                        <NumericUpDown Grid.Column="1" Value="{Binding Value}" Minimum="{Binding Min}" Maximum="{Binding Max}"
+                                                       Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
+                                        <Border Grid.Column="2" Margin="10,0,0,0" Height="12" CornerRadius="2" Background="#E8ECEF" VerticalAlignment="Center">
+                                          <Border HorizontalAlignment="Left" Width="{Binding BarWidth}" CornerRadius="2" Background="{Binding BarBrush}"
+                                                  BorderBrush="#30000000" BorderThickness="1" />
+                                        </Border>
+                                      </Grid>
+                                    </DataTemplate>
+                                  </ItemsControl.ItemTemplate>
+                                </ItemsControl>
                               </StackPanel>
                             </Border>
-                            <Button Content="{x:Static r:Strings.Detail_Revert}" Command="{Binding RevertCommand}" IsEnabled="{Binding IsModified}" />
+                            <Border Classes="card detail">
+                              <StackPanel>
+                                <TextBlock Classes="card-title" Text="{x:Static r:Strings.Section_Types}" />
+                                <ItemsControl ItemsSource="{Binding Types}" />
+                                <Grid ColumnDefinitions="*,Auto" Width="430" Margin="0,8,0,2">
+                                  <TextBlock Classes="card-title" VerticalAlignment="Center" Text="{x:Static r:Strings.Section_Abilities}" />
+                                  <Button Grid.Column="1" Content="{x:Static r:Strings.Adv_HideAbilities}"
+                                          Command="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).HideAbilitiesCommand}"
+                                          IsVisible="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).ShowAbilities}" />
+                                </Grid>
+                                <ItemsControl ItemsSource="{Binding Abilities}" IsVisible="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).ShowAbilities}" />
+                                <Grid ColumnDefinitions="*,Auto" Width="430" Margin="0,2" IsVisible="{Binding !$parent[UserControl].((vm:EditorViewModel)DataContext).ShowAbilities}">
+                                  <TextBlock Classes="hint" VerticalAlignment="Center" TextWrapping="Wrap" Text="{x:Static r:Strings.Adv_AbilitiesHidden}" />
+                                  <Button Grid.Column="1" Content="{x:Static r:Strings.Adv_ShowAbilities}"
+                                          Command="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).RevealAbilitiesCommand}" />
+                                </Grid>
+                              </StackPanel>
+                            </Border>
+                            <Border Classes="card detail">
+                              <StackPanel>
+                                <TextBlock Classes="card-title" Text="{x:Static r:Strings.Section_EvYield}" />
+                                <ItemsControl ItemsSource="{Binding EvYield}" />
+                                <TextBlock Classes="card-title" Margin="0,8,0,2" Text="{x:Static r:Strings.Section_Other}" />
+                                <ItemsControl ItemsSource="{Binding Other}" />
+                              </StackPanel>
+                            </Border>
+                            <Border Classes="card detail">
+                              <StackPanel>
+                                <TextBlock Classes="card-title" Text="{x:Static r:Strings.Section_Breeding}" />
+                                <ItemsControl ItemsSource="{Binding Breeding}" />
+                                <TextBlock Classes="hint" Margin="0,2,0,0" MaxWidth="430" HorizontalAlignment="Left" Text="{x:Static r:Strings.Gender_Hint}" />
+                              </StackPanel>
+                            </Border>
+                            <Border Classes="card detail">
+                              <StackPanel>
+                                <TextBlock Classes="card-title" Text="{x:Static r:Strings.Section_WildItems}" />
+                                <ItemsControl ItemsSource="{Binding Items}" />
+                              </StackPanel>
+                            </Border>
+                            <!-- Generation 7: the species' exclusive Z-move -->
+                            <Border Classes="card detail" IsVisible="{Binding HasZMove}">
+                              <StackPanel>
+                                <TextBlock Classes="card-title" Text="{x:Static r:Strings.Section_ZMove}" />
+                                <TextBlock Classes="hint" MaxWidth="430" HorizontalAlignment="Left" TextWrapping="Wrap" Text="{x:Static r:Strings.ZMove_Hint}" />
+                                <ItemsControl ItemsSource="{Binding ZMove}" Margin="0,4,0,0" />
+                              </StackPanel>
+                            </Border>
+                          </WrapPanel>
+                        </ScrollViewer>
+                      </TabItem>
+
+                      <TabItem>
+                        <TabItem.Header>
+                          <StackPanel Orientation="Horizontal" Spacing="4">
+                            <TextBlock Text="{x:Static r:Strings.Detail_LevelUp}" />
+                            <TextBlock Classes="dot" Text="●" IsVisible="{Binding IsLearnsetModified}" />
+                          </StackPanel>
+                        </TabItem.Header>
+                        <DockPanel>
+                          <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="6" Margin="0,10,0,10">
+                            <Button Content="{x:Static r:Strings.LevelUp_Add}" Command="{Binding AddMoveCommand}" />
+                            <Button Content="{x:Static r:Strings.LevelUp_Sort}" Command="{Binding SortLearnsetCommand}" />
+                            <TextBlock Classes="hint" VerticalAlignment="Center" Text="{x:Static r:Strings.LevelUp_Hint}" />
+                          </StackPanel>
+                          <ScrollViewer Padding="0,0,12,8">
+                            <ItemsControl ItemsSource="{Binding Learnset}">
+                              <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:LearnsetRowViewModel">
+                                  <Border Background="{Binding MoveType.Background}" CornerRadius="0" Padding="10,5" Margin="0,0,0,6" MinWidth="720"
+                                          BorderBrush="#30000000" BorderThickness="1" HorizontalAlignment="Left">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                      <TextBlock Classes="field-label" Foreground="{Binding MoveType.Foreground}" FontWeight="SemiBold" Text="{x:Static r:Strings.LevelUp_Level}" />
+                                      <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_LearnsetLevel}" Value="{Binding Level}" Minimum="1" Maximum="100" Increment="1"
+                                                     FormatString="0" ParsingNumberStyle="Integer" Width="130" />
+                                      <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_LearnsetMove}" ItemsSource="{Binding MoveNames}" SelectedIndex="{Binding SelectedMove}"
+                                                Width="260" MaxDropDownHeight="360" />
+                                      <Border Background="#E6FFFFFF" CornerRadius="2" Padding="6,1" VerticalAlignment="Center" MinWidth="70">
+                                        <TextBlock Text="{Binding MoveType.Name}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                                      </Border>
+                                      <Button Content="{x:Static r:Strings.Common_Remove}" Command="{Binding RemoveCommand}" />
+                                    </StackPanel>
+                                  </Border>
+                                </DataTemplate>
+                              </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                          </ScrollViewer>
+                        </DockPanel>
+                      </TabItem>
+                    </TabControl>
+                  </DockPanel>
+                </DataTemplate>
+              </ContentControl.ContentTemplate>
+            </ContentControl>
+          </Grid>
+          </DockPanel>
+        </TabItem>
+        <!-- ================= Advanced: Moves ================= -->
+        <TabItem Header="{x:Static r:Strings.Tab_GameMoves}">
+          <DockPanel>
+          <Border DockPanel.Dock="Top" Padding="8,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+            <TextBlock Classes="hint" VerticalAlignment="Center" Text="{x:Static r:Strings.Data_MovesHint}" />
+          </Border>
+          <Grid ColumnDefinitions="300,*">
+            <DockPanel Margin="8">
+              <TextBox DockPanel.Dock="Top" Text="{Binding MoveFilter}" PlaceholderText="{x:Static r:Strings.Search_Watermark}" Margin="0,0,0,6" />
+              <ListBox ItemsSource="{Binding Moves}" SelectedItem="{Binding SelectedMove}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" />
+            </DockPanel>
+
+            <ContentControl Grid.Column="1" Content="{Binding MoveDetail}">
+              <ContentControl.ContentTemplate>
+                <DataTemplate x:DataType="vm:MoveDetailViewModel">
+                  <ScrollViewer Margin="8,8,12,8">
+                    <StackPanel Spacing="8">
+                      <!-- Header in the move's type color: type, category and the numbers that matter -->
+                      <Border Classes="detail-header" Background="{Binding TypeBackground}">
+                        <Grid ColumnDefinitions="Auto,*,Auto">
+                          <!-- Type and category icons -->
+                          <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,14,0" VerticalAlignment="Center">
+                            <Border BorderBrush="#50000000" BorderThickness="1" ToolTip.Tip="{Binding TypeChip.Name}">
+                              <Image Source="{Binding TypeIcon}" Width="44" Height="44" />
+                            </Border>
+                            <Border BorderBrush="#50000000" BorderThickness="1" ToolTip.Tip="{Binding CategoryText}">
+                              <Image Source="{Binding CategoryIcon}" Width="44" Height="44" />
+                            </Border>
+                          </StackPanel>
+                          <StackPanel Grid.Column="1" Spacing="5" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="Bold" Foreground="{Binding TypeForeground}" TextTrimming="CharacterEllipsis" />
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                              <ContentControl Content="{Binding TypeChip}" />
+                              <Border Background="{Binding CategoryBrush}" CornerRadius="2" Padding="6,0" BorderBrush="#60000000" BorderThickness="1">
+                                <TextBlock Text="{Binding CategoryText}" Foreground="White" FontSize="10" FontWeight="SemiBold" />
+                              </Border>
+                            </StackPanel>
+                          </StackPanel>
+                          <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                            <Border Classes="badge">
+                              <StackPanel>
+                                <TextBlock Classes="badge-label" Text="{x:Static r:Strings.Badge_Power}" />
+                                <TextBlock Classes="badge-value" Text="{Binding PowerText}" />
+                              </StackPanel>
+                            </Border>
+                            <Border Classes="badge">
+                              <StackPanel>
+                                <TextBlock Classes="badge-label" Text="{x:Static r:Strings.Badge_Accuracy}" />
+                                <TextBlock Classes="badge-value" Text="{Binding AccuracyText}" />
+                              </StackPanel>
+                            </Border>
+                            <Border Classes="badge">
+                              <StackPanel>
+                                <TextBlock Classes="badge-label" Text="{x:Static r:Strings.Badge_PP}" />
+                                <TextBlock Classes="badge-value" Text="{Binding PpText}" />
+                              </StackPanel>
+                            </Border>
+                            <Button Margin="6,0,0,0" Content="{x:Static r:Strings.Detail_Revert}" Command="{Binding RevertCommand}" IsEnabled="{Binding IsModified}" />
                           </StackPanel>
                         </Grid>
                       </Border>
 
-                      <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Trainer_Unreadable}" IsVisible="{Binding IsUnreadable}" />
-
-                      <WrapPanel IsVisible="{Binding !IsUnreadable}">
-                        <!-- Artificial intelligence: the level as one list, the remaining bits as check boxes -->
-                        <Border Classes="card detail" Width="470">
-                          <StackPanel Spacing="4">
-                            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Ai_Title}" />
-                            <Grid ColumnDefinitions="190,240" Margin="0,2" ToolTip.Tip="{Binding AiLevel.OriginalTip}">
-                              <TextBlock Classes="field-label" Classes.modified="{Binding AiLevel.IsModified}" Text="{Binding AiLevel.Label}" />
-                              <ComboBox Grid.Column="1" ItemsSource="{Binding AiLevel.Options}" SelectedIndex="{Binding AiLevel.SelectedIndex}"
-                                        HorizontalAlignment="Stretch" />
-                            </Grid>
-                            <TextBlock Classes="hint" Text="{x:Static r:Strings.Ai_OtherFlags}" Margin="0,4,0,0" />
-                            <ItemsControl ItemsSource="{Binding AiFlags}" />
-                            <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="430" Text="{x:Static r:Strings.Ai_Tip}" Margin="0,4,0,0" />
+                      <WrapPanel>
+                        <Border Classes="card detail">
+                          <StackPanel>
+                            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Move_Main}" />
+                            <ItemsControl ItemsSource="{Binding Main}" />
                           </StackPanel>
                         </Border>
-
-                        <!-- The record itself -->
-                        <Border Classes="card detail" Width="470">
-                          <StackPanel Spacing="4">
-                            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_Record}" />
-                            <ItemsControl ItemsSource="{Binding Record}" />
-                            <ContentControl Content="{Binding Count}" />
-                            <ItemsControl ItemsSource="{Binding Gen6Flags}" Margin="0,4,0,0" />
-                            <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="430" Text="{x:Static r:Strings.Trainer_CustomMovesTip}" IsVisible="{Binding IsGen6}" />
-                          </StackPanel>
-                        </Border>
-
-                        <!-- Items the trainer uses during the battle -->
-                        <Border Classes="card detail" Width="470">
-                          <StackPanel Spacing="4">
-                            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_Bag}" />
-                            <ItemsControl ItemsSource="{Binding Bag}" />
-                            <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="430" Text="{x:Static r:Strings.Trainer_BagHint}" />
+                        <Border Classes="card detail">
+                          <StackPanel>
+                            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Move_Details}" />
+                            <ItemsControl ItemsSource="{Binding Details}" />
                           </StackPanel>
                         </Border>
                       </WrapPanel>
 
-                      <!-- The team starts hidden: no spoilers unless asked -->
-                      <Border Classes="card" IsVisible="{Binding !$parent[UserControl].((vm:EditorViewModel)DataContext).ShowTrainerTeam}"
-                              HorizontalAlignment="Left">
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                          <TextBlock Text="{Binding TeamText}" VerticalAlignment="Center" FontWeight="SemiBold" />
-                          <TextBlock Classes="hint" Text="{x:Static r:Strings.Trainer_TeamHidden}" VerticalAlignment="Center" />
-                          <Button Content="{x:Static r:Strings.Trainer_ShowTeam}"
-                                  Command="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).RevealTrainerTeamCommand}" />
+                      <!-- Description: English base; an edited one goes to every language of the game -->
+                      <Border Classes="card" MaxWidth="780" HorizontalAlignment="Left">
+                        <StackPanel Spacing="4">
+                          <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Classes="card-title field-label" Classes.modified="{Binding IsDescriptionModified}" Text="{x:Static r:Strings.Move_Description}" />
+                            <Button Grid.Column="1" Content="{x:Static r:Strings.Move_RevertDescription}" Command="{Binding RevertDescriptionCommand}"
+                                    IsEnabled="{Binding IsDescriptionModified}" />
+                          </Grid>
+                          <TextBox Text="{Binding Description}" AcceptsReturn="True" TextWrapping="Wrap" Height="86" Width="420" HorizontalAlignment="Left"
+                                   VerticalContentAlignment="Top"
+                                   FontFamily="Consolas, Menlo, monospace" />
+                          <TextBlock Classes="hint" Text="{x:Static r:Strings.Move_DescriptionHint}" />
+                          <StackPanel IsVisible="{Binding IsDescriptionModified}" Spacing="1">
+                            <TextBlock Classes="hint" FontWeight="SemiBold" Text="{x:Static r:Strings.Move_DescriptionOriginal}" />
+                            <TextBlock Classes="hint" Text="{Binding OriginalDescription}" />
+                          </StackPanel>
                         </StackPanel>
                       </Border>
-
-                      <!-- The team: one card per Pokémon, headed in the species' types as the ROM has them now -->
-                      <Border Classes="card" HorizontalAlignment="Left"
-                              IsVisible="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).ShowTrainerTeam}">
-                        <StackPanel Orientation="Horizontal" Spacing="6">
-                          <TextBlock Text="{x:Static r:Strings.Trainer_TeamIvs}" VerticalAlignment="Center" />
-                          <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerTeamIvsValue}" Width="110" Value="{Binding TeamIvs}" Minimum="0" Maximum="31" Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
-                          <TextBlock Classes="hint" Text="{Binding TeamIvsHint}" VerticalAlignment="Center" />
-                          <Button Content="{x:Static r:Strings.Trainer_ApplyToTeam}" Command="{Binding ApplyIvsCommand}" />
-                          <Button Content="{x:Static r:Strings.Trainer_MaxIvs}" Command="{Binding MaxIvsCommand}" />
-                          <Button Content="{x:Static r:Strings.Trainer_ClearIvs}" Command="{Binding ClearIvsCommand}" />
-                          <TextBlock Classes="hint" Text="{x:Static r:Strings.Trainer_MaxIvsHint}" VerticalAlignment="Center" />
-                        </StackPanel>
-                      </Border>
-                      <ItemsControl ItemsSource="{Binding Members}"
-                                    IsVisible="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).ShowTrainerTeam}">
-                        <ItemsControl.ItemsPanel>
-                          <ItemsPanelTemplate>
-                            <WrapPanel />
-                          </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                          <DataTemplate x:DataType="vm:TrainerMemberViewModel">
-                            <Border Classes="card detail">
-                              <StackPanel Spacing="4">
-                                <Border Classes="detail-header" Background="{Binding TypeBackground}" Padding="6,4" Margin="0,0,0,4">
-                                  <Grid ColumnDefinitions="Auto,*,Auto">
-                                    <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="40" Height="30" Margin="0,0,8,0" />
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                      <TextBlock Text="{Binding SpeciesName}" FontWeight="Bold" Foreground="{Binding TypeForeground}" TextTrimming="CharacterEllipsis" />
-                                      <TextBlock Text="{Binding Header}" Foreground="{Binding TypeForeground}" Opacity="0.85" FontSize="10" />
-                                    </StackPanel>
-                                    <TextBlock Grid.Column="2" Text="{Binding LevelText}" Foreground="{Binding TypeForeground}" FontWeight="SemiBold" VerticalAlignment="Center" />
-                                  </Grid>
-                                </Border>
-                                <ContentControl Content="{Binding Species}" />
-                                <ContentControl Content="{Binding Form}" />
-                                <ContentControl Content="{Binding Level}" />
-                                <ContentControl Content="{Binding Ability}" />
-                                <TextBlock Classes="hint" Text="{Binding AbilityHint}" Margin="190,0,0,0" />
-                                <ContentControl Content="{Binding Gender}" />
-                                <ContentControl Content="{Binding Item}" />
-                                <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="240" Margin="190,0,0,0"
-                                           Text="{x:Static r:Strings.Trainer_ItemIgnored}" IsVisible="{Binding ItemIgnored}" />
-                                <ItemsControl ItemsSource="{Binding Moves}" />
-                                <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="240" Margin="190,0,0,0"
-                                           Text="{x:Static r:Strings.Trainer_MovesIgnored}" IsVisible="{Binding MovesIgnored}" />
-                                <!-- Generation 6: one byte for every IV -->
-                                <StackPanel IsVisible="{Binding IsGen6}" ToolTip.Tip="{x:Static r:Strings.Trainer_IvByteTip}">
-                                  <ContentControl Content="{Binding IvByte}" />
-                                  <TextBlock Classes="hint" Text="{Binding IvByteText}" Margin="190,0,0,0" />
-                                </StackPanel>
-                                <!-- Generation 7: the six IVs, the six EVs and the nature -->
-                                <StackPanel IsVisible="{Binding IsGen7}" Spacing="2">
-                                  <ContentControl Content="{Binding Nature}" />
-                                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_Ivs}" />
-                                  <ItemsControl ItemsSource="{Binding Ivs}" />
-                                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_Evs}" />
-                                  <ItemsControl ItemsSource="{Binding Evs}" />
-                                </StackPanel>
-                              </StackPanel>
-                            </Border>
-                          </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                      </ItemsControl>
                     </StackPanel>
                   </ScrollViewer>
                 </DataTemplate>
               </ContentControl.ContentTemplate>
             </ContentControl>
           </Grid>
-        </DockPanel>
-      </TabItem>
-      <!-- ================= Advanced: Game ================= -->
-      <TabItem Header="{x:Static r:Strings.Tab_AdvancedGame}">
-        <ScrollViewer>
-          <StackPanel Margin="12" Spacing="10" DataContext="{Binding GameTweaks}" x:DataType="vm:GameTweaksViewModel">
-            <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="900" HorizontalAlignment="Left" Text="{x:Static r:Strings.Game_Hint}" />
+          </DockPanel>
+        </TabItem>
+        <!-- ================= Advanced: Trainers ================= -->
+        <TabItem Header="{x:Static r:Strings.Tab_GameTrainers}">
+          <DockPanel>
+            <Border DockPanel.Dock="Top" Padding="8,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+              <Grid ColumnDefinitions="Auto,Auto,12,*,Auto">
+                <RadioButton GroupName="TrainerMode" IsChecked="{Binding TrainersByCategory}" Content="{x:Static r:Strings.Trainer_ModeCategory}"
+                             ToolTip.Tip="{x:Static r:Strings.Trainer_ModeCategoryTip}" Margin="0,0,10,0" />
+                <RadioButton Grid.Column="1" GroupName="TrainerMode" IsChecked="{Binding !TrainersByCategory}" Content="{x:Static r:Strings.Trainer_ModeAll}"
+                             ToolTip.Tip="{x:Static r:Strings.Trainer_ModeAllTip}" />
+                <TextBlock Grid.Column="3" Classes="hint" Margin="6,0,12,0" VerticalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
+                           Text="{x:Static r:Strings.Trainer_Hint}" ToolTip.Tip="{x:Static r:Strings.Trainer_Hint}" />
+                <CheckBox Grid.Column="4" IsChecked="{Binding ShowTrainerTeam}" Content="{x:Static r:Strings.Trainer_ShowTeam}"
+                          ToolTip.Tip="{x:Static r:Strings.Trainer_ShowTeamTip}" />
+              </Grid>
+            </Border>
+            <Grid ColumnDefinitions="360,*">
+              <DockPanel Margin="8">
+                <TextBox DockPanel.Dock="Top" Text="{Binding TrainerFilter}" PlaceholderText="{x:Static r:Strings.Search_Watermark}" Margin="0,0,10,6" />
+                <TextBlock DockPanel.Dock="Bottom" Classes="hint" TextWrapping="Wrap" Margin="0,6,0,0"
+                           Text="{x:Static r:Strings.Trainer_NoTrainers}" IsVisible="{Binding !Trainers.Count}" />
+                <!-- Both lists fill what the search box leaves: in a DockPanel every child but the last is docked,
+                     and the first list was taking only the width of its own longest row. -->
+                <Panel>
+                <!-- By category: the game's own trainer classes -->
+                <ListBox ItemsSource="{Binding TrainerCategories}" SelectedItem="{Binding SelectedTrainerCategory}"
+                         IsVisible="{Binding TrainersByCategory}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:TrainerCategoryViewModel">
+                      <Border Classes="entry" Classes.modified="{Binding IsModified}" Margin="-6,-2,10,-2" Padding="3,3,4,3"
+                              ToolTip.Tip="{Binding Tip}">
+                        <Grid ColumnDefinitions="*,Auto">
+                          <StackPanel>
+                            <TextBlock Classes="entry-name" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Classes="hint" Text="{Binding Summary}" TextTrimming="CharacterEllipsis" />
+                          </StackPanel>
+                          <TextBlock Grid.Column="1" Classes="hint" Text="{Binding CountText}" VerticalAlignment="Center" Margin="6,0,0,0" />
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+                <ListBox ItemsSource="{Binding Trainers}" SelectedItem="{Binding SelectedTrainer}"
+                         IsVisible="{Binding !TrainersByCategory}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" />
+                </Panel>
+              </DockPanel>
 
-            <!-- A change to the game's executable, found by the bytes around it -->
-            <Border Classes="card" Width="470" HorizontalAlignment="Left">
+              <!-- By category: the settings that would otherwise be repeated trainer by trainer -->
+              <ScrollViewer Grid.Column="1" Margin="8,8,12,8" IsVisible="{Binding TrainersByCategory}">
+                <ContentControl Content="{Binding TrainerBulk}">
+                  <ContentControl.ContentTemplate>
+                    <DataTemplate x:DataType="vm:TrainerBulkViewModel">
+                      <StackPanel Spacing="8" IsVisible="{Binding Category, Converter={x:Static ObjectConverters.IsNotNull}}">
+                        <Border Classes="detail-header" Background="#4A5568">
+                          <StackPanel Spacing="3">
+                            <TextBlock Text="{Binding Category.Name}" FontSize="18" FontWeight="Bold" Foreground="White" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Foreground="White" Opacity="0.95">
+                              <Run Text="{Binding Category.CountText}" />
+                              <Run Text=" - " />
+                              <Run Text="{Binding Category.Summary}" />
+                            </TextBlock>
+                          </StackPanel>
+                        </Border>
+
+                        <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Trainer_BulkHint}" />
+
+                        <WrapPanel>
+                          <Border Classes="card detail" Width="470">
+                            <StackPanel Spacing="4">
+                              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Ai_Title}" />
+                              <Grid ColumnDefinitions="190,240" Margin="0,2">
+                                <TextBlock Classes="field-label" Text="{x:Static r:Strings.Ai_Level}" />
+                                <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_TrainerAiLevelPick}" Grid.Column="1" ItemsSource="{Binding AiLevels}" SelectedIndex="{Binding AiLevel}" HorizontalAlignment="Stretch"
+                                          PlaceholderText="{x:Static r:Strings.Trainer_BulkPick}" />
+                              </Grid>
+                              <Button Content="{x:Static r:Strings.Trainer_BulkApply}" Command="{Binding ApplyAiCommand}" HorizontalAlignment="Left" />
+                              <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="430" Text="{x:Static r:Strings.Ai_Tip}" Margin="0,4,0,0" />
+                            </StackPanel>
+                          </Border>
+
+                          <Border Classes="card detail" Width="470">
+                            <StackPanel Spacing="4">
+                              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_BattleType}" />
+                              <Grid ColumnDefinitions="190,240" Margin="0,2">
+                                <TextBlock Classes="field-label" Text="{x:Static r:Strings.Trainer_BattleType}" />
+                                <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_TrainerBattleTypePick}" Grid.Column="1" ItemsSource="{Binding BattleTypes}" SelectedIndex="{Binding BattleType}" HorizontalAlignment="Stretch"
+                                          PlaceholderText="{x:Static r:Strings.Trainer_BulkPick}" />
+                              </Grid>
+                              <Button Content="{x:Static r:Strings.Trainer_BulkApply}" Command="{Binding ApplyBattleTypeCommand}" HorizontalAlignment="Left" />
+                              <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="430" Text="{x:Static r:Strings.Trainer_BulkBattleHint}" Margin="0,4,0,0" />
+                            </StackPanel>
+                          </Border>
+
+                          <Border Classes="card detail" Width="470">
+                            <StackPanel Spacing="4">
+                              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_Ivs}" />
+                              <Grid ColumnDefinitions="190,150,Auto" Margin="0,2">
+                                <TextBlock Classes="field-label" Text="{x:Static r:Strings.Trainer_IvsValue}" />
+                                <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerIvsValue}" Grid.Column="1" Value="{Binding Ivs}" Minimum="0" Maximum="31" Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
+                                <TextBlock Grid.Column="2" Classes="hint" Text="{Binding IvsHint}" VerticalAlignment="Center" Margin="8,0,0,0" />
+                              </Grid>
+                              <!-- The values the real game uses, so a class can be put where a leader or the Champion sits -->
+                              <StackPanel Orientation="Horizontal" Spacing="4">
+                                <TextBlock Classes="hint" Text="{x:Static r:Strings.Trainer_IvsPresets}" VerticalAlignment="Center" />
+                                <Button Content="{x:Static r:Strings.Trainer_IvsOrdinary}" Command="{Binding PickIvsCommand}" CommandParameter="0" />
+                                <Button Content="{x:Static r:Strings.Trainer_IvsLeader}" Command="{Binding PickIvsCommand}" CommandParameter="18" />
+                                <Button Content="{x:Static r:Strings.Trainer_IvsChampion}" Command="{Binding PickIvsCommand}" CommandParameter="25" />
+                              </StackPanel>
+                              <CheckBox IsChecked="{Binding OnlyRaiseIvs}" Content="{x:Static r:Strings.Trainer_OnlyRaise}"
+                                        ToolTip.Tip="{x:Static r:Strings.Trainer_OnlyRaiseTip}" />
+                              <StackPanel Orientation="Horizontal" Spacing="4">
+                                <Button Content="{x:Static r:Strings.Trainer_BulkApply}" Command="{Binding ApplyIvsCommand}" />
+                                <Button Content="{x:Static r:Strings.Trainer_MaxIvs}" Command="{Binding MaxIvsCommand}" />
+                                <Button Content="{x:Static r:Strings.Trainer_ClearIvs}" Command="{Binding ClearIvsCommand}" />
+                              </StackPanel>
+                              <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="430" Text="{x:Static r:Strings.Trainer_BulkIvsHint}" Margin="0,4,0,0" />
+                            </StackPanel>
+                          </Border>
+
+                          <Border Classes="card detail" Width="470">
+                            <StackPanel Spacing="4">
+                              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_Level}" />
+                              <Grid ColumnDefinitions="190,150" Margin="0,2">
+                                <TextBlock Classes="field-label" Text="{x:Static r:Strings.Trainer_BulkLevelPercent}" />
+                                <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerLevelPercentValue}" Grid.Column="1" Value="{Binding LevelPercent}" Minimum="10" Maximum="300" Increment="5" FormatString="0" ParsingNumberStyle="Integer" />
+                              </Grid>
+                              <Button Content="{x:Static r:Strings.Trainer_BulkApply}" Command="{Binding ApplyLevelsCommand}" HorizontalAlignment="Left" />
+                              <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="430" Text="{x:Static r:Strings.Trainer_BulkLevelHint}" Margin="0,4,0,0" />
+                            </StackPanel>
+                          </Border>
+
+                          <!-- The last Pokémon of a team that reaches the level carries its own Mega Stone -->
+                          <Border Classes="card detail" Width="470" IsVisible="{Binding HasMegaStones}">
+                            <StackPanel Spacing="4">
+                              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_MegaTitle}" />
+                              <Grid ColumnDefinitions="190,150" Margin="0,2">
+                                <TextBlock Classes="field-label" Text="{x:Static r:Strings.Trainer_MegaFromLevel}" />
+                                <NumericUpDown Grid.Column="1" ToolTip.Tip="{Binding MegaTip}" Value="{Binding MegaFromLevel}" Minimum="1" Maximum="100"
+                                               Increment="5" FormatString="0" ParsingNumberStyle="Integer" />
+                              </Grid>
+                              <Button Content="{x:Static r:Strings.Trainer_BulkApply}" Command="{Binding ApplyMegaStonesCommand}" HorizontalAlignment="Left" />
+                              <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="430" Text="{x:Static r:Strings.Trainer_MegaHint}" Margin="0,4,0,0" />
+                            </StackPanel>
+                          </Border>
+                        </WrapPanel>
+
+                        <TextBlock Text="{Binding Result}" FontWeight="SemiBold" IsVisible="{Binding Result, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                      </StackPanel>
+                    </DataTemplate>
+                  </ContentControl.ContentTemplate>
+                </ContentControl>
+              </ScrollViewer>
+
+              <ContentControl Grid.Column="1" Content="{Binding TrainerDetail}" IsVisible="{Binding !TrainersByCategory}">
+                <ContentControl.ContentTemplate>
+                  <DataTemplate x:DataType="vm:TrainerDetailViewModel">
+                    <ScrollViewer Margin="8,8,12,8">
+                      <StackPanel Spacing="8">
+                        <!-- Header in the colour of the AI level: grey none, blue basic, amber two flags, red the game's own maximum -->
+                        <Border Classes="detail-header" Background="{Binding AiBrush}">
+                          <Grid ColumnDefinitions="*,Auto">
+                            <StackPanel Spacing="4" VerticalAlignment="Center">
+                              <TextBlock Text="{Binding Title}" FontSize="18" FontWeight="Bold" Foreground="White" TextTrimming="CharacterEllipsis" />
+                              <TextBlock Text="{Binding AiText}" Foreground="White" Opacity="0.95" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                              <Border Classes="badge">
+                                <StackPanel>
+                                  <TextBlock Classes="badge-label" Text="{x:Static r:Strings.Trainer_TeamSize}" />
+                                  <TextBlock Classes="badge-value" Text="{Binding Count.Value}" />
+                                </StackPanel>
+                              </Border>
+                              <Button Content="{x:Static r:Strings.Detail_Revert}" Command="{Binding RevertCommand}" IsEnabled="{Binding IsModified}" />
+                            </StackPanel>
+                          </Grid>
+                        </Border>
+
+                        <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Trainer_Unreadable}" IsVisible="{Binding IsUnreadable}" />
+
+                        <WrapPanel IsVisible="{Binding !IsUnreadable}">
+                          <!-- Artificial intelligence: the level as one list, the remaining bits as check boxes -->
+                          <Border Classes="card detail" Width="470">
+                            <StackPanel Spacing="4">
+                              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Ai_Title}" />
+                              <Grid ColumnDefinitions="190,240" Margin="0,2" ToolTip.Tip="{Binding AiLevel.OriginalTip}">
+                                <TextBlock Classes="field-label" Classes.modified="{Binding AiLevel.IsModified}" Text="{Binding AiLevel.Label}" />
+                                <ComboBox Grid.Column="1" ItemsSource="{Binding AiLevel.Options}" SelectedIndex="{Binding AiLevel.SelectedIndex}"
+                                          HorizontalAlignment="Stretch" />
+                              </Grid>
+                              <TextBlock Classes="hint" Text="{x:Static r:Strings.Ai_OtherFlags}" Margin="0,4,0,0" />
+                              <ItemsControl ItemsSource="{Binding AiFlags}" />
+                              <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="430" Text="{x:Static r:Strings.Ai_Tip}" Margin="0,4,0,0" />
+                            </StackPanel>
+                          </Border>
+
+                          <!-- The record itself -->
+                          <Border Classes="card detail" Width="470">
+                            <StackPanel Spacing="4">
+                              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_Record}" />
+                              <ItemsControl ItemsSource="{Binding Record}" />
+                              <ContentControl Content="{Binding Count}" />
+                              <ItemsControl ItemsSource="{Binding Gen6Flags}" Margin="0,4,0,0" />
+                              <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="430" Text="{x:Static r:Strings.Trainer_CustomMovesTip}" IsVisible="{Binding IsGen6}" />
+                            </StackPanel>
+                          </Border>
+
+                          <!-- Items the trainer uses during the battle -->
+                          <Border Classes="card detail" Width="470">
+                            <StackPanel Spacing="4">
+                              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_Bag}" />
+                              <ItemsControl ItemsSource="{Binding Bag}" />
+                              <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="430" Text="{x:Static r:Strings.Trainer_BagHint}" />
+                            </StackPanel>
+                          </Border>
+                        </WrapPanel>
+
+                        <!-- The team starts hidden: no spoilers unless asked -->
+                        <Border Classes="card" IsVisible="{Binding !$parent[UserControl].((vm:EditorViewModel)DataContext).ShowTrainerTeam}"
+                                HorizontalAlignment="Left">
+                          <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="{Binding TeamText}" VerticalAlignment="Center" FontWeight="SemiBold" />
+                            <TextBlock Classes="hint" Text="{x:Static r:Strings.Trainer_TeamHidden}" VerticalAlignment="Center" />
+                            <Button Content="{x:Static r:Strings.Trainer_ShowTeam}"
+                                    Command="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).RevealTrainerTeamCommand}" />
+                          </StackPanel>
+                        </Border>
+
+                        <!-- The team: one card per Pokémon, headed in the species' types as the ROM has them now -->
+                        <Border Classes="card" HorizontalAlignment="Left"
+                                IsVisible="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).ShowTrainerTeam}">
+                          <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock Text="{x:Static r:Strings.Trainer_TeamIvs}" VerticalAlignment="Center" />
+                            <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerTeamIvsValue}" Width="110" Value="{Binding TeamIvs}" Minimum="0" Maximum="31" Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
+                            <TextBlock Classes="hint" Text="{Binding TeamIvsHint}" VerticalAlignment="Center" />
+                            <Button Content="{x:Static r:Strings.Trainer_ApplyToTeam}" Command="{Binding ApplyIvsCommand}" />
+                            <Button Content="{x:Static r:Strings.Trainer_MaxIvs}" Command="{Binding MaxIvsCommand}" />
+                            <Button Content="{x:Static r:Strings.Trainer_ClearIvs}" Command="{Binding ClearIvsCommand}" />
+                            <TextBlock Classes="hint" Text="{x:Static r:Strings.Trainer_MaxIvsHint}" VerticalAlignment="Center" />
+                          </StackPanel>
+                        </Border>
+                        <ItemsControl ItemsSource="{Binding Members}"
+                                      IsVisible="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).ShowTrainerTeam}">
+                          <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                              <WrapPanel />
+                            </ItemsPanelTemplate>
+                          </ItemsControl.ItemsPanel>
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:TrainerMemberViewModel">
+                              <Border Classes="card detail">
+                                <StackPanel Spacing="4">
+                                  <Border Classes="detail-header" Background="{Binding TypeBackground}" Padding="6,4" Margin="0,0,0,4">
+                                    <Grid ColumnDefinitions="Auto,*,Auto">
+                                      <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="40" Height="30" Margin="0,0,8,0" />
+                                      <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding SpeciesName}" FontWeight="Bold" Foreground="{Binding TypeForeground}" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding Header}" Foreground="{Binding TypeForeground}" Opacity="0.85" FontSize="10" />
+                                      </StackPanel>
+                                      <TextBlock Grid.Column="2" Text="{Binding LevelText}" Foreground="{Binding TypeForeground}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                    </Grid>
+                                  </Border>
+                                  <ContentControl Content="{Binding Species}" />
+                                  <ContentControl Content="{Binding Form}" />
+                                  <ContentControl Content="{Binding Level}" />
+                                  <ContentControl Content="{Binding Ability}" />
+                                  <TextBlock Classes="hint" Text="{Binding AbilityHint}" Margin="190,0,0,0" />
+                                  <ContentControl Content="{Binding Gender}" />
+                                  <ContentControl Content="{Binding Item}" />
+                                  <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="240" Margin="190,0,0,0"
+                                             Text="{x:Static r:Strings.Trainer_ItemIgnored}" IsVisible="{Binding ItemIgnored}" />
+                                  <ItemsControl ItemsSource="{Binding Moves}" />
+                                  <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="240" Margin="190,0,0,0"
+                                             Text="{x:Static r:Strings.Trainer_MovesIgnored}" IsVisible="{Binding MovesIgnored}" />
+                                  <!-- Generation 6: one byte for every IV -->
+                                  <StackPanel IsVisible="{Binding IsGen6}" ToolTip.Tip="{x:Static r:Strings.Trainer_IvByteTip}">
+                                    <ContentControl Content="{Binding IvByte}" />
+                                    <TextBlock Classes="hint" Text="{Binding IvByteText}" Margin="190,0,0,0" />
+                                  </StackPanel>
+                                  <!-- Generation 7: the six IVs, the six EVs and the nature -->
+                                  <StackPanel IsVisible="{Binding IsGen7}" Spacing="2">
+                                    <ContentControl Content="{Binding Nature}" />
+                                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_Ivs}" />
+                                    <ItemsControl ItemsSource="{Binding Ivs}" />
+                                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_Evs}" />
+                                    <ItemsControl ItemsSource="{Binding Evs}" />
+                                  </StackPanel>
+                                </StackPanel>
+                              </Border>
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                      </StackPanel>
+                    </ScrollViewer>
+                  </DataTemplate>
+                </ContentControl.ContentTemplate>
+              </ContentControl>
+            </Grid>
+          </DockPanel>
+        </TabItem>
+        <!-- ================= Advanced: Game ================= -->
+        <TabItem Header="{x:Static r:Strings.Tab_GameRules}">
+          <ScrollViewer>
+            <StackPanel Margin="12" Spacing="10" DataContext="{Binding GameTweaks}" x:DataType="vm:GameTweaksViewModel">
+              <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="900" HorizontalAlignment="Left" Text="{x:Static r:Strings.Game_Hint}" />
+
+              <!-- A change to the game's executable, found by the bytes around it -->
+              <Border Classes="card" Width="470" HorizontalAlignment="Left">
+                <StackPanel Spacing="4">
+                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_ShinyTitle}" />
+                  <CheckBox IsChecked="{Binding AlwaysShiny}" IsEnabled="{Binding ShinySupported}" ToolTip.Tip="{Binding ShinyTip}"
+                            Content="{x:Static r:Strings.Game_Shiny}" />
+                </StackPanel>
+              </Border>
+
+              <!-- Ours, not UPR ZX's: what the randomizer may place and what the shops sell -->
+            <Border Classes="card" Width="470" HorizontalAlignment="Left" DataContext="{Binding Shops}" x:DataType="vm:ShopExtrasViewModel">
               <StackPanel Spacing="4">
-                <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_ShinyTitle}" />
-                <CheckBox IsChecked="{Binding AlwaysShiny}" IsEnabled="{Binding ShinySupported}" ToolTip.Tip="{Binding ShinyTip}"
-                          Content="{x:Static r:Strings.Game_Shiny}" />
+                <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_ItemsTitle}" />
+                <CheckBox Margin="0,3" IsChecked="{Binding MegaStonesInPool}" IsVisible="{Binding HasMegaStones}"
+                          ToolTip.Tip="{x:Static r:Strings.Items_MegaStonesTip}">
+                  <TextBlock Text="{Binding MegaStonesText}" TextWrapping="Wrap" />
+                </CheckBox>
+                <CheckBox Margin="0,3" IsChecked="{Binding AllowAllItems}" ToolTip.Tip="{x:Static r:Strings.Items_AllowAllTip}">
+                  <TextBlock Text="{x:Static r:Strings.Items_AllowAll}" TextWrapping="Wrap" />
+                </CheckBox>
+                <CheckBox Margin="0,3" IsChecked="{Binding FreeRareCandies}" IsEnabled="{Binding Supported}"
+                          ToolTip.Tip="{Binding FreeRareCandiesTip}">
+                  <TextBlock Text="{x:Static r:Strings.Shops_FreeCandies}" TextWrapping="Wrap" />
+                </CheckBox>
+                <CheckBox Margin="0,3" IsChecked="{Binding MegaStonesOnSale}" IsEnabled="{Binding Supported}"
+                          IsVisible="{Binding HasMegaStones}" ToolTip.Tip="{x:Static r:Strings.Shops_MegaStonesOnSaleTip}">
+                  <TextBlock Text="{Binding MegaStonesOnSaleText}" TextWrapping="Wrap" />
+                </CheckBox>
               </StackPanel>
             </Border>
 
             <!-- Levels of what the player meets, applied when the ROM is built -->
-            <Border Classes="card" Width="470" HorizontalAlignment="Left" ToolTip.Tip="{x:Static r:Strings.Tip_GameLevels}">
-              <StackPanel Spacing="4">
-                <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_LevelsTitle}" />
-                <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Game_LevelsHint}" />
-                <Grid ColumnDefinitions="200,Auto,Auto" Margin="0,2">
-                  <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsAll}" />
-                  <NumericUpDown Grid.Column="1" Width="130" Value="{Binding AllLevelPercent}" Minimum="-90" Maximum="400" Increment="5"
-                                 FormatString="0.##" />
-                  <Button Grid.Column="2" Margin="6,0,0,0" Content="{x:Static r:Strings.Game_Apply}" Command="{Binding ApplyAllLevelsCommand}"
-                          ToolTip.Tip="{x:Static r:Strings.Tip_GameLevelsAll}" />
-                </Grid>
-                <Grid ColumnDefinitions="200,Auto" Margin="0,2">
-                  <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsTrainers}" />
-                  <NumericUpDown Grid.Column="1" Width="130" Value="{Binding TrainerLevelPercent}" Minimum="-90" Maximum="400" Increment="5"
-                                 FormatString="0.##" />
-                </Grid>
-                <Grid ColumnDefinitions="200,Auto" Margin="0,2">
-                  <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsWild}" />
-                  <NumericUpDown Grid.Column="1" Width="130" Value="{Binding WildLevelPercent}" Minimum="-90" Maximum="400" Increment="5"
-                                 FormatString="0.##" IsEnabled="{Binding WildAndStaticSupported}" ToolTip.Tip="{Binding WildStaticTip}" />
-                </Grid>
-                <Grid ColumnDefinitions="200,Auto" Margin="0,2">
-                  <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsStatic}" />
-                  <NumericUpDown Grid.Column="1" Width="130" Value="{Binding StaticLevelPercent}" Minimum="-90" Maximum="400" Increment="5"
-                                 FormatString="0.##" IsEnabled="{Binding WildAndStaticSupported}" ToolTip.Tip="{Binding WildStaticTip}" />
-                </Grid>
-              </StackPanel>
-            </Border>
-
-            <!-- The level cap by milestones: the plan, where the save is, and the cap the next ROM gets -->
-            <Border Classes="card" Width="470" HorizontalAlignment="Left" DataContext="{Binding LevelCap}" x:DataType="vm:LevelCapViewModel">
-              <Border.Styles>
-                <Style Selector="Border.current">
-                  <Setter Property="Background" Value="#E8F1FB" />
-                </Style>
-                <Style Selector="Border.current TextBlock">
-                  <Setter Property="FontWeight" Value="SemiBold" />
-                </Style>
-              </Border.Styles>
-              <StackPanel Spacing="4">
-                <TextBlock Classes="card-title" Text="{x:Static r:Strings.LevelCap_Title}" />
-                <CheckBox IsChecked="{Binding Enabled}" IsEnabled="{Binding Supported}" ToolTip.Tip="{Binding EnabledTip}"
-                          Content="{x:Static r:Strings.LevelCap_Enable}" />
-                <TextBlock Text="{Binding CurrentText}" FontWeight="SemiBold" TextWrapping="Wrap" />
-                <ItemsControl ItemsSource="{Binding Steps}" IsVisible="{Binding Enabled}">
-                  <ItemsControl.ItemTemplate>
-                    <DataTemplate x:DataType="vm:LevelCapStepViewModel">
-                      <Border Classes="info-row" Classes.current="{Binding IsCurrent}" Padding="4,1">
-                        <Grid ColumnDefinitions="24,*,90,Auto">
-                          <Image Source="{Binding Icon}" Width="20" Height="20" IsVisible="{Binding HasIcon}" />
-                          <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Name}" />
-                          <NumericUpDown Grid.Column="2" Value="{Binding Level}" Minimum="1" Maximum="100" Increment="1" FormatString="0"
-                                         ParsingNumberStyle="Integer" ToolTip.Tip="{Binding Tip}" />
-                          <TextBlock Grid.Column="3" Margin="8,0,0,0" MinWidth="60" VerticalAlignment="Center" Text="{Binding State}" />
-                        </Grid>
-                      </Border>
-                    </DataTemplate>
-                  </ItemsControl.ItemTemplate>
-                </ItemsControl>
-              </StackPanel>
-            </Border>
-
-            <!-- Sweeps: ordinary edits over a whole table -->
-            <TextBlock Classes="card-title" Margin="2,6,0,0" Text="{x:Static r:Strings.Game_SweepsTitle}" />
-            <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="900" HorizontalAlignment="Left" Text="{x:Static r:Strings.Game_SweepsHint}" />
-            <WrapPanel>
-              <Border Classes="card detail" Width="330" ToolTip.Tip="{x:Static r:Strings.Tip_GameExperience}">
-                <StackPanel Spacing="6">
-                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_Experience}" />
-                  <StackPanel Orientation="Horizontal" Spacing="6">
-                    <NumericUpDown Width="130" Value="{Binding ExperiencePercent}" Minimum="10" Maximum="1000" Increment="10"
-                                   FormatString="0" ParsingNumberStyle="Integer" />
-                    <Button Content="{x:Static r:Strings.Game_Apply}" Command="{Binding ApplyExperienceCommand}" />
-                    <Button Content="{x:Static r:Strings.Game_Reset}" Command="{Binding ResetCommand}" CommandParameter="baseExp"
-                            ToolTip.Tip="{x:Static r:Strings.Game_ResetTip}" />
-                  </StackPanel>
+              <Border Classes="card" Width="470" HorizontalAlignment="Left" ToolTip.Tip="{x:Static r:Strings.Tip_GameLevels}">
+                <StackPanel Spacing="4">
+                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_LevelsTitle}" />
+                  <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Game_LevelsHint}" />
+                  <Grid ColumnDefinitions="200,Auto,Auto" Margin="0,2">
+                    <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsAll}" />
+                    <NumericUpDown Grid.Column="1" Width="130" Value="{Binding AllLevelPercent}" Minimum="-90" Maximum="400" Increment="5"
+                                   FormatString="0.##" />
+                    <Button Grid.Column="2" Margin="6,0,0,0" Content="{x:Static r:Strings.Game_Apply}" Command="{Binding ApplyAllLevelsCommand}"
+                            ToolTip.Tip="{x:Static r:Strings.Tip_GameLevelsAll}" />
+                  </Grid>
+                  <Grid ColumnDefinitions="200,Auto" Margin="0,2">
+                    <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsTrainers}" />
+                    <NumericUpDown Grid.Column="1" Width="130" Value="{Binding TrainerLevelPercent}" Minimum="-90" Maximum="400" Increment="5"
+                                   FormatString="0.##" />
+                  </Grid>
+                  <Grid ColumnDefinitions="200,Auto" Margin="0,2">
+                    <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsWild}" />
+                    <NumericUpDown Grid.Column="1" Width="130" Value="{Binding WildLevelPercent}" Minimum="-90" Maximum="400" Increment="5"
+                                   FormatString="0.##" IsEnabled="{Binding WildAndStaticSupported}" ToolTip.Tip="{Binding WildStaticTip}" />
+                  </Grid>
+                  <Grid ColumnDefinitions="200,Auto" Margin="0,2">
+                    <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsStatic}" />
+                    <NumericUpDown Grid.Column="1" Width="130" Value="{Binding StaticLevelPercent}" Minimum="-90" Maximum="400" Increment="5"
+                                   FormatString="0.##" IsEnabled="{Binding WildAndStaticSupported}" ToolTip.Tip="{Binding WildStaticTip}" />
+                  </Grid>
                 </StackPanel>
               </Border>
 
-              <Border Classes="card detail" Width="330" ToolTip.Tip="{x:Static r:Strings.Tip_GameCatchRate}">
-                <StackPanel Spacing="6">
-                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_CatchRate}" />
-                  <StackPanel Orientation="Horizontal" Spacing="6">
-                    <NumericUpDown Width="130" Value="{Binding CatchRatePercent}" Minimum="10" Maximum="1000" Increment="10"
-                                   FormatString="0" ParsingNumberStyle="Integer" />
-                    <Button Content="{x:Static r:Strings.Game_Apply}" Command="{Binding ApplyCatchRateCommand}" />
-                    <Button Content="{x:Static r:Strings.Game_Reset}" Command="{Binding ResetCommand}" CommandParameter="catchRate"
-                            ToolTip.Tip="{x:Static r:Strings.Game_ResetTip}" />
-                  </StackPanel>
+              <!-- The level cap by milestones: the plan, where the save is, and the cap the next ROM gets -->
+              <Border Classes="card" Width="470" HorizontalAlignment="Left" DataContext="{Binding LevelCap}" x:DataType="vm:LevelCapViewModel">
+                <Border.Styles>
+                  <Style Selector="Border.current">
+                    <Setter Property="Background" Value="#E8F1FB" />
+                  </Style>
+                  <Style Selector="Border.current TextBlock">
+                    <Setter Property="FontWeight" Value="SemiBold" />
+                  </Style>
+                </Border.Styles>
+                <StackPanel Spacing="4">
+                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.LevelCap_Title}" />
+                  <CheckBox IsChecked="{Binding Enabled}" IsEnabled="{Binding Supported}" ToolTip.Tip="{Binding EnabledTip}"
+                            Content="{x:Static r:Strings.LevelCap_Enable}" />
+                  <TextBlock Text="{Binding CurrentText}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                  <ItemsControl ItemsSource="{Binding Steps}" IsVisible="{Binding Enabled}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vm:LevelCapStepViewModel">
+                        <Border Classes="info-row" Classes.current="{Binding IsCurrent}" Padding="4,1">
+                          <Grid ColumnDefinitions="24,*,90,Auto">
+                            <Image Source="{Binding Icon}" Width="20" Height="20" IsVisible="{Binding HasIcon}" />
+                            <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Name}" />
+                            <NumericUpDown Grid.Column="2" Value="{Binding Level}" Minimum="1" Maximum="100" Increment="1" FormatString="0"
+                                           ParsingNumberStyle="Integer" ToolTip.Tip="{Binding Tip}" />
+                            <TextBlock Grid.Column="3" Margin="8,0,0,0" MinWidth="60" VerticalAlignment="Center" Text="{Binding State}" />
+                          </Grid>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
                 </StackPanel>
               </Border>
 
-              <Border Classes="card detail" Width="330" ToolTip.Tip="{x:Static r:Strings.Tip_GameHatch}">
-                <StackPanel Spacing="6">
-                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_Hatch}" />
-                  <StackPanel Orientation="Horizontal" Spacing="6">
-                    <NumericUpDown Width="130" Value="{Binding HatchPercent}" Minimum="10" Maximum="500" Increment="10"
-                                   FormatString="0" ParsingNumberStyle="Integer" />
-                    <Button Content="{x:Static r:Strings.Game_Apply}" Command="{Binding ApplyHatchCommand}" />
-                    <Button Content="{x:Static r:Strings.Game_Reset}" Command="{Binding ResetCommand}" CommandParameter="hatchCycles"
-                            ToolTip.Tip="{x:Static r:Strings.Game_ResetTip}" />
+              <!-- Sweeps: ordinary edits over a whole table -->
+              <TextBlock Classes="card-title" Margin="2,6,0,0" Text="{x:Static r:Strings.Game_SweepsTitle}" />
+              <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="900" HorizontalAlignment="Left" Text="{x:Static r:Strings.Game_SweepsHint}" />
+              <WrapPanel>
+                <Border Classes="card detail" Width="330" ToolTip.Tip="{x:Static r:Strings.Tip_GameExperience}">
+                  <StackPanel Spacing="6">
+                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_Experience}" />
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <NumericUpDown Width="130" Value="{Binding ExperiencePercent}" Minimum="10" Maximum="1000" Increment="10"
+                                     FormatString="0" ParsingNumberStyle="Integer" />
+                      <Button Content="{x:Static r:Strings.Game_Apply}" Command="{Binding ApplyExperienceCommand}" />
+                      <Button Content="{x:Static r:Strings.Game_Reset}" Command="{Binding ResetCommand}" CommandParameter="baseExp"
+                              ToolTip.Tip="{x:Static r:Strings.Game_ResetTip}" />
+                    </StackPanel>
                   </StackPanel>
-                </StackPanel>
-              </Border>
+                </Border>
 
-              <Border Classes="card detail" Width="330" ToolTip.Tip="{x:Static r:Strings.Tip_GameFriendship}">
-                <StackPanel Spacing="6">
-                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_Friendship}" />
-                  <StackPanel Orientation="Horizontal" Spacing="6">
-                    <NumericUpDown Width="130" Value="{Binding FriendshipValue}" Minimum="0" Maximum="255" Increment="5"
-                                   FormatString="0" ParsingNumberStyle="Integer" />
-                    <Button Content="{x:Static r:Strings.Game_Apply}" Command="{Binding ApplyFriendshipCommand}" />
-                    <Button Content="{x:Static r:Strings.Game_Reset}" Command="{Binding ResetCommand}" CommandParameter="baseFriendship"
-                            ToolTip.Tip="{x:Static r:Strings.Game_ResetTip}" />
+                <Border Classes="card detail" Width="330" ToolTip.Tip="{x:Static r:Strings.Tip_GameCatchRate}">
+                  <StackPanel Spacing="6">
+                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_CatchRate}" />
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <NumericUpDown Width="130" Value="{Binding CatchRatePercent}" Minimum="10" Maximum="1000" Increment="10"
+                                     FormatString="0" ParsingNumberStyle="Integer" />
+                      <Button Content="{x:Static r:Strings.Game_Apply}" Command="{Binding ApplyCatchRateCommand}" />
+                      <Button Content="{x:Static r:Strings.Game_Reset}" Command="{Binding ResetCommand}" CommandParameter="catchRate"
+                              ToolTip.Tip="{x:Static r:Strings.Game_ResetTip}" />
+                    </StackPanel>
                   </StackPanel>
-                </StackPanel>
-              </Border>
+                </Border>
 
-              <Border Classes="card detail" Width="330" ToolTip.Tip="{x:Static r:Strings.Tip_GameMoney}">
-                <StackPanel Spacing="6">
-                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_Money}" />
-                  <StackPanel Orientation="Horizontal" Spacing="6">
-                    <NumericUpDown Width="130" Value="{Binding MoneyPercent}" Minimum="10" Maximum="1000" Increment="10"
-                                   FormatString="0" ParsingNumberStyle="Integer" />
-                    <Button Content="{x:Static r:Strings.Game_Apply}" Command="{Binding ApplyMoneyCommand}" />
-                    <Button Content="{x:Static r:Strings.Game_Reset}" Command="{Binding ResetCommand}" CommandParameter="money"
-                            ToolTip.Tip="{x:Static r:Strings.Game_ResetTip}" />
+                <Border Classes="card detail" Width="330" ToolTip.Tip="{x:Static r:Strings.Tip_GameHatch}">
+                  <StackPanel Spacing="6">
+                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_Hatch}" />
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <NumericUpDown Width="130" Value="{Binding HatchPercent}" Minimum="10" Maximum="500" Increment="10"
+                                     FormatString="0" ParsingNumberStyle="Integer" />
+                      <Button Content="{x:Static r:Strings.Game_Apply}" Command="{Binding ApplyHatchCommand}" />
+                      <Button Content="{x:Static r:Strings.Game_Reset}" Command="{Binding ResetCommand}" CommandParameter="hatchCycles"
+                              ToolTip.Tip="{x:Static r:Strings.Game_ResetTip}" />
+                    </StackPanel>
                   </StackPanel>
-                </StackPanel>
-              </Border>
-            </WrapPanel>
+                </Border>
 
-            <TextBlock Text="{Binding Result}" FontWeight="SemiBold"
-                       IsVisible="{Binding Result, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                <Border Classes="card detail" Width="330" ToolTip.Tip="{x:Static r:Strings.Tip_GameFriendship}">
+                  <StackPanel Spacing="6">
+                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_Friendship}" />
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <NumericUpDown Width="130" Value="{Binding FriendshipValue}" Minimum="0" Maximum="255" Increment="5"
+                                     FormatString="0" ParsingNumberStyle="Integer" />
+                      <Button Content="{x:Static r:Strings.Game_Apply}" Command="{Binding ApplyFriendshipCommand}" />
+                      <Button Content="{x:Static r:Strings.Game_Reset}" Command="{Binding ResetCommand}" CommandParameter="baseFriendship"
+                              ToolTip.Tip="{x:Static r:Strings.Game_ResetTip}" />
+                    </StackPanel>
+                  </StackPanel>
+                </Border>
 
-            <!-- The save, not the ROM: it asks twice because nothing brings the adventure back but the copy. -->
-            <Border Classes="card" Width="470" HorizontalAlignment="Left" Margin="0,10,0,0">
-              <StackPanel Spacing="4">
-                <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_ResetCard}" />
-                <StackPanel Orientation="Horizontal" Spacing="6">
-                  <Button Content="{x:Static r:Strings.Trainer_UnlockBoxes}" Command="{Binding UnlockBoxesCommand}"
-                          ToolTip.Tip="{x:Static r:Strings.Game_UnlockBoxesTip}" />
-                  <Button Content="{x:Static r:Strings.Game_StartOver}" Command="{Binding ResetGameCommand}"
-                          ToolTip.Tip="{x:Static r:Strings.Game_StartOverTip}" />
-                </StackPanel>
-              </StackPanel>
-            </Border>
-          </StackPanel>
-        </ScrollViewer>
+                <Border Classes="card detail" Width="330" ToolTip.Tip="{x:Static r:Strings.Tip_GameMoney}">
+                  <StackPanel Spacing="6">
+                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_Money}" />
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <NumericUpDown Width="130" Value="{Binding MoneyPercent}" Minimum="10" Maximum="1000" Increment="10"
+                                     FormatString="0" ParsingNumberStyle="Integer" />
+                      <Button Content="{x:Static r:Strings.Game_Apply}" Command="{Binding ApplyMoneyCommand}" />
+                      <Button Content="{x:Static r:Strings.Game_Reset}" Command="{Binding ResetCommand}" CommandParameter="money"
+                              ToolTip.Tip="{x:Static r:Strings.Game_ResetTip}" />
+                    </StackPanel>
+                  </StackPanel>
+                </Border>
+              </WrapPanel>
+
+              <TextBlock Text="{Binding Result}" FontWeight="SemiBold"
+                         IsVisible="{Binding Result, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+
+              <!-- Opening the boxes and starting over belong to the run: they are in Save → Trainer → Unlocks -->
+            </StackPanel>
+          </ScrollViewer>
+        </TabItem>
+        <!-- ================= Data: one file per section, all in one place ================= -->
+        <TabItem Header="{x:Static r:Strings.Tab_Data}">
+          <ScrollViewer>
+            <StackPanel Margin="12" Spacing="10">
+              <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="900" HorizontalAlignment="Left" Text="{x:Static r:Strings.Data_TabHint}" />
+              <WrapPanel>
+                <Border Classes="card detail" Width="470">
+                  <StackPanel Spacing="6">
+                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Data_CardPokemon}" />
+                    <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Data_CardPokemonHint}" />
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <Button Content="{x:Static r:Strings.Data_ExportShort}" Command="{Binding ExportPokemonDataCommand}" />
+                      <Button Content="{x:Static r:Strings.Data_ImportShortButton}" Command="{Binding ImportPokemonDataCommand}" />
+                    </StackPanel>
+                  </StackPanel>
+                </Border>
+
+                <Border Classes="card detail" Width="470">
+                  <StackPanel Spacing="6">
+                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Data_CardMoves}" />
+                    <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Data_CardMovesHint}" />
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <Button Content="{x:Static r:Strings.Data_ExportShort}" Command="{Binding ExportMoveDataCommand}" />
+                      <Button Content="{x:Static r:Strings.Data_ImportShortButton}" Command="{Binding ImportPokemonDataCommand}" />
+                    </StackPanel>
+                  </StackPanel>
+                </Border>
+
+                <Border Classes="card detail" Width="470">
+                  <StackPanel Spacing="6">
+                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Data_CardTrainers}" />
+                    <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Data_CardTrainersHint}" />
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <Button Content="{x:Static r:Strings.Data_ExportShort}" Command="{Binding ExportTrainerDataCommand}" />
+                      <Button Content="{x:Static r:Strings.Data_ImportShortButton}" Command="{Binding ImportPokemonDataCommand}" />
+                    </StackPanel>
+                  </StackPanel>
+                </Border>
+
+                <Border Classes="card detail" Width="470">
+                  <StackPanel Spacing="6">
+                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Data_CardRules}" />
+                    <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Data_CardRulesHint}" />
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                      <Button Content="{x:Static r:Strings.Data_ExportShort}" Command="{Binding ExportGameRulesCommand}" />
+                      <Button Content="{x:Static r:Strings.Data_ImportShortButton}" Command="{Binding ImportGameRulesCommand}" />
+                    </StackPanel>
+                  </StackPanel>
+                </Border>
+
+                <Border Classes="card detail" Width="470">
+                  <StackPanel Spacing="6">
+                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Data_CardPreset}" />
+                    <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Data_CardPresetHint}" />
+                  </StackPanel>
+                </Border>
+              </WrapPanel>
+            </StackPanel>
+          </ScrollViewer>
+        </TabItem>
+        </TabControl>
+      </TabItem>
+
+      <!-- ================= The run: the save, its boxes, bag, trainer and the Locke ================= -->
+      <!-- ================= Save file ================= -->
+      <TabItem x:Name="SaveTab" Header="{x:Static r:Strings.Tab_Save}">
+        <ContentControl Content="{Binding SaveEditor}" />
       </TabItem>
     </TabControl>
   </DockPanel>
