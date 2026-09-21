@@ -118,6 +118,29 @@ public class EditorSessionTests
         Assert.DoesNotContain(File.ReadAllText(file), "\u0000"); // readable text, no game bytes
     }
 
+    /// <summary>
+    /// A project can carry edits that say what the ROM already says (another seed, a data file from another ROM). They
+    /// are not changes, and every entry holding one looked "modified" although nothing of it differed.
+    /// </summary>
+    [Fact]
+    public void Open_DropsTheEditsThatMatchTheRom()
+    {
+        using var romfs = new SyntheticRomFs();
+        var project = new Project { DumpDirectory = romfs.DumpDirectory };
+        int hp = EditorSession.Open(project).GetInt(GameTables.Personal, 4, "hp");
+        project.Edits.Set(GameTables.Personal, 4, "hp", JsonValue.Create(hp));
+        project.Edits.Set(GameTables.Personal, 4, "spe", JsonValue.Create(99));
+
+        var session = EditorSession.Open(project);
+
+        Assert.Equal(1, session.MatchedTheRom);
+        Assert.False(session.IsModified(GameTables.Personal, 4, "hp"));
+        Assert.True(session.IsModified(GameTables.Personal, 4, "spe"));
+        Assert.Equal(hp, session.GetInt(GameTables.Personal, 4, "hp"));
+        Assert.Equal(99, session.GetInt(GameTables.Personal, 4, "spe"));
+        Assert.Equal(1, project.Edits.Count);
+    }
+
     [Fact]
     public void Open_WithEditOutOfRange_Throws()
     {

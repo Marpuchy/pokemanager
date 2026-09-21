@@ -193,6 +193,15 @@ public partial class EditorViewModel : ObservableObject
         if (History.IsEmpty && r.LastBuiltRom is { } rom && File.Exists(rom) && (!r.Enabled || r.InstalledSeed == r.Seed))
             RecordVersion(VersionKind.Built, rom);
 
+        // Edits that said what the ROM already says were dropped when the session opened: the entries they were on
+        // are not modified, so the project file should not keep claiming they are.
+        if (session.MatchedTheRom > 0)
+        {
+            SetStatus(string.Format(Strings.Editor_EditsMatchedTheRom, session.MatchedTheRom));
+            try { session.Project.Save(projectPath); }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { IsDirty = true; }
+        }
+
         ready = true;
         RefreshRomNotice();
         LevelCap.Refresh();
@@ -219,6 +228,65 @@ public partial class EditorViewModel : ObservableObject
             return History.History.List().FirstOrDefault(v => v.Kind == VersionKind.Built) is { } built
                    && built.Fingerprint != ProjectHistory.Fingerprint(Session.Project);
         }
+    }
+
+    // ------------------------------------------------------------------ the edits of a section
+
+    private static readonly string[] PokemonTables = [GameTables.Personal, GameTables.Learnsets];
+    private static readonly string[] MoveTables = [GameTables.Moves, GameTables.MoveTexts];
+    private static readonly string[] TrainerTables = [GameTables.Trainers];
+
+    private int CountEdits(string[] tables) => Session.Project.Edits.All.Count(e => tables.Contains(e.Table));
+
+    public int PokemonEditCount => CountEdits(PokemonTables);
+    public int MoveEditCount => CountEdits(MoveTables);
+    public int TrainerEditCount => CountEdits(TrainerTables);
+    public bool HasPokemonEdits => PokemonEditCount > 0;
+    public bool HasMoveEdits => MoveEditCount > 0;
+    public bool HasTrainerEdits => TrainerEditCount > 0;
+    public string PokemonRevertText => string.Format(Strings.Adv_RevertAll, PokemonEditCount);
+    public string MoveRevertText => string.Format(Strings.Adv_RevertAll, MoveEditCount);
+    public string TrainerRevertText => string.Format(Strings.Adv_RevertAll, TrainerEditCount);
+
+    [RelayCommand]
+    private Task RevertPokemonEdits() => RevertSection(PokemonTables, Strings.Tab_GamePokemon);
+
+    [RelayCommand]
+    private Task RevertMoveEdits() => RevertSection(MoveTables, Strings.Tab_GameMoves);
+
+    [RelayCommand]
+    private Task RevertTrainerEdits() => RevertSection(TrainerTables, Strings.Tab_GameTrainers);
+
+    /// <summary>
+    /// Drops every edit of a section, so its entries stop being marked as changed. A data file imported from another ROM
+    /// writes one edit per value, which leaves the whole list modified; this is the way back without going entry by entry.
+    /// </summary>
+    private async Task RevertSection(string[] tables, string section)
+    {
+        int count = CountEdits(tables);
+        if (count == 0)
+            return;
+        var question = new QuestionViewModel(Strings.Adv_RevertAllTitle,
+            string.Format(Strings.Adv_RevertAllMessage, count, section), Strings.Adv_RevertAllConfirm, Strings.Common_Cancel, []);
+        if (!await dialogs.AskAsync(question))
+            return;
+
+        using (BeginBatch(string.Format(Strings.Adv_RevertAllUndo, section)))
+            Session.RevertAll(table => tables.Contains(table));
+        RefreshEditCounts();
+        SetStatus(string.Format(Strings.Adv_RevertAllDone, count, section));
+    }
+
+    /// <summary>The number of edits a section has changed: the buttons and their counts follow it.</summary>
+    public void RefreshEditCounts()
+    {
+        foreach (string property in new[]
+                 {
+                     nameof(EditCountText), nameof(PokemonEditCount), nameof(MoveEditCount), nameof(TrainerEditCount),
+                     nameof(HasPokemonEdits), nameof(HasMoveEdits), nameof(HasTrainerEdits),
+                     nameof(PokemonRevertText), nameof(MoveRevertText), nameof(TrainerRevertText),
+                 })
+            OnPropertyChanged(property);
     }
 
     // ------------------------------------------------------------------ advanced editor
@@ -294,7 +362,7 @@ public partial class EditorViewModel : ObservableObject
                 ? key.Id < Names.Moves.Count ? Names.Moves[key.Id] : $"#{key.Id}"
                 : key.Id < Names.PersonalEntries.Count ? Names.PersonalEntries[key.Id] : $"#{key.Id}";
         MarkDirty($"{name} · {key.Field}");
-        OnPropertyChanged(nameof(EditCountText));
+        RefreshEditCounts();
         var list = trainer ? allTrainers : move ? allMoves : allSpecies;
         list.FirstOrDefault(e => e.Id == key.Id)?.Refresh();
         if (trainer && !inBatch)

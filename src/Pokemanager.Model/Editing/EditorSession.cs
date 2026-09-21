@@ -26,6 +26,9 @@ public sealed class EditorSession
     /// <summary>Data with the edits applied.</summary>
     public GameData Current { get; }
 
+    /// <summary>How many edits of the project said what the ROM already said, and were dropped when opening it.</summary>
+    public int MatchedTheRom { get; private set; }
+
     public event EventHandler<EditKey>? Changed;
 
     private EditorSession(Project project, RomFsLayers layers, GameData original, GameData current)
@@ -46,15 +49,26 @@ public sealed class EditorSession
             : new RomFsLayers(randomizedRomFs, project.RomFsPath);
         var session = new EditorSession(project, layers, GameData.Load(layers, project.Game), GameData.Load(layers, project.Game));
         var errors = new List<string>();
-        foreach (var edit in project.Edits.All)
+        foreach (var edit in project.Edits.All.ToList())
         {
+            var def = GameTables.Get(edit.Table);
             try
             {
-                GameTables.Get(edit.Table).Set(session.Current, edit.Id, edit.Field, edit.Value);
+                def.Set(session.Current, edit.Id, edit.Field, edit.Value);
             }
             catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or FormatException)
             {
                 errors.Add($"{edit.Table}[{edit.Id}].{edit.Field}: {ex.Message}");
+                continue;
+            }
+
+            // An edit that writes what the ROM already says is not a change. They pile up when the base moves under
+            // them — another seed, a rebuild, a data file imported from another ROM — and every entry then looked
+            // "modified" although nothing of it differed. Same rule as Set: the project holds real differences only.
+            if (JsonNode.DeepEquals(def.Get(session.Current, edit.Id, edit.Field), def.Get(session.Original, edit.Id, edit.Field)))
+            {
+                project.Edits.Remove(new EditKey(edit.Table, edit.Id, edit.Field));
+                session.MatchedTheRom++;
             }
         }
 
@@ -96,7 +110,7 @@ public sealed class EditorSession
     public void RevertAll(Func<string, bool>? table = null)
     {
         foreach (var edit in Project.Edits.All.Where(e => table?.Invoke(e.Table) != false).ToList())
-            Set(edit.Table, edit.Id, edit.Field, GameTables.Get(edit.Table).Get(Original, edit.Id, edit.Field));
+            SetBack(edit.Table, edit.Id, edit.Field);
     }
 
     /// <summary>Undoes every edit of an entry.</summary>
@@ -106,7 +120,20 @@ public sealed class EditorSession
         foreach (string field in def.Fields)
         {
             if (IsModified(table, id, field))
-                Set(table, id, field, def.Get(Original, id, field));
+                SetBack(table, id, field);
         }
+    }
+
+    /// <summary>Puts one field back to what the ROM says, and makes sure it stops counting as a change.</summary>
+    private void SetBack(string table, int id, string field)
+    {
+        var def = GameTables.Get(table);
+        Set(table, id, field, def.Get(Original, id, field));
+
+        // A table that normalizes what it stores (a learnset comes back sorted) may not read back exactly what the ROM
+        // has, and the edit would survive its own undo. The entry holds the ROM's data either way, so the mark goes.
+        var key = new EditKey(table, id, field);
+        if (Project.Edits.Remove(key))
+            Changed?.Invoke(this, key);
     }
 }

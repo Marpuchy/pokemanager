@@ -175,6 +175,8 @@
             <Grid ColumnDefinitions="Auto,6,Auto,*,Auto">
               <TextBlock Grid.Column="3" Classes="hint" Margin="6,0,12,0" VerticalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
                          Text="{x:Static r:Strings.Data_Hint}" ToolTip.Tip="{x:Static r:Strings.Data_Hint}" />
+              <Button Grid.Column="2" Content="{Binding PokemonRevertText}" Command="{Binding RevertPokemonEditsCommand}"
+                      IsVisible="{Binding HasPokemonEdits}" ToolTip.Tip="{x:Static r:Strings.Adv_RevertAllTip}" />
               <CheckBox Grid.Column="4" IsChecked="{Binding ShowAbilities}" Content="{x:Static r:Strings.Adv_ShowAbilities}" ToolTip.Tip="{x:Static r:Strings.Adv_ShowAbilitiesTip}" />
             </Grid>
           </Border>
@@ -345,7 +347,11 @@
         <TabItem Header="{x:Static r:Strings.Tab_GameMoves}">
           <DockPanel>
           <Border DockPanel.Dock="Top" Padding="8,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
-            <TextBlock Classes="hint" VerticalAlignment="Center" Text="{x:Static r:Strings.Data_MovesHint}" />
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Classes="hint" VerticalAlignment="Center" Text="{x:Static r:Strings.Data_MovesHint}" />
+              <Button Grid.Column="1" Content="{Binding MoveRevertText}" Command="{Binding RevertMoveEditsCommand}"
+                      IsVisible="{Binding HasMoveEdits}" ToolTip.Tip="{x:Static r:Strings.Adv_RevertAllTip}" />
+            </Grid>
           </Border>
           <Grid ColumnDefinitions="300,*">
             <DockPanel Margin="8">
@@ -455,6 +461,9 @@
                              ToolTip.Tip="{x:Static r:Strings.Trainer_ModeAllTip}" />
                 <TextBlock Grid.Column="3" Classes="hint" Margin="6,0,12,0" VerticalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
                            Text="{x:Static r:Strings.Trainer_Hint}" ToolTip.Tip="{x:Static r:Strings.Trainer_Hint}" />
+                <Button Grid.Column="3" HorizontalAlignment="Right" Margin="0,0,10,0"
+                        Content="{Binding TrainerRevertText}" Command="{Binding RevertTrainerEditsCommand}"
+                        IsVisible="{Binding HasTrainerEdits}" ToolTip.Tip="{x:Static r:Strings.Adv_RevertAllTip}" />
                 <CheckBox Grid.Column="4" IsChecked="{Binding ShowTrainerTeam}" Content="{x:Static r:Strings.Trainer_ShowTeam}"
                           ToolTip.Tip="{x:Static r:Strings.Trainer_ShowTeamTip}" />
               </Grid>

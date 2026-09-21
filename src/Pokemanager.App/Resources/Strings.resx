@@ -3852,4 +3852,28 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Options_ClearPreset" xml:space="preserve">
     <value>Put the preset&apos;s to 0</value>
   </data>
+  <data name="Editor_EditsMatchedTheRom" xml:space="preserve">
+    <value>{0} edits said what the ROM already said and are no longer marked as changes.</value>
+  </data>
+  <data name="Adv_RevertAll" xml:space="preserve">
+    <value>Put all back ({0})</value>
+  </data>
+  <data name="Adv_RevertAllTip" xml:space="preserve">
+    <value>Drops every change of this section, so its entries go back to what the ROM says and stop being marked as modified. A data file imported from another ROM writes one change per value, which leaves the whole list marked.</value>
+  </data>
+  <data name="Adv_RevertAllTitle" xml:space="preserve">
+    <value>Put every change back</value>
+  </data>
+  <data name="Adv_RevertAllMessage" xml:space="preserve">
+    <value>This drops the {0} changes of {1} and leaves those entries as the ROM has them. It can be undone with Ctrl+Z while the project is open.</value>
+  </data>
+  <data name="Adv_RevertAllConfirm" xml:space="preserve">
+    <value>Put them back</value>
+  </data>
+  <data name="Adv_RevertAllUndo" xml:space="preserve">
+    <value>Put back every change of {0}</value>
+  </data>
+  <data name="Adv_RevertAllDone" xml:space="preserve">
+    <value>{0} changes of {1} put back.</value>
+  </data>
 </root>

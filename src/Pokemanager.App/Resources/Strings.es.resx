@@ -3852,4 +3852,28 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Options_ClearPreset" xml:space="preserve">
     <value>Poner a 0 la del preajuste</value>
   </data>
+  <data name="Editor_EditsMatchedTheRom" xml:space="preserve">
+    <value>{0} ediciones decían lo mismo que la ROM y ya no se marcan como cambios.</value>
+  </data>
+  <data name="Adv_RevertAll" xml:space="preserve">
+    <value>Devolver todo ({0})</value>
+  </data>
+  <data name="Adv_RevertAllTip" xml:space="preserve">
+    <value>Quita todos los cambios de esta sección: sus entradas vuelven a lo que dice la ROM y dejan de estar marcadas como modificadas. Un archivo de datos importado de otra ROM escribe un cambio por valor, y eso deja marcada la lista entera.</value>
+  </data>
+  <data name="Adv_RevertAllTitle" xml:space="preserve">
+    <value>Devolver todos los cambios</value>
+  </data>
+  <data name="Adv_RevertAllMessage" xml:space="preserve">
+    <value>Se quitan los {0} cambios de {1} y esas entradas quedan como las tiene la ROM. Se puede deshacer con Ctrl+Z mientras el proyecto esté abierto.</value>
+  </data>
+  <data name="Adv_RevertAllConfirm" xml:space="preserve">
+    <value>Devolverlos</value>
+  </data>
+  <data name="Adv_RevertAllUndo" xml:space="preserve">
+    <value>Devolver todos los cambios de {0}</value>
+  </data>
+  <data name="Adv_RevertAllDone" xml:space="preserve">
+    <value>{0} cambios de {1} devueltos.</value>
+  </data>
 </root>
