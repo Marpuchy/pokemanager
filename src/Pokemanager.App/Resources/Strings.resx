@@ -3876,4 +3876,40 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Adv_RevertAllDone" xml:space="preserve">
     <value>{0} changes of {1} put back.</value>
   </data>
+  <data name="Modified_Stats" xml:space="preserve">
+    <value>Stats</value>
+  </data>
+  <data name="Modified_Types" xml:space="preserve">
+    <value>Types</value>
+  </data>
+  <data name="Modified_Abilities" xml:space="preserve">
+    <value>Abilities</value>
+  </data>
+  <data name="Modified_Items" xml:space="preserve">
+    <value>Items</value>
+  </data>
+  <data name="Modified_Ev" xml:space="preserve">
+    <value>EV yield</value>
+  </data>
+  <data name="Modified_Moves" xml:space="preserve">
+    <value>Moves</value>
+  </data>
+  <data name="Modified_Text" xml:space="preserve">
+    <value>Text</value>
+  </data>
+  <data name="Modified_Ai" xml:space="preserve">
+    <value>AI</value>
+  </data>
+  <data name="Modified_Team" xml:space="preserve">
+    <value>Team</value>
+  </data>
+  <data name="Modified_Data" xml:space="preserve">
+    <value>Data</value>
+  </data>
+  <data name="Modified_Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="Modified_AndMore" xml:space="preserve">
+    <value>{0}…</value>
+  </data>
 </root>

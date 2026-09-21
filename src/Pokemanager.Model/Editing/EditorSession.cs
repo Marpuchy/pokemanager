@@ -106,6 +106,10 @@ public sealed class EditorSession
 
     public bool IsModified(string table, int id) => Project.Edits.Any(table, id);
 
+    /// <summary>The fields of an entry that differ from the ROM, so the marks can say what changed.</summary>
+    public IReadOnlyList<string> ModifiedFields(string table, int id) =>
+        [.. Project.Edits.All.Where(e => e.Table == table && e.Id == id).Select(e => e.Field)];
+
     /// <summary>Undoes every edit of the project, or only those of the tables <paramref name="table"/> accepts.</summary>
     public void RevertAll(Func<string, bool>? table = null)
     {

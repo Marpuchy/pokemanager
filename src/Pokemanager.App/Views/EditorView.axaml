@@ -51,8 +51,8 @@
           <Image Grid.Column="1" Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="40" Height="30" Margin="0,0,6,0" IsVisible="{Binding HasIcon}" />
           <TextBlock Grid.Column="2" Classes="hint" Text="{Binding Number}" VerticalAlignment="Center" />
           <TextBlock Grid.Column="3" Classes="entry-name" Text="{Binding Name}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-          <Border Grid.Column="4" Classes="modified-tag" IsVisible="{Binding IsModified}">
-            <TextBlock Text="{x:Static r:Strings.Detail_Modified}" />
+          <Border Grid.Column="4" Classes="modified-tag" IsVisible="{Binding IsModified}" ToolTip.Tip="{Binding ModifiedTip}">
+            <TextBlock Text="{Binding ModifiedText}" />
           </Border>
           <!-- Moves: type and category icons instead of a sprite -->
           <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="3" Margin="0,0,8,0" VerticalAlignment="Center" IsVisible="{Binding IsMove}">

@@ -3876,4 +3876,40 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Adv_RevertAllDone" xml:space="preserve">
     <value>{0} cambios de {1} devueltos.</value>
   </data>
+  <data name="Modified_Stats" xml:space="preserve">
+    <value>Stats</value>
+  </data>
+  <data name="Modified_Types" xml:space="preserve">
+    <value>Tipos</value>
+  </data>
+  <data name="Modified_Abilities" xml:space="preserve">
+    <value>Habilidades</value>
+  </data>
+  <data name="Modified_Items" xml:space="preserve">
+    <value>Objetos</value>
+  </data>
+  <data name="Modified_Ev" xml:space="preserve">
+    <value>EV que da</value>
+  </data>
+  <data name="Modified_Moves" xml:space="preserve">
+    <value>Movimientos</value>
+  </data>
+  <data name="Modified_Text" xml:space="preserve">
+    <value>Texto</value>
+  </data>
+  <data name="Modified_Ai" xml:space="preserve">
+    <value>IA</value>
+  </data>
+  <data name="Modified_Team" xml:space="preserve">
+    <value>Equipo</value>
+  </data>
+  <data name="Modified_Data" xml:space="preserve">
+    <value>Datos</value>
+  </data>
+  <data name="Modified_Other" xml:space="preserve">
+    <value>Otros</value>
+  </data>
+  <data name="Modified_AndMore" xml:space="preserve">
+    <value>{0}…</value>
+  </data>
 </root>

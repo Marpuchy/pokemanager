@@ -23,6 +23,14 @@ public sealed class ListEntryViewModel(EditorSession session, IReadOnlyList<stri
     public string Name => liveName?.Invoke() ?? name;
     public string Number => $"#{Id:000}";
     public bool IsModified => tables.Any(t => session.IsModified(t, Id));
+
+    /// <summary>What this entry has changed (stats, abilities, moves…), so the tag is not a blanket "Modified".</summary>
+    public IReadOnlyList<string> ModifiedKinds =>
+        EditSummary.Kinds(tables.SelectMany(t => session.ModifiedFields(t, Id).Select(f => (Table: t, Field: f))));
+
+    public string ModifiedText => EditSummary.Tag(ModifiedKinds);
+
+    public string ModifiedTip => string.Join(" · ", ModifiedKinds);
     public Bitmap? Icon => icon?.Invoke();
     public bool HasIcon => icon is not null;
 
@@ -39,6 +47,8 @@ public sealed class ListEntryViewModel(EditorSession session, IReadOnlyList<stri
     {
         OnPropertyChanged(nameof(Name));
         OnPropertyChanged(nameof(IsModified));
+        OnPropertyChanged(nameof(ModifiedText));
+        OnPropertyChanged(nameof(ModifiedTip));
         OnPropertyChanged(nameof(TypeBrush));
         OnPropertyChanged(nameof(TypeIcon));
         OnPropertyChanged(nameof(CategoryIcon));
