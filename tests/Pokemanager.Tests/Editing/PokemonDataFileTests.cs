@@ -76,6 +76,58 @@ public sealed class PokemonDataFileTests : IDisposable
             target.Get(GameTables.Learnsets, 1, GameTables.LevelUp).ToJsonString());
     }
 
+    /// <summary>
+    /// The row number of the personal table is a different Pokémon in each game (760 is Mega Venusaur in Pokémon X and
+    /// Bewear in Ultra Moon), so a file says what Pokémon each of its rows held and the import puts it on that one.
+    /// </summary>
+    [Fact]
+    public void RowsAreTranslatedByPokemon_NotByNumber()
+    {
+        var file = new PokemonDataFile { Scope = PokemonDataScope.Edits, Kind = PokemonDataKind.Pokemon, Game = GameTitle.UltraSun };
+        file.Rows[4] = [2, 0];    // what that game kept in row 4 is species 2, which this game keeps in row 2
+        file.Rows[3] = [400, 0];  // a species this game does not have
+        file.Add(GameTables.Personal, 4, "hp", JsonValue.Create(151));
+        file.Add(GameTables.Personal, 3, "hp", JsonValue.Create(99));
+
+        var target = NewSession();
+        int before = target.GetInt(GameTables.Personal, 4, "hp");
+        var result = file.ApplyTo(target, GameTitle.X, replaceEdits: false);
+
+        Assert.Equal(1, result.Applied);
+        Assert.Equal(151, target.GetInt(GameTables.Personal, 2, "hp"));   // landed on species 2
+        Assert.Equal(before, target.GetInt(GameTables.Personal, 4, "hp")); // row 4 untouched
+        Assert.Single(result.Skipped);
+        Assert.Contains("400", result.Skipped[0]);
+    }
+
+    /// <summary>A file with no row map, from another game: only the rows that are a species in both games are used.</summary>
+    [Fact]
+    public void WithoutARowMap_OnlyTheSpeciesRowsOfAnotherGameAreUsed()
+    {
+        var file = new PokemonDataFile { Scope = PokemonDataScope.Edits, Kind = PokemonDataKind.Pokemon, Game = GameTitle.UltraSun };
+        file.Add(GameTables.Personal, 2, "hp", JsonValue.Create(151));
+        file.Add(GameTables.Learnsets, 2, GameTables.LevelUp, JsonNode.Parse("[[1,2]]")!);
+
+        var target = NewSession();
+        var result = file.ApplyTo(target, GameTitle.X, replaceEdits: false);
+
+        Assert.Equal(2, result.Applied);
+        Assert.Equal(151, target.GetInt(GameTables.Personal, 2, "hp"));
+    }
+
+    /// <summary>A trainer number is a different trainer in another game: those are not imported at all.</summary>
+    [Fact]
+    public void TrainersOfAnotherGameAreNotImported()
+    {
+        var file = new PokemonDataFile { Scope = PokemonDataScope.Edits, Kind = PokemonDataKind.Trainers, Game = GameTitle.UltraSun };
+        file.Add(GameTables.Trainers, 1, "ai", JsonValue.Create(7));
+
+        var result = file.ApplyTo(NewSession(), GameTitle.X, replaceEdits: false);
+
+        Assert.Equal(0, result.Applied);
+        Assert.Single(result.Skipped);
+    }
+
     [Fact]
     public void AllData_OnlyDifferencesFromTheBaseBecomeEdits()
     {

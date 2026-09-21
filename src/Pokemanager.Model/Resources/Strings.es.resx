@@ -210,4 +210,13 @@
   <data name="Data_NotRules" xml:space="preserve">
     <value>{0} no es un archivo de reglas del juego de Pokemanager.</value>
   </data>
+  <data name="Data_MissingPokemon" xml:space="preserve">
+    <value>este juego no tiene la especie {0} forma {1}</value>
+  </data>
+  <data name="Data_RowMeansAnother" xml:space="preserve">
+    <value>la fila {0} es otro Pokémon en este juego (el archivo no dice cuál era)</value>
+  </data>
+  <data name="Data_OtherGameTrainers" xml:space="preserve">
+    <value>un entrenador de otro juego es aquí un entrenador distinto</value>
+  </data>
 </root>

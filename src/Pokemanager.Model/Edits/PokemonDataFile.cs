@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Nodes;
+using Pokemanager.Model.Data;
 using Pokemanager.Model.Dump;
 using Pokemanager.Model.Editing;
 using Pokemanager.Model.Resources;
@@ -74,6 +75,13 @@ public sealed class PokemonDataFile
     /// <summary>Free text shown when importing (for example the seed and preset the data came from).</summary>
     public string? Description { get; init; }
 
+    /// <summary>
+    /// What Pokémon each row of the personal and learnset tables holds, as species and form. **The row number means
+    /// another Pokémon in another game** (760 is Mega Venusaur in X and Bewear in Ultra Moon), so without this the data
+    /// lands on the wrong entries.
+    /// </summary>
+    public SortedDictionary<int, int[]> Rows { get; } = [];
+
     /// <summary>table → id → field → value.</summary>
     public SortedDictionary<string, SortedDictionary<int, SortedDictionary<string, JsonNode>>> Tables { get; } = new(StringComparer.Ordinal);
 
@@ -103,6 +111,18 @@ public sealed class PokemonDataFile
         _ => [.. GameTables.All.Select(t => t.Name)],
     };
 
+    /// <summary>Tables whose row number is a Pokémon of the game, not a national id.</summary>
+    private static bool ByPokemon(string table) => table is GameTables.Personal or GameTables.Learnsets;
+
+    /// <summary>Records what Pokémon every exported row holds, so another game can be given the same data.</summary>
+    private void AddRows(EditorSession session)
+    {
+        var index = PersonalIndex.Of(session.Current);
+        foreach (var (table, id, _, _) in Values().Where(v => ByPokemon(v.Table)))
+            if (index.Pokemon(id) is { } mon)
+                Rows[id] = [mon.Species, mon.Form];
+    }
+
     /// <summary>The session's manual edits of that kind of data.</summary>
     public static PokemonDataFile FromEdits(EditorSession session, GameTitle game, string? description = null,
         PokemonDataKind kind = PokemonDataKind.All)
@@ -111,6 +131,7 @@ public sealed class PokemonDataFile
         var tables = TablesOf(kind);
         foreach (var edit in session.Project.Edits.All.Where(e => tables.Contains(e.Table)))
             file.Add(edit.Table, edit.Id, edit.Field, edit.Value);
+        file.AddRows(session);
         return file;
     }
 
@@ -127,6 +148,7 @@ public sealed class PokemonDataFile
                 foreach (string field in table.Fields)
                     file.Add(table.Name, id, field, table.Get(session.Current, id, field));
         }
+        file.AddRows(session);
         return file;
     }
 
@@ -146,10 +168,28 @@ public sealed class PokemonDataFile
         int applied = 0, same = 0;
         var skipped = new List<string>();
         var limits = DataLimits.Of(session.Original);
+        var index = PersonalIndex.Of(session.Original);
+        bool otherGame = Game is { } from && from != game;
         foreach (var (table, id, field, value) in Values())
         {
             try
             {
+                // The row number is a Pokémon of the game it came from, so it is translated by species and form: what a
+                // file calls 760 is Mega Venusaur in Pokémon X and Bewear in Ultra Moon.
+                int target = id;
+                if (ByPokemon(table) && !Row(id, index, game, out target))
+                {
+                    skipped.Add($"{table}[{id}].{field}: {Missing(id)}");
+                    continue;
+                }
+
+                // A trainer number is a different trainer in another game, and so is its class.
+                if (otherGame && table == GameTables.Trainers)
+                {
+                    skipped.Add($"{table}[{id}].{field}: {Strings.Data_OtherGameTrainers}");
+                    continue;
+                }
+
                 // A file from another game names things this one does not have (Ultra Sun's Pokémon in Pokémon X, a
                 // move or an ability that does not exist here). Those are skipped, not written as a number the game
                 // cannot look up.
@@ -159,8 +199,8 @@ public sealed class PokemonDataFile
                     continue;
                 }
 
-                session.Set(table, id, field, value);
-                if (session.IsModified(table, id, field))
+                session.Set(table, target, field, value);
+                if (session.IsModified(table, target, field))
                     applied++;
                 else
                     same++;
@@ -175,6 +215,30 @@ public sealed class PokemonDataFile
         }
         return new PokemonDataImport(applied, same, skipped, Game is { } g && g != game);
     }
+
+    /// <summary>
+    /// Where this row goes in the game being imported into. With the Pokémon the file records, by species and form;
+    /// without it (a file made before this was written) only rows that are species in both games are used, because a
+    /// row above them holds a form of a different Pokémon in each game.
+    /// </summary>
+    private bool Row(int id, PersonalIndex index, GameTitle game, out int target)
+    {
+        target = id;
+        if (Rows.TryGetValue(id, out int[]? mon) && mon.Length == 2)
+        {
+            target = index.Row(mon[0], mon[1]);
+            return target >= 0;
+        }
+        if (Game is not { } from || from == game)
+            return true;
+        int shared = Math.Min(PersonalIndex.LastSpecies(from), PersonalIndex.LastSpecies(game));
+        return id <= shared && index.Pokemon(id) is { Form: 0 };
+    }
+
+    private string Missing(int id) =>
+        Rows.TryGetValue(id, out int[]? mon) && mon.Length == 2
+            ? string.Format(Strings.Data_MissingPokemon, mon[0], mon[1])
+            : string.Format(Strings.Data_RowMeansAnother, id);
 
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
 
@@ -194,6 +258,10 @@ public sealed class PokemonDataFile
             tables[table] = byId;
         }
 
+        var rows = new JsonObject();
+        foreach (var (id, mon) in Rows)
+            rows[id.ToString()] = new JsonArray(mon[0], mon[1]);
+
         var root = new JsonObject
         {
             ["magic"] = Magic,
@@ -203,6 +271,7 @@ public sealed class PokemonDataFile
             ["game"] = Game?.ToString(),
             ["createdAt"] = CreatedAt,
             ["description"] = Description,
+            ["rows"] = rows,
             ["tables"] = tables,
         };
 
@@ -239,6 +308,13 @@ public sealed class PokemonDataFile
             CreatedAt = root["createdAt"]?.GetValue<DateTime>() ?? File.GetLastWriteTime(path),
             Description = root["description"]?.GetValue<string>(),
         };
+
+        if (root["rows"] is JsonObject rows)
+        {
+            foreach (var (idText, mon) in rows)
+                if (int.TryParse(idText, out int id) && mon is JsonArray { Count: 2 } pair)
+                    file.Rows[id] = [pair[0]!.GetValue<int>(), pair[1]!.GetValue<int>()];
+        }
 
         if (root["tables"] is JsonObject tables)
         {
