@@ -108,4 +108,32 @@ public class RealDumpTrainerTests
         Assert.Equal(255, mienfoo.IvByte);
         Assert.Equal(619, mienfoo.Species); // nothing else moved
     }
+
+    /// <summary>Trainers travel in a file of their own (.trdata), like the Pokémon and the moves.</summary>
+    [Fact]
+    public void TrainerData_RoundTripsThroughAFile()
+    {
+        string dumpDir = RequireDump();
+        var project = new Project { DumpDirectory = dumpDir };
+        var session = EditorSession.Open(project);
+        int korrina = Enumerable.Range(0, session.Current.Trainers.Length)
+            .First(i => !session.Current.Trainers[i].Unreadable && session.Current.Trainers[i].Count == 3 && session.Current.Trainers[i].Ai == 0x07);
+        session.SetInt(GameTables.Trainers, korrina, "ai", 0x01);
+        session.SetInt(GameTables.Trainers, korrina, "p1.level", 44);
+        string path = Path.Combine(Path.GetTempPath(), "pokemanager-trainers." + PokemonDataFile.TrainersExtension);
+
+        PokemonDataFile.FromEdits(session, GameTitle.X, "a test", PokemonDataKind.Trainers).Save(path);
+        var file = PokemonDataFile.Load(path);
+        var other = EditorSession.Open(new Project { DumpDirectory = dumpDir });
+        var result = file.ApplyTo(other, GameTitle.X, replaceEdits: false);
+        File.Delete(path);
+
+        Assert.Equal(PokemonDataKind.Trainers, file.Kind);
+        Assert.Equal(PokemonDataFile.TrainersExtension, PokemonDataFile.ExtensionOf(file.Kind));
+        Assert.Equal(2, file.ValueCount);
+        Assert.Equal(2, result.Applied);
+        Assert.Empty(result.Skipped);
+        Assert.Equal(0x01, other.GetInt(GameTables.Trainers, korrina, "ai"));
+        Assert.Equal(44, other.GetInt(GameTables.Trainers, korrina, "p1.level"));
+    }
 }
