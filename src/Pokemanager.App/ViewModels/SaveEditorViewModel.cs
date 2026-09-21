@@ -299,7 +299,8 @@ public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
             Bag = new SaveBagViewModel(this, doc, names, editor.Names.ItemDescriptions);
             var layers = new RomFsLayers(editor.Session.Project.RomFsPath);
             Trainer = new SaveTrainerViewModel(this, doc, names, editor.Dump.Title, MilestoneIcons.Load(layers, editor.Dump.Title),
-                ItemIcons.LoadTypeCrystals(layers, editor.Dump.Title), editor.ProfileAvatar);
+                ItemIcons.LoadTypeCrystals(layers, editor.Dump.Title), editor.ProfileAvatar,
+                TrainerPortraits.Load(layers, editor.Dump.Title, doc.TrainerGender, doc.TrainerLook));
             Dex = new SaveDexViewModel(this, doc, names);
             RefreshSlots();
             RefreshProblems();
@@ -553,6 +554,12 @@ public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
     }
 }
 
+/// <summary>One choice of the item picker: where it is in the pocket's list and how it reads.</summary>
+public sealed record BagChoiceViewModel(int Index, string Name)
+{
+    public override string ToString() => Name;
+}
+
 /// <summary>An item of a bag pocket: a row of the list and, when selected, the detail panel that edits it.</summary>
 public sealed partial class BagItemViewModel(SaveBagViewModel owner, PocketViewModel pocket, int itemIndex, int count) : ObservableObject
 {
@@ -667,6 +674,62 @@ public partial class SaveBagViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasSelectedItem))]
     public partial BagItemViewModel? SelectedItem { get; set; }
+
+    /// <summary>
+    /// What is typed to find an item to put in the selected slot: a pocket holds hundreds and looking for one in a plain
+    /// dropdown is hard. Matches anywhere in the name, without accents or case.
+    /// </summary>
+    [ObservableProperty]
+    public partial string ItemSearch { get; set; } = "";
+
+    /// <summary>
+    /// The choices of the selected slot's pocket, narrowed by <see cref="ItemSearch"/>. **One instance, refilled**: a new
+    /// collection under a bound selection makes the ComboBox drop it (the rule of 1.0).
+    /// </summary>
+    public System.Collections.ObjectModel.ObservableCollection<BagChoiceViewModel> ItemChoices { get; } = [];
+
+    private BagChoiceViewModel? selectedChoice;
+
+    /// <summary>The choice the ComboBox shows; picking one changes the item in the slot.</summary>
+    public BagChoiceViewModel? SelectedChoice
+    {
+        get => selectedChoice;
+        set
+        {
+            selectedChoice = value;
+            OnPropertyChanged();
+            if (value is not null && SelectedItem is { } item && item.ItemIndex != value.Index)
+                item.ItemIndex = value.Index;
+        }
+    }
+
+    partial void OnItemSearchChanged(string value) => RefreshItemChoices();
+
+    partial void OnSelectedItemChanged(BagItemViewModel? value) => RefreshItemChoices();
+
+    /// <summary>Fills the choices for the selected item's pocket and keeps the one it holds selected.</summary>
+    private void RefreshItemChoices()
+    {
+        var pocket = SelectedItem?.Pocket;
+        string search = Normalize(ItemSearch);
+        ItemChoices.Clear();
+        if (pocket is not null)
+        {
+            for (int i = 0; i < pocket.ItemNames.Count; i++)
+            {
+                if (search.Length == 0 || Normalize(pocket.ItemNames[i]).Contains(search, StringComparison.Ordinal))
+                    ItemChoices.Add(new BagChoiceViewModel(i, pocket.ItemNames[i]));
+            }
+        }
+        selectedChoice = SelectedItem is { } item ? ItemChoices.FirstOrDefault(c => c.Index == item.ItemIndex) : null;
+        OnPropertyChanged(nameof(SelectedChoice));
+    }
+
+    /// <summary>Without accents or case, so "pocion" finds "Poción".</summary>
+    private static string Normalize(string text) =>
+        string.Concat(text.Normalize(System.Text.NormalizationForm.FormD)
+            .Where(c => System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c) != System.Globalization.UnicodeCategory.NonSpacingMark))
+            .ToLowerInvariant();
 
     public bool HasSelectedItem => SelectedItem is not null;
 

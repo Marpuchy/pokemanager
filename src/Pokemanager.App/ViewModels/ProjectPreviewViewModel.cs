@@ -166,13 +166,16 @@ public sealed partial class BadgeItemViewModel(ProjectPreviewViewModel owner, in
     public Avalonia.Media.IBrush MarkBrush => new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse(IsPending ? "#E07B00" : "#2E8B57"));
     public bool IsPending => spin is { Claimed: false };
 
-    /// <summary>A pending prize can always be claimed, even if the roulette interval changed since.</summary>
-    public bool CanSpin => Earned && (spin is { Claimed: false } || (spin is null && hasRoulette));
+    /// <summary>
+    /// Any earned milestone can be clicked, however many times: the roulette window itself decides what to offer — claim
+    /// a prize that is still pending, or spin again (the user wants to be able to re-roll as often as they like).
+    /// </summary>
+    public bool CanSpin => Earned;
 
     public string Tooltip => !Earned
         ? string.Format(Strings.Locke_BadgeNotEarned, Name)
         : spin is null
-            ? string.Format(hasRoulette ? Strings.Locke_BadgeSpin : Strings.Locke_BadgeNoRoulette, Name)
+            ? string.Format(hasRoulette ? Strings.Locke_BadgeSpin : Strings.Locke_BadgeSpinAnyway, Name)
             : spin.Claimed
                 ? string.Format(Strings.Locke_BadgeDone, Name, LockeRewards.Describe(spin.Prize, itemNames))
                 : string.Format(Strings.Locke_BadgePending, Name, LockeRewards.Describe(spin.Prize, itemNames));
@@ -293,7 +296,9 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
         for (int i = 0; i < milestones.Count; i++)
             Badges.Add(new BadgeItemViewModel(this, i, milestones[i].Name, milestones[i].Type, doc?.GetMilestone(i) ?? false, project.Locke.SpinOf(i), itemNames,
                 images?[i], project.Locke.HasRoulette(i), project.Game.HasBadges() ? null : milestones[i].Type,
-                crystals is not null && !project.Game.HasBadges() && (uint)milestones[i].Type < crystals.Length ? crystals[milestones[i].Type] : null));
+                crystals is not null && !project.Game.HasBadges() && (uint)PkhexImages.CrystalIcon(milestones[i].Type) < crystals.Length
+                    ? crystals[PkhexImages.CrystalIcon(milestones[i].Type)]
+                    : null));
     }
 
     public PokemonSprites Sprites { get; } = PokemonSprites.Empty;

@@ -44,7 +44,8 @@ public class GamesTests
         Assert.Contains("a/0/1/5", files); // mega evolutions: where the Mega Stones are named
         Assert.Contains("a/1/5/9", files); // the fixed Pokemon, where the starters are
         Assert.Contains("a/0/1/6", files); // the experience table, for the level cap
-        Assert.Equal(11 + 10, files.Count);
+        Assert.Contains("a/1/6/2", files); // the player's own portraits, from the screen that starts the adventure
+        Assert.Equal(12 + 10, files.Count);
         var x = GameImporter.RequiredFiles(GameTitle.X).ToList();
         Assert.Equal(9 + 8, x.Count); // one fewer than Generation 7: it keeps the shops in code.bin
         Assert.Contains("a/2/1/7", x);

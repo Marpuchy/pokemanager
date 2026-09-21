@@ -117,6 +117,13 @@ public static class PkhexImages
     private static readonly int[] CrystalIds =
         [776, 782, 785, 783, 784, 788, 787, 789, 792, 777, 778, 780, 779, 786, 781, 790, 791, 793];
 
+    /// <summary>
+    /// Where a type's crystal sits in the game's own icons, which are the items 776-793 **in Pokédex order** — not the
+    /// game's type order, which is what every type in this application is. Indexing those icons with a type gave the
+    /// wrong crystal (Melemele's Fighting trial showed the Firium Z).
+    /// </summary>
+    public static int CrystalIcon(int type) => CrystalIds[Math.Clamp(type, 0, CrystalIds.Length - 1)] - CrystalIds[0];
+
     /// <summary>Whether PKHeX has a real icon for the item (it has none for the Gen 6/7 key items).</summary>
     public static bool HasItemIcon(int item, bool isTm = false) => item > 0 && (isTm || Load($"items/bitem_{Piece(item)}.png") is not null);
 

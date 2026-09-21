@@ -21,12 +21,13 @@ public partial class SaveTrainerViewModel : ObservableObject
 
     /// <param name="crystals">Generation 7: the game's Z-crystal icons by type, for the trials that have no seal.</param>
     public SaveTrainerViewModel(SaveEditorViewModel owner, SaveDocument doc, SaveNames names, GameTitle game, IconImage?[]? milestoneImages,
-        IconImage?[]? crystals, AvatarViewModel avatar)
+        IconImage?[]? crystals, AvatarViewModel avatar, IconImage? portrait = null)
     {
         this.owner = owner;
         this.doc = doc;
         this.game = game;
         Avatar = avatar;
+        this.portrait = portrait;
         var milestones = game.Milestones();
         VivillonPatterns = names.VivillonPatterns;
         Badges = Enumerable.Range(0, Math.Min(doc.MilestoneCount, milestones.Count))
@@ -44,13 +45,24 @@ public partial class SaveTrainerViewModel : ObservableObject
     /// <summary>The save editor refreshes the trainer card with every change (<see cref="RefreshCard"/>).</summary>
     /// <summary>The game's crystal for a type, when the ROM had the item icons.</summary>
     private static IconImage? Crystal(IconImage?[]? crystals, int type) =>
-        crystals is not null && (uint)type < crystals.Length ? crystals[type] : null;
+        crystals is not null && (uint)PkhexImages.CrystalIcon(type) < crystals.Length ? crystals[PkhexImages.CrystalIcon(type)] : null;
 
     private void Changed() => owner.Touch();
 
     // ------------------------------------------------------------------ trainer card (read only, follows the edits)
 
     public AvatarViewModel Avatar { get; }
+
+    private readonly IconImage? portrait;
+
+    /// <summary>
+    /// The picture the game itself shows for this trainer: the portrait of the look picked when the adventure started
+    /// (<see cref="TrainerPortraits"/>). The profile's avatar — which is the player's own, not the game's — is only used
+    /// when the game has none.
+    /// </summary>
+    public Avalonia.Media.IImage? Portrait => field ??= portrait is null ? null : PokemonSprites.ToBitmap(portrait);
+
+    public bool HasPortrait => Portrait is not null;
 
     public string CardGame => game.DisplayName();
 

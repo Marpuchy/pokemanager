@@ -3723,4 +3723,13 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Locke_SpinAgainReady" xml:space="preserve">
     <value>Spin forgotten: the wheel can be rolled again.</value>
   </data>
+  <data name="Locke_BadgeSpinAnyway" xml:space="preserve">
+    <value>{0}: no roulette falls on it, but you can spin it anyway.</value>
+  </data>
+  <data name="Bag_Search" xml:space="preserve">
+    <value>Search item…</value>
+  </data>
+  <data name="Tip_BagSearch" xml:space="preserve">
+    <value>Narrows the list below to the items whose name contains what you type, without accents or case.</value>
+  </data>
 </root>

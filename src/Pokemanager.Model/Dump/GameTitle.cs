@@ -72,7 +72,15 @@ public sealed record GameLayout(
     int StoryText = 0,
     int StarterTextFile = -1,
     string Experience = "",
-    string Wild = "");
+    string Wild = "",
+    string[]? PortraitArchives = null)
+{
+    /// <summary>
+    /// Where the player's own portraits are: the screen that asks how the trainer looks (<c>HeroSelect</c>). Several
+    /// candidates can be listed; the first one that has them is used, and a game without any simply shows none.
+    /// </summary>
+    public string[] Portraits => PortraitArchives ?? [];
+}
 
 /// <summary>
 /// Images of badges or trials inside a layout archive (darc in Gen 6, SARC inside ALYT in Gen 7), matched by file name; an
@@ -161,12 +169,12 @@ public static class GameTitleExtensions
             Milestones: TrialStamps("a/2/3/8", "a/2/3/9", "a/2/4/0", "a/2/4/1", "a/2/4/2"), FileCount: 311,
             TrainerData: "a/1/0/5", TrainerPokemon: "a/1/0/6", Items: "a/0/1/9", MegaEvolutions: "a/0/1/5",
             Statics: "a/1/5/5", StoryText: 40, StarterTextFile: 41, Experience: "a/0/1/6",
-            Wild: title == GameTitle.Moon ? "a/0/8/3" : "a/0/8/2"),
+            Wild: title == GameTitle.Moon ? "a/0/8/3" : "a/0/8/2", PortraitArchives: ["a/1/6/2"]),
         _ => new GameLayout("a/0/1/7", "a/0/1/1", "a/0/1/3", "a/0/1/4", 30, 10, MovesPacked: true, SpeciesCount: 808,
             Icons: ["a/0/6/2"], ItemIcons: ["a/0/6/1"], Milestones: TrialStamps("a/2/4/2", "a/2/9/6", "a/2/9/7"), FileCount: 333,
             TrainerData: "a/1/0/6", TrainerPokemon: "a/1/0/7", Items: "a/0/1/9", MegaEvolutions: "a/0/1/5",
             Statics: "a/1/5/9", StoryText: 40, StarterTextFile: 39, Experience: "a/0/1/6",
-            Wild: title == GameTitle.UltraMoon ? "a/0/8/3" : "a/0/8/2"),
+            Wild: title == GameTitle.UltraMoon ? "a/0/8/3" : "a/0/8/2", PortraitArchives: ["a/1/6/2"]),
     };
 
     /// <summary>Gen 6 trainer card: <c>badge_01.bclim</c> … <c>badge_08.bclim</c> in a darc.</summary>

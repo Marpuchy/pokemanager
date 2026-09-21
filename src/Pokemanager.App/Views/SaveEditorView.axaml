@@ -535,8 +535,11 @@
                     <TextBlock Margin="14,12,14,4" FontSize="13" LineHeight="20" TextWrapping="Wrap" Text="{Binding SelectedItem.Description}" />
                     <Grid ColumnDefinitions="90,*" RowDefinitions="Auto,Auto,Auto" Margin="14,8,14,14">
                       <TextBlock Classes="row-label" Text="{x:Static r:Strings.Bag_Item}" />
-                      <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_BagItemPick}" Grid.Column="1" Margin="0,2" ItemsSource="{Binding SelectedItem.Pocket.ItemNames}" SelectedIndex="{Binding SelectedItem.ItemIndex}"
-                                HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
+                      <StackPanel Grid.Column="1" Margin="0,2" Spacing="3">
+                        <TextBox Text="{Binding ItemSearch}" Watermark="{x:Static r:Strings.Bag_Search}" ToolTip.Tip="{x:Static r:Strings.Tip_BagSearch}" />
+                        <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_BagItemPick}" ItemsSource="{Binding ItemChoices}" SelectedItem="{Binding SelectedChoice}"
+                                  HorizontalAlignment="Stretch" MaxDropDownHeight="420" />
+                      </StackPanel>
                       <TextBlock Grid.Row="1" Classes="row-label" Text="{x:Static r:Strings.Bag_Count}" />
                       <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_BagCount}" Grid.Row="1" Grid.Column="1" Margin="0,2" Value="{Binding SelectedItem.Count}" Minimum="1" Maximum="{Binding SelectedItem.MaxCount}"
                                      Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="130" HorizontalAlignment="Left" />
@@ -653,7 +656,9 @@
                       <Border Grid.Column="2" Width="150" Height="150" Background="#33FFFFFF" CornerRadius="6" BorderBrush="#60FFFFFF" BorderThickness="2" VerticalAlignment="Top">
                         <Panel>
                           <Ellipse Width="128" Height="128" Fill="#26FFFFFF" />
-                          <ContentControl Content="{Binding Avatar}" Width="120" Height="120" />
+                          <!-- The game's own portrait when the ROM has it; the profile avatar otherwise -->
+                          <Image Source="{Binding Portrait}" Width="132" Height="132" IsVisible="{Binding HasPortrait}" />
+                          <ContentControl Content="{Binding Avatar}" Width="120" Height="120" IsVisible="{Binding !HasPortrait}" />
                         </Panel>
                       </Border>
                     </Grid>

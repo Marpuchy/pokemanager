@@ -204,6 +204,9 @@ public static class GameImporter
         yield return layout.Items;
         yield return layout.MegaEvolutions;
         yield return layout.Experience;
+        // The player's own portraits, from the screen that asks how the trainer looks.
+        foreach (string portraits in layout.Portraits)
+            yield return portraits;
         // Generation 7: the fixed Pokémon, which is where the starters are.
         if (layout.Statics.Length > 0)
             yield return layout.Statics;

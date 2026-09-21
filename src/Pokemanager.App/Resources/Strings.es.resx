@@ -3723,4 +3723,13 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Locke_SpinAgainReady" xml:space="preserve">
     <value>Tirada olvidada: se puede volver a girar.</value>
   </data>
+  <data name="Locke_BadgeSpinAnyway" xml:space="preserve">
+    <value>{0}: no le toca ruleta, pero puedes girarla igualmente.</value>
+  </data>
+  <data name="Bag_Search" xml:space="preserve">
+    <value>Buscar objeto…</value>
+  </data>
+  <data name="Tip_BagSearch" xml:space="preserve">
+    <value>Deja en la lista de abajo los objetos cuyo nombre contiene lo que escribes, sin tildes ni mayúsculas.</value>
+  </data>
 </root>

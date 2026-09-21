@@ -129,6 +129,12 @@ public sealed class SaveDocument
     }
 
     /// <summary>0 = male, 1 = female.</summary>
+    /// <summary>
+    /// The look the player chose when the adventure started (0-3 in Generation 7, <c>DressUpSkinColor</c>); 0 in
+    /// Generation 6, which this application does not read it from.
+    /// </summary>
+    public int TrainerLook => Gen7?.MyStatus.DressUpSkinColor ?? 0;
+
     public int TrainerGender
     {
         get => sav.Gender;
