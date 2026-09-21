@@ -161,7 +161,7 @@ public static class GameTables
         public JsonNode Get(GameData data, int id, string field)
         {
             Check(field);
-            var l = data.Learnsets[id];
+            var l = Entry(data, id);
             return new JsonArray(Enumerable.Range(0, l.Moves.Length)
                 .Select(i => (JsonNode)new JsonArray(l.Levels[i], l.Moves[i]))
                 .ToArray());
@@ -174,7 +174,7 @@ public static class GameTables
                 .Select(p => (Level: p![0]!.GetValue<int>(), Move: p[1]!.GetValue<int>()))
                 .OrderBy(p => p.Level) // stable: keeps the order of moves learned at the same level
                 .ToArray();
-            var l = data.Learnsets[id];
+            var l = Entry(data, id);
             l.Levels = pairs.Select(p => p.Level).ToArray();
             l.Moves = pairs.Select(p => p.Move).ToArray();
             l.Count = pairs.Length;
@@ -184,6 +184,14 @@ public static class GameTables
         {
             if (field != LevelUp)
                 throw new ArgumentException(string.Format(Strings.Tables_UnknownField, Learnsets, field), nameof(field));
+        }
+
+        /// <summary>A file from a game with more Pokémon reaches past this table: that is an id out of range, not a crash.</summary>
+        private static Learnset6 Entry(GameData data, int id)
+        {
+            if ((uint)id >= data.Learnsets.Length)
+                throw new ArgumentOutOfRangeException(nameof(id), id, string.Format(Strings.Tables_OutOfRange, Learnsets, data.Learnsets.Length));
+            return data.Learnsets[id];
         }
     }
 

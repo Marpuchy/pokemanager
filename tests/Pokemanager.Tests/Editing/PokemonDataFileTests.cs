@@ -45,6 +45,37 @@ public sealed class PokemonDataFileTests : IDisposable
         Assert.Equal("[[1,2],[7,3]]", target.Get(GameTables.Learnsets, 1, GameTables.LevelUp).ToJsonString());
     }
 
+    /// <summary>
+    /// A file from a bigger game (Ultra Sun into Pokémon X): entries this game does not have and values it cannot look
+    /// up are skipped and reported, and what does fit is applied. It used to take the application down.
+    /// </summary>
+    [Fact]
+    public void DataFromABiggerGame_SkipsWhatThisGameDoesNotHave()
+    {
+        var file = new PokemonDataFile { Scope = PokemonDataScope.Edits, Kind = PokemonDataKind.All, Game = GameTitle.UltraSun };
+        file.Add(GameTables.Personal, 1, "hp", JsonValue.Create(150));                      // fits
+        file.Add(GameTables.Personal, 800, "hp", JsonValue.Create(80));                     // no such species here
+        file.Add(GameTables.Learnsets, 900, GameTables.LevelUp, JsonNode.Parse("[[1,2]]")!); // no such learnset here
+        file.Add(GameTables.Personal, 2, "ability1", JsonValue.Create(220));                // no such ability here
+        file.Add(GameTables.Personal, 2, "type1", JsonValue.Create(40));                    // no such type
+        file.Add(GameTables.Learnsets, 1, GameTables.LevelUp, JsonNode.Parse("[[1,2],[5,700]]")!); // move 700 does not exist
+        file.Add(GameTables.Moves, 3, "power", JsonValue.Create(90));                       // fits
+        file.Add(GameTables.Moves, 700, "power", JsonValue.Create(90));                     // no such move here
+
+        var target = NewSession();
+        var result = file.ApplyTo(target, GameTitle.X, replaceEdits: false);
+
+        Assert.Equal(2, result.Applied);
+        Assert.Equal(6, result.Skipped.Count);
+        Assert.True(result.OtherGame);
+        Assert.Equal(150, target.GetInt(GameTables.Personal, 1, "hp"));
+        Assert.Equal(90, target.GetInt(GameTables.Moves, 3, "power"));
+        // Nothing of what was skipped was written: the ability and the learnset are the ROM's.
+        Assert.Equal(target.GetOriginal(GameTables.Personal, 2, "ability1").GetValue<int>(), target.GetInt(GameTables.Personal, 2, "ability1"));
+        Assert.Equal(target.GetOriginal(GameTables.Learnsets, 1, GameTables.LevelUp).ToJsonString(),
+            target.Get(GameTables.Learnsets, 1, GameTables.LevelUp).ToJsonString());
+    }
+
     [Fact]
     public void AllData_OnlyDifferencesFromTheBaseBecomeEdits()
     {

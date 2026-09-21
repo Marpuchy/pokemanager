@@ -1058,6 +1058,7 @@ public partial class EditorViewModel : ObservableObject
         var result = file.ApplyTo(Session, Dump.Title, replace.IsChecked);
         LoadLists(); // subscribes again and refreshes every list entry
         MarkDirty();
+        RefreshEditCounts();
         History.Refresh();
         SetStatus(string.Format(Strings.Data_Imported, result.Applied, result.SameAsBase, result.Skipped.Count)
                   + (result.Skipped.Count > 0 ? " " + result.Skipped[0] : ""), error: result.Skipped.Count > 0 && result.Applied == 0);

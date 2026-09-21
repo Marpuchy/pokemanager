@@ -1,4 +1,4 @@
-using System.Text.Json.Nodes;
+﻿using System.Text.Json.Nodes;
 using Pokemanager.Model.Data;
 using Pokemanager.Model.Edits;
 using Pokemanager.Model.Projects;
@@ -56,7 +56,8 @@ public sealed class EditorSession
             {
                 def.Set(session.Current, edit.Id, edit.Field, edit.Value);
             }
-            catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or FormatException)
+            catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or FormatException
+                                           or NullReferenceException or IndexOutOfRangeException or KeyNotFoundException)
             {
                 errors.Add($"{edit.Table}[{edit.Id}].{edit.Field}: {ex.Message}");
                 continue;

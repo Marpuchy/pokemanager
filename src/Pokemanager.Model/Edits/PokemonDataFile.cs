@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Nodes;
 using Pokemanager.Model.Dump;
 using Pokemanager.Model.Editing;
@@ -145,19 +145,32 @@ public sealed class PokemonDataFile
 
         int applied = 0, same = 0;
         var skipped = new List<string>();
+        var limits = DataLimits.Of(session.Original);
         foreach (var (table, id, field, value) in Values())
         {
             try
             {
+                // A file from another game names things this one does not have (Ultra Sun's Pokémon in Pokémon X, a
+                // move or an ability that does not exist here). Those are skipped, not written as a number the game
+                // cannot look up.
+                if (!limits.Accepts(table, field, value, out string reason))
+                {
+                    skipped.Add($"{table}[{id}].{field}: {reason}");
+                    continue;
+                }
+
                 session.Set(table, id, field, value);
                 if (session.IsModified(table, id, field))
                     applied++;
                 else
                     same++;
             }
-            catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or FormatException or NullReferenceException)
+            catch (Exception ex) when (ex is ArgumentException or InvalidOperationException or FormatException
+                                           or NullReferenceException or IndexOutOfRangeException or KeyNotFoundException
+                                           or OverflowException or JsonException)
             {
-                skipped.Add($"{table}[{id}].{field}: {ex.Message}");
+                // One line: the report is shown in the status bar, and an out-of-range message carries a second line.
+                skipped.Add($"{table}[{id}].{field}: {ex.Message.ReplaceLineEndings(" ")}");
             }
         }
         return new PokemonDataImport(applied, same, skipped, Game is { } g && g != game);
