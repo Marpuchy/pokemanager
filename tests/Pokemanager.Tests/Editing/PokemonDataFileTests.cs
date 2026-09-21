@@ -1,4 +1,4 @@
-using System.Text.Json.Nodes;
+﻿using System.Text.Json.Nodes;
 using Pokemanager.Model.Dump;
 using Pokemanager.Model.Editing;
 using Pokemanager.Model.Edits;
@@ -58,22 +58,23 @@ public sealed class PokemonDataFileTests : IDisposable
         file.Add(GameTables.Learnsets, 900, GameTables.LevelUp, JsonNode.Parse("[[1,2]]")!); // no such learnset here
         file.Add(GameTables.Personal, 2, "ability1", JsonValue.Create(220));                // no such ability here
         file.Add(GameTables.Personal, 2, "type1", JsonValue.Create(40));                    // no such type
-        file.Add(GameTables.Learnsets, 1, GameTables.LevelUp, JsonNode.Parse("[[1,2],[5,700]]")!); // move 700 does not exist
+        file.Add(GameTables.Learnsets, 1, GameTables.LevelUp, JsonNode.Parse("[[1,2],[5,700]]")!); // move 700 does not exist: left out
         file.Add(GameTables.Moves, 3, "power", JsonValue.Create(90));                       // fits
         file.Add(GameTables.Moves, 700, "power", JsonValue.Create(90));                     // no such move here
 
         var target = NewSession();
         var result = file.ApplyTo(target, GameTitle.X, replaceEdits: false);
 
-        Assert.Equal(2, result.Applied);
-        Assert.Equal(6, result.Skipped.Count);
+        Assert.Equal(3, result.Applied);
+        Assert.Equal(5, result.Skipped.Count);
+        Assert.Equal(1, result.Adjusted);
         Assert.True(result.OtherGame);
         Assert.Equal(150, target.GetInt(GameTables.Personal, 1, "hp"));
         Assert.Equal(90, target.GetInt(GameTables.Moves, 3, "power"));
-        // Nothing of what was skipped was written: the ability and the learnset are the ROM's.
+        // The learnset keeps the move this game has and loses the one it does not.
+        Assert.Equal("[[1,2]]", target.Get(GameTables.Learnsets, 1, GameTables.LevelUp).ToJsonString());
+        // Nothing of what was skipped was written: the ability is still the ROM's.
         Assert.Equal(target.GetOriginal(GameTables.Personal, 2, "ability1").GetValue<int>(), target.GetInt(GameTables.Personal, 2, "ability1"));
-        Assert.Equal(target.GetOriginal(GameTables.Learnsets, 1, GameTables.LevelUp).ToJsonString(),
-            target.Get(GameTables.Learnsets, 1, GameTables.LevelUp).ToJsonString());
     }
 
     /// <summary>

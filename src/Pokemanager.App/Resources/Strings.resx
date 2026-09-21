@@ -815,7 +815,7 @@ Values equal to this project's base are not stored as changes. The current state
     <value>Import</value>
   </data>
   <data name="Data_Imported" xml:space="preserve">
-    <value>Imported. Now different from the base: {0} · already equal: {1} · skipped: {2}. Build the ROM to play with them.</value>
+    <value>Imported. Different from the base: {0} · already equal: {1} · skipped: {2} · adapted: {3}. Build the ROM to play with them.</value>
   </data>
   <data name="Dex_AllSeen" xml:space="preserve">
     <value>Mark all seen</value>

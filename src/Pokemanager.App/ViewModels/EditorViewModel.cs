@@ -1075,7 +1075,7 @@ public partial class EditorViewModel : ObservableObject
         MarkDirty();
         RefreshEditCounts();
         History.Refresh();
-        SetStatus(string.Format(Strings.Data_Imported, result.Applied, result.SameAsBase, result.Skipped.Count)
+        SetStatus(string.Format(Strings.Data_Imported, result.Applied, result.SameAsBase, result.Skipped.Count, result.Adjusted)
                   + (result.Skipped.Count > 0 ? " " + result.Skipped[0] : ""), error: result.Skipped.Count > 0 && result.Applied == 0);
     }
 

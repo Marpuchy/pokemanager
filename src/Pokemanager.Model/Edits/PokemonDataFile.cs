@@ -37,7 +37,8 @@ public enum PokemonDataKind
 /// <param name="Applied">Values that now differ from the base and are stored as edits.</param>
 /// <param name="SameAsBase">Values equal to the base, so no edit was needed.</param>
 /// <param name="Skipped">Values that do not fit this game's tables (unknown field, id out of range…).</param>
-public sealed record PokemonDataImport(int Applied, int SameAsBase, IReadOnlyList<string> Skipped, bool OtherGame);
+/// <param name="Adjusted">Values applied with something left out: a learnset without the moves this game lacks.</param>
+public sealed record PokemonDataImport(int Applied, int SameAsBase, IReadOnlyList<string> Skipped, bool OtherGame, int Adjusted = 0);
 
 /// <summary>
 /// Shareable file with Pokémon data (base stats, types, abilities, learnsets, moves…), the counterpart of a UPR
@@ -165,7 +166,7 @@ public sealed class PokemonDataFile
             session.RevertAll(table => tables.Contains(table));
         }
 
-        int applied = 0, same = 0;
+        int applied = 0, same = 0, adjusted = 0;
         var skipped = new List<string>();
         var limits = DataLimits.Of(session.Original);
         var index = PersonalIndex.Of(session.Original);
@@ -190,16 +191,24 @@ public sealed class PokemonDataFile
                     continue;
                 }
 
+                // A learnset keeps the moves this game has and loses the ones it does not, instead of being dropped whole.
+                JsonNode wanted = value;
+                if (table == GameTables.Learnsets && limits.TrimLearnset(value, out var trimmed) is > 0)
+                {
+                    wanted = trimmed;
+                    adjusted++;
+                }
+
                 // A file from another game names things this one does not have (Ultra Sun's Pokémon in Pokémon X, a
                 // move or an ability that does not exist here). Those are skipped, not written as a number the game
                 // cannot look up.
-                if (!limits.Accepts(table, field, value, out string reason))
+                if (!limits.Accepts(table, field, wanted, out string reason))
                 {
                     skipped.Add($"{table}[{id}].{field}: {reason}");
                     continue;
                 }
 
-                session.Set(table, target, field, value);
+                session.Set(table, target, field, wanted);
                 if (session.IsModified(table, target, field))
                     applied++;
                 else
@@ -213,7 +222,7 @@ public sealed class PokemonDataFile
                 skipped.Add($"{table}[{id}].{field}: {ex.Message.ReplaceLineEndings(" ")}");
             }
         }
-        return new PokemonDataImport(applied, same, skipped, Game is { } g && g != game);
+        return new PokemonDataImport(applied, same, skipped, Game is { } g && g != game, adjusted);
     }
 
     /// <summary>

@@ -1,4 +1,4 @@
-using System.Text.Json.Nodes;
+﻿using System.Text.Json.Nodes;
 using Pokemanager.Model.Data;
 using Pokemanager.Model.Dump;
 
@@ -75,6 +75,29 @@ public sealed record DataLimits(int Species, int Moves, int Items, int Abilities
 
     /// <summary>The last id of a table. A table this game folder does not carry sets no limit: nothing is skipped by it.</summary>
     private static int Last(int count) => count > 0 ? count - 1 : int.MaxValue;
+
+    /// <summary>
+    /// A level-up list without the moves this game does not have. Dropping the whole list for one move would leave that
+    /// Pokémon with the learnset of the ROM instead of the one being imported, so only the missing moves go.
+    /// </summary>
+    /// <returns>How many moves were left out.</returns>
+    public int TrimLearnset(JsonNode value, out JsonNode trimmed)
+    {
+        var kept = new JsonArray();
+        int dropped = 0;
+        foreach (var pair in value as JsonArray ?? [])
+        {
+            if (pair is not JsonArray { Count: 2 } p || p[0] is null || p[1] is null)
+                continue;
+            int level = p[0]!.GetValue<int>(), move = p[1]!.GetValue<int>();
+            if (move > Moves || move < 0)
+                dropped++;
+            else
+                kept.Add(new JsonArray(level, move));
+        }
+        trimmed = kept;
+        return dropped;
+    }
 
     private static bool Fits(int value, int max, string what, out string reason)
     {
