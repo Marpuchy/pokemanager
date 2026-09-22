@@ -3919,6 +3919,21 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
     <value>{0} save: the game has not saved this adventure yet. Save once in game and it will be adapted.</value>
   </data>
   <data name="Change_ExperienceTrimmed" xml:space="preserve">
-    <value>stays at level {0} (it had banked enough for {1})</value>
+    <value>comes back to level {0} (it was at {1})</value>
+  </data>
+  <data name="LevelCap_TrimEnable" xml:space="preserve">
+    <value>Bring levels past the cap back when the emulator closes</value>
+  </data>
+  <data name="Tip_LevelCapTrim" xml:space="preserve">
+    <value>A Rare Candy ignores the level cap: it writes the next level's experience straight in, so the cap can be walked past by accident. With this on, as soon as the emulator is closed anything over the cap goes back to it — with a backup and a history version, like every other change to the save. A Pokémon obtained above the cap (caught, a gift, a trade) keeps the level it was obtained at: the cap holds back training, it does not shrink what the game handed you.</value>
+  </data>
+  <data name="LevelCap_Trimmed" xml:space="preserve">
+    <value>Emulator closed: {0} Pokémon that were past the level cap are back at {1}.</value>
+  </data>
+  <data name="LevelCap_TrimHeldBack" xml:space="preserve">
+    <value>There are unwritten changes in the save editor, so the levels past the cap were left alone. Write or undo them and close the emulator again.</value>
+  </data>
+  <data name="LevelCap_TrimNeedsBuild" xml:space="preserve">
+    <value>Levels past the level cap were left alone: the project has changes the ROM does not have yet. Build the ROM and close the emulator again.</value>
   </data>
 </root>

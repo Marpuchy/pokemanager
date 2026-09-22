@@ -20,27 +20,35 @@ public static class ExperienceLevels
     }
 
     /// <summary>
-    /// Drops the experience a Pokémon banked while the cap held it. The cap is a table, not a rule: the game goes on
-    /// adding what each battle gives, it simply never finds the next level — so a Pokémon kept at the cap can be
-    /// carrying several levels' worth of experience. When the cap is lifted, the ROM gives those levels their ordinary
-    /// values back and all of it would be cashed in at once, which is exactly what the cap was for.
+    /// Brings back to the cap anything that got past it. Two ways lead there and the cap is meant to hold both:
+    /// a Pokémon held at the cap **goes on earning experience** in battle (the cap is a table, not a rule: the game
+    /// adds what each battle gives and simply never finds the next level), so it can be carrying several levels that
+    /// would all be cashed in the moment the cap lifts; and a **Rare Candy ignores the cap** altogether, because it
+    /// writes the next level's value straight in.
     /// </summary>
     /// <param name="playedCap">The cap of the ROM the save has been played on; null when it had none.</param>
-    /// <returns>The level it keeps and the level that experience would have bought, when it had to change.</returns>
-    public static (int Level, int Banked)? Trim(PKM pk, byte growth, int? playedCap)
+    /// <returns>The level it keeps and the level it was at, when it had to change.</returns>
+    /// <remarks>
+    /// The floor is the cap **or the level the Pokémon was obtained at**, whichever is higher: the cap holds back
+    /// training, it does not shrink what the game handed the player. A wild Pokémon caught at 30 under a cap of 18
+    /// stays at 30 (and a candy on it is still undone, 31 → 30); without that floor the pass would destroy it.
+    /// </remarks>
+    public static (int Level, int Was)? Trim(PKM pk, byte growth, int? playedCap)
     {
         if (playedCap is not { } cap)
             return null;
-        // A level the cap coded has nothing banked in it: the code is not an amount.
-        if (ExperienceTable.LevelOfCapped(pk.EXP) is not null || ExperienceTable.IsPrototype(pk.EXP))
-            return null;
+        if (ExperienceTable.IsPrototype(pk.EXP))
+            return null; // the first prototype's values do not say their level: nothing can be decided here
 
-        int banked = Experience.GetLevel(pk.EXP, growth);
-        if (banked <= cap)
+        int level = LevelOf(pk, growth);
+        int floor = Math.Max(cap, pk.MetLevel);
+        if (level <= floor)
             return null; // under the cap the progress within the level is the player's, and it is kept
 
-        pk.EXP = Experience.GetEXP((byte)cap, growth);
-        return (cap, banked);
+        // Above the cap the game's own table holds coded values, so that is what a level above it has to be written as.
+        pk.EXP = floor > cap ? ExperienceTable.CappedExperience(floor) : Experience.GetEXP((byte)floor, growth);
+        pk.Stat_Level = (byte)floor; // the party shows this one, and the stats are recalculated from the level
+        return (floor, level);
     }
 
     /// <summary>

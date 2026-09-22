@@ -22,8 +22,8 @@ public enum ChangeKind
     Experience,
 
     /// <summary>
-    /// The experience banked while the old cap held the Pokémon was dropped: Before holds the level it would have
-    /// jumped to when the cap lifted, After the level it keeps.
+    /// It had got past the level cap — by a Rare Candy, or by the experience it banked while the cap held it — and was
+    /// brought back: Before holds the level it was at, After the level it keeps.
     /// </summary>
     ExperienceTrimmed,
 }
@@ -166,7 +166,7 @@ public static class SaveUpdater
         // First what the old cap banked, then the shape the new ROM needs: trimming leaves an exact level behind.
         if (ExperienceLevels.Trim(pk, (byte)personal.EXPGrowth, playedCap) is { } trimmed)
         {
-            changes.Add(new PokemonChange(slot, pk.Species, ChangeKind.ExperienceTrimmed, [trimmed.Banked], [trimmed.Level]));
+            changes.Add(new PokemonChange(slot, pk.Species, ChangeKind.ExperienceTrimmed, [trimmed.Was], [trimmed.Level]));
             changed = true;
         }
         if (ExperienceLevels.Fit(pk, (byte)personal.EXPGrowth, levelCap) is { } fitted)

@@ -9,7 +9,8 @@ public class ExperienceLevelsTests
 {
     private const byte MediumSlow = 3;
 
-    private static PK7 Mon(uint exp, byte storedLevel = 0) => new() { Species = 498, EXP = exp, Stat_Level = storedLevel };
+    private static PK7 Mon(uint exp, byte storedLevel = 0, byte metLevel = 0) =>
+        new() { Species = 498, EXP = exp, Stat_Level = storedLevel, MetLevel = metLevel };
 
     [Fact]
     public void LevelOf_ReadsTheCodedLevels()
@@ -66,10 +67,46 @@ public class ExperienceLevelsTests
         var grown = Mon(Experience.GetEXP(40, MediumSlow));
         Assert.Null(ExperienceLevels.Trim(grown, MediumSlow, playedCap: null));
 
-        // A level the cap coded is not an amount: a Rare Candy took it over the cap and it keeps its level.
-        var candied = Mon(ExperienceTable.CappedExperience(20) + 900);
-        Assert.Null(ExperienceLevels.Trim(candied, MediumSlow, playedCap: 18));
+        // Right at the cap there is nothing over it.
+        var atTheCap = Mon(Experience.GetEXP(18, MediumSlow) + 300);
+        Assert.Null(ExperienceLevels.Trim(atTheCap, MediumSlow, playedCap: 18));
+    }
+
+    /// <summary>
+    /// A Rare Candy ignores the cap: it writes the next level's value straight in, so the cap can be walked past by
+    /// accident. That is the one thing the cap cannot stop by itself, and it is what this pass is for.
+    /// </summary>
+    [Fact]
+    public void Trim_UndoesARareCandyTakenPastTheCap()
+    {
+        var candied = Mon(ExperienceTable.CappedExperience(20) + 900, storedLevel: 20, metLevel: 5);
         Assert.Equal(20, ExperienceLevels.LevelOf(candied, MediumSlow));
+
+        Assert.Equal((18, 20), ExperienceLevels.Trim(candied, MediumSlow, playedCap: 18));
+
+        Assert.Equal(Experience.GetEXP(18, MediumSlow), candied.EXP);
+        Assert.Equal(18, ExperienceLevels.LevelOf(candied, MediumSlow));
+        Assert.Equal(18, candied.Stat_Level); // the party shows this one
+        Assert.Null(ExperienceLevels.Trim(candied, MediumSlow, playedCap: 18));
+    }
+
+    /// <summary>
+    /// The cap holds back training, it does not shrink what the game handed the player: a Pokémon caught or received
+    /// above the cap keeps the level it came with. Without that floor this pass would destroy it.
+    /// </summary>
+    [Fact]
+    public void Trim_KeepsWhatWasObtainedAboveTheCap_ButStillUndoesACandyOnIt()
+    {
+        var caught = Mon(ExperienceTable.CappedExperience(30), storedLevel: 30, metLevel: 30);
+
+        Assert.Null(ExperienceLevels.Trim(caught, MediumSlow, playedCap: 18));
+        Assert.Equal(30, ExperienceLevels.LevelOf(caught, MediumSlow));
+
+        caught.EXP = ExperienceTable.CappedExperience(31); // a Rare Candy
+        Assert.Equal((30, 31), ExperienceLevels.Trim(caught, MediumSlow, playedCap: 18));
+        // Above the cap the game's table holds coded values, so that is what it has to be written as.
+        Assert.Equal(ExperienceTable.CappedExperience(30), caught.EXP);
+        Assert.Equal(30, ExperienceLevels.LevelOf(caught, MediumSlow));
     }
 
     [Fact]

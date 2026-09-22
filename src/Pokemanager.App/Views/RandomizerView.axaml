@@ -308,6 +308,8 @@
                       <TextBlock Classes="card-title" Text="{x:Static r:Strings.LevelCap_Title}" />
                       <CheckBox IsChecked="{Binding Enabled}" IsEnabled="{Binding Supported}" ToolTip.Tip="{Binding EnabledTip}"
                                 Content="{x:Static r:Strings.LevelCap_Enable}" />
+                      <CheckBox IsChecked="{Binding TrimOverCap}" IsVisible="{Binding Enabled}" ToolTip.Tip="{x:Static r:Strings.Tip_LevelCapTrim}"
+                                Content="{x:Static r:Strings.LevelCap_TrimEnable}" />
                       <TextBlock Text="{Binding CurrentText}" FontWeight="SemiBold" TextWrapping="Wrap" />
                       <ItemsControl ItemsSource="{Binding Steps}" IsVisible="{Binding Enabled}">
                         <ItemsControl.ItemTemplate>

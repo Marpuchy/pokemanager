@@ -49,6 +49,16 @@ public sealed class GameSettings
     /// </summary>
     public int? InstalledLevelCap { get; set; }
 
+    /// <summary>
+    /// Bring back to the cap whatever got past it, when the emulator is closed. A Rare Candy ignores the cap — it
+    /// writes the next level's value straight in — so without this the cap can be walked past by accident. Null means
+    /// on, so a project made before this option follows the cap.
+    /// </summary>
+    public bool? TrimOverCap { get; set; }
+
+    /// <summary>Whether the levels past the cap are brought back (<see cref="TrimOverCap"/>, on unless it is off).</summary>
+    public bool TrimsOverCap => TrimOverCap ?? true;
+
     /// <summary>Whether anything at all has to be done at build time.</summary>
     public bool IsEmpty => !AlwaysShiny && LevelCap is null && !HasLevelChanges;
 
@@ -57,6 +67,7 @@ public sealed class GameSettings
         AlwaysShiny = AlwaysShiny,
         LevelCap = LevelCap,
         InstalledLevelCap = InstalledLevelCap,
+        TrimOverCap = TrimOverCap,
         LevelCapByMilestones = LevelCapByMilestones,
         LevelCapOverrides = new(LevelCapOverrides),
         TrainerLevelPercent = TrainerLevelPercent,

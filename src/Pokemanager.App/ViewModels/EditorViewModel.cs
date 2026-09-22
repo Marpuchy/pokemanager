@@ -769,6 +769,7 @@ public partial class EditorViewModel : ObservableObject
             romDirty = false;
             RefreshRomNotice();
             SaveEditor.OnRomChanged();
+            LevelCap.Refresh(); // the plan follows the levels just built, and the ROM now has a cap to watch for
 
             string what = random is null ? Strings.Status_NotRandomized : string.Format(Strings.Status_Seed, random.Seed);
             string mods = removedMods > 0 ? string.Format(Strings.Status_ModsRemoved, removedMods) : "";
@@ -830,7 +831,7 @@ public partial class EditorViewModel : ObservableObject
         return await dialogs.AskAsync(question);
     }
 
-    private void RecordVersion(VersionKind kind, string? romPath)
+    internal void RecordVersion(VersionKind kind, string? romPath)
     {
         try
         {

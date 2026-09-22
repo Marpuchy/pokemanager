@@ -3919,6 +3919,21 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>Save de {0}: el juego aún no ha guardado esta partida. Guarda una vez dentro del juego y se adaptará.</value>
   </data>
   <data name="Change_ExperienceTrimmed" xml:space="preserve">
-    <value>se queda en el nivel {0} (tenía guardada experiencia para el {1})</value>
+    <value>vuelve al nivel {0} (estaba en el {1})</value>
+  </data>
+  <data name="LevelCap_TrimEnable" xml:space="preserve">
+    <value>Al cerrar el emulador, devolver al tope los niveles que se hayan pasado</value>
+  </data>
+  <data name="Tip_LevelCapTrim" xml:space="preserve">
+    <value>Un caramelo raro se salta el tope: escribe directamente la experiencia del nivel siguiente, así que el tope se puede pasar sin querer. Con esto activado, en cuanto cierres el emulador todo lo que esté por encima del tope vuelve a él — con copia de seguridad y versión en el historial, como cualquier otro cambio de la partida. Un Pokémon obtenido por encima del tope (capturado, regalado, intercambiado) se queda en el nivel al que lo obtuviste: el tope frena el entrenamiento, no encoge lo que el juego te dio.</value>
+  </data>
+  <data name="LevelCap_Trimmed" xml:space="preserve">
+    <value>Emulador cerrado: {0} Pokémon que se habían pasado del tope vuelven al nivel {1}.</value>
+  </data>
+  <data name="LevelCap_TrimHeldBack" xml:space="preserve">
+    <value>Hay cambios sin guardar en el editor de partida, así que los niveles pasados del tope se han dejado como estaban. Guárdalos o deshazlos y vuelve a cerrar el emulador.</value>
+  </data>
+  <data name="LevelCap_TrimNeedsBuild" xml:space="preserve">
+    <value>Los niveles pasados del tope se han dejado como estaban: el proyecto tiene cambios que la ROM todavía no tiene. Construye la ROM y vuelve a cerrar el emulador.</value>
   </data>
 </root>
