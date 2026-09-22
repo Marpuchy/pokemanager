@@ -80,7 +80,7 @@ public partial class RandomizerViewModel : ObservableObject
         this.settings = settings;
         Shops = new ShopExtrasViewModel(editor);
         Difficulty = new DifficultyViewModel(editor, editor.Session);
-        Options = new UprOptionsViewModel(editor.MarkDirty, Shops, () => editor.GameTweaks);
+        Options = new UprOptionsViewModel(editor.MarkDirty, Shops, () => editor.GameTweaks, Difficulty);
 
         SeedText = Settings.Seed > 0 ? Settings.Seed.ToString() : UprRunner.NewSeed().ToString();
         OutputName = Settings.OutputName ?? DefaultOutputName();

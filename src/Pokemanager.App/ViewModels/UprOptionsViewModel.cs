@@ -28,6 +28,7 @@ public partial class UprOptionsViewModel : ObservableObject
 
     private readonly ShopExtrasViewModel? shops;
     private readonly Func<GameTweaksViewModel?>? game;
+    private readonly DifficultyViewModel? difficulty;
 
     /// <param name="shops">
     /// Our own shop settings, shown on the item options page. Null in the tests, which only exercise the UPR options.
@@ -35,11 +36,14 @@ public partial class UprOptionsViewModel : ObservableObject
     /// <param name="game">
     /// Our own game options, put on the group each one is about. A function because they are built after this page.
     /// </param>
-    public UprOptionsViewModel(Action markDirty, ShopExtrasViewModel? shops = null, Func<GameTweaksViewModel?>? game = null)
+    /// <param name="difficulty">The difficulty of the run, shown with the trainer options. Null in the tests.</param>
+    public UprOptionsViewModel(Action markDirty, ShopExtrasViewModel? shops = null, Func<GameTweaksViewModel?>? game = null,
+        DifficultyViewModel? difficulty = null)
     {
         this.markDirty = markDirty;
         this.shops = shops;
         this.game = game;
+        this.difficulty = difficulty;
     }
 
     public void Load(UprSettingsDescription description, IReadOnlySet<string> availableTweaks, int generation)
@@ -48,6 +52,7 @@ public partial class UprOptionsViewModel : ObservableObject
         byName.Clear();
         var groups = UprOptionCatalog.Groups.ToDictionary(g => g, g => new UprOptionGroupViewModel(g));
         groups[UprOptionCatalog.Items].Shops = shops;
+        groups[UprOptionCatalog.Trainers].Difficulty = difficulty;
         if (game?.Invoke() is { } tweaks)
         {
             foreach (var group in groups.Values)
@@ -149,6 +154,11 @@ public sealed class UprOptionGroupViewModel(string id)
     public ShopExtrasViewModel? Shops { get; set; }
 
     public bool HasShops => Shops is not null;
+
+    /// <summary>The difficulty of the run, on the group that holds the trainer options.</summary>
+    public DifficultyViewModel? Difficulty { get; set; }
+
+    public bool HasDifficulty => Difficulty is not null;
 
     /// <summary>Our own game options; each group shows the ones about its subject.</summary>
     public GameTweaksViewModel? Game { get; set; }

@@ -109,28 +109,6 @@
             </StackPanel>
           </StackPanel>
           </Border>
-          <!-- Card 4: the difficulty of the run, which writes over the trainers -->
-          <Border Classes="card">
-            <StackPanel Spacing="6" DataContext="{Binding Difficulty}" x:DataType="vm:DifficultyViewModel"
-                        ToolTip.Tip="{x:Static r:Strings.Tip_Difficulty}">
-              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Difficulty_Title}" />
-              <TextBlock Text="{Binding Applied}" FontWeight="SemiBold" TextWrapping="Wrap" />
-              <ListBox ItemsSource="{Binding Levels}" SelectedItem="{Binding Selected}" MaxHeight="230">
-                <ListBox.ItemTemplate>
-                  <DataTemplate x:DataType="vm:DifficultyOptionViewModel">
-                    <StackPanel Spacing="1" Margin="0,2">
-                      <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                      <TextBlock Text="{Binding About}" Classes="hint" TextWrapping="Wrap" />
-                    </StackPanel>
-                  </DataTemplate>
-                </ListBox.ItemTemplate>
-              </ListBox>
-              <TextBlock Text="{Binding Selected.Detail}" TextWrapping="Wrap" Margin="0,2" />
-              <Button Content="{x:Static r:Strings.Difficulty_Apply}" Command="{Binding ApplyCommand}" HorizontalAlignment="Left" />
-              <TextBlock Text="{Binding Result}" TextWrapping="Wrap" Classes="hint" />
-              <TextBlock Text="{x:Static r:Strings.Difficulty_Hint}" Classes="hint" TextWrapping="Wrap" />
-            </StackPanel>
-          </Border>
           </c:AdaptiveColumnsPanel>
         </StackPanel>
       </ScrollViewer>
@@ -201,6 +179,29 @@
                       </CheckBox>
                     </StackPanel>
                    </StackPanel>
+                  </Border>
+
+                  <!-- Trainers: the difficulty of the run, which writes over every trainer -->
+                  <Border Classes="card" Width="470" IsVisible="{Binding HasDifficulty}">
+                    <StackPanel Spacing="4" DataContext="{Binding Difficulty}" x:DataType="vm:DifficultyViewModel"
+                                ToolTip.Tip="{x:Static r:Strings.Tip_Difficulty}">
+                      <TextBlock Classes="card-title" Text="{x:Static r:Strings.Difficulty_Title}" />
+                      <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Difficulty_Hint}" />
+                      <TextBlock Text="{Binding Applied}" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,2" />
+                      <ListBox ItemsSource="{Binding Levels}" SelectedItem="{Binding Selected}" MaxHeight="230">
+                        <ListBox.ItemTemplate>
+                          <DataTemplate x:DataType="vm:DifficultyOptionViewModel">
+                            <StackPanel Spacing="1" Margin="0,2">
+                              <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                              <TextBlock Text="{Binding About}" Classes="hint" TextWrapping="Wrap" />
+                            </StackPanel>
+                          </DataTemplate>
+                        </ListBox.ItemTemplate>
+                      </ListBox>
+                      <TextBlock Text="{Binding Selected.Detail}" TextWrapping="Wrap" Margin="0,2" />
+                      <Button Content="{x:Static r:Strings.Difficulty_Apply}" Command="{Binding ApplyCommand}" HorizontalAlignment="Left" />
+                      <TextBlock Text="{Binding Result}" TextWrapping="Wrap" Classes="hint" />
+                    </StackPanel>
                   </Border>
 
                   <!-- Trainers: the levels of every trainer and what they pay -->
