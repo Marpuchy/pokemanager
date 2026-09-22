@@ -1,3 +1,53 @@
+## New in 2.1: difficulty, a level cap that follows your badges, and the app in two halves
+
+- **Difficulty profiles**: one choice in Options → Trainers — **Relaxed, Normal, Challenge, Nightmare** — writes over every
+  trainer of the game what you would otherwise set class by class: the AI they use, their IVs, the healing items their bag
+  carries, the level of every team and, from Challenge up, a Mega Stone on the last Pokémon of the important battles. It
+  knows who each trainer is (boss, important, ordinary) even in a ROM with every name randomized, and **Normal takes the
+  profile back off**. Changing it is one step of Ctrl+Z.
+- **Level cap by badges and Z-crystals**: the game stops giving experience past a cap, and the cap rises on its own when
+  you earn the next badge (Generation 6) or the next trial's Z-crystal (Ultra Sun/Ultra Moon) — the app reads your save
+  when the game saves it. The current cap is shown in the editor's bar and on the start screen, and its whole plan, taken
+  from the levels of the game's own bosses, can be changed step by step.
+- **Nothing gets past the cap**: a Rare Candy ignores the cap in game, so when you close the emulator the app brings any
+  level that went over it back down (and drops the experience banked at the cap, which is what the cap is for). A Pokémon
+  caught or given to you above the cap keeps its level. It can be switched off in the level cap card.
+- **Level modifiers**: raise or lower by a percentage the levels of the trainers, the wild Pokémon and the fixed
+  encounters, gifts and totems, on top of whatever your ROM already has.
+- **Shops and items**: free Rare Candies in the Poké Marts, the game's Mega Stones on sale from the start (Generation 7
+  only sells them after the story), the Mega Stones in the randomizer's pool and an option to allow every item of the game.
+- **Shiny**: every Pokémon that is not shiny-locked can come out shiny, written into the ROM when it is built.
+- **The starter scene tells the truth**: the randomizer only rewrote that text in English, so every other language named
+  the starters the game no longer gives. It is rewritten in all of them now, with the right types.
+
+### The application
+
+- **Two halves**: *Juego (ROM)*, everything that is built into the game, and *Partida*, everything you touch while playing
+  (Pokémon, bag, trainer, Pokédex and the Locke). The application's own options live **inside the randomizer's option
+  groups**, next to the ones about the same subject, so nothing is offered twice.
+- **One file per section, in one place**: the *Datos* tab exports and imports Pokémon (`.pkdata`), moves (`.mvdata`),
+  **trainers (`.trdata`)** and **rules and shops (`.gmdata`)**, to carry your work between ROMs.
+- **Data from another game**: a file now says what Pokémon each of its rows held, so importing an Ultra Sun file into
+  Pokémon X puts Mega Venusaur's data on Mega Venusaur. What the game does not have — a species, a move, an ability — is
+  skipped and reported instead of written as a number the game cannot look up.
+- **"Modified" says what changed**: Stats, Abilities, Moves… instead of a blanket word, and each advanced tab has a
+  **Put all back** button. An edit that says what the ROM already says is no longer counted as a change.
+- **Trainers**: who each one is (rival, friend, gym leader, kahuna…) taken from the ids, groups by difficulty, IVs 0-31 in
+  both generations, mega evolution from a level, and the whole class or group edited at once.
+- **The trainer picture is the game's**, read from the screen where your adventure starts.
+- Typing inside a dropdown finds a Pokémon by any word of its name; the bag's item picker has a search box.
+- **Start over** and **open every box** in Advanced: Game; a project can be deleted (never your ROM or your save).
+
+### Fixed
+
+- **Generation 7 saves kept their signature**: the app wrote Sun/Moon and Ultra Sun/Ultra Moon saves without it, and the
+  game called them corrupted.
+- **"Fatal error" in Citra**: the header the randomizer leaves after packing promised more than the file held.
+- **Start over** now removes the whole save data, not only one file, so the game starts a clean adventure.
+- A Pokémon in a box no longer reads as level 100 when the cap is on, and the build no longer fails when the save cannot
+  be adapted (a new adventure the game has not saved yet).
+- Applying something to every trainer or putting thousands of edits back no longer freezes the application.
+
 ## New in 2.0: the trainer card of the games, Z-moves and a clearer editor
 
 - **Trainer card like the game's**: the trainer page opens with your card as the game draws it — your picture framed on
