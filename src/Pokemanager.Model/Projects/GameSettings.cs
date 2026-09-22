@@ -1,4 +1,4 @@
-namespace Pokemanager.Model.Projects;
+﻿namespace Pokemanager.Model.Projects;
 
 /// <summary>
 /// Changes to how the game itself behaves, applied when the ROM is built. Like the shops they are part of the project
@@ -42,6 +42,13 @@ public sealed class GameSettings
 
     public bool HasLevelChanges => TrainerLevelPercent != 0 || WildLevelPercent != 0 || StaticLevelPercent != 0;
 
+    /// <summary>
+    /// The cap of the ROM that was built last, which is the one the save has been played on. It is a fact of what was
+    /// built, like the randomization's installed seed: an undo does not move it, and the save adaptation needs it to
+    /// know what a Pokémon banked while that cap held it.
+    /// </summary>
+    public int? InstalledLevelCap { get; set; }
+
     /// <summary>Whether anything at all has to be done at build time.</summary>
     public bool IsEmpty => !AlwaysShiny && LevelCap is null && !HasLevelChanges;
 
@@ -49,6 +56,7 @@ public sealed class GameSettings
     {
         AlwaysShiny = AlwaysShiny,
         LevelCap = LevelCap,
+        InstalledLevelCap = InstalledLevelCap,
         LevelCapByMilestones = LevelCapByMilestones,
         LevelCapOverrides = new(LevelCapOverrides),
         TrainerLevelPercent = TrainerLevelPercent,

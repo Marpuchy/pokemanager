@@ -1,4 +1,4 @@
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -175,6 +175,14 @@ public sealed class ProjectHistory
         target.Edits.Clear();
         foreach (var edit in version.Edits.All)
             target.Edits.Set(edit.Table, edit.Id, edit.Field, edit.Value);
+
+        // The game options are in the ROM as much as the edits are, so restoring a version has to bring its own back —
+        // above all the level cap, which the save is played against. What was built is not part of the version:
+        // InstalledLevelCap says which cap the ROM on disk has, and the rebuild that follows is what moves it.
+        int? installed = target.Tweaks.InstalledLevelCap;
+        target.Tweaks = version.Tweaks.Clone();
+        target.Tweaks.InstalledLevelCap = installed;
+        target.Shops = version.Shops.Clone();
     }
 
     public static VersionDifference Compare(Project current, Project version)
@@ -192,14 +200,21 @@ public sealed class ProjectHistory
             EditsChanged: theirs.Count(t => mine.TryGetValue(t.Key, out var m) && !System.Text.Json.Nodes.JsonNode.DeepEquals(m.Value, t.Value.Value)));
     }
 
-    /// <summary>Hash of what determines the built ROM: randomization (enabled, preset, seed) and edits.</summary>
+    /// <summary>Hash of what determines the built ROM: randomization (enabled, preset, seed), the game options and edits.</summary>
     public static string Fingerprint(Project project)
     {
         var r = project.Randomization;
+        var t = project.Tweaks;
         var sb = new StringBuilder();
         sb.Append(r.Enabled).Append('|').Append(r.Seed).Append('|').Append(Convert.ToBase64String(r.Preset ?? [])).Append('|');
+        sb.Append(t.AlwaysShiny).Append('|').Append(t.LevelCap).Append('|')
+          .Append(Percent(t.TrainerLevelPercent)).Append('|').Append(Percent(t.WildLevelPercent)).Append('|')
+          .Append(Percent(t.StaticLevelPercent)).Append('|')
+          .Append(project.Shops.FreeRareCandies).Append('|').Append(project.Shops.MegaStonesOnSale).Append('|');
         foreach (var edit in project.Edits.All.OrderBy(e => e.Table, StringComparer.Ordinal).ThenBy(e => e.Id).ThenBy(e => e.Field, StringComparer.Ordinal))
             sb.Append(edit.Table).Append('/').Append(edit.Id).Append('/').Append(edit.Field).Append('=').Append(edit.Value.ToJsonString()).Append(';');
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(sb.ToString())))[..16];
     }
+
+    private static string Percent(double value) => value.ToString(System.Globalization.CultureInfo.InvariantCulture);
 }

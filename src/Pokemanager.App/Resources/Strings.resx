@@ -3918,4 +3918,7 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Rnd_SaveNotSavedYet" xml:space="preserve">
     <value>{0} save: the game has not saved this adventure yet. Save once in game and it will be adapted.</value>
   </data>
+  <data name="Change_ExperienceTrimmed" xml:space="preserve">
+    <value>stays at level {0} (it had banked enough for {1})</value>
+  </data>
 </root>

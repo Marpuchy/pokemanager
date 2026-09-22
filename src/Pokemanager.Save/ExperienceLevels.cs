@@ -1,4 +1,4 @@
-using PKHeX.Core;
+﻿using PKHeX.Core;
 using Pokemanager.Model.Data;
 
 namespace Pokemanager.Save;
@@ -17,6 +17,30 @@ public static class ExperienceLevels
         if (ExperienceTable.IsPrototype(pk.EXP))
             return pk.Stat_Level is > 0 and <= 100 ? pk.Stat_Level : 100; // the first prototype: only the party level says it
         return Experience.GetLevel(pk.EXP, growth);
+    }
+
+    /// <summary>
+    /// Drops the experience a Pokémon banked while the cap held it. The cap is a table, not a rule: the game goes on
+    /// adding what each battle gives, it simply never finds the next level — so a Pokémon kept at the cap can be
+    /// carrying several levels' worth of experience. When the cap is lifted, the ROM gives those levels their ordinary
+    /// values back and all of it would be cashed in at once, which is exactly what the cap was for.
+    /// </summary>
+    /// <param name="playedCap">The cap of the ROM the save has been played on; null when it had none.</param>
+    /// <returns>The level it keeps and the level that experience would have bought, when it had to change.</returns>
+    public static (int Level, int Banked)? Trim(PKM pk, byte growth, int? playedCap)
+    {
+        if (playedCap is not { } cap)
+            return null;
+        // A level the cap coded has nothing banked in it: the code is not an amount.
+        if (ExperienceTable.LevelOfCapped(pk.EXP) is not null || ExperienceTable.IsPrototype(pk.EXP))
+            return null;
+
+        int banked = Experience.GetLevel(pk.EXP, growth);
+        if (banked <= cap)
+            return null; // under the cap the progress within the level is the player's, and it is kept
+
+        pk.EXP = Experience.GetEXP((byte)cap, growth);
+        return (cap, banked);
     }
 
     /// <summary>

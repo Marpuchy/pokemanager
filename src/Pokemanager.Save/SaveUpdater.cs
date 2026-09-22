@@ -20,6 +20,12 @@ public enum ChangeKind
 
     /// <summary>The experience was fitted to the ROM's level cap; Before and After hold the level, which does not change.</summary>
     Experience,
+
+    /// <summary>
+    /// The experience banked while the old cap held the Pokémon was dropped: Before holds the level it would have
+    /// jumped to when the cap lifted, After the level it keeps.
+    /// </summary>
+    ExperienceTrimmed,
 }
 
 /// <summary>A change applied to a Pokémon in the save.</summary>
@@ -99,15 +105,16 @@ public static class SaveUpdater
         : null;
 
     /// <summary>Computes the changes without writing anything.</summary>
-    public static SaveUpdateResult Preview(string savePath, GameData rom, int? levelCap = null) =>
-        Run(savePath, rom, backupRoot: null, write: false, levelCap);
+    public static SaveUpdateResult Preview(string savePath, GameData rom, int? levelCap = null, int? playedCap = null) =>
+        Run(savePath, rom, backupRoot: null, write: false, levelCap, playedCap);
 
     /// <summary>Applies the changes: backup in <paramref name="backupRoot"/>, write, and verification by re-reading the file.</summary>
     /// <param name="levelCap">The level cap of the ROM the save will be played on (null: none): experience is fitted to it.</param>
-    public static SaveUpdateResult Apply(string savePath, GameData rom, string backupRoot, int? levelCap = null) =>
-        Run(savePath, rom, backupRoot, write: true, levelCap);
+    /// <param name="playedCap">The cap of the ROM the save was played on (null: none): what it banked at it is dropped.</param>
+    public static SaveUpdateResult Apply(string savePath, GameData rom, string backupRoot, int? levelCap = null, int? playedCap = null) =>
+        Run(savePath, rom, backupRoot, write: true, levelCap, playedCap);
 
-    private static SaveUpdateResult Run(string savePath, GameData rom, string? backupRoot, bool write, int? levelCap)
+    private static SaveUpdateResult Run(string savePath, GameData rom, string? backupRoot, bool write, int? levelCap, int? playedCap = null)
     {
         var sav = Load(savePath);
         if (Problem(sav) is { } problem)
@@ -122,7 +129,7 @@ public static class SaveUpdater
             if (pk.Species == 0)
                 continue;
             checkedCount++;
-            if (UpdatePokemon(pk, rom, new SaveSlot(null, i), changes, levelCap))
+            if (UpdatePokemon(pk, rom, new SaveSlot(null, i), changes, levelCap, playedCap))
                 sav.SetPartySlotAtIndex(pk, i, EntityImportSettings.None);
         }
 
@@ -134,7 +141,7 @@ public static class SaveUpdater
                 if (pk.Species == 0)
                     continue;
                 checkedCount++;
-                if (UpdatePokemon(pk, rom, new SaveSlot(box, slot), changes, levelCap))
+                if (UpdatePokemon(pk, rom, new SaveSlot(box, slot), changes, levelCap, playedCap))
                     sav.SetBoxSlotAtIndex(pk, box, slot, EntityImportSettings.None);
             }
         }
@@ -148,13 +155,20 @@ public static class SaveUpdater
         return new SaveUpdateResult(savePath, backup, checkedCount, changes);
     }
 
-    private static bool UpdatePokemon(PKM pk, GameData rom, SaveSlot slot, List<PokemonChange> changes, int? levelCap)
+    private static bool UpdatePokemon(PKM pk, GameData rom, SaveSlot slot, List<PokemonChange> changes, int? levelCap,
+        int? playedCap)
     {
         var personal = Personal(rom, pk);
         if (personal is null)
             return false;
 
         bool changed = false;
+        // First what the old cap banked, then the shape the new ROM needs: trimming leaves an exact level behind.
+        if (ExperienceLevels.Trim(pk, (byte)personal.EXPGrowth, playedCap) is { } trimmed)
+        {
+            changes.Add(new PokemonChange(slot, pk.Species, ChangeKind.ExperienceTrimmed, [trimmed.Banked], [trimmed.Level]));
+            changed = true;
+        }
         if (ExperienceLevels.Fit(pk, (byte)personal.EXPGrowth, levelCap) is { } fitted)
         {
             changes.Add(new PokemonChange(slot, pk.Species, ChangeKind.Experience, [fitted], [fitted]));

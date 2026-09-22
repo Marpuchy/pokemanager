@@ -1,4 +1,4 @@
-using System.Buffers.Binary;
+﻿using System.Buffers.Binary;
 
 namespace Pokemanager.Model.Data;
 
@@ -38,16 +38,36 @@ public static class ExperienceTable
     /// </summary>
     public const uint PrototypeBase = 0x40000000;
 
+    /// <summary>
+    /// The most experience a growth rate asks for level 100, measured in the real X dump (1 640 000, the Fluctuating
+    /// rate; the biggest step between two levels is 68 116). A Pokémon the cap is holding **goes on earning experience
+    /// in battle**, which the game adds to the coded value — so a coded level has to be read through that much noise.
+    /// <see cref="CappedStep"/> is ten times this, so two coded levels can never be confused.
+    /// </summary>
+    public const uint MostOrdinaryExperience = 1_640_000;
+
     /// <summary>Whether this is one of the first prototype's values, which do not say their level.</summary>
-    public static bool IsPrototype(uint exp) => exp > PrototypeBase && exp <= PrototypeBase + Levels && LevelOfCapped(exp) is null;
+    public static bool IsPrototype(uint exp) => InPrototypeWindow(exp);
+
+    /// <summary>
+    /// The prototype wrote <c>0x40000000 + (level - cap)</c>, which is a coded level 48 plus 1 to 99. Those few values
+    /// belong to it, and a real level 48 that has earned only that much experience is not something a battle produces.
+    /// </summary>
+    private static bool InPrototypeWindow(uint exp) => exp > PrototypeBase && exp <= PrototypeBase + Levels;
 
     /// <summary>The level an experience value above the cap stands for, or null when it is an ordinary one.</summary>
+    /// <remarks>
+    /// The value is read **through the experience earned since**: a Pokémon held at the cap keeps winning battles and
+    /// the game keeps adding to what it holds, so requiring an exact multiple of <see cref="CappedStep"/> made one
+    /// battle turn a capped Pokémon into level 100 — the fallback for a value nothing else explains.
+    /// </remarks>
     public static int? LevelOfCapped(uint exp)
     {
-        if (exp < CappedBase)
+        if (exp < CappedBase || InPrototypeWindow(exp))
             return null;
         uint offset = exp - CappedBase;
-        return offset % CappedStep == 0 && offset / CappedStep is >= 1 and <= Levels - 1 ? (int)(offset / CappedStep) : null;
+        uint level = offset / CappedStep, earnedSince = offset % CappedStep;
+        return level is >= 1 and <= Levels - 1 && earnedSince <= MostOrdinaryExperience ? (int)level : null;
     }
 
     /// <summary>The experience that keeps a Pokémon at <paramref name="level"/> above the cap.</summary>

@@ -1,4 +1,4 @@
-using System.Text.Json.Nodes;
+﻿using System.Text.Json.Nodes;
 using Pokemanager.Model.Edits;
 using Pokemanager.Model.Projects;
 
@@ -42,6 +42,51 @@ public sealed class ProjectHistoryTests : IDisposable
         Assert.True(listed.HasSave);
         Assert.Equal([9, 9, 9], File.ReadAllBytes(history.SaveFile(listed)!));
         Assert.Equal(111, history.LoadProject(listed).Randomization.Seed);
+    }
+
+    [Fact]
+    public void RestoringAVersion_BringsBackItsGameOptions_ButNotTheCapOfTheBuiltRom()
+    {
+        var version = NewProject(1);
+        version.Tweaks.LevelCap = 18;
+        version.Tweaks.AlwaysShiny = true;
+        version.Tweaks.TrainerLevelPercent = 20;
+        version.Shops.FreeRareCandies = true;
+        version.Tweaks.InstalledLevelCap = 18;
+
+        var target = NewProject(2);
+        target.Tweaks.LevelCap = 34;
+        target.Tweaks.InstalledLevelCap = 30; // the ROM on disk, which a restore does not change by itself
+
+        ProjectHistory.RestoreInto(target, version);
+
+        Assert.Equal(18, target.Tweaks.LevelCap);
+        Assert.True(target.Tweaks.AlwaysShiny);
+        Assert.Equal(20, target.Tweaks.TrainerLevelPercent);
+        Assert.True(target.Shops.FreeRareCandies);
+        Assert.Equal(30, target.Tweaks.InstalledLevelCap);
+    }
+
+    [Fact]
+    public void TheGameOptions_AreAPartOfWhatIdentifiesABuild()
+    {
+        var a = NewProject(1);
+        var b = NewProject(1);
+        Assert.Equal(ProjectHistory.Fingerprint(a), ProjectHistory.Fingerprint(b));
+
+        b.Tweaks.LevelCap = 18;
+        Assert.NotEqual(ProjectHistory.Fingerprint(a), ProjectHistory.Fingerprint(b));
+
+        a.Tweaks.LevelCap = 18;
+        Assert.Equal(ProjectHistory.Fingerprint(a), ProjectHistory.Fingerprint(b));
+
+        b.Shops.MegaStonesOnSale = true;
+        Assert.NotEqual(ProjectHistory.Fingerprint(a), ProjectHistory.Fingerprint(b));
+
+        // What was built is not an input: two projects that ask for the same ROM are the same version.
+        a.Shops.MegaStonesOnSale = true;
+        b.Tweaks.InstalledLevelCap = 12;
+        Assert.Equal(ProjectHistory.Fingerprint(a), ProjectHistory.Fingerprint(b));
     }
 
     [Fact]

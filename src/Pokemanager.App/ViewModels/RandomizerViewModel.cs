@@ -436,6 +436,7 @@ public partial class RandomizerViewModel : ObservableObject
     {
         ChangeKind.Ability => string.Format(Strings.Change_Ability, AbilityName(change.Before[0]), AbilityName(change.After[0])),
         ChangeKind.Experience => string.Format(Strings.Change_Experience, change.After[0]),
+        ChangeKind.ExperienceTrimmed => string.Format(Strings.Change_ExperienceTrimmed, change.After[0], change.Before[0]),
         _ => string.Format(Strings.Change_Stats, string.Join('/', change.Before), string.Join('/', change.After)),
     };
 

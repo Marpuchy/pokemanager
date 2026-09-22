@@ -3918,4 +3918,7 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Rnd_SaveNotSavedYet" xml:space="preserve">
     <value>Save de {0}: el juego aún no ha guardado esta partida. Guarda una vez dentro del juego y se adaptará.</value>
   </data>
+  <data name="Change_ExperienceTrimmed" xml:space="preserve">
+    <value>se queda en el nivel {0} (tenía guardada experiencia para el {1})</value>
+  </data>
 </root>

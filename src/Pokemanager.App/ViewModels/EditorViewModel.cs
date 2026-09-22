@@ -518,7 +518,10 @@ public partial class EditorViewModel : ObservableObject
             (r.LastBuiltRom, r.InstalledSeed) = (lastBuilt, installed);
             Session.Project.Locke = locke;
             Session.Project.Shops = shops;
+            // The cap the built ROM has is a fact, like the installed seed: undoing the plan does not unbuild it.
+            int? installedCap = Session.Project.Tweaks.InstalledLevelCap;
             Session.Project.Tweaks = tweaks;
+            Session.Project.Tweaks.InstalledLevelCap = installedCap;
             Randomizer?.Shops.Refresh();
             GameTweaks?.Refresh();
             LevelCap?.Refresh();
@@ -759,6 +762,7 @@ public partial class EditorViewModel : ObservableObject
             }
 
             r.InstalledSeed = random?.Seed;
+            Session.Project.Tweaks.InstalledLevelCap = Session.Project.Tweaks.LevelCap;
             await SaveAsync();
             Randomizer.OnBuilt(random, saveResult);
             RecordVersion(VersionKind.Built, built.RomPath);
@@ -1132,8 +1136,9 @@ public partial class EditorViewModel : ObservableObject
     {
         SetStatus(string.Format(Strings.Status_AdaptingSave, savePath));
         string backups = Path.Combine(AppSettings.BackupRoot, settings.EffectiveEmulatorName);
-        int? cap = Session.Project.Tweaks.LevelCap;
-        var result = await Task.Run(() => SaveUpdater.Apply(savePath, Session.Current, backups, cap));
+        var tweaks = Session.Project.Tweaks;
+        int? cap = tweaks.LevelCap, played = tweaks.InstalledLevelCap;
+        var result = await Task.Run(() => SaveUpdater.Apply(savePath, Session.Current, backups, cap, played));
         SaveUpdater.PruneBackups(backups, keep: 10);
         return result;
     }
