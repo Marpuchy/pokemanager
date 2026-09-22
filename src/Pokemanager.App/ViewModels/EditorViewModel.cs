@@ -362,7 +362,8 @@ public partial class EditorViewModel : ObservableObject
                 ? key.Id < Names.Moves.Count ? Names.Moves[key.Id] : $"#{key.Id}"
                 : key.Id < Names.PersonalEntries.Count ? Names.PersonalEntries[key.Id] : $"#{key.Id}";
         MarkDirty($"{name} · {key.Field}");
-        RefreshEditCounts();
+        if (!inBatch)
+            RefreshEditCounts(); // ten notifications, each recounting every edit of the project: once per batch is enough
         var list = trainer ? allTrainers : move ? allMoves : allSpecies;
         list.FirstOrDefault(e => e.Id == key.Id)?.Refresh();
         if (trainer && !inBatch)
@@ -380,7 +381,13 @@ public partial class EditorViewModel : ObservableObject
     {
         IsDirty = true;
         romDirty |= affectsRom;
-        if (!restoringProject && !inBatch)
+        // A batch does the undo step, the notice and the counts **once, when it ends**. Doing them per edit hung the
+        // application on a difficulty profile (2287 edits): the notice reads the history from disk and hashes every
+        // edit of the project, measured at 3.95 ms each — nine seconds of frozen interface on a small project, and
+        // Windows closes an application that stops answering for five (AppHangB1, seen in the event log).
+        if (inBatch)
+            return;
+        if (!restoringProject)
             ProjectUndo?.Record(label);
         RefreshRomNotice();
     }
@@ -414,6 +421,7 @@ public partial class EditorViewModel : ObservableObject
             editor.inBatch = false;
             if (!editor.restoringProject)
                 editor.ProjectUndo?.Record(label);
+            editor.RefreshEditCounts();
             editor.RefreshRomNotice();
         }
     }
