@@ -69,6 +69,9 @@ public partial class RandomizerViewModel : ObservableObject
     /// <summary>Changes to the game's shops; ours, not UPR ZX's, and kept in the project.</summary>
     public ShopExtrasViewModel Shops { get; private set; } = null!;
 
+    /// <summary>The difficulty of the run, which writes over the trainers: ours, and set up with the rest of the run.</summary>
+    public DifficultyViewModel Difficulty { get; }
+
     public RandomizerViewModel(EditorViewModel editor, IDialogs dialogs, UprService upr, AppSettings settings)
     {
         this.editor = editor;
@@ -76,6 +79,7 @@ public partial class RandomizerViewModel : ObservableObject
         this.upr = upr;
         this.settings = settings;
         Shops = new ShopExtrasViewModel(editor);
+        Difficulty = new DifficultyViewModel(editor, editor.Session);
         Options = new UprOptionsViewModel(editor.MarkDirty, Shops, () => editor.GameTweaks);
 
         SeedText = Settings.Seed > 0 ? Settings.Seed.ToString() : UprRunner.NewSeed().ToString();

@@ -155,6 +155,15 @@ Five, ordered by what they give per unit of work. They are not exclusive; A–C 
 
 ### Model A — Difficulty profiles (rule-based, deterministic)
 
+**Built (2026-09-22)**, as `Model/Difficulty/DifficultyProfiles` and a card on the Randomizer's build page. Two things
+were decided differently from the sketch below. (1) The profile **writes ordinary edits at once** instead of being a
+rule applied at build time, because that is what the sweeps of Advanced: Game already do: it shows in the trainers tab,
+Ctrl+Z takes it off and "Put all back" reaches it. The project stays small anyway — the edits are a few KB of JSON.
+(2) The trainers are classified by **`TrainerRoles`**, UPR ZX's own tag lists read out of the bundled jar, not by the
+heuristic proposed here: it is exact, it is the same project this one builds on, and it survives a ROM with every
+trainer and class name randomized. Measured on X: 674 ordinary, 94 important, 16 bosses. What is still missing is the
+"own moves" part, growing a team, and Generation 7 EVs and natures.
+
 One choice in the app: **Relaxed · Normal · Challenge · Nightmare** (plus *Custom*). Not a pile of per-trainer edits: a
 rule stored in the project (like `RandomizationSettings` and `LockeSettings`) and applied at build time, so the project
 stays a few KB and the result is reproducible from `dump + seed + profile`.

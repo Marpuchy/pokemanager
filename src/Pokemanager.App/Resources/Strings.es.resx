@@ -3936,4 +3936,85 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="LevelCap_TrimNeedsBuild" xml:space="preserve">
     <value>Los niveles pasados del tope se han dejado como estaban: el proyecto tiene cambios que la ROM todavía no tiene. Construye la ROM y vuelve a cerrar el emulador.</value>
   </data>
+  <data name="Difficulty_Title" xml:space="preserve">
+    <value>Dificultad de la partida</value>
+  </data>
+  <data name="Difficulty_Hint" xml:space="preserve">
+    <value>No es del randomizer: escribe sobre todos los entrenadores lo que si no tendrías que poner grupo a grupo en Avanzado: Entrenadores, así que pide construir la ROM y no una semilla nueva. Un Ctrl+Z lo quita.</value>
+  </data>
+  <data name="Tip_Difficulty" xml:space="preserve">
+    <value>Los entrenadores se distinguen por el papel que tienen en la historia — jefes (líderes, Alto Mando, Campeón), importantes (el rival, el amigo, los jefes de equipo y los capitanes) y el resto — con las listas del propio UPR ZX, así que funciona en una ROM con todos los nombres aleatorizados. Un perfil es dueño de la IA, los IVs, la mochila y el objeto del último miembro del equipo: aplicar uno siempre parte de los valores de la ROM, así que un perfil sobre otro es ese perfil y no los dos sumados. Todo lo demás del entrenador — su equipo, sus movimientos, su dinero — se queda como está.</value>
+  </data>
+  <data name="Difficulty_Apply" xml:space="preserve">
+    <value>Aplicar esta dificultad</value>
+  </data>
+  <data name="Difficulty_Applied" xml:space="preserve">
+    <value>Aplicada: {0}.</value>
+  </data>
+  <data name="Difficulty_AppliedNone" xml:space="preserve">
+    <value>La dificultad propia del juego.</value>
+  </data>
+  <data name="Difficulty_Undo" xml:space="preserve">
+    <value>dificultad · {0}</value>
+  </data>
+  <data name="Difficulty_Result" xml:space="preserve">
+    <value>{0} valores cambiados en {1} entrenadores.</value>
+  </data>
+  <data name="Difficulty_PutBack" xml:space="preserve">
+    <value>{0} valores devueltos a su sitio en {1} entrenadores.</value>
+  </data>
+  <data name="Difficulty_Nothing" xml:space="preserve">
+    <value>Los entrenadores ya decían eso.</value>
+  </data>
+  <data name="Difficulty_Relaxed" xml:space="preserve">
+    <value>Relajada</value>
+  </data>
+  <data name="Difficulty_RelaxedAbout" xml:space="preserve">
+    <value>Para una primera partida de un juego aleatorizado: los entrenadores dejan de pensar y sus Pokémon dejan de salir buenos.</value>
+  </data>
+  <data name="Difficulty_Normal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="Difficulty_NormalAbout" xml:space="preserve">
+    <value>Los valores propios del juego, que es también lo que quita un perfil.</value>
+  </data>
+  <data name="Difficulty_NormalDetail" xml:space="preserve">
+    <value>No escribe nada: todos los campos de los que un perfil es dueño vuelven a lo que dice la ROM.</value>
+  </data>
+  <data name="Difficulty_Challenge" xml:space="preserve">
+    <value>Desafío</value>
+  </data>
+  <data name="Difficulty_ChallengeAbout" xml:space="preserve">
+    <value>Todos los entrenadores juegan en serio y los jefes están hechos para ganar.</value>
+  </data>
+  <data name="Difficulty_Nightmare" xml:space="preserve">
+    <value>Pesadilla</value>
+  </data>
+  <data name="Difficulty_NightmareAbout" xml:space="preserve">
+    <value>Todo lo que se les puede pedir a estos juegos. No es un combate justo y no pretende serlo.</value>
+  </data>
+  <data name="Difficulty_GroupRegular" xml:space="preserve">
+    <value>Normales</value>
+  </data>
+  <data name="Difficulty_GroupImportant" xml:space="preserve">
+    <value>Importantes</value>
+  </data>
+  <data name="Difficulty_GroupBoss" xml:space="preserve">
+    <value>Jefes</value>
+  </data>
+  <data name="Difficulty_Ivs" xml:space="preserve">
+    <value>IVs {0}</value>
+  </data>
+  <data name="Difficulty_Bag" xml:space="preserve">
+    <value>{0} restaurantodos</value>
+  </data>
+  <data name="Difficulty_NoBag" xml:space="preserve">
+    <value>mochila vacía</value>
+  </data>
+  <data name="Difficulty_Mega" xml:space="preserve">
+    <value>megapiedras</value>
+  </data>
+  <data name="Difficulty_Levels" xml:space="preserve">
+    <value>Niveles de entrenador {0} %</value>
+  </data>
 </root>

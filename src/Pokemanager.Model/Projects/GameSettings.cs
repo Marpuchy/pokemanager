@@ -59,6 +59,13 @@ public sealed class GameSettings
     /// <summary>Whether the levels past the cap are brought back (<see cref="TrimOverCap"/>, on unless it is off).</summary>
     public bool TrimsOverCap => TrimOverCap ?? true;
 
+    /// <summary>
+    /// The difficulty profile the player chose (<see cref="Difficulty.DifficultyProfiles"/>), null for the game's own.
+    /// It is only the label: what a profile does lives in the trainer edits and in <see cref="TrainerLevelPercent"/>,
+    /// like anything the player could have written by hand.
+    /// </summary>
+    public Difficulty.DifficultyLevel? Difficulty { get; set; }
+
     /// <summary>Whether anything at all has to be done at build time.</summary>
     public bool IsEmpty => !AlwaysShiny && LevelCap is null && !HasLevelChanges;
 
@@ -68,6 +75,7 @@ public sealed class GameSettings
         LevelCap = LevelCap,
         InstalledLevelCap = InstalledLevelCap,
         TrimOverCap = TrimOverCap,
+        Difficulty = Difficulty,
         LevelCapByMilestones = LevelCapByMilestones,
         LevelCapOverrides = new(LevelCapOverrides),
         TrainerLevelPercent = TrainerLevelPercent,

@@ -3936,4 +3936,85 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="LevelCap_TrimNeedsBuild" xml:space="preserve">
     <value>Levels past the level cap were left alone: the project has changes the ROM does not have yet. Build the ROM and close the emulator again.</value>
   </data>
+  <data name="Difficulty_Title" xml:space="preserve">
+    <value>Difficulty of the run</value>
+  </data>
+  <data name="Difficulty_Hint" xml:space="preserve">
+    <value>It is not the randomizer's: it writes over every trainer what you would otherwise set group by group in Advanced: Trainers, so it needs a ROM build and not a new seed. One step of Ctrl+Z takes it off.</value>
+  </data>
+  <data name="Tip_Difficulty" xml:space="preserve">
+    <value>The trainers are told apart by the part they play in the story — bosses (leaders, Elite Four, Champion), important ones (the rival, the friend, the team bosses and the captains) and the rest — using UPR ZX's own lists, so it works on a ROM with every trainer name randomized. A profile owns the AI, the IVs, the bag and the held item of the last team member: applying one always starts from the ROM's own values, so one profile over another is that profile and not the two piled up. Everything else of a trainer — its team, its moves, its money — is left exactly as it is.</value>
+  </data>
+  <data name="Difficulty_Apply" xml:space="preserve">
+    <value>Apply this difficulty</value>
+  </data>
+  <data name="Difficulty_Applied" xml:space="preserve">
+    <value>Applied: {0}.</value>
+  </data>
+  <data name="Difficulty_AppliedNone" xml:space="preserve">
+    <value>The game's own difficulty.</value>
+  </data>
+  <data name="Difficulty_Undo" xml:space="preserve">
+    <value>difficulty · {0}</value>
+  </data>
+  <data name="Difficulty_Result" xml:space="preserve">
+    <value>{0} values changed in {1} trainers.</value>
+  </data>
+  <data name="Difficulty_PutBack" xml:space="preserve">
+    <value>{0} values put back in {1} trainers.</value>
+  </data>
+  <data name="Difficulty_Nothing" xml:space="preserve">
+    <value>The trainers already said that.</value>
+  </data>
+  <data name="Difficulty_Relaxed" xml:space="preserve">
+    <value>Relaxed</value>
+  </data>
+  <data name="Difficulty_RelaxedAbout" xml:space="preserve">
+    <value>For a first run of a randomized game: the trainers stop thinking and their Pokémon stop rolling well.</value>
+  </data>
+  <data name="Difficulty_Normal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="Difficulty_NormalAbout" xml:space="preserve">
+    <value>The game's own values, which is also what takes a profile off.</value>
+  </data>
+  <data name="Difficulty_NormalDetail" xml:space="preserve">
+    <value>Nothing is written: every field a profile owns goes back to what the ROM says.</value>
+  </data>
+  <data name="Difficulty_Challenge" xml:space="preserve">
+    <value>Challenge</value>
+  </data>
+  <data name="Difficulty_ChallengeAbout" xml:space="preserve">
+    <value>Every trainer plays properly and the bosses are built to win.</value>
+  </data>
+  <data name="Difficulty_Nightmare" xml:space="preserve">
+    <value>Nightmare</value>
+  </data>
+  <data name="Difficulty_NightmareAbout" xml:space="preserve">
+    <value>Everything the games can be told to do. It is not a fair fight and it is not meant to be.</value>
+  </data>
+  <data name="Difficulty_GroupRegular" xml:space="preserve">
+    <value>Ordinary</value>
+  </data>
+  <data name="Difficulty_GroupImportant" xml:space="preserve">
+    <value>Important</value>
+  </data>
+  <data name="Difficulty_GroupBoss" xml:space="preserve">
+    <value>Bosses</value>
+  </data>
+  <data name="Difficulty_Ivs" xml:space="preserve">
+    <value>IVs {0}</value>
+  </data>
+  <data name="Difficulty_Bag" xml:space="preserve">
+    <value>{0} Full Restores</value>
+  </data>
+  <data name="Difficulty_NoBag" xml:space="preserve">
+    <value>empty bag</value>
+  </data>
+  <data name="Difficulty_Mega" xml:space="preserve">
+    <value>Mega Stones</value>
+  </data>
+  <data name="Difficulty_Levels" xml:space="preserve">
+    <value>Trainer levels {0} %</value>
+  </data>
 </root>
