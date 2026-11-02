@@ -1,3 +1,4 @@
+using pk3DS.Core.Structures.PersonalInfo;
 using Pokemanager.Model.Dump;
 
 namespace Pokemanager.Model.Data;
@@ -19,13 +20,59 @@ public sealed class PersonalIndex
     /// <summary>Row → the species and form it holds. Rows the game does not use are (0, 0).</summary>
     public IReadOnlyList<(int Species, int Form)> Rows { get; }
 
-    /// <summary>The last species of the game (the rows above the species are forms).</summary>
+    /// <summary>
+    /// The last species the game ships with (the rows above the species are forms). This is the constant: it is the
+    /// answer for a game whose ROM cannot be inspected (a data file exported from another game names only its title),
+    /// the fallback of <see cref="DeriveLastSpecies"/> and what tells an expanded ROM from a stock one. The value a
+    /// loaded ROM actually has is <see cref="GameData.LastSpecies"/>.
+    /// </summary>
     public static int LastSpecies(GameTitle title) => title switch
     {
         GameTitle.X or GameTitle.Y or GameTitle.OmegaRuby or GameTitle.AlphaSapphire => 721,
         GameTitle.Sun or GameTitle.Moon => 802,
         _ => 807,
     };
+
+    /// <summary>
+    /// The last species of a personal table, read from the table itself instead of from the constant, so a ROM with
+    /// more species than the game ships with (the USUM Expansion Mod adds the Pokémon of Generations 8 and 9) is not
+    /// cut short.
+    /// </summary>
+    /// <remarks>
+    /// The species come first and their alternate forms after all of them, so the lowest row any entry points at with
+    /// <c>FormStatsIndex</c> is the first form row, and the species end just below it. Only rows still believed to be
+    /// species are read — the search stops where the forms begin — and a pointer that does not point forward is
+    /// ignored, so a form entry that carries a copy of its species' pointer cannot move the boundary.
+    /// <para>
+    /// A table with no alternate forms at all, or one whose pointers are out of range, says nothing about where the
+    /// species end: that falls back to <see cref="LastSpecies"/>, clamped to the rows that are there.
+    /// </para>
+    /// </remarks>
+    /// <param name="personal">The game's personal entries, row 0 included and without the final index file.</param>
+    /// <param name="title">The game, for the fallback.</param>
+    public static int DeriveLastSpecies(IReadOnlyList<PersonalInfoXY> personal, GameTitle title)
+    {
+        int firstForm = personal.Count;
+        try
+        {
+            // The bound tightens as a lower pointer is found, so no row above the forms' start is ever read.
+            for (int row = 1; row < firstForm; row++)
+            {
+                int pointer = personal[row].FormStatsIndex;
+                if (pointer > row && pointer < firstForm)
+                    firstForm = pointer;
+            }
+        }
+        catch (ArgumentNullException)
+        {
+            // An entry of a size this application does not know keeps no data at all (pk3DS's readers leave it
+            // empty): there is nothing to read, so the constant answers, as it does for a table with no forms.
+            firstForm = personal.Count;
+        }
+        return firstForm > 1 && firstForm < personal.Count
+            ? firstForm - 1
+            : Math.Min(LastSpecies(title), Math.Max(personal.Count - 1, 0));
+    }
 
     private PersonalIndex((int, int)[] rows)
     {
@@ -41,7 +88,7 @@ public sealed class PersonalIndex
     public static PersonalIndex Of(GameData data)
     {
         var rows = new (int, int)[data.Personal.Length];
-        int last = Math.Min(LastSpecies(data.Title), rows.Length - 1);
+        int last = Math.Min(data.LastSpecies, rows.Length - 1);
         for (int species = 1; species <= last; species++)
         {
             rows[species] = (species, 0);

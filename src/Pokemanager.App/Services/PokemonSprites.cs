@@ -25,7 +25,9 @@ public sealed class PokemonSprites
         if (data is null)
             return;
         // Personal entries above the species count are alternate forms: FormStatsIndex says where each species' forms start.
-        for (int s = 1; s < Math.Min(icons?.SpeciesCount ?? 0, data.Personal.Length); s++)
+        // The count comes from the ROM's table (GameData.SpeciesCount), not from the icon table, which is a different
+        // thing and need not grow with it: a species with no icon simply gets no sprite.
+        for (int s = 1; s < Math.Min(data.SpeciesCount, data.Personal.Length); s++)
         {
             var p = data.Personal[s];
             if (p.FormStatsIndex <= 0)

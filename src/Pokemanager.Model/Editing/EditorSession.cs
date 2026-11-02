@@ -29,14 +29,24 @@ public sealed class EditorSession
     /// <summary>How many edits of the project said what the ROM already said, and were dropped when opening it.</summary>
     public int MatchedTheRom { get; private set; }
 
+    /// <summary>
+    /// The project is randomized but no randomized romfs was given, so the base is the plain game instead of the one
+    /// the edits were made against. Nothing is dropped while this is true: an edit that sets a field to the value the
+    /// unrandomized game happens to have is a real change over the randomization, and pruning it against the wrong
+    /// base would delete it for good the next time the project is saved. The caller can say so.
+    /// </summary>
+    public bool RandomizedBaseMissing { get; }
+
     public event EventHandler<EditKey>? Changed;
 
-    private EditorSession(Project project, RomFsLayers layers, GameData original, GameData current)
+    private EditorSession(Project project, RomFsLayers layers, GameData original, GameData current,
+        bool randomizedBaseMissing)
     {
         Project = project;
         Layers = layers;
         Original = original;
         Current = current;
+        RandomizedBaseMissing = randomizedBaseMissing;
     }
 
     /// <summary>Loads the base twice (original and current) and applies the project edits.</summary>
@@ -47,7 +57,9 @@ public sealed class EditorSession
         var layers = randomizedRomFs is null
             ? new RomFsLayers(project.RomFsPath)
             : new RomFsLayers(randomizedRomFs, project.RomFsPath);
-        var session = new EditorSession(project, layers, GameData.Load(layers, project.Game), GameData.Load(layers, project.Game));
+        bool randomizedBaseMissing = project.Randomization.Enabled && randomizedRomFs is null;
+        var session = new EditorSession(project, layers, GameData.Load(layers, project.Game),
+            GameData.Load(layers, project.Game), randomizedBaseMissing);
         var errors = new List<string>();
         foreach (var edit in project.Edits.All.ToList())
         {
@@ -66,7 +78,10 @@ public sealed class EditorSession
             // An edit that writes what the ROM already says is not a change. They pile up when the base moves under
             // them — another seed, a rebuild, a data file imported from another ROM — and every entry then looked
             // "modified" although nothing of it differed. Same rule as Set: the project holds real differences only.
-            if (JsonNode.DeepEquals(def.Get(session.Current, edit.Id, edit.Field), def.Get(session.Original, edit.Id, edit.Field)))
+            // Not when the base is not the one the edits belong to (see RandomizedBaseMissing): there the comparison
+            // says nothing, and dropping an edit would lose it.
+            if (!randomizedBaseMissing
+                && JsonNode.DeepEquals(def.Get(session.Current, edit.Id, edit.Field), def.Get(session.Original, edit.Id, edit.Field)))
             {
                 project.Edits.Remove(new EditKey(edit.Table, edit.Id, edit.Field));
                 session.MatchedTheRom++;

@@ -31,6 +31,13 @@ public enum GameFamily
 /// <param name="Moves">Move data: one file per move (X/Y) or a single "WD" mini archive (the rest).</param>
 /// <param name="GameText">First of the per-language game text archives (index = pk3DS language).</param>
 /// <param name="Icons">Pokémon box icons (BCLIM in Gen 6, BFLIM in Gen 7); the species → icon table is in code.bin.</param>
+/// <param name="SpeciesCount">
+/// How many species the game ships with, species 0 included (722 in Gen 6, 803 in Sun/Moon, 808 in Ultra Sun/Moon:
+/// <c>Legal.MaxSpeciesID</c> plus one). It is the size of the species → icon table in code.bin and the floor an icon
+/// archive has to clear to be the right one, which is what it is read for. It is **not** the number of species a loaded
+/// ROM has: a species-expansion mod adds more, and that count comes from the ROM's own personal table
+/// (<c>GameData.SpeciesCount</c>). This constant stays as the stock value to fall back on and to compare against.
+/// </param>
 /// <param name="Milestones">Where the badge/trial images are: archive, file inside it and image names in milestone order.</param>
 /// <param name="TrainerData">One file per trainer: class, battle type, bag, the AI byte and how many Pokémon.</param>
 /// <param name="TrainerPokemon">The teams, one file per trainer, entries the size the trainer's record says.</param>

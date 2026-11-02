@@ -110,6 +110,11 @@ public class GamesTests
                 Assert.Equal(imported.Game, dump.Title);
                 Assert.Equal("Pikachu", dump.Config.GetText(pk3DS.Core.TextName.SpeciesNames)[25]);
                 Assert.Equal(12, data.Personal[25].Types[0]); // Electric
+                // A stock ROM: the species count derived from its own personal table is exactly the constant, so
+                // nothing the application reads is cut short and the ROM is not taken for a modded one.
+                Assert.Equal(PersonalIndex.LastSpecies(imported.Game), data.LastSpecies);
+                Assert.Equal(imported.Game.Layout().SpeciesCount, data.SpeciesCount);
+                Assert.False(data.IsExpanded);
                 Assert.True(GameImporter.Import(rom, root).Reused);
                 Assert.NotNull(MilestoneIcons.Load(new RomFsLayers(Path.Combine(imported.Directory, "romfs")), imported.Game));
             }

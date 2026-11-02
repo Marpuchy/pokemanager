@@ -11,6 +11,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Pokemanager.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
     <!-- Battle screen page (Showdown's battle engine runs in a WebView and loads its scripts from play.pokemonshowdown.com) -->
     <Content Include="BattleScreen\**" CopyToOutputDirectory="PreserveNewest" />

@@ -148,6 +148,12 @@ public partial class EditorViewModel : ObservableObject
 
     public string EmulatorText => string.Format(Strings.Editor_Emulator, settings.EffectiveEmulatorName);
 
+    /// <summary>
+    /// The project is randomized but the session could not be opened on top of that randomization (it is not in the
+    /// cache), so the editor is working over the plain game. The project's edits were left untouched in that case.
+    /// </summary>
+    public bool RandomizedBaseMissing => Session.RandomizedBaseMissing;
+
     /// <summary>Which base the advanced editor uses: the original game or a seed's randomization.</summary>
     public string BaseText => Session.Layers.Roots.Count > 1
         ? string.Format(Strings.Editor_BaseRandom, Session.Project.Randomization.Seed)
@@ -290,6 +296,16 @@ public partial class EditorViewModel : ObservableObject
     }
 
     // ------------------------------------------------------------------ advanced editor
+
+    /// <summary>
+    /// Rebuilds every list and drops the open details, after a change that touched many entries at once (undoing every
+    /// edit of the project). <see cref="LoadLists"/> subscribes to the session again, so the handler is dropped first.
+    /// </summary>
+    internal void ReloadLists()
+    {
+        Session.Changed -= OnSessionChanged;
+        LoadLists();
+    }
 
     private void LoadLists()
     {
@@ -733,8 +749,7 @@ public partial class EditorViewModel : ObservableObject
 
             UprResult? random = null;
             if (r.Enabled)
-                random = await upr.Cache.GetOrCreateAsync(new UprRunner(tools), tools, baseRom, r.Preset!, r.Seed, progress,
-                    allItems: r.AllowAllItems, goodItems: r.MegaStonesInPool ? Session.Current.MegaStones : null);
+                random = await upr.RandomizeAsync(tools, project, baseRom, r.Preset!, progress);
 
             ReloadBaseIfNeeded(random is null ? null : Path.Combine(random.TitleDirectory, "romfs"));
 
@@ -925,6 +940,7 @@ public partial class EditorViewModel : ObservableObject
         Names = new GameNames(Dump, Session.Original);
         LoadLists();
         OnPropertyChanged(nameof(EditCountText));
+        OnPropertyChanged(nameof(RandomizedBaseMissing));
         RefreshRomNotice();
     }
 

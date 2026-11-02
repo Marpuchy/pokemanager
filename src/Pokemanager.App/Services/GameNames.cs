@@ -67,7 +67,9 @@ public sealed class GameNames
         ItemChoices = [Strings.Pkm_None, .. Items.Skip(1)];
         MoveChoices = [Strings.Pkm_None, .. Moves.Skip(1)];
         ItemDescriptions = [.. config.GetText(TextName.ItemFlavor).Select(line => GameText.ToEditable(line).Replace("\\c", "\n").Replace("\\r", "\n").Trim())];
-        PersonalEntries = BuildPersonalEntryNames(original, Species, config.MaxSpeciesID);
+        // The split between species and forms comes from the ROM's own personal table, not from pk3DS's
+        // GameInfo.MaxSpeciesID: a ROM with a species-expansion mod has more species than the game ships with.
+        PersonalEntries = BuildPersonalEntryNames(original, Species, original.LastSpecies);
         var (classifications, entries) = GameText.PokedexFiles(dump.Title);
         Classifications = TextFile(config, classifications);
         PokedexEntries = TextFile(config, entries);
@@ -95,11 +97,16 @@ public sealed class GameNames
     /// Entries above the species count are alternate forms: the base species tells with <c>FormStatsIndex</c> where
     /// they start and with <c>FormeCount</c> how many forms it has.
     /// </summary>
+    /// <param name="maxSpecies">The ROM's last species (<see cref="GameData.LastSpecies"/>); the rows above it are forms.</param>
     private static string[] BuildPersonalEntryNames(GameData data, IReadOnlyList<string> species, int maxSpecies)
     {
         var names = new string[data.Personal.Length];
         for (int i = 0; i < names.Length; i++)
             names[i] = i < species.Count ? species[i] : string.Format(Strings.Species_Entry, i);
+
+        // A ROM with more species than its text archive names (a species-expansion mod that did not grow the text)
+        // leaves the extra ones with their row label, and their forms are named after it.
+        string SpeciesName(int id) => id < species.Count ? species[id] : string.Format(Strings.Species_Entry, id);
 
         for (int s = 1; s <= maxSpecies && s < data.Personal.Length; s++)
         {
@@ -110,7 +117,7 @@ public sealed class GameNames
             {
                 int index = p.FormStatsIndex + form - 1;
                 if (index < names.Length)
-                    names[index] = string.Format(Strings.Species_Form, species[s], form);
+                    names[index] = string.Format(Strings.Species_Form, SpeciesName(s), form);
             }
         }
 

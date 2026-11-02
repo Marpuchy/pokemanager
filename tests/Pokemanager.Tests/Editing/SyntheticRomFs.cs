@@ -1,3 +1,4 @@
+using System.Buffers.Binary;
 using pk3DS.Core.CTR;
 using Pokemanager.Model.Data;
 using Pokemanager.Model.Dump;
@@ -17,8 +18,16 @@ internal sealed class SyntheticRomFs : IDisposable
     public string DumpDirectory => Root;
     public string RomFs => Path.Combine(Root, "romfs");
 
-    public SyntheticRomFs()
+    /// <summary>The Mega Stones this romfs was built with, sorted and without repeats, as the reader returns them.</summary>
+    public int[] MegaStones { get; }
+
+    /// <param name="megaStones">
+    /// Item ids to put in the mega evolution table, which also writes the item table the reader needs to bound them.
+    /// Null (the default) leaves both archives out, as they were before: the games that have them come from a dump.
+    /// </param>
+    public SyntheticRomFs(int[]? megaStones = null)
     {
+        MegaStones = megaStones?.Distinct().Order().ToArray() ?? [];
         byte[][] personal = Enumerable.Range(0, Species).Select(i =>
         {
             var entry = new byte[0x40];
@@ -52,6 +61,30 @@ internal sealed class SyntheticRomFs : IDisposable
             files[descriptions] = GameText.Write(GameTitle.X, [.. Enumerable.Range(0, MoveCount).Select(i => Description(i, language))]);
             Write(GameText.Archive(GameTitle.X, language), files);
         }
+
+        if (megaStones is { Length: > 0 })
+            WriteMegaEvolutions(megaStones);
+    }
+
+    /// <summary>
+    /// The item table and the mega evolution table, the two archives <c>GameData.ReadMegaStones</c> reads: one 36-byte
+    /// file per item (only the count matters, it bounds the stone ids) and, per species, two 8-byte entries of form,
+    /// method, argument and a spare — method 1 is "hold this item" and the argument is the stone.
+    /// </summary>
+    private void WriteMegaEvolutions(int[] stones)
+    {
+        var layout = GameTitle.X.Layout();
+        int item = System.Runtime.InteropServices.Marshal.SizeOf<pk3DS.Core.Structures.Item>();
+        Write(layout.Items, [.. Enumerable.Range(0, stones.Max() + 1).Select(_ => new byte[item])]);
+
+        Write(layout.MegaEvolutions, [.. stones.Select(stone =>
+        {
+            var file = new byte[16]; // two entries: the reader ignores anything shorter
+            BinaryPrimitives.WriteUInt16LittleEndian(file.AsSpan(0), 1);              // form
+            BinaryPrimitives.WriteUInt16LittleEndian(file.AsSpan(2), 1);              // method: hold this item
+            BinaryPrimitives.WriteUInt16LittleEndian(file.AsSpan(4), (ushort)stone);  // argument: the stone
+            return file;
+        })]);
     }
 
     /// <summary>A move description as the game file has it (pk3DS syntax).</summary>

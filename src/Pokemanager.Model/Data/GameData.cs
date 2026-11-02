@@ -25,6 +25,28 @@ public sealed class GameData
     public GameTitle Title { get; }
     public GameLayout Layout => Title.Layout();
     public PersonalInfoXY[] Personal { get; }
+
+    /// <summary>
+    /// The last species **this ROM** has, read from its own personal table (<see cref="PersonalIndex.DeriveLastSpecies"/>)
+    /// instead of from the constant, so a ROM with more species than the game ships with is not cut short.
+    /// </summary>
+    public int LastSpecies { get; }
+
+    /// <summary>How many species this ROM has, row 0 included — the same count <see cref="GameLayout.SpeciesCount"/> is.</summary>
+    public int SpeciesCount => LastSpecies + 1;
+
+    /// <summary>How many species the game ships with, row 0 included: the constant, for comparison.</summary>
+    public int VanillaSpeciesCount => Layout.SpeciesCount;
+
+    /// <summary>
+    /// Species this ROM has beyond the stock game (0 for a stock ROM). The USUM Expansion Mod adds the Pokémon of
+    /// Generations 8 and 9, which is what this counts.
+    /// </summary>
+    public int ExtraSpecies => Math.Max(0, SpeciesCount - VanillaSpeciesCount);
+
+    /// <summary>Whether this ROM has more species than the game ships with — the sign of a species-expansion mod.</summary>
+    public bool IsExpanded => ExtraSpecies > 0;
+
     public Move[] Moves { get; }
     public Learnset6[] Learnsets { get; }
 
@@ -63,6 +85,7 @@ public sealed class GameData
     {
         Title = title;
         Personal = personal;
+        LastSpecies = PersonalIndex.DeriveLastSpecies(personal, title);
         Moves = moves;
         Learnsets = learnsets;
         MoveDescriptions = moveDescriptions;
@@ -85,7 +108,7 @@ public sealed class GameData
             ReadMoveDescriptions(layers, title, moves.Length),
             TrainerArchive.Read(layers, title),
             ReadItems(layers, title),
-            ReadMegaStones(layers, title));
+            ReadMegaStoneTable(layers, title));
     }
 
     /// <summary>
@@ -107,11 +130,18 @@ public sealed class GameData
     }
 
     /// <summary>
+    /// The Mega Stones of a game folder, read the same way <see cref="MegaStones"/> is but without loading the rest of
+    /// the tables. The randomization cache keys on this list, and the key has to be the same when it is written and
+    /// when it is looked up, so both sides take it from here.
+    /// </summary>
+    public static int[] ReadMegaStones(RomFsLayers layers, GameTitle title) => ReadMegaStoneTable(layers, title).Stones;
+
+    /// <summary>
     /// The item of every mega evolution the game defines. pk3DS reads the archive as 8-byte entries of form, method,
     /// argument and a spare; method 1 is "hold this item", and the argument is the stone. Verified on the real X dump:
     /// 30 stones, exactly the items whose names end in -ite minus the Eviolite, which is not one.
     /// </summary>
-    private static (int[] Stones, Dictionary<int, int> BySpecies) ReadMegaStones(RomFsLayers layers, GameTitle title)
+    private static (int[] Stones, Dictionary<int, int> BySpecies) ReadMegaStoneTable(RomFsLayers layers, GameTitle title)
     {
         try
         {

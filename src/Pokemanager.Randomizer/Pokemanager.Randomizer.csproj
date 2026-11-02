@@ -10,10 +10,6 @@
     <InternalsVisibleTo Include="Pokemanager.Tests" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Pokemanager.Model\Pokemanager.Model.csproj" />
-  </ItemGroup>
-
   <!-- Java launcher and bundled tools (tools/upr/PokeRandoZX.jar): copied to the output of any project using this one. -->
   <ItemGroup>
     <None Include="upr\PokemanagerUpr.java" CopyToOutputDirectory="PreserveNewest" LinkBase="upr" />

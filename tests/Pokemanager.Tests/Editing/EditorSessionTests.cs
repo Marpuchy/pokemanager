@@ -141,6 +141,70 @@ public class EditorSessionTests
         Assert.Equal(1, project.Edits.Count);
     }
 
+    /// <summary>
+    /// A randomized project whose randomization is not there (it was not in the cache) opens over the plain game. An
+    /// edit that says what the plain game says is still a real change over the randomization, so it has to survive:
+    /// dropping it here used to lose it for good, because the editor saves the project as soon as it opens it.
+    /// </summary>
+    [Fact]
+    public void Open_WithoutTheRandomizedBase_KeepsEveryEdit()
+    {
+        using var romfs = new SyntheticRomFs();
+        var project = new Project
+        {
+            DumpDirectory = romfs.DumpDirectory,
+            Randomization = new RandomizationSettings { Enabled = true, Seed = 7 },
+        };
+        int hp = EditorSession.Open(new Project { DumpDirectory = romfs.DumpDirectory }).GetInt(GameTables.Personal, 4, "hp");
+        project.Edits.Set(GameTables.Personal, 4, "hp", JsonValue.Create(hp));
+        project.Edits.Set(GameTables.Personal, 4, "spe", JsonValue.Create(99));
+
+        var session = EditorSession.Open(project);
+
+        Assert.True(session.RandomizedBaseMissing);
+        Assert.Equal(0, session.MatchedTheRom);
+        Assert.Equal(2, project.Edits.Count);
+        Assert.True(session.IsModified(GameTables.Personal, 4, "hp"));
+        Assert.True(session.IsModified(GameTables.Personal, 4, "spe"));
+
+        // Saving and reopening is what the editor does on every open: the edits are still there afterwards.
+        string file = Path.Combine(romfs.Root, "project.json");
+        project.Save(file);
+        Assert.Equal(2, Project.Load(file).Edits.Count);
+    }
+
+    /// <summary>The base is the one the edits belong to as soon as the randomization is there, and pruning resumes.</summary>
+    [Fact]
+    public void Open_WithTheRandomizedBase_PrunesAsUsual()
+    {
+        using var romfs = new SyntheticRomFs();
+        var project = new Project
+        {
+            DumpDirectory = romfs.DumpDirectory,
+            Randomization = new RandomizationSettings { Enabled = true, Seed = 7 },
+        };
+        int hp = EditorSession.Open(new Project { DumpDirectory = romfs.DumpDirectory }).GetInt(GameTables.Personal, 4, "hp");
+        project.Edits.Set(GameTables.Personal, 4, "hp", JsonValue.Create(hp));
+
+        // No randomizer here: an empty layer over the dump is base enough to stand for one that was found.
+        string empty = Directory.CreateDirectory(Path.Combine(romfs.Root, "random", "romfs")).FullName;
+        var session = EditorSession.Open(project, empty);
+
+        Assert.False(session.RandomizedBaseMissing);
+        Assert.Equal(1, session.MatchedTheRom);
+        Assert.Equal(0, project.Edits.Count);
+    }
+
+    /// <summary>A project that is not randomized at all keeps pruning: there is no base it could be missing.</summary>
+    [Fact]
+    public void Open_WithoutRandomization_IsNotMissingABase()
+    {
+        using var romfs = new SyntheticRomFs();
+        var session = EditorSession.Open(new Project { DumpDirectory = romfs.DumpDirectory });
+
+        Assert.False(session.RandomizedBaseMissing);
+    }
+
     [Fact]
     public void Open_WithEditOutOfRange_Throws()
     {
