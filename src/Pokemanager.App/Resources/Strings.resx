@@ -4017,4 +4017,28 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Difficulty_Levels" xml:space="preserve">
     <value>Trainer levels {0} %</value>
   </data>
+  <data name="Game_ResetRunNote" xml:space="preserve">
+    <value>The run's progress starts over with it: {0} lost lives come back, {1} roulette spins are forgotten and the level cap goes back to the first step of the plan. The rules stay as they are — the maximum lives, the prizes, how often the roulette comes up and the plan itself.</value>
+  </data>
+  <data name="Game_ResetRomChecks" xml:space="preserve">
+    <value>These are in the built ROM, so ticking any of them means building it again. Nothing here is touched unless you tick it:</value>
+  </data>
+  <data name="Game_ResetEdits" xml:space="preserve">
+    <value>Undo every edit of the game's tables ({0})</value>
+  </data>
+  <data name="Game_ResetRandomization" xml:space="preserve">
+    <value>Forget the randomization: off, no seed and no preset (the ROM already built and the seed it was built with are kept)</value>
+  </data>
+  <data name="Game_ResetShops" xml:space="preserve">
+    <value>Put the shops back as the game has them</value>
+  </data>
+  <data name="Game_ResetRules" xml:space="preserve">
+    <value>Put back the game options: all shiny, the three level percentages, the difficulty profile and the cap levels you wrote over the plan's</value>
+  </data>
+  <data name="Game_ResetRunUndo" xml:space="preserve">
+    <value>The run put back</value>
+  </data>
+  <data name="Game_ResetRunDone" xml:space="preserve">
+    <value>{0} things were put back.</value>
+  </data>
 </root>

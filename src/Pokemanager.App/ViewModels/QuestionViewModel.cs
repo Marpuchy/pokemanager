@@ -15,13 +15,18 @@ public partial class DialogCheck(string text, bool isChecked = false, bool isEna
 
 /// <summary>A confirmation or a short text prompt.</summary>
 public partial class QuestionViewModel(string title, string message, string confirmText, string cancelText,
-    IReadOnlyList<DialogCheck> checks, string? inputPlaceholder = null) : ObservableObject
+    IReadOnlyList<DialogCheck> checks, string? inputPlaceholder = null, string? checksTitle = null) : ObservableObject
 {
     public string Title { get; } = title;
     public string Message { get; } = message;
     public string ConfirmText { get; } = confirmText;
     public string CancelText { get; } = cancelText;
     public IReadOnlyList<DialogCheck> Checks { get; } = checks;
+
+    /// <summary>A line over the check boxes, when they are a group that needs saying what they have in common.</summary>
+    public string? ChecksTitle { get; } = checksTitle;
+
+    public bool HasChecksTitle => ChecksTitle is not null;
 
     /// <summary>Not null: the dialog asks for a line of text.</summary>
     public string? InputPlaceholder { get; } = inputPlaceholder;

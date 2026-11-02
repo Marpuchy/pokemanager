@@ -250,9 +250,16 @@ public sealed partial class GameTweaksViewModel : ObservableObject
 
     /// <summary>
     /// Starts the game over: the save is copied to the backups and taken out of the emulator's folder, so the game
-    /// begins a new adventure. It asks **twice** — the first time explaining what happens, the second as the last
-    /// chance — because there is no button that brings the adventure back, only the copy it leaves behind.
+    /// begins a new adventure. It asks **twice** — the first time explaining what happens and offering what else can
+    /// go back with it, the second as the last chance — because there is no button that brings the adventure back, only
+    /// the copy it leaves behind.
     /// </summary>
+    /// <remarks>
+    /// Taking the save away is only half of starting over: the run's progress lives in the project, so a new adventure
+    /// would otherwise begin with the lives already lost, the roulette already spun and the level cap where the last
+    /// run left it. <see cref="RunReset"/> puts that back always, and the ROM's own rules only when asked (they need
+    /// the ROM built again, so they are check boxes and they start unticked). All of it is one undo step.
+    /// </remarks>
     [RelayCommand]
     private async Task ResetGame()
     {
@@ -269,9 +276,17 @@ public sealed partial class GameTweaksViewModel : ObservableObject
             return;
         }
 
+        var project = editor.Session.Project;
         string path = document.SavePath;
-        var first = new QuestionViewModel(Strings.Game_ResetTitle,
-            string.Format(Strings.Game_ResetMessage, document.TrainerName, path), Strings.Game_ResetConfirm, Strings.Common_Cancel, []);
+        int editCount = project.Edits.Count;
+        var edits = new DialogCheck(string.Format(Strings.Game_ResetEdits, editCount), isEnabled: editCount > 0);
+        var randomization = new DialogCheck(Strings.Game_ResetRandomization);
+        var shops = new DialogCheck(Strings.Game_ResetShops);
+        var rules = new DialogCheck(Strings.Game_ResetRules);
+        string message = string.Format(Strings.Game_ResetMessage, document.TrainerName, path)
+                         + "\n\n" + string.Format(Strings.Game_ResetRunNote, project.Locke.LivesLost, project.Locke.Spins.Count);
+        var first = new QuestionViewModel(Strings.Game_ResetTitle, message, Strings.Game_ResetConfirm, Strings.Common_Cancel,
+            [edits, randomization, shops, rules], checksTitle: Strings.Game_ResetRomChecks);
         if (!await editor.Dialogs.AskAsync(first))
             return;
         var second = new QuestionViewModel(Strings.Game_ResetTitle,
@@ -279,6 +294,7 @@ public sealed partial class GameTweaksViewModel : ObservableObject
         if (!await editor.Dialogs.AskAsync(second))
             return;
 
+        var options = new RunResetOptions(edits.IsChecked, randomization.IsChecked, shops.IsChecked, rules.IsChecked);
         try
         {
             editor.History.History.Record(editor.Session.Project, VersionKind.BeforeSaveEdit,
@@ -289,11 +305,35 @@ public sealed partial class GameTweaksViewModel : ObservableObject
             string backup = document.Reset(backups);
             SaveUpdater.PruneBackups(backups, keep: 10);
 
+            // One undo step for the whole thing, as a difficulty profile or a sweep does: the notice, the edit counts
+            // and the history entry are done once, when the batch ends.
+            RunResetReport report;
+            using (editor.BeginBatch(Strings.Game_ResetRunUndo))
+            {
+                report = RunReset.Apply(editor.Session, options);
+                // Nothing here goes through the session except the edits, so the project is marked by hand. The run's
+                // own progress changes no byte of the ROM; the cap's step and the ROM's rules do.
+                if (report.Count > 0)
+                    editor.MarkDirty(Strings.Game_ResetRunUndo, affectsRom: report.AffectsRom);
+            }
+
             // Read the folder again: there is no save there now, and the page has to say so.
             save.Open();
             editor.History.Refresh();
             editor.Randomizer.RefreshSave();
-            editor.SetStatus(string.Format(Strings.Game_ResetDone, backup));
+            if (report.TableEdits > 0)
+                editor.ReloadLists();
+            if (report.Randomization)
+                editor.Randomizer.ReloadFromProject();
+            if (report.Shops)
+                editor.Randomizer.Shops.Refresh();
+            if (report.GameRules > 0)
+                Refresh();
+            editor.Locke.Refresh();
+            editor.LevelCap.Refresh();
+            // Say how much was put back, so starting over is not done blind.
+            editor.SetStatus(string.Format(Strings.Game_ResetDone, backup)
+                             + (report.Count > 0 ? " " + string.Format(Strings.Game_ResetRunDone, report.Count) : ""));
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SaveUpdateException)
         {

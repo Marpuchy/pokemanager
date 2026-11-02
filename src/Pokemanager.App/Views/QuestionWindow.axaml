@@ -11,6 +11,8 @@
     <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap" />
     <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
     <TextBox x:Name="InputBox" Text="{Binding Input}" PlaceholderText="{Binding InputPlaceholder}" IsVisible="{Binding HasInput}" MaxLength="120" />
+    <TextBlock Text="{Binding ChecksTitle}" IsVisible="{Binding HasChecksTitle}" TextWrapping="Wrap"
+               FontWeight="SemiBold" Margin="0,6,0,0" />
     <ItemsControl ItemsSource="{Binding Checks}">
       <ItemsControl.ItemTemplate>
         <DataTemplate x:DataType="vm:DialogCheck">

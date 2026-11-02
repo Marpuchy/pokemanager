@@ -4017,4 +4017,28 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Difficulty_Levels" xml:space="preserve">
     <value>Niveles de entrenador {0} %</value>
   </data>
+  <data name="Game_ResetRunNote" xml:space="preserve">
+    <value>El progreso de la run empieza de cero con ella: vuelven {0} vidas perdidas, se olvidan {1} tiradas de la ruleta y el tope de nivel vuelve al primer paso del plan. Las reglas se quedan como están: las vidas máximas, los premios, cada cuánto sale la ruleta y el plan en sí.</value>
+  </data>
+  <data name="Game_ResetRomChecks" xml:space="preserve">
+    <value>Esto está dentro de la ROM creada, así que marcar cualquiera de ellos obliga a volver a crearla. Nada de aquí se toca si no lo marcas:</value>
+  </data>
+  <data name="Game_ResetEdits" xml:space="preserve">
+    <value>Deshacer todos los cambios en las tablas del juego ({0})</value>
+  </data>
+  <data name="Game_ResetRandomization" xml:space="preserve">
+    <value>Olvidar la randomización: apagada, sin semilla y sin preset (se conservan la ROM ya creada y la semilla con la que se creó)</value>
+  </data>
+  <data name="Game_ResetShops" xml:space="preserve">
+    <value>Devolver las tiendas a lo que vende el juego</value>
+  </data>
+  <data name="Game_ResetRules" xml:space="preserve">
+    <value>Devolver las opciones del juego: todos variocolor, los tres porcentajes de nivel, el perfil de dificultad y los topes que escribiste sobre los del plan</value>
+  </data>
+  <data name="Game_ResetRunUndo" xml:space="preserve">
+    <value>Progreso de la run reiniciado</value>
+  </data>
+  <data name="Game_ResetRunDone" xml:space="preserve">
+    <value>Se han reiniciado {0} cosas.</value>
+  </data>
 </root>
