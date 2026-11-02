@@ -20,3 +20,6 @@ TestResults/
 
 ## Battle simulator dependencies (npm install in battle/)
 node_modules/
+
+# Rutas locales recordadas por build/run-current.ps1
+build/run-current.local.json
