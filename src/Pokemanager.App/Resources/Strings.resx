@@ -4582,7 +4582,10 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
     <value>Moves by level</value>
   </data>
   <data name="Dex_MovesHidden" xml:space="preserve">
-    <value>Moves hidden</value>
+    <value>Moves hidden — tick "Show moves" to see them</value>
+  </data>
+  <data name="Dex_MoveHidden" xml:space="preserve">
+    <value>Hidden move</value>
   </data>
   <data name="Dex_MoveLevel" xml:space="preserve">
     <value>Lv. {0}</value>

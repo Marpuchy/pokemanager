@@ -375,7 +375,7 @@
       </DataTemplate>
       <!-- An evolution line: stages left to right, each Pokémon a card in its type colours that opens its own page -->
       <DataTemplate x:Key="EvolutionChain" x:DataType="vm:EvolutionChainViewModel">
-        <ItemsControl ItemsSource="{Binding Stages}">
+        <ItemsControl ItemsSource="{Binding Stages}" HorizontalAlignment="Center">
           <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
               <WrapPanel Orientation="Horizontal" />
@@ -398,7 +398,7 @@
                               IsHitTestVisible="{Binding CanOpen}" Width="150" Margin="3"
                               ToolTip.Tip="{x:Static r:Strings.Evo_OpenTip}">
                         <Border Classes="evo-card" Background="{Binding Background}">
-                          <StackPanel Spacing="1" HorizontalAlignment="Center">
+                          <StackPanel Spacing="1" HorizontalAlignment="Center" VerticalAlignment="Center">
                             <Image Source="{Binding Icon}" Width="80" Height="60" Stretch="Uniform"
                                    RenderOptions.BitmapInterpolationMode="None" HorizontalAlignment="Center" />
                             <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground}" FontWeight="Bold" FontSize="13"

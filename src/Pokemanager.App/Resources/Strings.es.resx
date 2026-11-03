@@ -4582,7 +4582,10 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>Movimientos por nivel</value>
   </data>
   <data name="Dex_MovesHidden" xml:space="preserve">
-    <value>Movimientos ocultos</value>
+    <value>Movimientos ocultos: marca «Mostrar movimientos» para verlos</value>
+  </data>
+  <data name="Dex_MoveHidden" xml:space="preserve">
+    <value>Movimiento oculto</value>
   </data>
   <data name="Dex_MoveLevel" xml:space="preserve">
     <value>Nv. {0}</value>
