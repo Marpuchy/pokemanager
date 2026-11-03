@@ -49,3 +49,28 @@ public sealed class ExpandedAbilityTests
         Assert.Equal(0xF8, entry.Write()[PersonalInfoSM.AbilityHighBits]);
     }
 }
+
+/// <summary>The save side: bit 4 of byte 0x15 is the ninth bit, as the user's Nacli stores it (0x92, 0x11).</summary>
+public sealed class ExpandedAbilityInSaveTests
+{
+    [Fact]
+    public void TheNinthBit_IsReadAndCleared_AndTheAbilityNumberStays()
+    {
+        var pk = new PKHeX.Core.PK7 { Species = 932 };
+        pk.Data[0x14] = 0x92;
+        pk.Data[0x15] = 0x11;
+        Assert.Equal(1, pk.AbilityNumber);
+        Assert.Equal(402, Pokemanager.Save.ExpandedAbility.Get(pk));
+
+        Assert.True(Pokemanager.Save.ExpandedAbility.Set(pk, 146));
+        Assert.Equal(0x92, pk.Data[0x14]);
+        Assert.Equal(0x01, pk.Data[0x15]);
+        Assert.Equal(146, Pokemanager.Save.ExpandedAbility.Get(pk));
+        Assert.False(Pokemanager.Save.ExpandedAbility.Set(pk, 146));
+
+        Assert.True(Pokemanager.Save.ExpandedAbility.Set(pk, 272));
+        Assert.Equal(0x10, pk.Data[0x14]);
+        Assert.Equal(0x11, pk.Data[0x15]);
+        Assert.Equal(1, pk.AbilityNumber);
+    }
+}
