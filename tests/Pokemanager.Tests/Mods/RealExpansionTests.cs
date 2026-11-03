@@ -129,4 +129,25 @@ public sealed class RealExpansionTests
         Assert.True(icons.IndexFor(data.LastSpecies) < icons.Count);
         Assert.NotNull(icons.For(data.LastSpecies));
     }
+
+    /// <summary>
+    /// The trial slots show the game's type crystals with the mod on too: the mod's item icon archive has a longer run
+    /// of same-shaped icons (new Poké Balls), so it is the game's own archive that is read.
+    /// </summary>
+    [Fact]
+    public void TheTrialCrystalsAreTheGamesWithTheModOn()
+    {
+        Assert.SkipWhen(Paths() is null, "POKEMANAGER_USUM_DUMP / POKEMANAGER_MOD_LIBRARY are not set.");
+
+        var (_, vanilla) = Open(withMod: false);
+        var (_, modded) = Open(withMod: true);
+        var expected = ItemIcons.LoadTypeCrystals(vanilla.Layers, GameTitle.UltraSun);
+        var actual = ItemIcons.LoadTypeCrystals(modded.Layers, GameTitle.UltraSun);
+
+        Assert.NotNull(expected);
+        Assert.NotNull(actual);
+        Assert.Equal(expected.Length, actual.Length);
+        for (int i = 0; i < expected.Length; i++)
+            Assert.Equal(expected[i]?.Rgba, actual[i]?.Rgba);
+    }
 }

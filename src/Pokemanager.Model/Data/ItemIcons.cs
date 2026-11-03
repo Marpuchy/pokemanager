@@ -1,4 +1,4 @@
-using pk3DS.Core.CTR;
+﻿using pk3DS.Core.CTR;
 using Pokemanager.Model.Dump;
 
 namespace Pokemanager.Model.Data;
@@ -19,7 +19,16 @@ public static class ItemIcons
     /// Ground, Flying, Psychic, Bug, Rock, Ghost, Dragon, Dark, Steel, Fairy — the order of the Pokédex, not the order
     /// types have in battle data), or null when the archive has none.
     /// </summary>
-    public static IconImage?[]? LoadTypeCrystals(RomFsLayers layers, GameTitle title)
+    /// <remarks>
+    /// The game's own archive (the dump, the last layer) is read first. A species-expansion mod replaces the item icon
+    /// archive and appends icons of its own, and in the USUM Expansion's a run of new Poké Ball icons is longer than
+    /// the crystals' — so the trial slots showed balls. The crystals are the game's, and so are their icons.
+    /// </remarks>
+    public static IconImage?[]? LoadTypeCrystals(RomFsLayers layers, GameTitle title) =>
+        (layers.Roots.Count > 1 ? LoadTypeCrystalsFrom(new RomFsLayers(layers.Roots[^1]), title) : null)
+        ?? LoadTypeCrystalsFrom(layers, title);
+
+    private static IconImage?[]? LoadTypeCrystalsFrom(RomFsLayers layers, GameTitle title)
     {
         foreach (string path in title.Layout().ItemIcons)
         {
