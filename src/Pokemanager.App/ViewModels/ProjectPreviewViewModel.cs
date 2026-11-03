@@ -403,6 +403,9 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
         }
     }
 
+    /// <summary>A line under the summary, where ▶ Play reports (the level cap pass uses it too).</summary>
+    public void ShowNotice(string text, bool error) => ShowPlay(text, error);
+
     private void ShowPlay(string text, bool error)
     {
         PlayStatus = text;

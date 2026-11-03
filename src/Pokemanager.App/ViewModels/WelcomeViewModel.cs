@@ -83,7 +83,32 @@ public partial class WelcomeViewModel : ObservableObject
     [RelayCommand]
     private void CloseRoomPanel() => ShowRoom = false;
 
-    partial void OnPreviewChanged(ProjectPreviewViewModel? value) => Room.RefreshSelectedProject();
+    partial void OnPreviewChanged(ProjectPreviewViewModel? value)
+    {
+        Room.RefreshSelectedProject();
+        main.RequestLevelCapCheck(); // a project shown with the emulator closed gets its cap applied
+    }
+
+    /// <summary>
+    /// The level cap pass on the project shown (<see cref="LevelCapGuard"/>). False while no project is loaded, so the
+    /// application tries again when one is.
+    /// </summary>
+    internal bool TrimShownProject()
+    {
+        if (Preview is not { } preview || SelectedProject is not { } item)
+            return false;
+        var loaded = preview.Loaded;
+        if (LevelCapGuard.Run(loaded.Path, loaded.Project, loaded.Session.Current, loaded.Dump.Title, main.Settings) is { } outcome)
+            _ = ReloadWithNoticeAsync(item, outcome);
+        return true;
+    }
+
+    private async Task ReloadWithNoticeAsync(RecentProjectItem item, LevelCapGuard.Outcome outcome)
+    {
+        if (!outcome.Error)
+            await LoadPreviewAsync(item); // the party on screen is the old one
+        Preview?.ShowNotice(outcome.Message ?? "", outcome.Error);
+    }
 
     [ObservableProperty]
     public partial bool IsLoadingPreview { get; set; }

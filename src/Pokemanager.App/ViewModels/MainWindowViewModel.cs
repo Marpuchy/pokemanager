@@ -1,3 +1,4 @@
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Pokemanager.App.Resources;
 using Pokemanager.App.Services;
@@ -28,6 +29,55 @@ public partial class MainWindowViewModel : ObservableObject
 
         // Start on the project list: with several projects, the user picks which one to open.
         CurrentPage = new WelcomeViewModel(this, dialogs);
+
+        capTimer = new DispatcherTimer(TimeSpan.FromSeconds(3), DispatcherPriority.Background, OnCapTick);
+        capTimer.Start();
+    }
+
+    // ----- Level cap: whatever got past it is brought back when the emulator closes -----
+    // It lived in the editor and stopped with it, so a game played from the start page was never trimmed
+    // (2026-11-04, user: a Pokémon candied to 25 over a cap of 20). It belongs to the application now: on the edge
+    // emulator running → closed, and whenever a project is shown (start, page change, another project picked) with the
+    // emulator already closed, the project on screen gets the pass.
+    private readonly DispatcherTimer capTimer;
+    private bool emulatorWasRunning, checkingEmulator, capCheckPending = true;
+
+    /// <summary>Asks for a level cap pass at the next tick in which the emulator is closed.</summary>
+    public void RequestLevelCapCheck() => capCheckPending = true;
+
+    private async void OnCapTick(object? sender, EventArgs e)
+    {
+        if (checkingEmulator)
+            return;
+        checkingEmulator = true;
+        try
+        {
+            // Enumerating every process is not free, so it happens off the UI thread.
+            string name = settings.EffectiveEmulatorName;
+            bool running = await Task.Run(() => Pokemanager.Bridge.EmulatorUserFolders.RunningEmulators(name).Count > 0);
+            if (!running && (emulatorWasRunning || capCheckPending))
+                capCheckPending = !TrimShownProject();
+            emulatorWasRunning = running;
+        }
+        finally
+        {
+            checkingEmulator = false;
+        }
+    }
+
+    /// <summary>The pass on the project on screen; false when there is none yet.</summary>
+    private bool TrimShownProject()
+    {
+        switch (CurrentPage)
+        {
+            case EditorViewModel editor:
+                editor.LevelCap.TrimNow();
+                return true;
+            case WelcomeViewModel welcome:
+                return welcome.TrimShownProject();
+            default:
+                return true;
+        }
     }
 
     /// <summary>Version of the application (from the build: <c>Directory.Build.props</c> or the release tag).</summary>
@@ -37,7 +87,11 @@ public partial class MainWindowViewModel : ObservableObject
         ? string.Format(Strings.Main_TitleWithProject, Path.GetFileName(e.ProjectPath))
         : $"Pokemanager {Version}";
 
-    partial void OnCurrentPageChanged(ObservableObject value) => OnPropertyChanged(nameof(Title));
+    partial void OnCurrentPageChanged(ObservableObject value)
+    {
+        OnPropertyChanged(nameof(Title));
+        RequestLevelCapCheck();
+    }
 
     /// <summary>A closed editor stops watching the save for the level cap.</summary>
     partial void OnCurrentPageChanging(ObservableObject? oldValue, ObservableObject newValue)

@@ -107,6 +107,39 @@ public sealed class SaveUpdaterTests : IDisposable
         Assert.Equal(afterFirst, File.ReadAllBytes(save));
     }
 
+    /// <summary>
+    /// What the user had (2026-11-04): Rare Candies took a Pokémon from 20 to 25 over a cap of 20, the game coding each
+    /// level. The pass that runs when the emulator closes brings it back to 20 with its stats, and touches nothing else
+    /// (the ability here is not the ROM's, and stays).
+    /// </summary>
+    [Fact]
+    public void TrimOverCap_BringsBackOnlyWhatPassedTheCap()
+    {
+        var sav = new SAV6XY();
+        var candied = Pokemon(species: 1, abilityNumber: 2, ability: 5, level: 25);
+        candied.EXP = Pokemanager.Model.Data.ExperienceTable.CappedExperience(25) + 0x1E8; // as the user's save held it
+        candied.MetLevel = 13;
+        candied.RefreshChecksum();
+        sav.SetPartySlotAtIndex(candied, 0, EntityImportSettings.None);
+        sav.SetPartySlotAtIndex(Pokemon(species: 3, abilityNumber: 4, ability: 5, level: 18), 1, EntityImportSettings.None);
+        string save = Path.Combine(dir, "main");
+        File.WriteAllBytes(save, sav.Write().ToArray());
+
+        var look = SaveUpdater.TrimOverCap(save, Rom(), cap: 20, backupRoot: null);
+        Assert.Single(look.Changes);
+        var result = SaveUpdater.TrimOverCap(save, Rom(), cap: 20, Path.Combine(dir, "backups"));
+
+        var after = SaveUpdater.Load(save);
+        var p0 = after.GetPartySlotAtIndex(0);
+        Assert.Equal(20, ExperienceLevels.LevelOf(p0, 0));
+        Assert.Equal(20, p0.Stat_Level);
+        Assert.Equal((2 * 20 + 31) * 20 / 100 + 30, p0.Stat_HPMax);
+        Assert.Equal(5, p0.Ability); // only the level: no adaptation
+        Assert.Equal(18, ExperienceLevels.LevelOf(after.GetPartySlotAtIndex(1), 0));
+        Assert.NotNull(result.BackupPath);
+        Assert.Empty(SaveUpdater.TrimOverCap(save, Rom(), cap: 20, Path.Combine(dir, "backups")).Changes);
+    }
+
     [Fact]
     public void NotASave_Throws()
     {

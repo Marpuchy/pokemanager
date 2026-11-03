@@ -23,9 +23,6 @@ public sealed partial class LevelCapViewModel : ObservableObject, IDisposable
     private readonly EditorViewModel editor;
     private SaveWatcher? watcher;
     private string? watchedPath;
-    private DispatcherTimer? emulatorTimer;
-    private bool emulatorWasRunning;
-    private bool checkingEmulator;
     private IReadOnlyList<LevelCapStep> plan = [];
 
     public LevelCapViewModel(EditorViewModel editor)
@@ -161,7 +158,6 @@ public sealed partial class LevelCapViewModel : ObservableObject, IDisposable
     /// <summary>Watches the save while the cap is on: a save by the game may unlock the next cap.</summary>
     private void Watch()
     {
-        WatchEmulator();
         string? path = Enabled ? editor.Randomizer.SavePath : null;
         if (path == watchedPath)
             return;
@@ -180,89 +176,28 @@ public sealed partial class LevelCapViewModel : ObservableObject, IDisposable
     }
 
     /// <summary>
-    /// Watches for the emulator being closed while the played ROM has a cap: that is the moment the save is settled
-    /// and nothing else is holding it, so it is when whatever got past the cap is brought back.
+    /// Brings back to the cap of the built ROM anything the save got past it. Called by the application when the
+    /// emulator closes and when this editor opens (<see cref="MainWindowViewModel"/>); the pass itself is
+    /// <see cref="LevelCapGuard"/>. Only unwritten edits in the save editor hold it back: they are not on disk and
+    /// would be lost. Unbuilt project changes do not, since the pass touches levels and nothing else.
     /// </summary>
-    private void WatchEmulator()
+    public void TrimNow()
     {
-        var tweaks = editor.Session.Project.Tweaks;
-        bool wanted = tweaks.TrimsOverCap && tweaks.InstalledLevelCap is not null;
-        if (wanted == (emulatorTimer is not null))
-            return;
-        if (!wanted)
-        {
-            emulatorTimer?.Stop();
-            emulatorTimer = null;
-            emulatorWasRunning = false;
-            return;
-        }
-        emulatorTimer = new DispatcherTimer(TimeSpan.FromSeconds(3), DispatcherPriority.Background, OnEmulatorTick);
-        emulatorTimer.Start();
-    }
-
-    private async void OnEmulatorTick(object? sender, EventArgs e)
-    {
-        if (checkingEmulator)
-            return;
-        checkingEmulator = true;
-        try
-        {
-            // Enumerating every process is not free, so it happens off the UI thread.
-            string name = editor.Settings.EffectiveEmulatorName;
-            bool running = await Task.Run(() => EmulatorUserFolders.RunningEmulators(name).Count > 0);
-            if (emulatorWasRunning && !running)
-                TrimAfterPlaying();
-            emulatorWasRunning = running;
-        }
-        finally
-        {
-            checkingEmulator = false;
-        }
-    }
-
-    /// <summary>
-    /// Brings back to the cap of the built ROM anything the session got past it. Same safety as every other write to
-    /// the save: a history version and a backup before, verification after. Nothing is written when nothing is over.
-    /// </summary>
-    private void TrimAfterPlaying()
-    {
-        var tweaks = editor.Session.Project.Tweaks;
-        if (!tweaks.TrimsOverCap || tweaks.InstalledLevelCap is not { } cap)
-            return;
-        if (editor.Randomizer.SavePath is not { } path || !File.Exists(path))
-            return;
         if (editor.SaveEditor.IsDirty)
         {
-            // Unwritten edits in the save editor are the player's and they are not on disk: writing would lose them.
-            editor.SetStatus(Strings.LevelCap_TrimHeldBack);
+            var tweaks = editor.Session.Project.Tweaks;
+            if (tweaks.TrimsOverCap && tweaks.InstalledLevelCap is not null)
+                editor.SetStatus(Strings.LevelCap_TrimHeldBack);
             return;
         }
-        if (editor.NeedsRomBuild)
-        {
-            // The adaptation writes abilities and party stats from the ROM data the session holds, and that is not
-            // what is installed while there are unbuilt changes: it would put the next ROM's values in the save.
-            editor.SetStatus(Strings.LevelCap_TrimNeedsBuild);
+        if (LevelCapGuard.Run(editor.ProjectPath, editor.Session.Project, editor.Session.Current, editor.Dump.Title, editor.Settings) is not { } outcome)
             return;
-        }
-
-        try
+        if (!outcome.Error)
         {
-            var preview = SaveUpdater.Preview(path, editor.Session.Current, levelCap: cap, playedCap: cap);
-            int over = preview.Changes.Count(c => c.Kind == ChangeKind.ExperienceTrimmed);
-            if (over == 0)
-                return;
-
-            editor.RecordVersion(VersionKind.BeforeSaveEdit, editor.Session.Project.Randomization.LastBuiltRom);
-            string backups = Path.Combine(AppSettings.BackupRoot, editor.Settings.EffectiveEmulatorName);
-            SaveUpdater.Apply(path, editor.Session.Current, backups, levelCap: cap, playedCap: cap);
-            SaveUpdater.PruneBackups(backups, keep: 10);
             editor.SaveEditor.OnRomChanged(); // the document on screen is the old one: read the file again
-            editor.SetStatus(string.Format(Strings.LevelCap_Trimmed, over, cap));
+            editor.History.Refresh();
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SaveUpdateException)
-        {
-            editor.SetStatus(string.Format(Strings.Save_WriteFailed, ex.Message), error: true);
-        }
+        editor.SetStatus(outcome.Message ?? "", error: outcome.Error);
     }
 
     /// <summary>Whether the save has the milestone of a step.</summary>
@@ -298,8 +233,6 @@ public sealed partial class LevelCapViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
-        emulatorTimer?.Stop();
-        emulatorTimer = null;
         watcher?.Dispose();
         watcher = null;
         watchedPath = null;

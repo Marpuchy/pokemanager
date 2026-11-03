@@ -114,6 +114,62 @@ public static class SaveUpdater
     public static SaveUpdateResult Apply(string savePath, GameData rom, string backupRoot, int? levelCap = null, int? playedCap = null) =>
         Run(savePath, rom, backupRoot, write: true, levelCap, playedCap);
 
+    /// <summary>
+    /// Only brings back what got past <paramref name="cap"/> (a Rare Candy ignores the cap), with the party stats of
+    /// what moved recalculated: nothing else of the adaptation, so abilities and the other Pokémon are left exactly as
+    /// the game wrote them. This is the pass that runs when the emulator closes; it does not need the ROM to be built
+    /// from the project, which the full adaptation does (2026-11-04: holding it back for unbuilt changes let a Pokémon
+    /// candied to 25 over a cap of 20 stay there).
+    /// </summary>
+    /// <param name="backupRoot">Where the backup goes; null only looks.</param>
+    public static SaveUpdateResult TrimOverCap(string savePath, GameData rom, int cap, string? backupRoot)
+    {
+        var sav = Load(savePath);
+        if (Problem(sav) is { } problem)
+            throw new SaveUpdateException(problem);
+
+        var changes = new List<PokemonChange>();
+        int checkedCount = 0;
+        bool Trim(PKM pk, SaveSlot slot)
+        {
+            checkedCount++;
+            if (Personal(rom, pk) is not { } personal
+                || ExperienceLevels.Trim(pk, (byte)personal.EXPGrowth, cap) is not { } trimmed)
+                return false;
+            changes.Add(new PokemonChange(slot, pk.Species, ChangeKind.ExperienceTrimmed, [trimmed.Was], [trimmed.Level]));
+            if (slot.IsParty)
+            {
+                int[] stats = CalculateStats(pk, personal);
+                bool fullHp = pk.Stat_HPCurrent >= pk.Stat_HPMax;
+                (pk.Stat_HPMax, pk.Stat_ATK, pk.Stat_DEF, pk.Stat_SPE, pk.Stat_SPA, pk.Stat_SPD) = (stats[0], stats[1], stats[2], stats[3], stats[4], stats[5]);
+                pk.Stat_HPCurrent = fullHp ? stats[0] : Math.Clamp(pk.Stat_HPCurrent, pk.Stat_HPCurrent > 0 ? 1 : 0, stats[0]);
+            }
+            return true;
+        }
+
+        for (int i = 0; i < sav.PartyCount; i++)
+        {
+            var pk = sav.GetPartySlotAtIndex(i);
+            if (pk.Species != 0 && Trim(pk, new SaveSlot(null, i)))
+                sav.SetPartySlotAtIndex(pk, i, EntityImportSettings.None);
+        }
+        for (int box = 0; box < sav.BoxCount; box++)
+            for (int slot = 0; slot < sav.BoxSlotCount; slot++)
+            {
+                var pk = sav.GetBoxSlotAtIndex(box, slot);
+                if (pk.Species != 0 && Trim(pk, new SaveSlot(box, slot)))
+                    sav.SetBoxSlotAtIndex(pk, box, slot, EntityImportSettings.None);
+            }
+
+        if (backupRoot is null || changes.Count == 0)
+            return new SaveUpdateResult(savePath, null, checkedCount, changes);
+        byte[] updated = sav.Write().ToArray();
+        // Only that it reads back: the abilities are the game's here, not necessarily the ROM's.
+        _ = Parse(updated) ?? throw new SaveUpdateException(Strings.Save_CannotReread);
+        string backup = SaveWriter.Write(savePath, updated, backupRoot);
+        return new SaveUpdateResult(savePath, backup, checkedCount, changes);
+    }
+
     private static SaveUpdateResult Run(string savePath, GameData rom, string? backupRoot, bool write, int? levelCap, int? playedCap = null)
     {
         var sav = Load(savePath);
