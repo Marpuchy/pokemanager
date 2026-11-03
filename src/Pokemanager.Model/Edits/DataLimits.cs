@@ -58,7 +58,7 @@ public sealed record DataLimits(int Species, int Moves, int Items, int Abilities
         if (value is not JsonValue || value.GetValueKind() is not System.Text.Json.JsonValueKind.Number)
             return true;
         int number = value.GetValue<int>();
-        string name = table == GameTables.Trainers && field.Contains('.') ? field[3..] : field;
+        string name = (table == GameTables.Trainers || table == GameTables.Evolutions) && field.Contains('.') ? field[3..] : field;
         return name switch
         {
             "ability1" or "ability2" or "abilityHidden" => Fits(number, Abilities, "ability", out reason),

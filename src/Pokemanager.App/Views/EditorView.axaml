@@ -335,6 +335,85 @@
                           </ScrollViewer>
                         </DockPanel>
                       </TabItem>
+
+                      <!-- Evolution: how and into what, editable (methods, levels, items, moves, partners) -->
+                      <TabItem>
+                        <TabItem.Header>
+                          <StackPanel Orientation="Horizontal" Spacing="4">
+                            <TextBlock Text="{x:Static r:Strings.Section_Evolution}" />
+                            <TextBlock Classes="dot" Text="●" IsVisible="{Binding IsEvolutionModified}" />
+                          </StackPanel>
+                        </TabItem.Header>
+                        <DockPanel>
+                          <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="0,10,0,10">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                              <Button Content="{x:Static r:Strings.Evo_Add}" Command="{Binding AddEvolutionCommand}" IsEnabled="{Binding CanAddEvolution}"
+                                      ToolTip.Tip="{x:Static r:Strings.Tip_EvoAdd}" />
+                              <TextBlock Classes="hint" VerticalAlignment="Center" Text="{x:Static r:Strings.Evo_Hint}" />
+                            </StackPanel>
+                            <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="720" HorizontalAlignment="Left" Margin="2,0,0,0" Text="{Binding EvolvesFrom}"
+                                       IsVisible="{Binding EvolvesFrom, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                            <TextBlock Classes="hint" Text="{x:Static r:Strings.Evo_None}" IsVisible="{Binding HasNoEvolution}" />
+                            <TextBlock Classes="hint" Text="{x:Static r:Strings.Evo_NoData}" IsVisible="{Binding !HasEvolutionData}" />
+                          </StackPanel>
+                          <ScrollViewer Padding="0,0,12,8">
+                            <ItemsControl ItemsSource="{Binding Evolutions}">
+                              <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:EvolutionRowViewModel">
+                                  <Border Classes="card" Margin="0,0,0,6" MinWidth="720" HorizontalAlignment="Left">
+                                    <StackPanel Spacing="6">
+                                      <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Classes="field-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Evo_Method}" />
+                                        <ComboBox ItemsSource="{Binding Methods}" SelectedIndex="{Binding Method}" Width="300" MaxDropDownHeight="420"
+                                                  ToolTip.Tip="{x:Static r:Strings.Tip_Field_evolution_method}" />
+                                        <TextBlock Classes="field-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Evo_Into}" />
+                                        <ComboBox ItemsSource="{Binding Species}" SelectedIndex="{Binding Into}" Width="200" MaxDropDownHeight="420"
+                                                  ToolTip.Tip="{x:Static r:Strings.Tip_Field_evolution_species}" />
+                                        <TextBlock Classes="dot" Text="●" VerticalAlignment="Center" IsVisible="{Binding IsModified}" />
+                                        <Button Content="{x:Static r:Strings.Common_Remove}" Command="{Binding RemoveCommand}" />
+                                      </StackPanel>
+                                      <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding ShowLevel}">
+                                          <TextBlock Classes="field-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Evo_Level}" />
+                                          <NumericUpDown Value="{Binding Level}" Minimum="0" Maximum="100" Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="120"
+                                                         ToolTip.Tip="{x:Static r:Strings.Tip_Field_evolution_level}" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding ShowItem}">
+                                          <TextBlock Classes="field-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Evo_Item}" />
+                                          <ComboBox ItemsSource="{Binding Items}" SelectedIndex="{Binding Item}" Width="220" MaxDropDownHeight="420"
+                                                    ToolTip.Tip="{x:Static r:Strings.Tip_Field_evolution_argument}" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding ShowMove}">
+                                          <TextBlock Classes="field-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Evo_Move}" />
+                                          <ComboBox ItemsSource="{Binding Moves}" SelectedIndex="{Binding Move}" Width="220" MaxDropDownHeight="420"
+                                                    ToolTip.Tip="{x:Static r:Strings.Tip_Field_evolution_argument}" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding ShowPartner}">
+                                          <TextBlock Classes="field-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Evo_Partner}" />
+                                          <ComboBox ItemsSource="{Binding Species}" SelectedIndex="{Binding Partner}" Width="220" MaxDropDownHeight="420"
+                                                    ToolTip.Tip="{x:Static r:Strings.Tip_Field_evolution_argument}" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding ShowType}">
+                                          <TextBlock Classes="field-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Evo_MoveType}" />
+                                          <ComboBox ItemsSource="{Binding Types}" SelectedIndex="{Binding MoveType}" Width="160"
+                                                    ToolTip.Tip="{x:Static r:Strings.Tip_Field_evolution_argument}" />
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding Generation7}">
+                                          <TextBlock Classes="field-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Evo_Form}" />
+                                          <NumericUpDown Value="{Binding Form}" Minimum="-1" Maximum="127" Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="110"
+                                                         ToolTip.Tip="{x:Static r:Strings.Tip_Field_evolution_form}" />
+                                        </StackPanel>
+                                      </StackPanel>
+                                      <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="700" HorizontalAlignment="Left"
+                                                 Text="{x:Static r:Strings.Evo_FriendshipNote}" IsVisible="{Binding ShowFriendshipNote}" />
+                                    </StackPanel>
+                                  </Border>
+                                </DataTemplate>
+                              </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                          </ScrollViewer>
+                        </DockPanel>
+                      </TabItem>
                     </TabControl>
                   </DockPanel>
                 </DataTemplate>

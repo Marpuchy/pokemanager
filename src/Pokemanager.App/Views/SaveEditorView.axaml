@@ -948,8 +948,12 @@
               <StackPanel Orientation="Horizontal" Spacing="6">
                 <Button Content="{x:Static r:Strings.Dex_AllSeen}" Command="{Binding AllSeenCommand}" />
                 <Button Content="{x:Static r:Strings.Dex_AllCaught}" Command="{Binding AllCaughtCommand}" />
+              </StackPanel>
+              <StackPanel Orientation="Horizontal" Spacing="12">
                 <CheckBox IsChecked="{Binding ShowAbilities}" Content="{x:Static r:Strings.Adv_ShowAbilities}"
                           ToolTip.Tip="{x:Static r:Strings.Dex_ShowAbilitiesTip}" />
+                <CheckBox IsChecked="{Binding ShowMoves}" Content="{x:Static r:Strings.Dex_ShowMoves}"
+                          ToolTip.Tip="{x:Static r:Strings.Dex_ShowMovesTip}" />
               </StackPanel>
               <TextBlock Classes="hint" Text="{Binding CountText}" />
             </StackPanel>
@@ -1092,6 +1096,54 @@
                               </DataTemplate>
                             </ItemsControl.ItemTemplate>
                           </ItemsControl>
+                        </StackPanel>
+                      </Border>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,8,*">
+                      <!-- How it evolves, as the ROM played has it (randomization, mods and edits included) -->
+                      <Border Classes="card">
+                        <StackPanel>
+                          <TextBlock Classes="card-title" Margin="0,0,0,4" Text="{x:Static r:Strings.Section_Evolution}" />
+                          <TextBlock Classes="hint" Text="{x:Static r:Strings.Evo_None}" IsVisible="{Binding HasNoEvolution}" />
+                          <ItemsControl ItemsSource="{Binding Evolutions}">
+                            <ItemsControl.ItemTemplate>
+                              <DataTemplate x:DataType="vm:DexInfoLine">
+                                <Border Classes="info-row">
+                                  <Grid ColumnDefinitions="150,*">
+                                    <TextBlock FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding Label}" />
+                                    <TextBlock Grid.Column="1" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding Value}" />
+                                  </Grid>
+                                </Border>
+                              </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                          </ItemsControl>
+                        </StackPanel>
+                      </Border>
+                      <!-- What it learns by level: hidden like the abilities -->
+                      <Border Grid.Column="2" Classes="card">
+                        <StackPanel>
+                          <TextBlock Classes="card-title" Margin="0,0,0,4" Text="{x:Static r:Strings.Dex_MovesTitle}" />
+                          <ItemsControl ItemsSource="{Binding Moves}"
+                                        IsVisible="{Binding $parent[UserControl].((vm:SaveEditorViewModel)DataContext).Dex.ShowMoves}">
+                            <ItemsControl.ItemTemplate>
+                              <DataTemplate x:DataType="vm:DexMoveLine">
+                                <Border Classes="info-row">
+                                  <Grid ColumnDefinitions="60,*,Auto">
+                                    <TextBlock Classes="hint" VerticalAlignment="Center" Text="{Binding Level}" />
+                                    <TextBlock Grid.Column="1" FontWeight="SemiBold" VerticalAlignment="Center" Text="{Binding Move}" />
+                                    <Border Grid.Column="2" Background="{Binding Type.Background}" CornerRadius="2" Padding="6,1" MinWidth="70" VerticalAlignment="Center">
+                                      <TextBlock Text="{Binding Type.Name}" Foreground="{Binding Type.Foreground}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                                    </Border>
+                                  </Grid>
+                                </Border>
+                              </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                          </ItemsControl>
+                          <Border Classes="info-row"
+                                  IsVisible="{Binding !$parent[UserControl].((vm:SaveEditorViewModel)DataContext).Dex.ShowMoves}">
+                            <TextBlock Classes="hint" Text="{x:Static r:Strings.Dex_MovesHidden}" VerticalAlignment="Center" />
+                          </Border>
                         </StackPanel>
                       </Border>
                     </Grid>

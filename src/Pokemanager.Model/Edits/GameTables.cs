@@ -38,6 +38,13 @@ public static class GameTables
     /// </summary>
     public const string Items = "item";
 
+    /// <summary>
+    /// Evolutions of a personal row: eight slots, <c>e1.</c> … <c>e8.</c> + <c>method</c>, <c>species</c>,
+    /// <c>argument</c> (item, move, Pokémon or type the method needs; the level in Generation 6), and in Generation 7
+    /// <c>form</c> and <c>level</c> (which read 0 and write nothing in Generation 6).
+    /// </summary>
+    public const string Evolutions = "evolution";
+
     public const string Description = "description";
 
     /// <summary>Field of <see cref="Learnsets"/>: list of <c>[level, move]</c> pairs sorted by level.</summary>
@@ -120,7 +127,12 @@ public static class GameTables
 
     public static readonly ITable ItemTable = new ItemTableImpl();
 
-    public static IReadOnlyList<ITable> All { get; } = [PersonalTable, MoveTable, LearnsetTable, MoveTextTable, TrainerTable, ItemTable];
+    public static readonly ITable EvolutionTable = new EvolutionTableImpl();
+
+    public static IReadOnlyList<ITable> All { get; } = [PersonalTable, MoveTable, LearnsetTable, MoveTextTable, TrainerTable, ItemTable, EvolutionTable];
+
+    /// <summary>"e3.level" of the evolution table.</summary>
+    public static string EvolutionField(int slot, string field) => $"e{slot + 1}.{field}";
 
     public static ITable Get(string name) =>
         All.FirstOrDefault(t => t.Name == name) ?? throw new ArgumentException(string.Format(Strings.Tables_UnknownTable, name), nameof(name));
@@ -399,6 +411,66 @@ public static class GameTables
             if ((uint)id >= data.MoveDescriptions.Length)
                 throw new ArgumentOutOfRangeException(nameof(id), id, string.Format(Strings.Tables_OutOfRange, MoveTexts, data.MoveDescriptions.Length));
             return id;
+        }
+    }
+    private sealed class EvolutionTableImpl : ITable
+    {
+        private static readonly string[] SlotFields = ["method", "species", "argument", "form", "level"];
+
+        public string Name => Evolutions;
+
+        public IReadOnlyList<string> Fields { get; } =
+            [.. Enumerable.Range(0, EvolutionSlots.Count).SelectMany(i => SlotFields.Select(f => EvolutionField(i, f)))];
+
+        public int Count(GameData data) => data.Evolutions.Length;
+
+        public JsonNode Get(GameData data, int id, string field)
+        {
+            var (slot, name) = Parse(field);
+            var e = Entry(data, id).Slot(slot);
+            if (e is null)
+                return JsonValue.Create(0);
+            bool gen7 = Entry(data, id).Generation7;
+            return JsonValue.Create(name switch
+            {
+                "method" => e.Method,
+                "species" => e.Species,
+                "argument" => e.Argument,
+                "form" => gen7 ? e.Form : 0,
+                _ => gen7 ? e.Level : 0,
+            });
+        }
+
+        public void Set(GameData data, int id, string field, JsonNode value)
+        {
+            var (slot, name) = Parse(field);
+            var entry = Entry(data, id);
+            if (entry.Slot(slot) is not { } e)
+                return;
+            int v = value.GetValue<int>();
+            switch (name)
+            {
+                case "method": e.Method = v; break;
+                case "species": e.Species = v; break;
+                case "argument": e.Argument = v; break;
+                case "form" when entry.Generation7: e.Form = v; break;
+                case "level" when entry.Generation7: e.Level = v; break;
+            }
+        }
+
+        private static (int Slot, string Name) Parse(string field)
+        {
+            if (field.Length > 3 && field[0] == 'e' && field[2] == '.' && field[1] is >= '1' and <= '8'
+                && Array.IndexOf(SlotFields, field[3..]) >= 0)
+                return (field[1] - '1', field[3..]);
+            throw new ArgumentException(string.Format(Strings.Tables_UnknownField, Evolutions, field), nameof(field));
+        }
+
+        private static EvolutionSlots Entry(GameData data, int id)
+        {
+            if ((uint)id >= data.Evolutions.Length)
+                throw new ArgumentOutOfRangeException(nameof(id), id, string.Format(Strings.Tables_OutOfRange, Evolutions, data.Evolutions.Length));
+            return data.Evolutions[id];
         }
     }
 }

@@ -34,6 +34,8 @@ public static class ModBuilder
             outputs["romfs/" + layout.Moves] = BuildMoves(session, moveIds);
         if (EditedIds(edits, GameTables.Learnsets) is { Count: > 0 } learnsetIds)
             outputs["romfs/" + layout.LevelUp] = BuildGarc(session, layout.LevelUp, learnsetIds, id => session.Current.Learnsets[id].Write());
+        if (EditedIds(edits, GameTables.Evolutions) is { Count: > 0 } evolutionIds)
+            outputs["romfs/" + layout.Evolution] = BuildGarc(session, layout.Evolution, evolutionIds, id => session.Current.Evolutions[id].Write());
         // Trainers: the record and the team live in two archives, both written when either changes.
         if (EditedIds(edits, GameTables.Trainers) is { Count: > 0 } trainerIds)
         {

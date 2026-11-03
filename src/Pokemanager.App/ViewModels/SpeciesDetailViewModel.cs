@@ -1,10 +1,12 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Text.Json.Nodes;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Pokemanager.App.Resources;
 using Pokemanager.App.Services;
+using Pokemanager.Model.Data;
+using Pokemanager.Model.Dump;
 using Pokemanager.Model.Editing;
 using Pokemanager.Model.Edits;
 
@@ -48,7 +50,87 @@ public partial class SpeciesDetailViewModel : ObservableObject
 
     public int BaseStatTotal => Stats.Sum(s => (int)(s.Value ?? 0));
     public bool IsLearnsetModified => session.IsModified(GameTables.Learnsets, Id, GameTables.LevelUp);
-    public bool IsModified => session.IsModified(P, Id) || session.IsModified(GameTables.Learnsets, Id);
+    public bool IsModified => session.IsModified(P, Id) || session.IsModified(GameTables.Learnsets, Id) || IsEvolutionModified;
+
+    // ------------------------------------------------------------------ evolution
+
+    /// <summary>The evolutions in use of this row, one editable row each (the game has eight slots).</summary>
+    public ObservableCollection<EvolutionRowViewModel> Evolutions { get; } = [];
+
+    /// <summary>False when the game folder has no evolution archive or this row's record is not one the app reads.</summary>
+    public bool HasEvolutionData => Id < session.Current.Evolutions.Length && session.Current.Evolutions[Id].IsReadable;
+
+    public bool IsEvolutionModified => Id < session.Current.Evolutions.Length && session.IsModified(GameTables.Evolutions, Id);
+
+    public bool CanAddEvolution => HasEvolutionData && Evolutions.Count < EvolutionSlots.Count;
+
+    public bool HasNoEvolution => HasEvolutionData && Evolutions.Count == 0;
+
+    /// <summary>What evolves into this Pokémon, and how, as the ROM has it now: context for editing its own.</summary>
+    public string EvolvesFrom
+    {
+        get
+        {
+            var index = PersonalIndex.Of(session.Current);
+            if (index.Pokemon(Id) is not { } self)
+                return "";
+            bool gen7 = session.Current.Title.Generation() == 7;
+            var from = new List<string>();
+            for (int row = 0; row < session.Current.Evolutions.Length; row++)
+                foreach (var (_, e) in session.Current.Evolutions[row].InUse())
+                    if (e.Species == self.Species && (!gen7 || e.Form < 0 || e.Form == self.Form))
+                        from.Add($"{names.PersonalEntries[row]} — {EvolutionText.How(e, gen7, names)}");
+            return from.Count == 0 ? "" : string.Format(Strings.Evo_From, string.Join(" · ", from.Distinct()));
+        }
+    }
+
+    private void LoadEvolutions()
+    {
+        Evolutions.Clear();
+        if (HasEvolutionData)
+        {
+            bool gen7 = session.Current.Evolutions[Id].Generation7;
+            foreach (var (slot, _) in session.Current.Evolutions[Id].InUse())
+                Evolutions.Add(new EvolutionRowViewModel(session, names, Id, slot, gen7, RemoveEvolution, EvolutionChanged));
+        }
+        EvolutionChanged();
+    }
+
+    private void EvolutionChanged()
+    {
+        OnPropertyChanged(nameof(IsEvolutionModified));
+        OnPropertyChanged(nameof(IsModified));
+        OnPropertyChanged(nameof(CanAddEvolution));
+        OnPropertyChanged(nameof(HasNoEvolution));
+        foreach (var row in Evolutions)
+            row.Refresh();
+    }
+
+    [RelayCommand]
+    private void AddEvolution()
+    {
+        if (!HasEvolutionData)
+            return;
+        var record = session.Current.Evolutions[Id];
+        int free = Enumerable.Range(0, EvolutionSlots.Count).FirstOrDefault(i => record.Slot(i)!.Method == 0, -1);
+        if (free < 0)
+            return;
+        bool gen7 = record.Generation7;
+        int species = PersonalIndex.Of(session.Current).Pokemon(Id)?.Species ?? 0;
+        int into = Math.Min(species + 1, session.Current.LastSpecies);
+        session.SetInt(GameTables.Evolutions, Id, GameTables.EvolutionField(free, "method"), 4);
+        session.SetInt(GameTables.Evolutions, Id, GameTables.EvolutionField(free, "species"), into);
+        session.SetInt(GameTables.Evolutions, Id, GameTables.EvolutionField(free, gen7 ? "level" : "argument"), 16);
+        if (gen7)
+            session.SetInt(GameTables.Evolutions, Id, GameTables.EvolutionField(free, "form"), -1);
+        LoadEvolutions();
+    }
+
+    private void RemoveEvolution(EvolutionRowViewModel row)
+    {
+        row.Clear();
+        LoadEvolutions();
+    }
 
     public SpeciesDetailViewModel(EditorSession session, GameNames names, int id, Avalonia.Media.Imaging.Bitmap? icon = null)
     {
@@ -119,6 +201,7 @@ public partial class SpeciesDetailViewModel : ObservableObject
             field.PropertyChanged += (_, _) => OnPropertyChanged(nameof(AbilitiesText));
 
         LoadLearnset();
+        LoadEvolutions();
     }
 
     // ------------------------------------------------------------------ header
@@ -186,6 +269,9 @@ public partial class SpeciesDetailViewModel : ObservableObject
     {
         session.Revert(P, Id);
         session.Revert(GameTables.Learnsets, Id);
+        if (Id < session.Current.Evolutions.Length)
+            session.Revert(GameTables.Evolutions, Id);
+        LoadEvolutions();
         foreach (var f in Stats.Concat<FieldViewModel>(Types).Concat(Abilities).Concat(Breeding).Concat(Items).Concat(EvYield).Concat(Other))
             f.Refresh();
         LoadLearnset();

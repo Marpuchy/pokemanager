@@ -13,7 +13,7 @@ public static class EditSummary
     private static readonly string[] Order =
     [
         Strings.Modified_Stats, Strings.Modified_Types, Strings.Modified_Abilities, Strings.Modified_Items,
-        Strings.Modified_Ev, Strings.Modified_Moves, Strings.Modified_Text, Strings.Modified_Ai,
+        Strings.Modified_Ev, Strings.Modified_Moves, Strings.Modified_Evolution, Strings.Modified_Text, Strings.Modified_Ai,
         Strings.Modified_Team, Strings.Modified_Data, Strings.Modified_Other,
     ];
 
@@ -21,6 +21,7 @@ public static class EditSummary
     public static string Kind(string table, string field) => table switch
     {
         GameTables.Learnsets => Strings.Modified_Moves,
+        GameTables.Evolutions => Strings.Modified_Evolution,
         GameTables.MoveTexts => Strings.Modified_Text,
         GameTables.Trainers => field.Contains('.') ? Strings.Modified_Team
             : field is "ai" ? Strings.Modified_Ai

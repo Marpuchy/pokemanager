@@ -287,7 +287,7 @@ public partial class EditorViewModel : ObservableObject
 
     // ------------------------------------------------------------------ the edits of a section
 
-    private static readonly string[] PokemonTables = [GameTables.Personal, GameTables.Learnsets];
+    private static readonly string[] PokemonTables = [GameTables.Personal, GameTables.Learnsets, GameTables.Evolutions];
     private static readonly string[] MoveTables = [GameTables.Moves, GameTables.MoveTexts];
     private static readonly string[] TrainerTables = [GameTables.Trainers];
 
@@ -358,7 +358,7 @@ public partial class EditorViewModel : ObservableObject
 
     private void LoadLists()
     {
-        string[] personalTables = [GameTables.Personal, GameTables.Learnsets];
+        string[] personalTables = [GameTables.Personal, GameTables.Learnsets, GameTables.Evolutions];
         allSpecies = Enumerable.Range(1, Session.Current.Personal.Length - 1) // entry 0 is an empty placeholder
             .Select(i => new ListEntryViewModel(Session, personalTables, i, Names.PersonalEntries[i], () => Sprites.ForPersonalEntry(i),
                 () => (Session.Current.Personal[i].Types[0], Session.Current.Personal[i].Types[1])))

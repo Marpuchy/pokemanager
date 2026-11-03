@@ -877,6 +877,10 @@ public partial class SaveDexViewModel : ObservableObject
     [ObservableProperty]
     public partial bool ShowAbilities { get; set; }
 
+    /// <summary>Whether the entry shows what the species learns by level: hidden like the abilities, off on every open.</summary>
+    [ObservableProperty]
+    public partial bool ShowMoves { get; set; }
+
     public SaveDexViewModel(SaveEditorViewModel owner, SaveDocument doc, SaveNames names)
     {
         this.owner = owner;

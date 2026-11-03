@@ -106,14 +106,14 @@ public sealed class PokemonDataFile
     /// <summary>Tables of the editor that hold each kind of data.</summary>
     public static IReadOnlyList<string> TablesOf(PokemonDataKind kind) => kind switch
     {
-        PokemonDataKind.Pokemon => [GameTables.Personal, GameTables.Learnsets],
+        PokemonDataKind.Pokemon => [GameTables.Personal, GameTables.Learnsets, GameTables.Evolutions],
         PokemonDataKind.Moves => [GameTables.Moves, GameTables.MoveTexts],
         PokemonDataKind.Trainers => [GameTables.Trainers],
         _ => [.. GameTables.All.Select(t => t.Name)],
     };
 
     /// <summary>Tables whose row number is a Pokémon of the game, not a national id.</summary>
-    private static bool ByPokemon(string table) => table is GameTables.Personal or GameTables.Learnsets;
+    private static bool ByPokemon(string table) => table is GameTables.Personal or GameTables.Learnsets or GameTables.Evolutions;
 
     /// <summary>Records what Pokémon every exported row holds, so another game can be given the same data.</summary>
     private void AddRows(EditorSession session)

@@ -4506,4 +4506,226 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Rnd_PresetWriteFailed" xml:space="preserve">
     <value>No se pudo escribir el preset: {0}</value>
   </data>
+  <data name="Section_Evolution" xml:space="preserve">
+    <value>Evolución</value>
+  </data>
+  <data name="Evo_Add" xml:space="preserve">
+    <value>Añadir evolución</value>
+  </data>
+  <data name="Evo_Hint" xml:space="preserve">
+    <value>Hasta ocho por Pokémon. Los cambios necesitan construir la ROM.</value>
+  </data>
+  <data name="Evo_None" xml:space="preserve">
+    <value>No evoluciona.</value>
+  </data>
+  <data name="Evo_NoData" xml:space="preserve">
+    <value>Esta carpeta del juego no tiene datos de evolución.</value>
+  </data>
+  <data name="Evo_From" xml:space="preserve">
+    <value>Viene de: {0}</value>
+  </data>
+  <data name="Evo_Method" xml:space="preserve">
+    <value>Método</value>
+  </data>
+  <data name="Evo_Into" xml:space="preserve">
+    <value>Evoluciona a</value>
+  </data>
+  <data name="Evo_Level" xml:space="preserve">
+    <value>Nivel</value>
+  </data>
+  <data name="Evo_Item" xml:space="preserve">
+    <value>Objeto</value>
+  </data>
+  <data name="Evo_Move" xml:space="preserve">
+    <value>Movimiento</value>
+  </data>
+  <data name="Evo_Partner" xml:space="preserve">
+    <value>Pokémon</value>
+  </data>
+  <data name="Evo_MoveType" xml:space="preserve">
+    <value>Tipo del movimiento</value>
+  </data>
+  <data name="Evo_Form" xml:space="preserve">
+    <value>Forma</value>
+  </data>
+  <data name="Evo_AtLevel" xml:space="preserve">
+    <value>Nivel {0}</value>
+  </data>
+  <data name="Evo_LevelSuffix" xml:space="preserve">
+    <value>(nivel {0})</value>
+  </data>
+  <data name="Evo_FormSuffix" xml:space="preserve">
+    <value>{0} (forma {1})</value>
+  </data>
+  <data name="Evo_FriendshipNote" xml:space="preserve">
+    <value>La amistad que hace falta (220) está fijada en el código del juego, no en estos datos. Para facilitarlo, sube la amistad base en Datos → Crianza.</value>
+  </data>
+  <data name="Tip_EvoAdd" xml:space="preserve">
+    <value>Añade una evolución por nivel 16 al Pokémon siguiente; cambia después el método, el nivel y a qué evoluciona.</value>
+  </data>
+  <data name="Modified_Evolution" xml:space="preserve">
+    <value>Evolución</value>
+  </data>
+  <data name="Dex_ShowMoves" xml:space="preserve">
+    <value>Mostrar movimientos</value>
+  </data>
+  <data name="Dex_ShowMovesTip" xml:space="preserve">
+    <value>Muestra qué aprende cada especie por nivel en la ROM que se juega. Desactivado al abrir, como las habilidades.</value>
+  </data>
+  <data name="Dex_MovesTitle" xml:space="preserve">
+    <value>Movimientos por nivel</value>
+  </data>
+  <data name="Dex_MovesHidden" xml:space="preserve">
+    <value>Movimientos ocultos</value>
+  </data>
+  <data name="Dex_MoveLevel" xml:space="preserve">
+    <value>Nv. {0}</value>
+  </data>
+  <data name="Dex_MoveOnEvolution" xml:space="preserve">
+    <value>Al evolucionar</value>
+  </data>
+  <data name="Tip_Field_evolution_method" xml:space="preserve">
+    <value>Cómo evoluciona: por nivel, objeto, intercambio, amistad, hora del día, tiempo atmosférico…</value>
+  </data>
+  <data name="Tip_Field_evolution_species" xml:space="preserve">
+    <value>El Pokémon en el que se convierte.</value>
+  </data>
+  <data name="Tip_Field_evolution_argument" xml:space="preserve">
+    <value>Lo que necesita el método: el objeto, el movimiento, el Pokémon del equipo o el tipo del movimiento (en la 6.ª generación también el nivel).</value>
+  </data>
+  <data name="Tip_Field_evolution_form" xml:space="preserve">
+    <value>7.ª generación: la forma en la que se convierte; -1 conserva la suya.</value>
+  </data>
+  <data name="Tip_Field_evolution_level" xml:space="preserve">
+    <value>El nivel al que evoluciona.</value>
+  </data>
+  <data name="Evo_Method_0" xml:space="preserve">
+    <value>Ninguno</value>
+  </data>
+  <data name="Evo_Method_1" xml:space="preserve">
+    <value>Subir de nivel con amistad alta</value>
+  </data>
+  <data name="Evo_Method_2" xml:space="preserve">
+    <value>Amistad alta, de día</value>
+  </data>
+  <data name="Evo_Method_3" xml:space="preserve">
+    <value>Amistad alta, de noche</value>
+  </data>
+  <data name="Evo_Method_4" xml:space="preserve">
+    <value>Nivel</value>
+  </data>
+  <data name="Evo_Method_5" xml:space="preserve">
+    <value>Intercambio</value>
+  </data>
+  <data name="Evo_Method_6" xml:space="preserve">
+    <value>Intercambio llevando un objeto</value>
+  </data>
+  <data name="Evo_Method_7" xml:space="preserve">
+    <value>Intercambio por Karrablast / Shelmet</value>
+  </data>
+  <data name="Evo_Method_8" xml:space="preserve">
+    <value>Usar un objeto</value>
+  </data>
+  <data name="Evo_Method_9" xml:space="preserve">
+    <value>Nivel, Ataque &gt; Defensa</value>
+  </data>
+  <data name="Evo_Method_10" xml:space="preserve">
+    <value>Nivel, Ataque = Defensa</value>
+  </data>
+  <data name="Evo_Method_11" xml:space="preserve">
+    <value>Nivel, Ataque &lt; Defensa</value>
+  </data>
+  <data name="Evo_Method_12" xml:space="preserve">
+    <value>Nivel, según personalidad (primera rama)</value>
+  </data>
+  <data name="Evo_Method_13" xml:space="preserve">
+    <value>Nivel, según personalidad (segunda rama)</value>
+  </data>
+  <data name="Evo_Method_14" xml:space="preserve">
+    <value>Nivel (Ninjask)</value>
+  </data>
+  <data name="Evo_Method_15" xml:space="preserve">
+    <value>Nivel, deja un Shedinja</value>
+  </data>
+  <data name="Evo_Method_16" xml:space="preserve">
+    <value>Nivel con Belleza alta</value>
+  </data>
+  <data name="Evo_Method_17" xml:space="preserve">
+    <value>Usar un objeto, macho</value>
+  </data>
+  <data name="Evo_Method_18" xml:space="preserve">
+    <value>Usar un objeto, hembra</value>
+  </data>
+  <data name="Evo_Method_19" xml:space="preserve">
+    <value>Nivel llevando un objeto, de día</value>
+  </data>
+  <data name="Evo_Method_20" xml:space="preserve">
+    <value>Nivel llevando un objeto, de noche</value>
+  </data>
+  <data name="Evo_Method_21" xml:space="preserve">
+    <value>Nivel sabiendo un movimiento</value>
+  </data>
+  <data name="Evo_Method_22" xml:space="preserve">
+    <value>Nivel con un Pokémon en el equipo</value>
+  </data>
+  <data name="Evo_Method_23" xml:space="preserve">
+    <value>Nivel, macho</value>
+  </data>
+  <data name="Evo_Method_24" xml:space="preserve">
+    <value>Nivel, hembra</value>
+  </data>
+  <data name="Evo_Method_25" xml:space="preserve">
+    <value>Nivel en un campo magnético</value>
+  </data>
+  <data name="Evo_Method_26" xml:space="preserve">
+    <value>Nivel junto a una roca musgo</value>
+  </data>
+  <data name="Evo_Method_27" xml:space="preserve">
+    <value>Nivel junto a una roca hielo</value>
+  </data>
+  <data name="Evo_Method_28" xml:space="preserve">
+    <value>Nivel con la consola boca abajo</value>
+  </data>
+  <data name="Evo_Method_29" xml:space="preserve">
+    <value>Afecto y un movimiento de un tipo</value>
+  </data>
+  <data name="Evo_Method_30" xml:space="preserve">
+    <value>Nivel con un Pokémon Siniestro en el equipo</value>
+  </data>
+  <data name="Evo_Method_31" xml:space="preserve">
+    <value>Nivel mientras llueve</value>
+  </data>
+  <data name="Evo_Method_32" xml:space="preserve">
+    <value>Nivel, de día</value>
+  </data>
+  <data name="Evo_Method_33" xml:space="preserve">
+    <value>Nivel, de noche</value>
+  </data>
+  <data name="Evo_Method_34" xml:space="preserve">
+    <value>Nivel, forma hembra</value>
+  </data>
+  <data name="Evo_Method_35" xml:space="preserve">
+    <value>(sin uso)</value>
+  </data>
+  <data name="Evo_Method_36" xml:space="preserve">
+    <value>Nivel en esta versión</value>
+  </data>
+  <data name="Evo_Method_37" xml:space="preserve">
+    <value>Nivel en esta versión, de día</value>
+  </data>
+  <data name="Evo_Method_38" xml:space="preserve">
+    <value>Nivel en esta versión, de noche</value>
+  </data>
+  <data name="Evo_Method_39" xml:space="preserve">
+    <value>Nivel en el Monte Lanakila</value>
+  </data>
+  <data name="Evo_Method_40" xml:space="preserve">
+    <value>Nivel al atardecer</value>
+  </data>
+  <data name="Evo_Method_41" xml:space="preserve">
+    <value>Nivel en el Ultraespacio</value>
+  </data>
+  <data name="Evo_Method_42" xml:space="preserve">
+    <value>Usar un objeto en el Ultraespacio</value>
+  </data>
 </root>

@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Pokemanager.App.Resources;
 using Pokemanager.App.Services;
+using Pokemanager.Model.Dump;
 using Pokemanager.Save;
 
 namespace Pokemanager.App.ViewModels;
@@ -11,6 +12,9 @@ public sealed record DexStatLine(string Label, int Value, double BarWidth, IBrus
 
 /// <summary>A label and a value of the Pokédex page.</summary>
 public sealed record DexInfoLine(string Label, string Value);
+
+/// <summary>A move the species learns by level, with its type as the ROM has it.</summary>
+public sealed record DexMoveLine(string Level, string Move, TypeChip Type);
 
 /// <summary>
 /// A species as the game's Pokédex shows it — number, name, classification, this version's entry, height and weight —
@@ -76,7 +80,36 @@ public sealed class DexDetailViewModel : ObservableObject
         ];
         Stats = [.. stats.Select(s => new DexStatLine(s.Label, s.Value, Math.Max(2, Math.Min(s.Value, 200) / 200.0 * 220), BarBrush(s.Value)))];
         Total = stats.Sum(s => s.Value);
+
+        // The ROM's own data (randomization, mods and the project's edits included): how it evolves and what it learns.
+        var rom = doc.Rom;
+        bool gen7 = rom.Title.Generation() == 7;
+        var evolutions = new List<DexInfoLine>();
+        if (species < rom.Evolutions.Length)
+            foreach (var (_, e) in rom.Evolutions[species].InUse())
+                evolutions.Add(new DexInfoLine("→ " + EvolutionText.Target(e, gen7, game), EvolutionText.How(e, gen7, game)));
+        for (int row = 0; row < rom.Evolutions.Length; row++)
+            foreach (var (_, e) in rom.Evolutions[row].InUse())
+                if (e.Species == species && (!gen7 || e.Form <= 0))
+                    evolutions.Insert(0, new DexInfoLine("← " + game.PersonalEntries[row], EvolutionText.How(e, gen7, game)));
+        Evolutions = evolutions;
+
+        if (species < rom.Learnsets.Length)
+        {
+            var learnset = rom.Learnsets[species];
+            Moves = [.. Enumerable.Range(0, learnset.Moves.Length).Select(i => new DexMoveLine(
+                learnset.Levels[i] == 0 ? Strings.Dex_MoveOnEvolution : string.Format(Strings.Dex_MoveLevel, learnset.Levels[i]),
+                learnset.Moves[i] < game.Moves.Count ? game.Moves[learnset.Moves[i]] : $"#{learnset.Moves[i]}",
+                owner.TypeChipOf(learnset.Moves[i] < rom.Moves.Length ? rom.Moves[learnset.Moves[i]].Type : -1)))];
+        }
     }
+
+    /// <summary>Where it comes from (←) and what it becomes (→), with how.</summary>
+    public IReadOnlyList<DexInfoLine> Evolutions { get; } = [];
+    public bool HasNoEvolution => Evolutions.Count == 0;
+
+    /// <summary>What it learns by level, hidden until asked like the abilities.</summary>
+    public IReadOnlyList<DexMoveLine> Moves { get; } = [];
 
     private static IBrush BarBrush(int value) => new SolidColorBrush(Color.Parse(value switch
     {

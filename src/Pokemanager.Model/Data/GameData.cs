@@ -50,6 +50,9 @@ public sealed class GameData
     public Move[] Moves { get; }
     public Learnset6[] Learnsets { get; }
 
+    /// <summary>How each personal row evolves (one record per row, like the learnsets). Empty when the game folder lacks it.</summary>
+    public EvolutionSlots[] Evolutions { get; }
+
     /// <summary>
     /// Description of each move as edited in the app (<see cref="GameText"/> editable form). The base is the game's English
     /// text, whatever language the app or the game uses; an edited description goes to every language of the game.
@@ -81,8 +84,9 @@ public sealed class GameData
     public IReadOnlyDictionary<int, int> MegaStoneBySpecies { get; }
 
     private GameData(GameTitle title, PersonalInfoXY[] personal, Move[] moves, Learnset6[] learnsets, string[] moveDescriptions,
-        Trainer[] trainers, Item[] items, (int[] Stones, Dictionary<int, int> BySpecies) mega)
+        Trainer[] trainers, Item[] items, (int[] Stones, Dictionary<int, int> BySpecies) mega, EvolutionSlots[] evolutions)
     {
+        Evolutions = evolutions;
         Title = title;
         Personal = personal;
         LastSpecies = PersonalIndex.DeriveLastSpecies(personal, title);
@@ -108,7 +112,16 @@ public sealed class GameData
             ReadMoveDescriptions(layers, title, moves.Length),
             TrainerArchive.Read(layers, title),
             ReadItems(layers, title),
-            ReadMegaStoneTable(layers, title));
+            ReadMegaStoneTable(layers, title),
+            ReadEvolutions(layers, title));
+    }
+
+    private static EvolutionSlots[] ReadEvolutions(RomFsLayers layers, GameTitle title)
+    {
+        if (!layers.Has(title.Layout().Evolution))
+            return [];
+        bool gen7 = title.Generation() == 7;
+        return [.. ReadFiles(layers, title.Layout().Evolution).Select(f => new EvolutionSlots(f, gen7))];
     }
 
     /// <summary>
