@@ -95,6 +95,26 @@ public sealed class UprService
         var r = project.Randomization;
         if (!r.IsReady || effectivePreset is null || project.ResolveRomFile() is not { } rom || Tools is not { } t)
             return null;
+        // A project with mods is randomized over the base ROM with the mods packed in, so that is the ROM the key was
+        // made with: looking it up under the plain ROM missed every time, and the editor then showed the game without
+        // its randomization.
+        if (!project.Mods.HasNoRomMods)
+        {
+            try
+            {
+                var (files, _) = ModdedFiles(project);
+                if (files.Count > 0)
+                {
+                    if (ModdedRoms.TryGet(rom, files) is not { } modded)
+                        return null;
+                    rom = modded;
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                return null; // a mod that cannot be read cannot have been randomized either
+            }
+        }
         var (allItems, goodItems) = CacheOptions(project);
         return Cache.TryGet(rom, effectivePreset, r.Seed, t.JarPath, allItems, goodItems);
     }
@@ -108,7 +128,63 @@ public sealed class UprService
     {
         var (allItems, goodItems) = CacheOptions(project);
         return Cache.GetOrCreateAsync(new UprRunner(t), t, romFile, preset, project.Randomization.Seed, progress,
-            cancellationToken, allItems, goodItems);
+            cancellationToken, allItems, goodItems, GameCounts(project));
+    }
+
+    /// <summary>
+    /// The real number of species, extra forms and moves when a mod gave the game more than it ships with, or null
+    /// for a game as it ships (UPR ZX then uses its own numbers, as it always did). Read from the project's stack
+    /// without the randomization, which is the data the modded base ROM handed to UPR holds.
+    /// </summary>
+    public UprGameCounts? GameCounts(Project project)
+    {
+        if (project.Mods.HasNoRomMods)
+            return null;
+        var data = GameData.Load(project.ReadLayers(null, Mods), project.Game);
+        if (!data.IsExpanded)
+            return null;
+        return new UprGameCounts(data.LastSpecies, data.Personal.Length - data.SpeciesCount, data.Moves.Length - 1);
+    }
+
+    /// <summary>
+    /// What the project's mods put into the ROM, and the installations they come from. Shared by the build and the
+    /// cache lookup so both name the same modded base.
+    /// </summary>
+    private (List<ModdedRomFile> Files, List<ModInstallation> Installed) ModdedFiles(Project project)
+    {
+        var installed = new List<ModInstallation>();
+        var files = new List<ModdedRomFile>();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (string id in project.Mods.EnabledRomMods)
+        {
+            var definition = ModCatalog.Find(id)
+                             ?? throw new InvalidOperationException(string.Format(Strings.Mods_UnknownMod, id));
+            var installation = Mods.Inspect(definition);
+            if (installation.Problem is { } problem)
+                throw new InvalidOperationException(problem);
+            installed.Add(installation);
+            // Earlier mods in the list win, the same order the read layers use.
+            foreach (var content in installation.Contents.Where(c => seen.Add(c.TitlePath)))
+                files.Add(new ModdedRomFile(content.TitlePath, content.LocalPath, content.Sha256));
+        }
+        return (files, installed);
+    }
+
+    /// <summary>
+    /// The mods' files too big to be packed into the ROM (the Expansion's 2.27 GB model archive), which the build puts
+    /// in the emulator's LayeredFS folder instead. Empty for a project without them, so a build takes them away again.
+    /// </summary>
+    public IReadOnlyList<ModContent> EmulatorFiles(Project project)
+    {
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var files = new List<ModContent>();
+        foreach (string id in project.Mods.EnabledRomMods)
+        {
+            if (ModCatalog.Find(id) is not { } definition)
+                continue;
+            files.AddRange(Mods.Inspect(definition).EmulatorContents.Where(c => seen.Add(c.TitlePath)));
+        }
+        return files;
     }
 
     /// <summary>
@@ -139,22 +215,7 @@ public sealed class UprService
         if (project.Mods.HasNoRomMods)
             return (baseRom, []);
 
-        var installed = new List<ModInstallation>();
-        var files = new List<ModdedRomFile>();
-        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (string id in project.Mods.EnabledRomMods)
-        {
-            var definition = ModCatalog.Find(id)
-                             ?? throw new InvalidOperationException(string.Format(Strings.Mods_UnknownMod, id));
-            var installation = Mods.Inspect(definition);
-            if (installation.Problem is { } problem)
-                throw new InvalidOperationException(problem);
-            installed.Add(installation);
-            // Earlier mods in the list win, the same order the read layers use.
-            foreach (var content in installation.Contents.Where(c => seen.Add(c.TitlePath)))
-                files.Add(new ModdedRomFile(content.TitlePath, content.LocalPath, content.Sha256));
-        }
-
+        var (files, installed) = ModdedFiles(project);
         if (files.Count == 0)
             return (baseRom, installed);
         if (Tools is not { } t)

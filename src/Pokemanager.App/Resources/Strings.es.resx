@@ -4422,4 +4422,13 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Mods_StillChecking" xml:space="preserve">
     <value>Todavía estoy leyendo tu biblioteca: espera un momento y vuelve a marcarlo.</value>
   </data>
+  <data name="Status_CopyingModFiles" xml:space="preserve">
+    <value>Copiando los modelos 3D del mod a {0} (son demasiado grandes para ir dentro de la ROM)…</value>
+  </data>
+  <data name="Status_ModFilesPlaced" xml:space="preserve">
+    <value> Los {0} archivo(s) del mod demasiado grandes para la ROM (sus modelos 3D) están en la carpeta de mods de {1} para este juego.</value>
+  </data>
+  <data name="Status_ModFilesNoEmulator" xml:space="preserve">
+    <value> No se han podido colocar los modelos 3D del mod: no se ha encontrado el emulador. Elígelo en Ajustes y vuelve a crear la ROM.</value>
+  </data>
 </root>

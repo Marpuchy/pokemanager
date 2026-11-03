@@ -4422,4 +4422,13 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Mods_StillChecking" xml:space="preserve">
     <value>Still reading your library: wait a moment and tick it again.</value>
   </data>
+  <data name="Status_CopyingModFiles" xml:space="preserve">
+    <value>Copying the mod's 3D models to {0} (they are too big to go inside the ROM)…</value>
+  </data>
+  <data name="Status_ModFilesPlaced" xml:space="preserve">
+    <value> The mod's {0} file(s) too big for the ROM (its 3D models) are in {1}'s mods folder for this game.</value>
+  </data>
+  <data name="Status_ModFilesNoEmulator" xml:space="preserve">
+    <value> The mod's 3D models could not be placed: no emulator found. Choose it in Settings and build again.</value>
+  </data>
 </root>

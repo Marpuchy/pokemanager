@@ -44,7 +44,7 @@ public sealed class RandomizationCache(string root)
     public async Task<UprResult> GetOrCreateAsync(
         UprRunner runner, UprTools tools, string romFile, byte[] preset, long seed,
         IProgress<string>? progress = null, CancellationToken cancellationToken = default, bool allItems = false,
-        IReadOnlyList<int>? goodItems = null)
+        IReadOnlyList<int>? goodItems = null, UprGameCounts? counts = null)
     {
         if (TryGet(romFile, preset, seed, tools.JarPath, allItems, goodItems) is { } cached)
         {
@@ -63,7 +63,7 @@ public sealed class RandomizationCache(string root)
         string presetFile = Path.Combine(dir, "preset.rnqs");
         await File.WriteAllBytesAsync(presetFile, preset, cancellationToken);
 
-        var result = await runner.RandomizeAsync(presetFile, romFile, seed, Path.Combine(dir, OutputFolder), progress, cancellationToken, allItems, goodItems);
+        var result = await runner.RandomizeAsync(presetFile, romFile, seed, Path.Combine(dir, OutputFolder), progress, cancellationToken, allItems, goodItems, counts);
         await File.WriteAllTextAsync(Path.Combine(dir, CompleteMarker), DateTime.UtcNow.ToString("O"), cancellationToken);
         return result;
     }

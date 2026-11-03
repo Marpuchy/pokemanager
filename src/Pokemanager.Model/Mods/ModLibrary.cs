@@ -72,7 +72,25 @@ public sealed record ModInstallation(ModDefinition Mod, string Directory, IReadO
     /// </summary>
     public IReadOnlyList<ModContent> Contents => Mod.IsPlugin ? [] :
     [
-        .. Present.Where(f => f.IntoRom)
+        .. Present.Where(f => f.IntoRom && f.Bytes < PackLimit)
+            .OrderBy(f => f.TitlePath, StringComparer.Ordinal)
+            .Select(f => new ModContent(f.TitlePath, f.LocalPath!, f.Sha256!)),
+    ];
+
+    /// <summary>
+    /// The largest file the ROM packer can take. UPR ZX's packer keeps each file it writes in a Java array and its
+    /// RomFS reader keeps sizes in an <c>int</c>, so a file of 2 GB or more cannot go through it at all — and the
+    /// USUM Expansion's model archive is 2.27 GB. One GiB keeps well clear of both limits.
+    /// </summary>
+    public const long PackLimit = 1L << 30;
+
+    /// <summary>
+    /// Romfs files too big for the ROM (<see cref="PackLimit"/>): they reach the game through the emulator's own
+    /// LayeredFS folder instead (<c>load/mods/&lt;TitleID&gt;/romfs</c>), which is how the mod's author installs them.
+    /// </summary>
+    public IReadOnlyList<ModContent> EmulatorContents => Mod.IsPlugin ? [] :
+    [
+        .. Present.Where(f => f.IntoRom && f.Bytes >= PackLimit && f.TitlePath.StartsWith("romfs/", StringComparison.Ordinal))
             .OrderBy(f => f.TitlePath, StringComparer.Ordinal)
             .Select(f => new ModContent(f.TitlePath, f.LocalPath!, f.Sha256!)),
     ];

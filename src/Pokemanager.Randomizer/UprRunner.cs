@@ -15,6 +15,20 @@ public sealed class UprException(string message, string output) : Exception(mess
     public string Output { get; } = output;
 }
 
+/// <summary>
+/// How many species, extra forms and moves a ROM really has, for a ROM a mod expanded beyond what UPR ZX knows of the
+/// game (it has the counts as constants). Passed to the patched classes in <c>tools/upr/patch</c>.
+/// </summary>
+public sealed record UprGameCounts(int Species, int Forms, int Moves)
+{
+    internal IEnumerable<string> JavaProperties =>
+    [
+        $"-Dpokemanager.pokemonCount={Species}",
+        $"-Dpokemanager.formeCount={Forms}",
+        $"-Dpokemanager.moveCount={Moves}",
+    ];
+}
+
 /// <summary>Runs the commands of <c>upr/PokemanagerUpr.java</c> on UPR ZX.</summary>
 public sealed class UprRunner(UprTools tools)
 {
@@ -37,7 +51,7 @@ public sealed class UprRunner(UprTools tools)
     public async Task<UprResult> RandomizeAsync(
         string presetFile, string romFile, long seed, string outputDirectory,
         IProgress<string>? progress = null, CancellationToken cancellationToken = default, bool allItems = false,
-        IReadOnlyList<int>? goodItems = null)
+        IReadOnlyList<int>? goodItems = null, UprGameCounts? counts = null)
     {
         if (Directory.Exists(outputDirectory) && Directory.EnumerateFileSystemEntries(outputDirectory).Any())
             throw new IOException(string.Format(Strings.Upr_OutputNotEmpty, outputDirectory));
@@ -50,7 +64,7 @@ public sealed class UprRunner(UprTools tools)
                 "randomize", presetFile, romFile, outputDirectory, seed.ToString(), logPath, allItems ? "1" : "0",
                 string.Join(',', goodItems ?? []),
             ],
-            progress, cancellationToken);
+            progress, cancellationToken, counts?.JavaProperties);
 
         string? titleDir = Directory.GetDirectories(outputDirectory).FirstOrDefault(d => Path.GetFileName(d).Length == 16);
         if (titleDir is null || !File.Exists(logPath))
@@ -106,7 +120,17 @@ public sealed class UprRunner(UprTools tools)
 
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
-    private async Task<string> RunAsync(IReadOnlyList<string> arguments, IProgress<string>? progress, CancellationToken cancellationToken)
+    /// <summary>
+    /// Classes of UPR ZX changed for species-expansion mods (<c>tools/upr/patch</c>, sources in <c>upr/patch</c>): put
+    /// before the jar on the class path so they replace its own. A ROM without a mod runs exactly as with the jar.
+    /// </summary>
+    private string ClassPath(params string[] more) =>
+        string.Join(Path.PathSeparator,
+            new[] { Path.Combine(Path.GetDirectoryName(tools.JarPath)!, "patch") }.Where(Directory.Exists)
+                .Append(tools.JarPath).Concat(more));
+
+    private async Task<string> RunAsync(IReadOnlyList<string> arguments, IProgress<string>? progress, CancellationToken cancellationToken,
+        IEnumerable<string>? javaProperties = null)
     {
         if (!File.Exists(LauncherPath))
             throw new FileNotFoundException(Strings.Upr_LauncherMissing, LauncherPath);
@@ -126,9 +150,10 @@ public sealed class UprRunner(UprTools tools)
         // compiler; a development build runs the source file with Java's source launcher.
         string launcherDir = Path.GetDirectoryName(LauncherPath)!;
         string[] launcher = File.Exists(Path.Combine(launcherDir, "PokemanagerUpr.class"))
-            ? ["-cp", tools.JarPath + Path.PathSeparator + launcherDir, "PokemanagerUpr"]
-            : ["-cp", tools.JarPath, LauncherPath];
-        foreach (string arg in new[] { "-Xmx4096M", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8" }.Concat(launcher))
+            ? ["-cp", ClassPath(launcherDir), "PokemanagerUpr"]
+            : ["-cp", ClassPath(), LauncherPath];
+        foreach (string arg in new[] { "-Xmx4096M", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8" }
+                     .Concat(javaProperties ?? []).Concat(launcher))
             psi.ArgumentList.Add(arg);
         foreach (string arg in arguments)
             psi.ArgumentList.Add(arg);

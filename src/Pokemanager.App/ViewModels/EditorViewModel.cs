@@ -826,6 +826,25 @@ public partial class EditorViewModel : ObservableObject
             foreach (var emulator in EmulatorUserFolders.Detect())
                 removedMods += await Task.Run(() => ModInstaller.Uninstall(EmulatorUserFolders.ModDirectory(emulator.Path, Dump.Title.TitleIdHex())).Count);
 
+            // The one exception: a mod's files too big to be packed into the ROM (the Expansion's 3D models) go to the
+            // emulator's LayeredFS folder, which is how their author installs them. A project without them takes back
+            // what an earlier build put there.
+            string modFilesText = "";
+            if (settings.EffectiveEmulatorDirectory is { } emulatorDirectory)
+            {
+                var emulatorFiles = upr.EmulatorFiles(project);
+                if (emulatorFiles.Count > 0)
+                    SetStatus(string.Format(Strings.Status_CopyingModFiles, settings.EffectiveEmulatorName));
+                var placed = await Task.Run(() => ModEmulatorFiles.Sync(
+                    EmulatorUserFolders.ModDirectory(emulatorDirectory, Dump.Title.TitleIdHex()), emulatorFiles));
+                if (emulatorFiles.Count > 0)
+                    modFilesText = string.Format(Strings.Status_ModFilesPlaced, emulatorFiles.Count, settings.EffectiveEmulatorName);
+            }
+            else if (upr.EmulatorFiles(project).Count > 0)
+            {
+                modFilesText = Strings.Status_ModFilesNoEmulator;
+            }
+
             SaveUpdateResult? saveResult = null;
             string saveProblem = "";
             if (savePath is not null && File.Exists(savePath))
@@ -860,7 +879,7 @@ public partial class EditorViewModel : ObservableObject
                 : saveResult is null ? "" : saveResult.Changes.Count == 0
                     ? Strings.Status_SaveUnchanged
                     : string.Format(Strings.Status_SaveUpdated, saveResult.Changes.Count);
-            SetStatus(string.Format(Strings.Status_RomBuilt, what, built.RomPath, save, mods, settings.EffectiveEmulatorName));
+            SetStatus(string.Format(Strings.Status_RomBuilt, what, built.RomPath, save, mods, settings.EffectiveEmulatorName) + modFilesText);
         }
         catch (UprException ex)
         {
