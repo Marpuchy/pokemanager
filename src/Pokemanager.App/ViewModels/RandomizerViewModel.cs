@@ -4,7 +4,9 @@ using CommunityToolkit.Mvvm.Input;
 using Pokemanager.App.Resources;
 using Pokemanager.App.Services;
 using Pokemanager.Bridge;
+using Pokemanager.Model.Difficulty;
 using Pokemanager.Model.Dump;
+using Pokemanager.Model.Mods;
 using Pokemanager.Model.Projects;
 using Pokemanager.Randomizer;
 using Pokemanager.Save;
@@ -348,27 +350,119 @@ public partial class RandomizerViewModel : ObservableObject
     [RelayCommand]
     private void NewSeed() => SeedText = UprRunner.NewSeed().ToString();
 
+    /// <summary>
+    /// Opens a <c>.rnqs</c>. A plain one from UPR ZX sets the randomizer's options and nothing else; one exported from
+    /// here (<see cref="FullPreset"/>) brings the application's options after them, and those are applied too.
+    /// </summary>
     [RelayCommand]
     private async Task ImportPreset()
     {
         if (await dialogs.PickOpenFileAsync(Strings.Rnd_ImportTitle, ["*.rnqs"]) is not { } path)
             return;
+        byte[] upr;
+        FullPreset? extras;
         try
         {
-            Settings.Preset = await File.ReadAllBytesAsync(path);
-            Settings.PresetName = Path.GetFileNameWithoutExtension(path);
-            Settings.PresetModified = false;
-            editor.MarkDirty();
-            OnPropertyChanged(nameof(PresetText));
-            Options.Fail(Strings.Rnd_ReloadingOptions);
-            await LoadOptionsAsync();
+            (upr, extras) = FullPreset.Read(await File.ReadAllBytesAsync(path));
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException)
         {
             editor.SetStatus(string.Format(Strings.Rnd_PresetReadFailed, ex.Message), error: true);
+            return;
         }
+
+        string name = Path.GetFileNameWithoutExtension(path);
+        Settings.Preset = upr;
+        Settings.PresetName = name;
+        Settings.PresetModified = false;
+        string leftOff = "";
+        if (extras is not null)
+            leftOff = await ApplyPresetExtrasAsync(extras, name);
+        editor.MarkDirty();
+        OnPropertyChanged(nameof(PresetText));
+        editor.SetStatus(extras is null
+            ? string.Format(Strings.Rnd_PresetImportedUpr, name)
+            : string.Format(Strings.Rnd_PresetImportedAll, name) + leftOff);
+        Options.Fail(Strings.Rnd_ReloadingOptions);
+        await LoadOptionsAsync();
     }
 
+    /// <summary>
+    /// The application's half of an imported preset: the mods first (they change the game data everything else is read
+    /// over), then the difficulty profile and the rest of the options in one undo step.
+    /// </summary>
+    /// <returns>What was left off, for the status line ("" when nothing).</returns>
+    private async Task<string> ApplyPresetExtrasAsync(FullPreset extras, string name)
+    {
+        var leftOff = new List<string>();
+        var (wanted, unknown) = extras.ModsFor(Project.Game);
+        leftOff.AddRange(unknown);
+
+        // A mod is only turned on when the library has everything it needs: the session would otherwise be opened over
+        // half a mod. Off is always allowed.
+        var ready = new List<string>();
+        foreach (var mod in wanted)
+        {
+            if (Project.Mods.Has(mod.Id))
+            {
+                ready.Add(mod.Id);
+                continue;
+            }
+            var library = editor.Session.Mods;
+            bool canBuild;
+            try
+            {
+                canBuild = await Task.Run(() => library.Inspect(mod).CanBuild);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                canBuild = false;
+            }
+            if (canBuild)
+                ready.Add(mod.Id);
+            else
+                leftOff.Add(string.Format(Strings.Rnd_PresetModNotDownloaded, mod.Name));
+        }
+
+        var before = Project.Mods.EnabledRomMods.ToList();
+        if (!before.SequenceEqual(ready, StringComparer.OrdinalIgnoreCase))
+        {
+            // Emulator plugins are installed on this computer and are not part of a preset: they stay as they are.
+            var plugins = Project.Mods.Enabled.Except(before, StringComparer.OrdinalIgnoreCase).ToList();
+            var previous = Project.Mods.Enabled.ToList();
+            Project.Mods.Enabled = [.. ready, .. plugins];
+            if (!editor.ReopenOverMods())
+            {
+                Project.Mods.Enabled = previous;
+                editor.ReopenOverMods();
+                leftOff.AddRange(ready.Except(before, StringComparer.OrdinalIgnoreCase)
+                    .Select(id => ModCatalog.Find(id)?.Name ?? id));
+            }
+            editor.Mods.RefreshCards();
+        }
+
+        using (editor.BeginBatch(string.Format(Strings.Rnd_PresetUndo, name)))
+        {
+            // The profile is a name in the file and edits in the project: writing it again gives the same edits.
+            var level = extras.Tweaks.Difficulty ?? DifficultyLevel.Normal;
+            if (level != (Project.Tweaks.Difficulty ?? DifficultyLevel.Normal))
+                DifficultyProfiles.Apply(editor.Session, level);
+            extras.ApplyTo(Project);
+        }
+
+        editor.GameTweaks.Refresh();
+        Shops.Refresh();
+        editor.LevelCap.Refresh();
+        Difficulty.Refresh();
+        editor.RefreshTrainerLists();
+        ReloadFromProject();
+        return leftOff.Count == 0 ? "" : string.Format(Strings.Rnd_PresetModsLeftOff, string.Join(", ", leftOff));
+    }
+
+    /// <summary>
+    /// Saves the page in one <c>.rnqs</c>: UPR ZX's preset, which UPR ZX itself still opens, followed by the
+    /// application's options (<see cref="FullPreset"/>).
+    /// </summary>
     [RelayCommand]
     private async Task ExportPreset()
     {
@@ -377,8 +471,15 @@ public partial class RandomizerViewModel : ObservableObject
             return;
         if (await dialogs.PickSaveFileAsync(Strings.Rnd_ExportTitle, (Settings.PresetName ?? "preset") + ".rnqs", "rnqs") is { } path)
         {
-            await File.WriteAllBytesAsync(path, Settings.Preset);
-            editor.SetStatus(string.Format(Strings.Rnd_Exported, path));
+            try
+            {
+                await File.WriteAllBytesAsync(path, FullPreset.Write(Settings.Preset, Project));
+                editor.SetStatus(string.Format(Strings.Rnd_Exported, path));
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                editor.SetStatus(string.Format(Strings.Rnd_PresetWriteFailed, ex.Message), error: true);
+            }
         }
     }
 

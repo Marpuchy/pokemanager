@@ -583,7 +583,7 @@
     <value>Export preset</value>
   </data>
   <data name="Rnd_Exported" xml:space="preserve">
-    <value>Preset exported to {0}. It can be opened in UPR ZX.</value>
+    <value>Preset exported to {0}, with every option of the page: the randomizer's and Pokemanager's. It still opens in UPR ZX, which reads its own part.</value>
   </data>
   <data name="Rnd_SaveChecked" xml:space="preserve">
     <value>Save checked ({0} Pokémon): nothing needed to change.</value>
@@ -4481,5 +4481,29 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   </data>
   <data name="Set_ChangeBaseRomTip" xml:space="preserve">
     <value>Choose the ROM the project starts from. Its data is imported and the project opens again over it when this window closes — pick an original ROM of the game to go back to the game as it ships.</value>
+  </data>
+  <data name="Rnd_PresetImportedAll" xml:space="preserve">
+    <value>Preset {0} imported with every option: the randomizer's and Pokemanager's (levels, level cap, shiny, items and shops, difficulty, mods).</value>
+  </data>
+  <data name="Rnd_PresetImportedUpr" xml:space="preserve">
+    <value>UPR ZX preset {0} imported: it only carries the randomizer's options, so Pokemanager's (levels, level cap, shiny, shops, difficulty, mods) stay as they were.</value>
+  </data>
+  <data name="Rnd_PresetModsLeftOff" xml:space="preserve">
+    <value> Mods left off: {0}.</value>
+  </data>
+  <data name="Rnd_PresetModNotDownloaded" xml:space="preserve">
+    <value>{0} (not downloaded yet)</value>
+  </data>
+  <data name="Rnd_PresetUndo" xml:space="preserve">
+    <value>Import preset {0}</value>
+  </data>
+  <data name="Tip_RandomizerImportPreset" xml:space="preserve">
+    <value>Opens a .rnqs. One made by UPR ZX sets the randomizer's options; one exported from here also brings Pokemanager's: levels, level cap, shiny odds, items and shops, difficulty and mods.</value>
+  </data>
+  <data name="Tip_RandomizerExportPreset" xml:space="preserve">
+    <value>Saves every option of the page in one .rnqs: the randomizer's, which UPR ZX can still open, and Pokemanager's after them.</value>
+  </data>
+  <data name="Rnd_PresetWriteFailed" xml:space="preserve">
+    <value>Could not write the preset: {0}</value>
   </data>
 </root>

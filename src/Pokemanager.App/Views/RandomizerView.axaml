@@ -40,8 +40,8 @@
             <Grid ColumnDefinitions="*,Auto">
               <TextBlock Text="{Binding PresetText}" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
               <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
-                <Button Content="{x:Static r:Strings.Rnd_ImportPreset}" Command="{Binding ImportPresetCommand}" />
-                <Button Content="{x:Static r:Strings.Rnd_Export}" Command="{Binding ExportPresetCommand}" />
+                <Button Content="{x:Static r:Strings.Rnd_ImportPreset}" Command="{Binding ImportPresetCommand}" ToolTip.Tip="{x:Static r:Strings.Tip_RandomizerImportPreset}" />
+                <Button Content="{x:Static r:Strings.Rnd_Export}" Command="{Binding ExportPresetCommand}" ToolTip.Tip="{x:Static r:Strings.Tip_RandomizerExportPreset}" />
               </StackPanel>
             </Grid>
             <TextBlock Classes="hint" Text="{x:Static r:Strings.Rnd_EditOptionsHint}" />

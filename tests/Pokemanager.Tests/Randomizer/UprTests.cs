@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using Pokemanager.Model.Data;
 using Pokemanager.Model.Editing;
 using Pokemanager.Model.Projects;
@@ -108,6 +108,28 @@ public class UprRealTests
         var after = await runner.DescribeSettingsAsync(changed, cancellationToken: ct);
         Assert.Equal("RANDOMIZE", after.Options.Single(o => o.Name == "AbilitiesMod").Value.GetString());
         Assert.True(after.Tweaks.Single(t => t.Name == "FASTEST_TEXT").Value);
+    }
+
+    /// <summary>
+    /// The preset exported with the application's options after it is still a UPR ZX preset: UPR ZX reads exactly what
+    /// it reads in the plain one, and the options are found when it is imported here.
+    /// </summary>
+    [Fact]
+    public async Task APresetWithOurOptions_ReadsTheSameInUpr()
+    {
+        var tools = RequireTools();
+        var runner = new UprRunner(tools);
+        var ct = TestContext.Current.CancellationToken;
+
+        byte[] plain = await runner.WriteSettingsAsync(null, [new("AbilitiesMod", "RANDOMIZE")], ct);
+        var project = new Project { DumpDirectory = "game" };
+        project.Tweaks.TrainerLevelPercent = 25;
+        byte[] full = FullPreset.Write(plain, project);
+
+        var fromPlain = await runner.DescribeSettingsAsync(plain, cancellationToken: ct);
+        var fromFull = await runner.DescribeSettingsAsync(full, cancellationToken: ct);
+        Assert.Equal(fromPlain.Options.Select(o => (o.Name, o.Value.GetRawText())), fromFull.Options.Select(o => (o.Name, o.Value.GetRawText())));
+        Assert.Equal(25, FullPreset.Read(full).Options!.Tweaks.TrainerLevelPercent);
     }
 
     [Fact]

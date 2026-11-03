@@ -351,4 +351,7 @@
   <data name="Mods_Follower_Summary" xml:space="preserve">
     <value>El primer Pokémon de tu equipo te sigue por el mapa. Es un plugin del emulador: se instala, no se construye en la ROM.</value>
   </data>
+  <data name="Preset_OptionsBroken" xml:space="preserve">
+    <value>No se pueden leer las opciones de Pokemanager que hay al final de este preset.</value>
+  </data>
 </root>

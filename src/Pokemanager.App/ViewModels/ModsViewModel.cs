@@ -86,6 +86,13 @@ public sealed partial class ModsViewModel : ObservableObject
         foreach (var card in Mods)
             card.RefreshMeasured();
     }
+
+    /// <summary>The project's mods were set from outside the cards (an imported preset): show them again.</summary>
+    public void RefreshCards()
+    {
+        foreach (var card in Mods)
+            card.RefreshEnabled();
+    }
 }
 
 /// <summary>One mod: who it is, what the library holds for it, and what it does to this project.</summary>
@@ -307,6 +314,14 @@ public sealed partial class ModCardViewModel : ObservableObject
             OnPropertyChanged();
             RefreshMeasured();
         }
+    }
+
+    /// <summary>The project says otherwise than the box (an imported preset turned the mod on or off).</summary>
+    public void RefreshEnabled()
+    {
+        OnPropertyChanged(nameof(IsEnabled));
+        OnPropertyChanged(nameof(ShowMeasured));
+        RefreshMeasured();
     }
 
     private async Task SaveAfterToggleAsync(bool enabled)

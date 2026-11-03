@@ -351,4 +351,7 @@
   <data name="Mods_Follower_Summary" xml:space="preserve">
     <value>The first Pokémon of your team follows you around the map. It is an emulator plugin: it is installed, not built into the ROM.</value>
   </data>
+  <data name="Preset_OptionsBroken" xml:space="preserve">
+    <value>The Pokemanager options at the end of this preset cannot be read.</value>
+  </data>
 </root>
