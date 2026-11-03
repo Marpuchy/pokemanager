@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PKHeX.Core;
 using Pokemanager.App.Resources;
@@ -322,7 +322,7 @@ public partial class PokemonEditorViewModel : ObservableObject
 
     public string LevelText => string.Format(Strings.Preview_Level, Document.Level(Pokemon));
     public string GenderText => Pokemon.IsEgg ? "" : Pokemon.Gender switch { 0 => "♂", 1 => "♀", _ => "" };
-    public string AbilityText => Names.AbilityName(Pokemon.Ability);
+    public string AbilityText => Names.AbilityName(Document.AbilityOf(Pokemon));
     public string NatureText => (int)Pokemon.Nature < Names.Natures.Count ? Names.Natures[(int)Pokemon.Nature] : "";
     public int StatTotal => Enumerable.Range(0, 6).Sum(BaseStat);
 

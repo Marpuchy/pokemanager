@@ -1,4 +1,4 @@
-using PKHeX.Core;
+﻿using PKHeX.Core;
 using GameLanguage = Pokemanager.Model.Dump.GameLanguage;
 using Pokemanager.App.Services;
 using Pokemanager.Save;
@@ -149,5 +149,20 @@ public sealed class RealExpansionTests
         Assert.Equal(expected.Length, actual.Length);
         for (int i = 0; i < expected.Length; i++)
             Assert.Equal(expected[i]?.Rgba, actual[i]?.Rgba);
+    }
+
+    /// <summary>The mod's own species carry abilities past 255, read whole: Nacli's first is Purifying Salt (272).</summary>
+    [Fact]
+    public void AbilitiesPast255_AreReadWhole()
+    {
+        Assert.SkipWhen(Paths() is null, "POKEMANAGER_USUM_DUMP / POKEMANAGER_MOD_LIBRARY are not set.");
+
+        var (dump, session) = Open(withMod: true);
+        var names = new GameNames(dump, session.Original, session.Layers);
+        var nacli = session.Original.Personal[932];
+        Assert.Equal(272, nacli.Abilities[0]);
+        Assert.Equal(5, nacli.Abilities[1]);
+        Assert.False(string.IsNullOrWhiteSpace(names.Abilities[272]));
+        Assert.True(names.Abilities.Count > 300);
     }
 }

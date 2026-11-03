@@ -174,7 +174,9 @@ public static class SaveUpdater
             changes.Add(new PokemonChange(slot, pk.Species, ChangeKind.Experience, [fitted], [fitted]));
             changed = true;
         }
-        int newAbility = personal.Abilities[AbilityIndex(pk.AbilityNumber)];
+        // The save keeps one byte: an expansion mod's ability past 255 is stored as its low byte, and the game adds the
+        // ninth bit from the personal entry (measured: a Nacli of the user's save stores 0x92 for 0x192).
+        int newAbility = personal.Abilities[AbilityIndex(pk.AbilityNumber)] & 0xFF;
         if (newAbility != 0 && pk.Ability != newAbility)
         {
             changes.Add(new PokemonChange(slot, pk.Species, ChangeKind.Ability, [pk.Ability], [newAbility]));

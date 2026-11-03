@@ -28,8 +28,38 @@ public sealed class RandomizationCache(string root)
         string material = string.Join('|',
             Path.GetFullPath(romFile).ToUpperInvariant(), rom.Length, rom.LastWriteTimeUtc.Ticks,
             Convert.ToHexString(SHA256.HashData(preset)), seed,
-            jar.Length, jar.LastWriteTimeUtc.Ticks, allItems ? "all-items" : "", string.Join('.', goodItems ?? []));
+            jar.Length, jar.LastWriteTimeUtc.Ticks, allItems ? "all-items" : "", string.Join('.', goodItems ?? []),
+            PatchStamp(jarFile));
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(material)))[..24];
+    }
+
+    private static readonly Dictionary<string, string> patchStamps = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// What the patched classes next to the jar (<c>patch/</c>) contain, hashed: a fix to them is a different randomizer
+    /// (the expansion mod's abilities past 255 came out wrong before one), so an output made by the old ones is not reused.
+    /// Empty when there is no such folder, which keeps the keys of an installation without it as they were.
+    /// </summary>
+    private static string PatchStamp(string jarFile)
+    {
+        string dir = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(jarFile)) ?? "", "patch");
+        lock (patchStamps)
+        {
+            if (patchStamps.TryGetValue(dir, out var known))
+                return known;
+            string stamp = "";
+            if (Directory.Exists(dir))
+            {
+                using var sha = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+                foreach (string file in Directory.EnumerateFiles(dir, "*", SearchOption.AllDirectories).OrderBy(f => f, StringComparer.Ordinal))
+                {
+                    sha.AppendData(Encoding.UTF8.GetBytes(Path.GetRelativePath(dir, file).Replace('\\', '/')));
+                    sha.AppendData(File.ReadAllBytes(file));
+                }
+                stamp = Convert.ToHexString(sha.GetHashAndReset())[..16];
+            }
+            return patchStamps[dir] = stamp;
+        }
     }
 
     /// <summary>Output already generated for those parameters, without running UPR. Null if not cached.</summary>

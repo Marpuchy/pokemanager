@@ -105,7 +105,7 @@ public sealed partial class PartyMemberViewModel : ObservableObject, IMonCard
         var moves = slots.Select(m => m.Move == 0 ? MoveLine.Empty : MoveOf(m.Move, m.PP, m.Ups)).ToList();
 
         string slotName = pk.AbilityNumber switch { 2 => "2", 4 => Strings.Preview_Hidden, _ => "1" };
-        string ability = $"{names.AbilityName(pk.Ability)} ({slotName})";
+        string ability = $"{names.AbilityName(doc.AbilityOf(pk))} ({slotName})";
         string nature = (int)pk.Nature < names.Natures.Count ? names.Natures[(int)pk.Nature] : "—";
         var info = new List<RoomInfoLine>
         {
@@ -118,7 +118,7 @@ public sealed partial class PartyMemberViewModel : ObservableObject, IMonCard
             new(Strings.Pkm_OriginalTrainer, $"{pk.OriginalTrainerName} ({pk.TID16:00000})"),
         };
         string evTotal = string.Format(Strings.Pkm_EvTotal, pk.EV_HP + pk.EV_ATK + pk.EV_DEF + pk.EV_SPA + pk.EV_SPD + pk.EV_SPE, SaveDocument.MaxEvTotal);
-        return new MonSheet(this, $"{LevelText} · {nature} · {names.AbilityName(pk.Ability)}", PkhexImages.Ball(pk.Ball), stats, moves, info,
+        return new MonSheet(this, $"{LevelText} · {nature} · {names.AbilityName(doc.AbilityOf(pk))}", PkhexImages.Ball(pk.Ball), stats, moves, info,
             evTotal, manage, Strings.Preview_ManagePokemon);
     }
 

@@ -533,6 +533,16 @@ public sealed class SaveDocument
     /// <summary>Ability IDs for ability numbers 1, 2 and hidden.</summary>
     public int[] AbilityOptions(ushort species, byte form) => Personal(species, form)?.Abilities.ToArray() ?? [0, 0, 0];
 
+    /// <summary>
+    /// The ability a Pokémon really has. The save keeps one byte, and with an expansion mod the game adds the ninth bit
+    /// from the personal entry of its slot: a stored 16 on a Nacli whose first ability is 272 is Purifying Salt.
+    /// </summary>
+    public int AbilityOf(PKM pk)
+    {
+        int option = AbilityOptions(pk.Species, pk.Form)[SaveUpdater.AbilityIndex(pk.AbilityNumber)];
+        return option > byte.MaxValue && (option & 0xFF) == pk.Ability ? option : pk.Ability;
+    }
+
     /// <summary>Level from EXP with the ROM's growth rate (what the game shows).</summary>
     public int Level(PKM pk) => Personal(pk.Species, pk.Form) is { } p ? ExperienceLevels.LevelOf(pk, (byte)p.EXPGrowth) : pk.CurrentLevel;
 
@@ -607,7 +617,8 @@ public sealed class SaveDocument
         var abilities = AbilityOptions(pk.Species, pk.Form);
         int number = pk.AbilityNumber is 1 or 2 or 4 ? pk.AbilityNumber : 1;
         pk.AbilityNumber = number;
-        if (abilities[SaveUpdater.AbilityIndex(number)] is var ability and not 0)
+        // One byte in the save; the game adds the ninth bit of an expansion mod's ability from the personal entry.
+        if ((abilities[SaveUpdater.AbilityIndex(number)] & 0xFF) is var ability and not 0)
             pk.Ability = ability;
 
         var genders = GenderOptions(pk.Species, pk.Form);

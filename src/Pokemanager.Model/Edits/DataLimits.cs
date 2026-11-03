@@ -25,13 +25,15 @@ public sealed record DataLimits(int Species, int Moves, int Items, int Abilities
         Species: Last(data.Personal.Length),
         Moves: Last(data.Moves.Length),
         Items: Last(data.Items.Length),
-        Abilities: data.Title switch
+        // An expansion mod numbers abilities past the game's own (the USUM Expansion up to 319), and its species carry
+        // them: whatever the table itself uses is an ability this game has.
+        Abilities: Math.Max(data.Title switch
         {
             GameTitle.X or GameTitle.Y => 188,
             GameTitle.OmegaRuby or GameTitle.AlphaSapphire => 191,
             GameTitle.Sun or GameTitle.Moon => 232,
             _ => 233,
-        });
+        }, data.Personal.Length == 0 ? 0 : data.Personal.Max(p => p.Abilities.Length == 0 ? 0 : p.Abilities.Max())));
 
     /// <summary>
     /// Whether a value can be written to this game. Only the fields that name something are checked: a base stat or a
