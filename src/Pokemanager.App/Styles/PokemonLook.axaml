@@ -11,6 +11,54 @@
 
   <!-- Buttons that only hold a drawn card or cell -->
   <!-- Evolution line cards -->
+  <!-- Learnset timeline of the Pokédex: level pill, dot on the line, the moves stacked under it -->
+  <Style Selector="Border.dex-line">
+    <!-- From the first dot's centre to the last one's: half a stop (108) in from each side -->
+    <Setter Property="Height" Value="3" />
+    <Setter Property="Margin" Value="54,27,54,0" />
+    <Setter Property="VerticalAlignment" Value="Top" />
+    <Setter Property="Background" Value="#C9D1DA" />
+    <Setter Property="CornerRadius" Value="2" />
+  </Style>
+  <Style Selector="Border.dex-level">
+    <Setter Property="Background" Value="#1C3A70" />
+    <Setter Property="CornerRadius" Value="9" />
+    <Setter Property="Padding" Value="8,1" />
+    <Setter Property="Height" Value="18" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Border.dex-level TextBlock">
+    <Setter Property="Foreground" Value="White" />
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Ellipse.dex-dot">
+    <Setter Property="Width" Value="13" />
+    <Setter Property="Height" Value="13" />
+    <Setter Property="Fill" Value="#1C3A70" />
+    <Setter Property="Stroke" Value="White" />
+    <Setter Property="StrokeThickness" Value="2" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Border.dex-move">
+    <Setter Property="CornerRadius" Value="3" />
+    <Setter Property="Padding" Value="4,3" />
+    <Setter Property="Margin" Value="2,0" />
+  </Style>
+  <Style Selector="Border.dex-move TextBlock">
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="TextWrapping" Value="Wrap" />
+    <Setter Property="TextAlignment" Value="Center" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Border.dex-move.hidden">
+    <Setter Property="Background" Value="#E3E7EC" />
+  </Style>
+  <Style Selector="Border.dex-move.hidden TextBlock">
+    <Setter Property="Foreground" Value="#6B7785" />
+  </Style>
   <Style Selector="Border.evo-card">
     <Setter Property="Padding" Value="8,6,8,8" />
     <Setter Property="MinHeight" Value="116" />

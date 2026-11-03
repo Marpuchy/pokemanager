@@ -17,6 +17,40 @@ public sealed record DexInfoLine(string Label, string Value);
 public sealed record DexMoveLine(string Level, string Move, TypeChip Type);
 
 /// <summary>
+/// One level of the learnset timeline: the level, the moves learnt there, and how far it sits from the previous stop.
+/// </summary>
+public sealed record DexMoveStop(string Level, IReadOnlyList<DexMoveLine> Moves, Avalonia.Thickness Gap);
+
+/// <summary>
+/// What a Pokémon learns by level as a horizontal timeline from its first level to its last (user, 2026-11-04: "como
+/// una línea temporal"). Each level is a stop placed in proportion to the level, pushed right only as much as it needs
+/// so two close levels do not overlap; the moves of one level are stacked under it.
+/// </summary>
+public static class DexMoveTimeline
+{
+    public const double StopWidth = 108, PixelsPerLevel = 12, MinimumGap = 6;
+
+    public static IReadOnlyList<DexMoveStop> Build(IReadOnlyList<(int Level, DexMoveLine Line)> moves)
+    {
+        var stops = new List<DexMoveStop>();
+        var groups = moves.GroupBy(m => m.Level).OrderBy(g => g.Key).ToList();
+        if (groups.Count == 0)
+            return stops;
+        int first = groups[0].Key;
+        double end = double.NegativeInfinity; // where the previous stop ends
+        foreach (var g in groups)
+        {
+            double wanted = (g.Key - first) * PixelsPerLevel;
+            double x = Math.Max(wanted, end + MinimumGap);
+            double gap = stops.Count == 0 ? 0 : x - end;
+            stops.Add(new DexMoveStop(g.First().Line.Level, [.. g.Select(m => m.Line)], new Avalonia.Thickness(gap, 0, 0, 0)));
+            end = x + StopWidth;
+        }
+        return stops;
+    }
+}
+
+/// <summary>
 /// A species as the game's Pokédex shows it — number, name, classification, this version's entry, height and weight —
 /// plus the data of the ROM being played (types, abilities, egg groups, base stats), which may be randomized.
 /// </summary>
@@ -89,10 +123,12 @@ public sealed class DexDetailViewModel : ObservableObject
         if (entry.Row < rom.Learnsets.Length)
         {
             var learnset = rom.Learnsets[entry.Row];
-            Moves = [.. Enumerable.Range(0, learnset.Moves.Length).Select(i => new DexMoveLine(
+            var lines = Enumerable.Range(0, learnset.Moves.Length).Select(i => ((int)learnset.Levels[i], new DexMoveLine(
                 learnset.Levels[i] == 0 ? Strings.Dex_MoveOnEvolution : string.Format(Strings.Dex_MoveLevel, learnset.Levels[i]),
                 learnset.Moves[i] < game.Moves.Count ? game.Moves[learnset.Moves[i]] : $"#{learnset.Moves[i]}",
-                owner.TypeChipOf(learnset.Moves[i] < rom.Moves.Length ? rom.Moves[learnset.Moves[i]].Type : -1)))];
+                owner.TypeChipOf(learnset.Moves[i] < rom.Moves.Length ? rom.Moves[learnset.Moves[i]].Type : -1)))).ToList();
+            Moves = [.. lines.Select(l => l.Item2)];
+            Timeline = DexMoveTimeline.Build(lines);
         }
     }
 
@@ -102,6 +138,9 @@ public sealed class DexDetailViewModel : ObservableObject
 
     /// <summary>What it learns by level, hidden until asked like the abilities.</summary>
     public IReadOnlyList<DexMoveLine> Moves { get; } = [];
+
+    /// <summary>The same, by level along a horizontal line.</summary>
+    public IReadOnlyList<DexMoveStop> Timeline { get; } = [];
 
     private static IBrush BarBrush(int value) => new SolidColorBrush(Color.Parse(value switch
     {
