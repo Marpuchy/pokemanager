@@ -1100,28 +1100,18 @@
                       </Border>
                     </Grid>
 
-                    <Grid ColumnDefinitions="*,8,*">
+                    <StackPanel Spacing="8">
                       <!-- How it evolves, as the ROM played has it (randomization, mods and edits included) -->
                       <Border Classes="card">
                         <StackPanel>
                           <TextBlock Classes="card-title" Margin="0,0,0,4" Text="{x:Static r:Strings.Section_Evolution}" />
                           <TextBlock Classes="hint" Text="{x:Static r:Strings.Evo_None}" IsVisible="{Binding HasNoEvolution}" />
-                          <ItemsControl ItemsSource="{Binding Evolutions}">
-                            <ItemsControl.ItemTemplate>
-                              <DataTemplate x:DataType="vm:DexInfoLine">
-                                <Border Classes="info-row">
-                                  <Grid ColumnDefinitions="150,*">
-                                    <TextBlock FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding Label}" />
-                                    <TextBlock Grid.Column="1" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding Value}" />
-                                  </Grid>
-                                </Border>
-                              </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                          </ItemsControl>
+                          <ContentControl Content="{Binding Chain}" ContentTemplate="{StaticResource EvolutionChain}"
+                                          IsVisible="{Binding !HasNoEvolution}" />
                         </StackPanel>
                       </Border>
                       <!-- What it learns by level: hidden like the abilities -->
-                      <Border Grid.Column="2" Classes="card">
+                      <Border Classes="card">
                         <StackPanel>
                           <TextBlock Classes="card-title" Margin="0,0,0,4" Text="{x:Static r:Strings.Dex_MovesTitle}" />
                           <ItemsControl ItemsSource="{Binding Moves}"
@@ -1146,7 +1136,7 @@
                           </Border>
                         </StackPanel>
                       </Border>
-                    </Grid>
+                    </StackPanel>
                   </StackPanel>
                 </DataTemplate>
               </ContentControl.ContentTemplate>

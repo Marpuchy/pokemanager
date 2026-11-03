@@ -21,9 +21,12 @@ public sealed partial class EvolutionRowViewModel : ObservableObject
     private readonly Action<EvolutionRowViewModel> remove;
     private readonly Action changed;
 
+    private readonly PokemonSprites? sprites;
+
     public EvolutionRowViewModel(EditorSession session, GameNames names, int id, int slot, bool generation7,
-        Action<EvolutionRowViewModel> remove, Action changed)
+        Action<EvolutionRowViewModel> remove, Action changed, PokemonSprites? sprites = null)
     {
+        this.sprites = sprites;
         this.session = session;
         this.id = id;
         this.slot = slot;
@@ -84,6 +87,23 @@ public sealed partial class EvolutionRowViewModel : ObservableObject
     {
         get => Get("form");
         set { if (value is { } v) Set("form", (int)Math.Clamp(v, -1, 127)); }
+    }
+
+    /// <summary>The Pokémon it becomes, as the line shows it: picture and its type colours.</summary>
+    public Avalonia.Media.Imaging.Bitmap? TargetIcon => sprites?.For(Into, Generation7 ? Math.Max(0, Get("form")) : 0);
+
+    public Avalonia.Media.IBrush TargetBrush
+    {
+        get
+        {
+            var data = session.Current;
+            int row = PersonalIndex.Of(data).Row(Into, Generation7 ? Math.Max(0, Get("form")) : 0);
+            if (row < 0)
+                row = Into;
+            return row > 0 && row < data.Personal.Length
+                ? TypeColors.Background(data.Personal[row].Types[0], data.Personal[row].Types[1])
+                : TypeColors.Background(0);
+        }
     }
 
     public bool ShowLevel => EvolutionSlots.UsesLevel(Method);

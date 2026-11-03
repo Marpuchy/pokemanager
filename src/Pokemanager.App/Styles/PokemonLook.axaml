@@ -10,6 +10,29 @@
         xmlns:c="using:Pokemanager.App.Controls">
 
   <!-- Buttons that only hold a drawn card or cell -->
+  <!-- Evolution line cards -->
+  <Style Selector="Border.evo-card">
+    <Setter Property="Padding" Value="8,6,8,8" />
+    <Setter Property="MinHeight" Value="116" />
+    <Setter Property="CornerRadius" Value="4" />
+    <Setter Property="BorderBrush" Value="#30000000" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+  <Style Selector="Border.evo-how">
+    <Setter Property="Background" Value="#E6FFFFFF" />
+    <Setter Property="CornerRadius" Value="3" />
+    <Setter Property="Padding" Value="6,2" />
+    <Setter Property="Margin" Value="0,3,0,0" />
+  </Style>
+  <Style Selector="Button.evo-node.current Border.evo-card">
+    <Setter Property="BorderBrush" Value="#1C3A70" />
+    <Setter Property="BorderThickness" Value="3" />
+  </Style>
+  <Style Selector="Button.evo-node:pointerover Border.evo-card">
+    <Setter Property="BorderBrush" Value="#0078D4" />
+    <Setter Property="BorderThickness" Value="2" />
+  </Style>
+
   <Style Selector="Button.plain">
     <Setter Property="Padding" Value="0" />
     <Setter Property="Margin" Value="3" />
@@ -349,6 +372,50 @@
             </Border>
           </Grid>
         </StackPanel>
+      </DataTemplate>
+      <!-- An evolution line: stages left to right, each Pokémon a card in its type colours that opens its own page -->
+      <DataTemplate x:Key="EvolutionChain" x:DataType="vm:EvolutionChainViewModel">
+        <ItemsControl ItemsSource="{Binding Stages}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <WrapPanel Orientation="Horizontal" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:EvolutionStageViewModel">
+              <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="➜" FontSize="22" Foreground="#8A96A3" VerticalAlignment="Center" Margin="6,0,6,0"
+                           IsVisible="{Binding !IsFirst}" />
+                <ItemsControl ItemsSource="{Binding Nodes}" VerticalAlignment="Center" MaxWidth="636">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:EvolutionNodeViewModel">
+                      <Button Classes="plain evo-node" Classes.current="{Binding IsCurrent}" Command="{Binding OpenCommand}"
+                              IsHitTestVisible="{Binding CanOpen}" Width="150" Margin="3"
+                              ToolTip.Tip="{x:Static r:Strings.Evo_OpenTip}">
+                        <Border Classes="evo-card" Background="{Binding Background}">
+                          <StackPanel Spacing="1" HorizontalAlignment="Center">
+                            <Image Source="{Binding Icon}" Width="80" Height="60" Stretch="Uniform"
+                                   RenderOptions.BitmapInterpolationMode="None" HorizontalAlignment="Center" />
+                            <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground}" FontWeight="Bold" FontSize="13"
+                                       HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                            <Border Classes="evo-how" IsVisible="{Binding HasHow}">
+                              <TextBlock Text="{Binding How}" TextWrapping="Wrap" TextAlignment="Center" FontSize="11" />
+                            </Border>
+                          </StackPanel>
+                        </Border>
+                      </Button>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
       </DataTemplate>
     </ResourceDictionary>
   </Styles.Resources>

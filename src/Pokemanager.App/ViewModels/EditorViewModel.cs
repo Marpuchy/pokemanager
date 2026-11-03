@@ -93,6 +93,10 @@ public partial class EditorViewModel : ObservableObject
     [ObservableProperty]
     public partial string SpeciesFilter { get; set; } = "";
 
+    /// <summary>The page of the Pokémon detail (data, moves by level, evolution), kept when another Pokémon is opened.</summary>
+    [ObservableProperty]
+    public partial int SpeciesDetailTab { get; set; }
+
     /// <summary>
     /// Advanced: Pokémon shows the abilities only on request, off every time a project opens: players checking the
     /// changed stats of a randomized ROM may not want to see them (spoilers).
@@ -602,7 +606,7 @@ public partial class EditorViewModel : ObservableObject
             foreach (var entry in allSpecies.Concat(allMoves).Concat(allTrainers))
                 entry.Refresh();
             if (SpeciesDetail is { } species)
-                SpeciesDetail = new SpeciesDetailViewModel(Session, Names, species.Id, Sprites.ForPersonalEntry(species.Id));
+                SpeciesDetail = new SpeciesDetailViewModel(Session, Names, species.Id, Sprites.ForPersonalEntry(species.Id), Sprites, OpenSpeciesRow);
             if (MoveDetail is { } move)
                 MoveDetail = new MoveDetailViewModel(Session, Names, move.Id);
             if (TrainerDetail is { } trainer)
@@ -711,10 +715,22 @@ public partial class EditorViewModel : ObservableObject
             TrainerDetail = new TrainerDetailViewModel(this, Session, Names, Sprites, value.Id);
     }
 
+    /// <summary>Opens a personal row in Juego → Pokémon (a Pokémon of the evolution line was clicked).</summary>
+    public void OpenSpeciesRow(int row)
+    {
+        if (Species.FirstOrDefault(e => e.Id == row) is not { } entry)
+        {
+            SpeciesFilter = "";
+            entry = Species.FirstOrDefault(e => e.Id == row);
+        }
+        if (entry is not null)
+            SelectedSpecies = entry;
+    }
+
     partial void OnSelectedSpeciesChanged(ListEntryViewModel? value)
     {
         if (value is not null && value.Id != SpeciesDetail?.Id)
-            SpeciesDetail = new SpeciesDetailViewModel(Session, Names, value.Id, Sprites.ForPersonalEntry(value.Id));
+            SpeciesDetail = new SpeciesDetailViewModel(Session, Names, value.Id, Sprites.ForPersonalEntry(value.Id), Sprites, OpenSpeciesRow);
     }
 
     partial void OnSelectedMoveChanged(ListEntryViewModel? value)

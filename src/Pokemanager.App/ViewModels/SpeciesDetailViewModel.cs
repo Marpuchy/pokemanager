@@ -66,22 +66,21 @@ public partial class SpeciesDetailViewModel : ObservableObject
 
     public bool HasNoEvolution => HasEvolutionData && Evolutions.Count == 0;
 
-    /// <summary>What evolves into this Pokémon, and how, as the ROM has it now: context for editing its own.</summary>
-    public string EvolvesFrom
+    private EvolutionChainViewModel? chain;
+
+    /// <summary>The whole line this Pokémon belongs to; a click on another of its Pokémon opens that one.</summary>
+    public EvolutionChainViewModel Chain => chain ??= BuildChain();
+
+    private EvolutionChainViewModel BuildChain()
     {
-        get
-        {
-            var index = PersonalIndex.Of(session.Current);
-            if (index.Pokemon(Id) is not { } self)
-                return "";
-            bool gen7 = session.Current.Title.Generation() == 7;
-            var from = new List<string>();
-            for (int row = 0; row < session.Current.Evolutions.Length; row++)
-                foreach (var (_, e) in session.Current.Evolutions[row].InUse())
-                    if (e.Species == self.Species && (!gen7 || e.Form < 0 || e.Form == self.Form))
-                        from.Add($"{names.PersonalEntries[row]} — {EvolutionText.How(e, gen7, names)}");
-            return from.Count == 0 ? "" : string.Format(Strings.Evo_From, string.Join(" · ", from.Distinct()));
-        }
+        var index = PersonalIndex.Of(session.Current);
+        var (species, form) = index.Pokemon(Id) ?? (Id, 0);
+        return EvolutionChainViewModel.Build(session.Current, names, species, form,
+            (s, f) => sprites?.For(s, f), openRow is null ? null : (s, f) =>
+            {
+                int row = index.Row(s, f);
+                openRow(row >= 0 ? row : s);
+            });
     }
 
     private void LoadEvolutions()
@@ -91,13 +90,15 @@ public partial class SpeciesDetailViewModel : ObservableObject
         {
             bool gen7 = session.Current.Evolutions[Id].Generation7;
             foreach (var (slot, _) in session.Current.Evolutions[Id].InUse())
-                Evolutions.Add(new EvolutionRowViewModel(session, names, Id, slot, gen7, RemoveEvolution, EvolutionChanged));
+                Evolutions.Add(new EvolutionRowViewModel(session, names, Id, slot, gen7, RemoveEvolution, EvolutionChanged, sprites));
         }
         EvolutionChanged();
     }
 
     private void EvolutionChanged()
     {
+        chain = null;
+        OnPropertyChanged(nameof(Chain));
         OnPropertyChanged(nameof(IsEvolutionModified));
         OnPropertyChanged(nameof(IsModified));
         OnPropertyChanged(nameof(CanAddEvolution));
@@ -132,10 +133,16 @@ public partial class SpeciesDetailViewModel : ObservableObject
         LoadEvolutions();
     }
 
-    public SpeciesDetailViewModel(EditorSession session, GameNames names, int id, Avalonia.Media.Imaging.Bitmap? icon = null)
+    private readonly PokemonSprites? sprites;
+    private readonly Action<int>? openRow;
+
+    public SpeciesDetailViewModel(EditorSession session, GameNames names, int id, Avalonia.Media.Imaging.Bitmap? icon = null,
+        PokemonSprites? sprites = null, Action<int>? openRow = null)
     {
         this.session = session;
         this.names = names;
+        this.sprites = sprites;
+        this.openRow = openRow;
         Id = id;
         Title = $"#{id:000} {names.PersonalEntries[id]}";
         Icon = icon;

@@ -4728,4 +4728,10 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Evo_Method_42" xml:space="preserve">
     <value>Use an item in Ultra Space</value>
   </data>
+  <data name="Evo_LineTitle" xml:space="preserve">
+    <value>Evolution line</value>
+  </data>
+  <data name="Evo_OpenTip" xml:space="preserve">
+    <value>Open this Pokémon</value>
+  </data>
 </root>

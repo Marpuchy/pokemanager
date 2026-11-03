@@ -899,7 +899,20 @@ public partial class SaveDexViewModel : ObservableObject
     }
 
     partial void OnSelectedEntryChanged(DexEntryViewModel? value) =>
-        Detail = value is null ? null : new DexDetailViewModel(owner, doc, names, value);
+        Detail = value is null ? null : new DexDetailViewModel(owner, doc, names, value, OpenSpecies);
+
+    /// <summary>Opens another species' entry (a Pokémon of the evolution line was clicked).</summary>
+    private void OpenSpecies(int species)
+    {
+        var target = Entries.FirstOrDefault(e => e.Species == species);
+        if (target is null && all.FirstOrDefault(e => e.Species == species) is not null)
+        {
+            Filter = "";
+            target = Entries.FirstOrDefault(e => e.Species == species);
+        }
+        if (target is not null)
+            SelectedEntry = target;
+    }
 
     private void ApplyFilter()
     {

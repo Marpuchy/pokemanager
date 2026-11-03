@@ -4728,4 +4728,10 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Evo_Method_42" xml:space="preserve">
     <value>Usar un objeto en el Ultraespacio</value>
   </data>
+  <data name="Evo_LineTitle" xml:space="preserve">
+    <value>Línea evolutiva</value>
+  </data>
+  <data name="Evo_OpenTip" xml:space="preserve">
+    <value>Abrir este Pokémon</value>
+  </data>
 </root>

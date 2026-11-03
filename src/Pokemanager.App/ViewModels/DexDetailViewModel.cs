@@ -24,7 +24,7 @@ public sealed class DexDetailViewModel : ObservableObject
 {
     private readonly DexEntryViewModel entry;
 
-    public DexDetailViewModel(SaveEditorViewModel owner, SaveDocument doc, SaveNames names, DexEntryViewModel entry)
+    public DexDetailViewModel(SaveEditorViewModel owner, SaveDocument doc, SaveNames names, DexEntryViewModel entry, Action<int>? open = null)
     {
         this.entry = entry;
         ushort species = entry.Species;
@@ -83,16 +83,8 @@ public sealed class DexDetailViewModel : ObservableObject
 
         // The ROM's own data (randomization, mods and the project's edits included): how it evolves and what it learns.
         var rom = doc.Rom;
-        bool gen7 = rom.Title.Generation() == 7;
-        var evolutions = new List<DexInfoLine>();
-        if (species < rom.Evolutions.Length)
-            foreach (var (_, e) in rom.Evolutions[species].InUse())
-                evolutions.Add(new DexInfoLine("→ " + EvolutionText.Target(e, gen7, game), EvolutionText.How(e, gen7, game)));
-        for (int row = 0; row < rom.Evolutions.Length; row++)
-            foreach (var (_, e) in rom.Evolutions[row].InUse())
-                if (e.Species == species && (!gen7 || e.Form <= 0))
-                    evolutions.Insert(0, new DexInfoLine("← " + game.PersonalEntries[row], EvolutionText.How(e, gen7, game)));
-        Evolutions = evolutions;
+        Chain = EvolutionChainViewModel.Build(rom, game, species, 0, (s, f) => owner.Sprites.For(s, f),
+            open is null ? null : (s, _) => open(s));
 
         if (species < rom.Learnsets.Length)
         {
@@ -104,9 +96,9 @@ public sealed class DexDetailViewModel : ObservableObject
         }
     }
 
-    /// <summary>Where it comes from (←) and what it becomes (→), with how.</summary>
-    public IReadOnlyList<DexInfoLine> Evolutions { get; } = [];
-    public bool HasNoEvolution => Evolutions.Count == 0;
+    /// <summary>Its whole evolution line, with how each stage is reached; a click opens that Pokémon's entry.</summary>
+    public EvolutionChainViewModel? Chain { get; }
+    public bool HasNoEvolution => Chain is null || Chain.IsAlone;
 
     /// <summary>What it learns by level, hidden until asked like the abilities.</summary>
     public IReadOnlyList<DexMoveLine> Moves { get; } = [];
