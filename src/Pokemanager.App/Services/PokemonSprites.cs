@@ -47,7 +47,8 @@ public sealed class PokemonSprites
         string code = project.CodePath();
         var icons = layout.Icons
             .Where(layers.Has)
-            .Select(garc => PokemonIcons.Load(layers, code, garc, data.SpeciesCount))
+            .Select(garc => PokemonIcons.Load(layers, code, garc, data.SpeciesCount, data.VanillaSpeciesCount,
+                Path.Combine(project.ExeFsPath, "code.bin")))
             .FirstOrDefault(i => i is not null);
         return icons is null ? Empty : new PokemonSprites(icons, data);
     }

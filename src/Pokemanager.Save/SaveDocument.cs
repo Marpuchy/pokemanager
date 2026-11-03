@@ -506,10 +506,26 @@ public sealed class SaveDocument
         return index < Rom.Personal.Length ? Rom.Personal[index] : null;
     }
 
-    public int MaxSpecies => Math.Min(sav.MaxSpeciesID, Rom.Personal.Length - 1);
+    /// <summary>
+    /// The last species a Pokémon of this save can be: the ROM's own (<see cref="GameData.LastSpecies"/>). A
+    /// species-expansion mod gives the game more than PKHeX knows the vanilla game has, and a Pokémon the player caught
+    /// in it is as valid as any other — the slot stores the number and the ROM has its data.
+    /// </summary>
+    public int MaxSpecies => Math.Min(Math.Max(sav.MaxSpeciesID, Rom.LastSpecies), Rom.Personal.Length - 1);
+
+    /// <summary>
+    /// The species the save's Pokédex has room for. Unlike <see cref="MaxSpecies"/> this is the save format's, not the
+    /// ROM's: the seen and caught flags are a fixed bit field, and a mod that adds species does not make it longer.
+    /// </summary>
+    public int DexMaxSpecies => Math.Min(sav.MaxSpeciesID, MaxSpecies);
+
     public int MaxMove => Rom.Moves.Length - 1;
-    public int MaxItem => sav.MaxItemID;
-    public int MaxAbility => sav.MaxAbilityID;
+
+    /// <summary>The save format's last item, or the ROM's when a mod gave it more.</summary>
+    public int MaxItem => Math.Max(sav.MaxItemID, Rom.Items.Length - 1);
+
+    /// <summary>The save format's last ability, or the highest one the ROM's personal table uses when that is more.</summary>
+    public int MaxAbility => Math.Max(sav.MaxAbilityID, Rom.Personal.Length == 0 ? 0 : Rom.Personal.Max(p => p.Abilities.Length == 0 ? 0 : p.Abilities.Max()));
     public int MaxBall => sav.MaxBallID;
 
     public int FormCount(ushort species) => Personal(species, 0)?.FormeCount is > 0 and var n ? n : 1;
@@ -798,12 +814,13 @@ public sealed class SaveDocument
 
     // ------------------------------------------------------------------ Pokédex
 
-    public bool GetSeen(ushort species) => sav.GetSeen(species);
-    public bool GetCaught(ushort species) => sav.GetCaught(species);
+    // A species past the save's Pokédex (one a species-expansion mod added) has no flag to read or write.
+    public bool GetSeen(ushort species) => species <= DexMaxSpecies && sav.GetSeen(species);
+    public bool GetCaught(ushort species) => species <= DexMaxSpecies && sav.GetCaught(species);
 
     public void SetSeen(ushort species, bool value)
     {
-        if (GetSeen(species) == value)
+        if (species > DexMaxSpecies || GetSeen(species) == value)
             return;
         if (!value)
             sav.SetCaught(species, false);
@@ -813,7 +830,7 @@ public sealed class SaveDocument
 
     public void SetCaught(ushort species, bool value)
     {
-        if (GetCaught(species) == value)
+        if (species > DexMaxSpecies || GetCaught(species) == value)
             return;
         if (value)
             sav.SetSeen(species, true);

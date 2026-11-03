@@ -48,12 +48,32 @@ public sealed class PokemonIcons
     }
 
     /// <summary>Null when the dump has no icon archive or the species table cannot be found in <c>code.bin</c>.</summary>
-    public static PokemonIcons? Load(RomFsLayers layers, string codeBinPath, string garcPath = Garc, int speciesCount = SpeciesCountGen6)
+    /// <param name="vanillaSpeciesCount">
+    /// The species the game ships with. A species-expansion mod (the USUM Expansion) keeps the game's own table of that
+    /// size in <c>code.bin</c> and <b>appends the new species' icons to the archive in species order</b> — measured on
+    /// the mod's Ultra Sun files: the table still ends at Zeraora (icon 1152, then the egg), and from icon 1154 the
+    /// archive goes Meltan, Melmetal, Grookey… one per species up to Pecharunt, with the extra forms after them. So when
+    /// no table of the full size exists, the game's own is read and the new species get the icons that follow it.
+    /// </param>
+    /// <param name="shippedCodeBinPath">
+    /// The game's own executable, to read that table from when the mod's no longer holds a usable copy: the mod's
+    /// <c>code.bin</c> keeps the 808 entries but not the per-form lists they point at (measured: the pointers land on
+    /// other data), while the archive's first icons are still the game's.
+    /// </param>
+    public static PokemonIcons? Load(RomFsLayers layers, string codeBinPath, string garcPath = Garc, int speciesCount = SpeciesCountGen6,
+        int? vanillaSpeciesCount = null, string? shippedCodeBinPath = null)
     {
         try
         {
             var garc = new GARC.MemGARC(File.ReadAllBytes(layers.Resolve(garcPath)));
-            var entries = ReadTable(File.ReadAllBytes(codeBinPath), garc.FileCount, speciesCount);
+            byte[] code = File.ReadAllBytes(codeBinPath);
+            var entries = ReadTable(code, garc.FileCount, speciesCount);
+            if (entries is null && vanillaSpeciesCount is { } vanilla && vanilla < speciesCount
+                && (ReadTable(code, garc.FileCount, vanilla)
+                    ?? (shippedCodeBinPath is not null && File.Exists(shippedCodeBinPath)
+                        ? ReadTable(File.ReadAllBytes(shippedCodeBinPath), garc.FileCount, vanilla)
+                        : null)) is { } shipped)
+                entries = Extend(shipped, speciesCount, garc.FileCount);
             return entries is null ? null : new PokemonIcons(garc, entries);
         }
         catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException or IOException or InvalidDataException)
@@ -93,6 +113,26 @@ public sealed class PokemonIcons
                 return table;
         }
         return null;
+    }
+
+    /// <summary>
+    /// The game's table followed by one entry per added species, pointing at the icons after the last one the game's
+    /// table uses (the egg comes right after the last species, so that is skipped too). An index past the archive is
+    /// left at "no icon".
+    /// </summary>
+    private static IconEntry[] Extend(IconEntry[] shipped, int speciesCount, int iconCount)
+    {
+        int last = shipped.Skip(1).Max(e => Math.Max(Math.Max(e.Default, e.Female),
+            Math.Max(e.Forms.DefaultIfEmpty(0).Max(), e.ShinyForms.DefaultIfEmpty(0).Max())));
+        int first = last + 2; // the egg sits between the game's species and the added ones
+        var table = new IconEntry[speciesCount];
+        Array.Copy(shipped, table, shipped.Length);
+        for (int s = shipped.Length; s < speciesCount; s++)
+        {
+            int icon = first + (s - shipped.Length);
+            table[s] = icon < iconCount ? new IconEntry(icon, icon, [], []) : new IconEntry(0, 0, [], []);
+        }
+        return table;
     }
 
     private static IconEntry[]? TryRead(byte[] code, int offset, int iconCount, int speciesCount)

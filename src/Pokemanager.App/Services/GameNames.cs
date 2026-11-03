@@ -1,4 +1,5 @@
 ﻿using pk3DS.Core;
+using pk3DS.Core.CTR;
 using Pokemanager.App.Resources;
 using Pokemanager.Model.Data;
 using Pokemanager.Model.Dump;
@@ -53,26 +54,108 @@ public sealed class GameNames
     /// <summary>This version's Pokédex entry by species (plain text with line breaks); empty when the game has none.</summary>
     public IReadOnlyList<string> PokedexEntries { get; }
 
-    public GameNames(GameDump dump, GameData original)
+    /// <param name="dump">The imported game: its text is the fallback, and the language to read.</param>
+    /// <param name="original">The data being read (the session's base), which says how many of each thing there are.</param>
+    /// <param name="layers">
+    /// The session's stack of romfs layers. <b>The names come from the same stack as the data</b>: a mod that adds
+    /// species, moves and items ships the text archive that names them, and reading the dump's own text instead left
+    /// every one of them unnamed (or, for moves and items, out of range). Null reads the dump alone.
+    /// </param>
+    public GameNames(GameDump dump, GameData original, RomFsLayers? layers = null)
     {
-        var config = dump.Config;
-        Species = config.GetText(TextName.SpeciesNames);
-        Types = config.GetText(TextName.Types);
-        Abilities = config.GetText(TextName.AbilityNames);
-        Items = config.GetText(TextName.ItemNames);
-        Moves = config.GetText(TextName.MoveNames);
-        TrainerNames = config.GetText(TextName.TrainerNames);
-        TrainerClasses = config.GetText(TextName.TrainerClasses);
+        var text = new TextSource(dump, layers);
+        // Every list is as long as the table it names: a ROM with more entries than its text (a mod that did not grow
+        // the text, or did it only for some languages) gets a placeholder instead of an index out of range.
+        Species = Pad(text.Get(TextName.SpeciesNames), original.SpeciesCount, Strings.Species_Entry);
+        Types = text.Get(TextName.Types);
+        Abilities = Pad(text.Get(TextName.AbilityNames), AbilityCount(original), Strings.Names_Ability);
+        Items = Pad(text.Get(TextName.ItemNames), original.Items.Length, Strings.Names_Item);
+        Moves = Pad(text.Get(TextName.MoveNames), original.Moves.Length, Strings.Names_Move);
+        TrainerNames = text.Get(TextName.TrainerNames);
+        TrainerClasses = text.Get(TextName.TrainerClasses);
         Natures = [.. PKHeX.Core.GameInfo.GetStrings(SaveNames.PkhexLanguage(dump.Language)).natures.Take(25)];
         ItemChoices = [Strings.Pkm_None, .. Items.Skip(1)];
         MoveChoices = [Strings.Pkm_None, .. Moves.Skip(1)];
-        ItemDescriptions = [.. config.GetText(TextName.ItemFlavor).Select(line => GameText.ToEditable(line).Replace("\\c", "\n").Replace("\\r", "\n").Trim())];
+        ItemDescriptions = [.. text.Get(TextName.ItemFlavor).Select(Plain)];
         // The split between species and forms comes from the ROM's own personal table, not from pk3DS's
         // GameInfo.MaxSpeciesID: a ROM with a species-expansion mod has more species than the game ships with.
         PersonalEntries = BuildPersonalEntryNames(original, Species, original.LastSpecies);
         var (classifications, entries) = GameText.PokedexFiles(dump.Title);
-        Classifications = TextFile(config, classifications);
-        PokedexEntries = TextFile(config, entries);
+        Classifications = [.. (text.Raw(classifications) ?? []).Select(Plain)];
+        PokedexEntries = [.. (text.Raw(entries) ?? []).Select(Plain)];
+    }
+
+    private static string Plain(string line) => GameText.ToEditable(line).Replace("\\c", "\n").Replace("\\r", "\n").Trim();
+
+    /// <summary>The list as the game has it, followed by "Move 920"-style placeholders up to <paramref name="count"/>.</summary>
+    private static string[] Pad(string[] names, int count, string format)
+    {
+        if (names.Length >= count)
+            return names;
+        var padded = new string[count];
+        Array.Copy(names, padded, names.Length);
+        for (int i = names.Length; i < count; i++)
+            padded[i] = string.Format(format, i);
+        return padded;
+    }
+
+    /// <summary>One more than the highest ability any entry of the personal table names.</summary>
+    private static int AbilityCount(GameData data) =>
+        data.Personal.Length == 0 ? 0 : data.Personal.Max(p => p.Abilities.Length == 0 ? 0 : p.Abilities.Max()) + 1;
+
+    /// <summary>
+    /// The game text of the project's language, read from the highest layer that has the archive — a mod's, a
+    /// randomization's, or the dump's own (already loaded by pk3DS, so that case reads nothing).
+    /// </summary>
+    private sealed class TextSource
+    {
+        private readonly GameConfig config;
+        private readonly GameTitle title;
+        private readonly byte[][]? files;
+
+        public TextSource(GameDump dump, RomFsLayers? layers)
+        {
+            config = dump.Config;
+            title = dump.Title;
+            if (layers is null)
+                return;
+            string relative = GameText.Archive(title, dump.Language);
+            if (layers.TryResolve(relative) is not { } path)
+                return;
+            string own = Path.GetFullPath(Path.Combine(dump.RomFsPath, relative.Replace('/', Path.DirectorySeparatorChar)));
+            if (string.Equals(Path.GetFullPath(path), own, StringComparison.OrdinalIgnoreCase))
+                return;
+            try
+            {
+                files = new GARC.MemGARC(File.ReadAllBytes(path)).Files;
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException
+                                           or ArgumentException or IndexOutOfRangeException)
+            {
+                files = null; // a layer whose text does not read: the dump's names are better than none
+            }
+        }
+
+        public string[] Get(TextName name) => Raw(GameText.FileIndex(title, name)) ?? config.GetText(name);
+
+        /// <summary>The lines of one file of the archive by its index, or null when there is no such file.</summary>
+        public string[]? Raw(int index)
+        {
+            if (index < 0)
+                return null;
+            if (files is not null && index < files.Length)
+            {
+                try
+                {
+                    return GameText.Read(title, files[index]);
+                }
+                catch (InvalidDataException)
+                {
+                    // fall back to the dump's own file below
+                }
+            }
+            return index < config.GameTextStrings.Length ? (string[])config.GameTextStrings[index].Clone() : null;
+        }
     }
 
     /// <summary>The class as the game names it, or an empty string when the id is not one.</summary>
@@ -87,11 +170,6 @@ public sealed class GameNames
         string label = string.Join(' ', new[] { cls, name }.Where(p => !string.IsNullOrWhiteSpace(p)));
         return label.Length == 0 ? string.Format(Strings.Trainer_Unnamed, id) : label;
     }
-
-    private static string[] TextFile(pk3DS.Core.GameConfig config, int file) =>
-        file >= 0 && file < config.GameTextStrings.Length
-            ? [.. config.GameTextStrings[file].Select(line => GameText.ToEditable(line).Replace("\\c", "\n").Replace("\\r", "\n").Trim())]
-            : [];
 
     /// <summary>
     /// Entries above the species count are alternate forms: the base species tells with <c>FormStatsIndex</c> where

@@ -4048,7 +4048,7 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>Mods</value>
   </data>
   <data name="Mods_TabHint" xml:space="preserve">
-    <value>Mods de la comunidad para este juego. Un mod sustituye archivos enteros del juego en lugar de editar campos, as&#237; que se empaqueta en una ROM base antes de que corra el randomizador y obliga a construir la ROM otra vez &#8212; nunca a una semilla nueva. Pokemanager no distribuye ni un byte de un mod: los archivos vienen de la publicaci&#243;n del propio autor a tu biblioteca, que es tuya y de esta m&#225;quina, y lo que ya est&#225; ah&#237; no se descarga dos veces.</value>
+    <value>Mods de la comunidad para este juego. Marca uno para jugar con él: toda la aplicación pasa a leer el juego con el mod al momento, y la ROM se tiene que construir otra vez (nunca una semilla nueva). Los archivos vienen de la publicación del propio autor.</value>
   </data>
   <data name="Mods_LibraryIs" xml:space="preserve">
     <value>Tu biblioteca: {0}</value>
@@ -4385,5 +4385,38 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   </data>
   <data name="Mods_LicenseTip" xml:space="preserve">
     <value>La licencia que declara el autor, y d&#243;nde la declara. Cuando las declaraciones no coinciden se muestran las dos: Pokemanager dice lo que dice el autor y no elige una.</value>
+  </data>
+  <data name="Names_Ability" xml:space="preserve">
+    <value>Habilidad {0}</value>
+  </data>
+  <data name="Names_Item" xml:space="preserve">
+    <value>Objeto {0}</value>
+  </data>
+  <data name="Names_Move" xml:space="preserve">
+    <value>Movimiento {0}</value>
+  </data>
+  <data name="Mods_Details" xml:space="preserve">
+    <value>Detalles</value>
+  </data>
+  <data name="Mods_HideDetails" xml:space="preserve">
+    <value>Ocultar detalles</value>
+  </data>
+  <data name="Mods_DetailsTip" xml:space="preserve">
+    <value>Todo sobre este mod: autor y licencias, fallos conocidos, los archivos de tu biblioteca y lo que ha ganado la ROM.</value>
+  </data>
+  <data name="Mods_StatusNotDownloaded" xml:space="preserve">
+    <value>Aún no está descargado.</value>
+  </data>
+  <data name="Mods_StatusReady" xml:space="preserve">
+    <value>Descargado y listo: marca la casilla para usarlo.</value>
+  </data>
+  <data name="Mods_EnabledStatus" xml:space="preserve">
+    <value>{0} activado y proyecto guardado: {1} Pokémon nuevos, {2} movimientos y {3} objetos ya están en todas las listas. Construye la ROM para jugar con él.</value>
+  </data>
+  <data name="Mods_DisabledStatus" xml:space="preserve">
+    <value>{0} desactivado y proyecto guardado. Construye la ROM para jugar sin él.</value>
+  </data>
+  <data name="Editor_BaseWithMods" xml:space="preserve">
+    <value>{0} + {1}</value>
   </data>
 </root>

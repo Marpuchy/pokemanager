@@ -167,6 +167,7 @@ public static class ModCatalog
             [GameTitle.UltraSun, GameTitle.UltraMoon],
             files)
         {
+            Summary = Strings.Mods_UsumExpansion_Summary,
             KnownIssues =
             [
                 Strings.Mods_UsumExpansion_Issue_Learnsets,
@@ -246,6 +247,7 @@ public static class ModCatalog
             [plugin])
         {
             Kind = ModKind.EmulatorPlugin,
+            Summary = Strings.Mods_Follower_Summary,
             SetupNote = Strings.Mods_Follower_Setup,
             KnownIssues =
             [

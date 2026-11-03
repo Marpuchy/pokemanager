@@ -123,7 +123,7 @@ public partial class SaveTrainerViewModel : ObservableObject
         get
         {
             int seen = 0, caught = 0;
-            for (ushort s = 1; s <= doc.MaxSpecies; s++)
+            for (ushort s = 1; s <= doc.DexMaxSpecies; s++)
             {
                 if (doc.GetSeen(s)) seen++;
                 if (doc.GetCaught(s)) caught++;

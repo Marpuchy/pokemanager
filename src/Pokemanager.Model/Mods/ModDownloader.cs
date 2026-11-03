@@ -421,7 +421,17 @@ public sealed partial class ModDownloader(IModFetcher fetcher, ModLibrary librar
         // on Windows is not a nicety but the difference between working and an access denied.
         using (var zip = ZipFile.OpenRead(partial))
         {
-            var entries = zip.Entries.Where(e => e.Length > 0 && Served(e.FullName, mod) is not null).ToList();
+            // A file that a download of its own delivers for this game is not taken from the zip: the point release's
+            // executable replaces the one inside the archive, and when that download fails the old one must not be
+            // left in the library looking like the right version.
+            var delivered = mod.Downloads
+                .Where(d => !ReferenceEquals(d, download) && d.Kind == ModDownloadKind.SingleFile && d.ServedPath is not null
+                    && (download.Game is null || d.AppliesTo(download.Game.Value)))
+                .Select(d => d.ServedPath!)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var entries = zip.Entries
+                .Where(e => e.Length > 0 && Served(e.FullName, mod) is { } served && !delivered.Contains(served))
+                .ToList();
             for (int i = 0; i < entries.Count; i++)
             {
                 cancel.ThrowIfCancellationRequested();

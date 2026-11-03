@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Pokemanager.Model.Mods;
 
 namespace Pokemanager.Model.Projects;
@@ -20,6 +21,7 @@ public sealed class ModSettings
     /// </summary>
     public List<string> Enabled { get; set; } = [];
 
+    [JsonIgnore]
     public bool IsEmpty => Enabled.Count == 0;
 
     /// <summary>
@@ -32,10 +34,12 @@ public sealed class ModSettings
     /// An id this version does not know counts as a ROM mod, so the build still refuses with its name instead of
     /// quietly ignoring it — the same thing it did before plugins existed.
     /// </remarks>
+    [JsonIgnore]
     public IEnumerable<string> EnabledRomMods =>
         Enabled.Where(id => ModCatalog.Find(id)?.ChangesTheRom ?? true);
 
     /// <summary>Nothing enabled here puts a single file in the ROM, so there is no base to pack and no build to ask for.</summary>
+    [JsonIgnore]
     public bool HasNoRomMods => !EnabledRomMods.Any();
 
     public bool Has(string modId) => Enabled.Contains(modId, StringComparer.OrdinalIgnoreCase);

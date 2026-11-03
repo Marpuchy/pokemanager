@@ -337,7 +337,7 @@ public sealed partial class RoomViewModel : ObservableObject, IBoxBrowser
         try
         {
             shared = project;
-            gameNames = new GameNames(project.Dump, project.Session.Original);
+            gameNames = new GameNames(project.Dump, project.Session.Original, project.Session.Layers);
             names = new SaveNames(gameNames, GameTextLanguage.Current, gameNames.Species.Count - 1);
             sprites = await Task.Run(() => PokemonSprites.Load(project.Project, project.Session.Original));
             var save = await Task.Run(OpenSave);

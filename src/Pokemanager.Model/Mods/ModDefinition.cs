@@ -158,6 +158,12 @@ public sealed record ModDefinition(
     /// </summary>
     public ModKind Kind { get; init; } = ModKind.RomFiles;
 
+    /// <summary>
+    /// One sentence saying what the mod does, for the list of mods: the full <see cref="Description"/> is behind the
+    /// card's Details. Null falls back to the description.
+    /// </summary>
+    public string? Summary { get; init; }
+
     /// <summary>It is a plugin the emulator loads, not files for the ROM.</summary>
     public bool IsPlugin => Kind == ModKind.EmulatorPlugin;
 

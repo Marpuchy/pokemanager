@@ -245,7 +245,7 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
         Loaded = loaded;
         var project = loaded.Project;
         var r = project.Randomization;
-        var gameNames = new GameNames(loaded.Dump, loaded.Session.Original);
+        var gameNames = new GameNames(loaded.Dump, loaded.Session.Original, loaded.Session.Layers);
         itemNames = gameNames.Items;
 
         GameText = string.Format(Strings.Preview_Game, loaded.Dump.Title.DisplayName(), project.Edits.Count == 1

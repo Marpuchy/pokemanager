@@ -226,7 +226,7 @@
     <value>Aqua, improved by the community</value>
   </data>
   <data name="Mods_UsumExpansion_Description" xml:space="preserve">
-    <value>Adds the Pok&#233;mon of Generations 8 and 9 to Ultra Sun and Ultra Moon, raising the 807 species the games ship with to about 1025. It does not edit fields: it replaces whole files (an expanded personal table, the moves, the game texts), a modified code.bin and the exefs icon and banner. Pokemanager does not distribute or download any of it &#8212; the files are yours to fetch and to put in your own library, like your ROMs. It has known faults worth reading before a run.</value>
+    <value>Adds the Pokémon of Generations 8 and 9 to Ultra Sun and Ultra Moon, raising the 807 species the games ship with to 1025, with their moves, abilities and items. It does not edit fields: it replaces whole files (an expanded personal table, the moves, the game texts) and the game's code.bin. Pokemanager does not distribute it: the Download button fetches the files from the author's own release into your library. It has known faults worth reading before a run.</value>
   </data>
   <data name="Mods_UsumExpansion_Issue_Learnsets" xml:space="preserve">
     <value>The learnsets of Generations 1 to 7 do not include the new moves.</value>
@@ -344,5 +344,11 @@
   </data>
   <data name="Mods_LicenseDisagrees" xml:space="preserve">
     <value>The author declares a different licence depending on where you look: {0}. Pokemanager does not choose between them &#8212; both are the author's own words, in different places.</value>
+  </data>
+  <data name="Mods_UsumExpansion_Summary" xml:space="preserve">
+    <value>Adds the Pokémon of generations 8 and 9 to Ultra Sun and Ultra Moon, with their moves, abilities and items.</value>
+  </data>
+  <data name="Mods_Follower_Summary" xml:space="preserve">
+    <value>The first Pokémon of your team follows you around the map. It is an emulator plugin: it is installed, not built into the ROM.</value>
   </data>
 </root>

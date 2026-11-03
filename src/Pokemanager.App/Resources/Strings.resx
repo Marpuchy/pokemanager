@@ -4048,7 +4048,7 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
     <value>Mods</value>
   </data>
   <data name="Mods_TabHint" xml:space="preserve">
-    <value>Community mods of this game. A mod replaces whole files of the game instead of editing fields, so it is packed into a base ROM before the randomizer runs and it needs the ROM to be built again — never a new seed. Pokemanager distributes not a single byte of a mod: the files come from the author's own release into your library, which is yours and this machine's, and whatever is already there is never downloaded twice.</value>
+    <value>Community mods for this game. Tick one to play with it: the whole application reads the game with it at once, and the ROM has to be built again (never a new seed). The files come from the author's own release.</value>
   </data>
   <data name="Mods_LibraryIs" xml:space="preserve">
     <value>Your library: {0}</value>
@@ -4385,5 +4385,38 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   </data>
   <data name="Mods_LicenseTip" xml:space="preserve">
     <value>The licence the author declares, and where it is declared. When the declarations disagree, both are shown: Pokemanager states what the author states and does not pick one.</value>
+  </data>
+  <data name="Names_Ability" xml:space="preserve">
+    <value>Ability {0}</value>
+  </data>
+  <data name="Names_Item" xml:space="preserve">
+    <value>Item {0}</value>
+  </data>
+  <data name="Names_Move" xml:space="preserve">
+    <value>Move {0}</value>
+  </data>
+  <data name="Mods_Details" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="Mods_HideDetails" xml:space="preserve">
+    <value>Hide details</value>
+  </data>
+  <data name="Mods_DetailsTip" xml:space="preserve">
+    <value>Everything about this mod: author and licences, known faults, the files in your library and what the ROM gained.</value>
+  </data>
+  <data name="Mods_StatusNotDownloaded" xml:space="preserve">
+    <value>Not downloaded yet.</value>
+  </data>
+  <data name="Mods_StatusReady" xml:space="preserve">
+    <value>Downloaded and ready: tick the box to use it.</value>
+  </data>
+  <data name="Mods_EnabledStatus" xml:space="preserve">
+    <value>{0} is on and the project is saved: {1} new Pokémon, {2} moves and {3} items are now in every list. Build the ROM to play with it.</value>
+  </data>
+  <data name="Mods_DisabledStatus" xml:space="preserve">
+    <value>{0} is off and the project is saved. Build the ROM to play without it.</value>
+  </data>
+  <data name="Editor_BaseWithMods" xml:space="preserve">
+    <value>{0} + {1}</value>
   </data>
 </root>

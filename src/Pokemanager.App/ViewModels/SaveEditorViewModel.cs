@@ -882,7 +882,7 @@ public partial class SaveDexViewModel : ObservableObject
         this.owner = owner;
         this.doc = doc;
         this.names = names;
-        all = Enumerable.Range(1, doc.MaxSpecies).Select(s => new DexEntryViewModel(this, doc, (ushort)s, names.SpeciesName((ushort)s), owner.Sprites)).ToList();
+        all = Enumerable.Range(1, doc.DexMaxSpecies).Select(s => new DexEntryViewModel(this, doc, (ushort)s, names.SpeciesName((ushort)s), owner.Sprites)).ToList();
         ApplyFilter();
         SelectedEntry = Entries.FirstOrDefault();
     }

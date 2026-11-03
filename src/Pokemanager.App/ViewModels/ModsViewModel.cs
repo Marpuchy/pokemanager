@@ -132,6 +132,45 @@ public sealed partial class ModCardViewModel : ObservableObject
 
     public string Description => Mod.Description;
 
+    /// <summary>The one sentence the list shows; everything else is behind <see cref="ShowDetails"/>.</summary>
+    public string Summary => Mod.Summary ?? Mod.Description;
+
+    /// <summary>The card is open: who made it, its licences, its known faults, the files and the measurements.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(DetailsText))]
+    public partial bool ShowDetails { get; set; }
+
+    public string DetailsText => ShowDetails ? Strings.Mods_HideDetails : Strings.Mods_Details;
+
+    /// <summary>
+    /// Something the mod needs is not in the library yet — a required file, or the one distributed apart — so the list
+    /// offers the Download button. Hidden once everything is there.
+    /// </summary>
+    [ObservableProperty]
+    public partial bool NeedsDownload { get; private set; } = true;
+
+    public bool ShowDownload => CanDownload && NeedsDownload && !IsDownloading;
+
+    /// <summary>
+    /// One line under the name saying where the mod stands: not downloaded, ready, on (and what the ROM gained), or for
+    /// a plugin what the emulator's folder holds.
+    /// </summary>
+    public string StatusText => IsPlugin
+        ? PluginStateText
+        : IsEnabled
+            ? MeasuredText
+            : Problem is not null && NeedsDownload
+                ? Strings.Mods_StatusNotDownloaded
+                : CanBuild ? Strings.Mods_StatusReady : Problem ?? Strings.Mods_StatusNotDownloaded;
+
+    private void NotifyStatus()
+    {
+        OnPropertyChanged(nameof(StatusText));
+        OnPropertyChanged(nameof(ShowDownload));
+    }
+
+    partial void OnIsDownloadingChanged(bool value) => NotifyStatus();
+
     /// <summary>Which games it is for, so a card is never read as applying to another one by accident.</summary>
     public string GamesText => string.Format(Strings.Mods_Games, string.Join(", ", Mod.Games.Select(g => g.DisplayName())));
 
@@ -239,6 +278,9 @@ public sealed partial class ModCardViewModel : ObservableObject
                 {
                     // It is in the ROM, so the ROM has to be built again — and never randomized again.
                     editor.MarkDirty(string.Format(value ? Strings.Mods_UndoEnabled : Strings.Mods_UndoDisabled, Mod.Name));
+                    // Saved at once: the whole application now reads the game with the mod (or without it), and a
+                    // project left unsaved would reopen without it after a restart and look as if nothing had happened.
+                    _ = SaveAfterToggleAsync(value);
                 }
                 else
                 {
@@ -255,6 +297,16 @@ public sealed partial class ModCardViewModel : ObservableObject
             OnPropertyChanged();
             RefreshMeasured();
         }
+    }
+
+    private async Task SaveAfterToggleAsync(bool enabled)
+    {
+        if (!await editor.SaveNowAsync())
+            return;
+        var data = editor.Session.Current;
+        editor.SetStatus(enabled
+            ? string.Format(Strings.Mods_EnabledStatus, Mod.Name, data.ExtraSpecies, data.Moves.Length - 1, data.Items.Length - 1)
+            : string.Format(Strings.Mods_DisabledStatus, Mod.Name));
     }
 
     public string EnableTip => CanBuild
@@ -323,6 +375,9 @@ public sealed partial class ModCardViewModel : ObservableObject
         VersionText = found.VersionText;
         Problem = found.Problem;
         CanBuild = found.CanBuild;
+        NeedsDownload = Mod.IsPlugin
+            ? found.Plugin is null
+            : !found.CanBuild || found.Files.Any(f => f.Apart && !f.Present);
         OnPropertyChanged(nameof(HasProblem));
         OnPropertyChanged(nameof(EnableTip));
         RefreshMeasured();
@@ -356,6 +411,7 @@ public sealed partial class ModCardViewModel : ObservableObject
         OnPropertyChanged(nameof(ShopsGone));
         OnPropertyChanged(nameof(IsEnabled));
         OnPropertyChanged(nameof(ShowMeasured));
+        NotifyStatus();
     }
 
     /// <summary>The shiny patch is a branch found by the bytes around it: the same look-up its own option does.</summary>
@@ -768,6 +824,7 @@ public sealed partial class ModCardViewModel : ObservableObject
 
         void Notify()
         {
+            NotifyStatus();
             OnPropertyChanged(nameof(HasPluginHash));
             OnPropertyChanged(nameof(HasPluginOther));
             OnPropertyChanged(nameof(PluginInstallTip));

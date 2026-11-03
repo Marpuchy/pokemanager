@@ -17,7 +17,7 @@
       <ItemsControl ItemsSource="{Binding Mods}" IsVisible="{Binding HasMods}">
         <ItemsControl.ItemsPanel>
           <ItemsPanelTemplate>
-            <c:AdaptiveColumnsPanel MinColumnWidth="470" MaxColumns="2" Spacing="12" />
+            <StackPanel Spacing="10" MaxWidth="980" HorizontalAlignment="Left" />
           </ItemsPanelTemplate>
         </ItemsControl.ItemsPanel>
         <ItemsControl.ItemTemplate>
@@ -25,8 +25,45 @@
             <Border Classes="card">
               <StackPanel Spacing="6">
 
-                <!-- ============ who it is ============ -->
-                <TextBlock Classes="card-title" FontSize="13" Text="{Binding Name}" TextWrapping="Wrap" />
+                <!-- ============ the row: on/off, name, one sentence, where it stands, the two buttons ============ -->
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                  <!-- Only a mod built into the ROM has a box to tick; a plugin is installed instead -->
+                  <CheckBox VerticalAlignment="Top" Margin="0,1,8,0" IsChecked="{Binding IsEnabled}"
+                            IsVisible="{Binding IsRomMod}" ToolTip.Tip="{Binding EnableTip}" />
+                  <StackPanel Grid.Column="1" Spacing="2">
+                    <TextBlock Classes="card-title" FontSize="13" Text="{Binding Name}" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding Summary}" TextWrapping="Wrap" />
+                    <TextBlock Classes="hint" Text="{Binding StatusText}" TextWrapping="Wrap"
+                               ToolTip.Tip="{x:Static r:Strings.Mods_MeasuredTip}" />
+                  </StackPanel>
+                  <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Top" Margin="10,0,0,0">
+                    <Button Content="{x:Static r:Strings.Mods_Download}" Command="{Binding DownloadCommand}"
+                            IsVisible="{Binding ShowDownload}" ToolTip.Tip="{Binding DownloadTip}" />
+                    <Button Content="{x:Static r:Strings.Mods_PluginInstall}" Command="{Binding InstallPluginCommand}"
+                            IsVisible="{Binding CanInstallPlugin}" ToolTip.Tip="{Binding PluginInstallTip}" />
+                    <ToggleButton Content="{Binding DetailsText}" IsChecked="{Binding ShowDetails}"
+                                  ToolTip.Tip="{x:Static r:Strings.Mods_DetailsTip}" />
+                  </StackPanel>
+                </Grid>
+
+                <!-- ============ while it is downloading: what, how much, and a way out ============ -->
+                <Border Padding="10" CornerRadius="2" Background="#14305FA8" BorderBrush="#AFC4DE" BorderThickness="1"
+                        IsVisible="{Binding IsDownloading}" ToolTip.Tip="{x:Static r:Strings.Mods_DownloadProgressTip}">
+                  <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                    <TextBlock Text="{Binding DownloadText}" TextWrapping="Wrap" VerticalAlignment="Center"
+                               ToolTip.Tip="{x:Static r:Strings.Mods_DownloadProgressTip}" />
+                    <!-- No percentage when the host declares no length (Drive, for a large file): the bar runs instead -->
+                    <ProgressBar Grid.Row="1" Margin="0,6,0,0" Height="6" Minimum="0" Maximum="100"
+                                 Value="{Binding DownloadPercent}" IsIndeterminate="{Binding DownloadUnknownTotal}"
+                                 ToolTip.Tip="{x:Static r:Strings.Mods_DownloadProgressTip}" />
+                    <Button Grid.Column="1" Grid.RowSpan="2" Margin="10,0,0,0" VerticalAlignment="Center"
+                            Content="{x:Static r:Strings.Mods_DownloadStop}" Command="{Binding StopDownloadCommand}"
+                            ToolTip.Tip="{x:Static r:Strings.Mods_DownloadStopTip}" />
+                  </Grid>
+                </Border>
+
+                <!-- ============ the details, on demand ============ -->
+                <StackPanel Spacing="6" IsVisible="{Binding ShowDetails}" Margin="0,6,0,0">
                 <TextBlock Classes="hint" Text="{Binding Identity}" TextWrapping="Wrap"
                            ToolTip.Tip="{x:Static r:Strings.Mods_IdentityTip}" />
                 <TextBlock Classes="hint" Text="{Binding GamesText}" TextWrapping="Wrap" />
@@ -37,10 +74,6 @@
                         IsVisible="{Binding HasLicenseWarning}" ToolTip.Tip="{x:Static r:Strings.Mods_LicenseTip}">
                   <TextBlock Text="{Binding LicenseWarning}" TextWrapping="Wrap" />
                 </Border>
-
-                <!-- ============ on or off in this project (only a mod that is built into the ROM) ============ -->
-                <CheckBox IsChecked="{Binding IsEnabled}" Content="{x:Static r:Strings.Mods_Enable}"
-                          FontWeight="SemiBold" IsVisible="{Binding IsRomMod}" ToolTip.Tip="{Binding EnableTip}" />
 
                 <!-- ============ a plugin does nothing until the emulator's loader is on ============ -->
                 <Border Padding="10" CornerRadius="2" Background="#26E07B00" BorderBrush="#E07B00" BorderThickness="1"
@@ -189,11 +222,6 @@
                 <TextBlock Classes="card-title" Margin="0,8,0,0" Text="{x:Static r:Strings.Mods_ActionsTitle}" />
                 <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Mods_ActionsHint}" />
                 <WrapPanel>
-                  <!-- Fetches what is missing from the author's own release; hidden while it runs, replaced by the
-                       progress line and its Stop below. -->
-                  <Button Margin="0,0,6,6" Content="{x:Static r:Strings.Mods_Download}" Command="{Binding DownloadCommand}"
-                          IsEnabled="{Binding CanDownload}" IsVisible="{Binding !IsDownloading}"
-                          ToolTip.Tip="{Binding DownloadTip}" />
                   <Button Margin="0,0,6,6" Content="{x:Static r:Strings.Mods_OpenSource}" Command="{Binding OpenSourceCommand}"
                           ToolTip.Tip="{Binding OpenSourceTip}" />
                   <Button Margin="0,0,6,6" Content="{x:Static r:Strings.Mods_ImportRelease}" Command="{Binding ImportReleaseCommand}"
@@ -206,26 +234,11 @@
                           ToolTip.Tip="{x:Static r:Strings.Mods_RecheckTip}" />
                 </WrapPanel>
 
-                <!-- ============ while it is downloading: what, how much, and a way out ============ -->
-                <Border Padding="10" CornerRadius="2" Background="#14305FA8" BorderBrush="#AFC4DE" BorderThickness="1"
-                        IsVisible="{Binding IsDownloading}" ToolTip.Tip="{x:Static r:Strings.Mods_DownloadProgressTip}">
-                  <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
-                    <TextBlock Text="{Binding DownloadText}" TextWrapping="Wrap" VerticalAlignment="Center"
-                               ToolTip.Tip="{x:Static r:Strings.Mods_DownloadProgressTip}" />
-                    <!-- No percentage when the host declares no length (Drive, for a large file): the bar runs instead -->
-                    <ProgressBar Grid.Row="1" Margin="0,6,0,0" Height="6" Minimum="0" Maximum="100"
-                                 Value="{Binding DownloadPercent}" IsIndeterminate="{Binding DownloadUnknownTotal}"
-                                 ToolTip.Tip="{x:Static r:Strings.Mods_DownloadProgressTip}" />
-                    <Button Grid.Column="1" Grid.RowSpan="2" Margin="10,0,0,0" VerticalAlignment="Center"
-                            Content="{x:Static r:Strings.Mods_DownloadStop}" Command="{Binding StopDownloadCommand}"
-                            ToolTip.Tip="{x:Static r:Strings.Mods_DownloadStopTip}" />
-                  </Grid>
-                </Border>
-
                 <!-- The hash of what was downloaded, for a file this version cannot confirm: measured, not guessed -->
                 <TextBlock Classes="hint" TextWrapping="Wrap" IsVisible="{Binding HasMeasuredHashes}"
                            Text="{Binding MeasuredHashText}" FontFamily="Consolas, Menlo, monospace" FontSize="10"
                            ToolTip.Tip="{x:Static r:Strings.Mods_VersionTip}" />
+                </StackPanel>
               </StackPanel>
             </Border>
           </DataTemplate>

@@ -169,9 +169,20 @@ public partial class EditorViewModel : ObservableObject
     /// of the number of layers, because a project with a mod has more than one layer and no randomization at all —
     /// counting the roots called a mod a randomization.
     /// </summary>
-    public string BaseText => Session.RandomizedRomFs is not null
-        ? string.Format(Strings.Editor_BaseRandom, Session.Project.Randomization.Seed)
-        : Strings.Editor_BaseOriginal;
+    public string BaseText
+    {
+        get
+        {
+            string text = Session.RandomizedRomFs is not null
+                ? string.Format(Strings.Editor_BaseRandom, Session.Project.Randomization.Seed)
+                : Strings.Editor_BaseOriginal;
+            // The mods are part of what is being read, so the line says so ("Base: original game + Expansion").
+            var mods = Session.Project.Mods.EnabledRomMods
+                .Select(id => Pokemanager.Model.Mods.ModCatalog.Find(id)?.Name ?? id)
+                .ToList();
+            return mods.Count == 0 ? text : string.Format(Strings.Editor_BaseWithMods, text, string.Join(", ", mods));
+        }
+    }
 
     public EditorViewModel(MainWindowViewModel main, IDialogs dialogs, UprService upr, AppSettings settings,
         string projectPath, GameDump dump, EditorSession session)
@@ -183,7 +194,7 @@ public partial class EditorViewModel : ObservableObject
         ProjectPath = projectPath;
         Dump = dump;
         Session = session;
-        Names = new GameNames(dump, session.Original);
+        Names = new GameNames(dump, session.Original, session.Layers);
         Sprites = PokemonSprites.Load(session.Project, session.Original);
         LoadLists();
 
@@ -246,8 +257,31 @@ public partial class EditorViewModel : ObservableObject
             var r = Session.Project.Randomization;
             if (romDirty || Randomizer.Options.HasChanges || (r.Enabled && r.InstalledSeed != r.Seed))
                 return true;
-            return History.History.List().FirstOrDefault(v => v.Kind == VersionKind.Built) is { } built
-                   && built.Fingerprint != ProjectHistory.Fingerprint(Session.Project);
+            if (History.History.List().FirstOrDefault(v => v.Kind == VersionKind.Built) is { } built)
+                return built.Fingerprint != ProjectHistory.Fingerprint(Session.Project);
+            // Never built: the player is on the base ROM as it is, which is only right when a build would change
+            // nothing. A mod has to be built in, and a base whose starters are not the game's own (a ROM randomized
+            // before it was imported) names the wrong three in every language but English until the build rewrites it.
+            return !Session.Project.Mods.HasNoRomMods || BaseStartersChanged;
+        }
+    }
+
+    private EditorSession? startersCheckedFor;
+    private bool baseStartersChanged;
+
+    /// <summary>The ROM being read gives other starters than the game ships with. Read once per session: it is a file.</summary>
+    private bool BaseStartersChanged
+    {
+        get
+        {
+            if (!ReferenceEquals(startersCheckedFor, Session))
+            {
+                startersCheckedFor = Session;
+                var title = Session.Current.Title;
+                baseStartersChanged = GameStarters.Read(Session.Layers, title) is { } starters
+                                      && !starters.SequenceEqual(GameStarters.Vanilla(title));
+            }
+            return baseStartersChanged;
         }
     }
 
@@ -702,6 +736,9 @@ public partial class EditorViewModel : ObservableObject
     [RelayCommand]
     private async Task Save() => await SaveAsync();
 
+    /// <summary>Saves the project now, as the Save button does (a mod switched on or off saves itself).</summary>
+    internal Task<bool> SaveNowAsync() => SaveAsync();
+
     /// <summary>Writes the randomizer options to the preset and saves the project. Returns false on failure.</summary>
     private async Task<bool> SaveAsync()
     {
@@ -959,7 +996,7 @@ public partial class EditorViewModel : ObservableObject
             : null;
         Session.Changed -= OnSessionChanged;
         Session = EditorSession.Open(project, randomRomFs, upr.Mods);
-        Names = new GameNames(Dump, Session.Original);
+        Names = new GameNames(Dump, Session.Original, Session.Layers);
         // Restoring a version brings its mods back too (ProjectHistory.RestoreInto), and a mod ships the icon archive.
         Sprites = PokemonSprites.Load(project, Session.Original);
         LoadLists();
@@ -1257,7 +1294,7 @@ public partial class EditorViewModel : ObservableObject
 
         Session.Changed -= OnSessionChanged;
         Session = EditorSession.Open(Session.Project, wanted, upr.Mods);
-        Names = new GameNames(Dump, Session.Original);
+        Names = new GameNames(Dump, Session.Original, Session.Layers);
         // The icons come from the new stack too: a species-expansion mod ships the icon archive and the executable
         // that holds the species-to-icon table, so the sprites loaded over the old base are not this ROM's.
         Sprites = PokemonSprites.Load(Session.Project, Session.Original);
@@ -1281,7 +1318,8 @@ public partial class EditorViewModel : ObservableObject
         {
             ReloadBaseIfNeeded(Session.RandomizedRomFs);
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException
+                                       or ArgumentException or IndexOutOfRangeException)
         {
             // The reopen detached the handler before it failed; LoadLists subscribes to the session again.
             LoadLists();

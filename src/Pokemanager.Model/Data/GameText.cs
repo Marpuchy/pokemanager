@@ -37,6 +37,10 @@ public static class GameText
     public static int TypeNameFile(GameTitle title) =>
         References(title).FirstOrDefault(r => r.Name == TextName.Types)?.Index ?? -1;
 
+    /// <summary>File of a list (<see cref="TextName"/>) inside a text archive, or -1 when the game has no such file listed.</summary>
+    public static int FileIndex(GameTitle title, TextName name) =>
+        References(title).FirstOrDefault(r => r.Name == name)?.Index ?? -1;
+
     /// <summary>File of the species names inside a text archive.</summary>
     public static int SpeciesNameFile(GameTitle title) => References(title).First(r => r.Name == TextName.SpeciesNames).Index;
 

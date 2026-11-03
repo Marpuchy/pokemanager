@@ -226,7 +226,7 @@
     <value>Aqua, mejorado por la comunidad</value>
   </data>
   <data name="Mods_UsumExpansion_Description" xml:space="preserve">
-    <value>A&#241;ade los Pok&#233;mon de la 8.&#170; y la 9.&#170; generaci&#243;n a Ultra Sol y Ultra Luna, y pasa de las 807 especies de los juegos a unas 1025. No edita campos: sustituye archivos enteros (una tabla personal ampliada, los movimientos, los textos del juego), un code.bin modificado y el icono y el banner del exefs. Pokemanager no lo distribuye ni lo descarga &#8212; los archivos los consigues t&#250; y los pones en tu biblioteca, igual que las ROMs. Tiene fallos conocidos que conviene leer antes de empezar una partida.</value>
+    <value>Añade los Pokémon de la 8.ª y la 9.ª generación a Ultrasol y Ultraluna, y pasa de las 807 especies de los juegos a 1025, con sus movimientos, habilidades y objetos. No edita campos: sustituye archivos enteros (una tabla personal ampliada, los movimientos, los textos del juego) y el code.bin del juego. Pokemanager no lo distribuye: el botón Descargar trae los archivos de la publicación del propio autor a tu biblioteca. Tiene fallos conocidos que conviene leer antes de empezar una partida.</value>
   </data>
   <data name="Mods_UsumExpansion_Issue_Learnsets" xml:space="preserve">
     <value>Los learnsets de la 1.&#170; a la 7.&#170; generaci&#243;n no incluyen los movimientos nuevos.</value>
@@ -344,5 +344,11 @@
   </data>
   <data name="Mods_LicenseDisagrees" xml:space="preserve">
     <value>El autor declara una licencia distinta seg&#250;n d&#243;nde se mire: {0}. Pokemanager no elige entre ellas &#8212; las dos son palabras del propio autor, en sitios distintos.</value>
+  </data>
+  <data name="Mods_UsumExpansion_Summary" xml:space="preserve">
+    <value>Añade a Ultrasol y Ultraluna los Pokémon de 8.ª y 9.ª generación, con sus movimientos, habilidades y objetos.</value>
+  </data>
+  <data name="Mods_Follower_Summary" xml:space="preserve">
+    <value>El primer Pokémon de tu equipo te sigue por el mapa. Es un plugin del emulador: se instala, no se construye en la ROM.</value>
   </data>
 </root>
