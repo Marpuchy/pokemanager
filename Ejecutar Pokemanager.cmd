@@ -1,6 +1,12 @@
 @echo off
-rem Compila y abre Pokemanager en el estado actual del arbol de trabajo.
-rem Doble clic para ejecutarlo. Acepta los mismos parametros que build\run-current.ps1,
-rem por ejemplo:  "Ejecutar Pokemanager.cmd" -Dump "C:\ruta\al\dump"
+rem Abre Pokemanager. Solo compila la app (rapido, incremental) si el codigo ha cambiado; sin tests.
+rem Para compilar y pasar los tests: build\run-current.ps1
 cd /d "%~dp0"
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0build\run-current.ps1" %*
+dotnet build src\Pokemanager.App -c Debug -v q -nologo -clp:ErrorsOnly
+if errorlevel 1 (
+  echo.
+  echo No se pudo compilar. Arriba estan los errores.
+  pause
+  exit /b 1
+)
+start "" "src\Pokemanager.App\bin\Debug\net10.0\Pokemanager.App.exe"
