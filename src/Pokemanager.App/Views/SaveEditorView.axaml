@@ -1114,46 +1114,25 @@
                       <Border Classes="card">
                         <StackPanel>
                           <TextBlock Classes="card-title" Margin="0,0,0,4" Text="{x:Static r:Strings.Dex_MovesTitle}" />
-                          <!-- A timeline from the first level to the last: the levels always show; the move and its
-                               type only with "Show moves" (no spoilers) -->
-                          <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-                            <Grid HorizontalAlignment="Left" Margin="0,2,0,6">
-                              <Border Classes="dex-line" />
-                              <ItemsControl ItemsSource="{Binding Timeline}">
-                                <ItemsControl.ItemsPanel>
-                                  <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Horizontal" />
-                                  </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                  <DataTemplate x:DataType="vm:DexMoveStop">
-                                    <StackPanel Width="108" Margin="{Binding Gap}" Spacing="4">
-                                      <Border Classes="dex-level">
-                                        <TextBlock Text="{Binding Level}" />
-                                      </Border>
-                                      <Ellipse Classes="dex-dot" />
-                                      <ItemsControl ItemsSource="{Binding Moves}">
-                                        <ItemsControl.ItemTemplate>
-                                          <DataTemplate x:DataType="vm:DexMoveLine">
-                                            <Panel Margin="0,0,0,3">
-                                              <Border Classes="dex-move" Background="{Binding Type.Background}" ToolTip.Tip="{Binding Type.Name}"
-                                                      IsVisible="{Binding $parent[UserControl].((vm:SaveEditorViewModel)DataContext).Dex.ShowMoves}">
-                                                <TextBlock Text="{Binding Move}" Foreground="{Binding Type.Foreground}" />
-                                              </Border>
-                                              <Border Classes="dex-move hidden" ToolTip.Tip="{x:Static r:Strings.Dex_MoveHidden}"
-                                                      IsVisible="{Binding !$parent[UserControl].((vm:SaveEditorViewModel)DataContext).Dex.ShowMoves}">
-                                                <TextBlock Text="???" />
-                                              </Border>
-                                            </Panel>
-                                          </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                      </ItemsControl>
-                                    </StackPanel>
-                                  </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                              </ItemsControl>
-                            </Grid>
-                          </ScrollViewer>
+                          <!-- The levels it learns at, as one line across the card; the moves themselves only with
+                               "Show moves" (no spoilers) -->
+                          <c:LevelTimeline Levels="{Binding Levels}" EvolutionLabel="{x:Static r:Strings.Dex_TimelineEvolution}"
+                                             Margin="0,2,0,4" HorizontalAlignment="Stretch" />
+                          <ItemsControl ItemsSource="{Binding Moves}" IsVisible="{Binding $parent[UserControl].((vm:SaveEditorViewModel)DataContext).Dex.ShowMoves}">
+                            <ItemsControl.ItemTemplate>
+                              <DataTemplate x:DataType="vm:DexMoveLine">
+                                <Border Classes="info-row">
+                                  <Grid ColumnDefinitions="110,*,Auto">
+                                    <TextBlock Classes="hint" VerticalAlignment="Center" Text="{Binding Level}" />
+                                    <TextBlock Grid.Column="1" FontWeight="SemiBold" VerticalAlignment="Center" Text="{Binding Move}" />
+                                    <Border Grid.Column="2" Background="{Binding Type.Background}" CornerRadius="2" Padding="6,1" MinWidth="70" VerticalAlignment="Center">
+                                      <TextBlock Text="{Binding Type.Name}" Foreground="{Binding Type.Foreground}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                                    </Border>
+                                  </Grid>
+                                </Border>
+                              </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                          </ItemsControl>
                           <TextBlock Classes="hint" Margin="0,4,0,0" Text="{x:Static r:Strings.Dex_MovesHidden}"
                                      IsVisible="{Binding !$parent[UserControl].((vm:SaveEditorViewModel)DataContext).Dex.ShowMoves}" />
                         </StackPanel>

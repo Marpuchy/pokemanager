@@ -4584,6 +4584,9 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Dex_MovesHidden" xml:space="preserve">
     <value>Moves hidden — tick "Show moves" to see them</value>
   </data>
+  <data name="Dex_TimelineEvolution" xml:space="preserve">
+    <value>Evo</value>
+  </data>
   <data name="Dex_MoveHidden" xml:space="preserve">
     <value>Hidden move</value>
   </data>
