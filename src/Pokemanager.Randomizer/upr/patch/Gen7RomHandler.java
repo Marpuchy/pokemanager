@@ -45,6 +45,9 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
     /** Pokemanager: byte of a personal entry that holds the ninth bit of the three abilities in an expansion mod. */
     private static final int abilityHighBitsOffset = 0x53;
 
+    /** Pokemanager: the three ability bytes each entry had when read. */
+    private final java.util.IdentityHashMap<Pokemon, int[]> loadedAbilityBytes = new java.util.IdentityHashMap<>();
+
 
     public static class Factory extends RomHandler.Factory {
 
@@ -434,12 +437,14 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
         pkmn.catchRate = stats[Gen7Constants.bsCatchRateOffset] & 0xFF;
         pkmn.growthCurve = ExpCurve.fromByte(stats[Gen7Constants.bsGrowthCurveOffset]);
 
-        // Pokemanager: an expansion mod numbers abilities past 255 and keeps the ninth bit of each of the three in
-        // byte 0x53 (bits 0-2), which the game ships as 0.
-        int abilityHighBits = stats.length > abilityHighBitsOffset ? stats[abilityHighBitsOffset] & 0xFF : 0;
-        pkmn.ability1 = (stats[Gen7Constants.bsAbility1Offset] & 0xFF) | ((abilityHighBits & 1) << 8);
-        pkmn.ability2 = (stats[Gen7Constants.bsAbility2Offset] & 0xFF) | (((abilityHighBits >> 1) & 1) << 8);
-        pkmn.ability3 = (stats[Gen7Constants.bsAbility3Offset] & 0xFF) | (((abilityHighBits >> 2) & 1) << 8);
+        pkmn.ability1 = stats[Gen7Constants.bsAbility1Offset] & 0xFF;
+        pkmn.ability2 = stats[Gen7Constants.bsAbility2Offset] & 0xFF;
+        pkmn.ability3 = stats[Gen7Constants.bsAbility3Offset] & 0xFF;
+        // Pokemanager: an expansion mod numbers abilities past 255 and keeps the ninth bit of each of the three in byte
+        // 0x53 (bits 0-2), which the game ships as 0. The randomizer goes on seeing the low byte, exactly as before (so a
+        // seed gives the same ROM it gave), and the bytes read are remembered to know, when saving, which ability it
+        // changed.
+        loadedAbilityBytes.put(pkmn, new int[] { pkmn.ability1, pkmn.ability2, pkmn.ability3 });
         if (pkmn.ability1 == pkmn.ability2) {
             pkmn.ability2 = 0;
         }
@@ -855,12 +860,19 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
         stats[Gen7Constants.bsAbility1Offset] = (byte) pkmn.ability1;
         stats[Gen7Constants.bsAbility2Offset] = (byte) savedAbility2;
         stats[Gen7Constants.bsAbility3Offset] = (byte) pkmn.ability3;
-        // Pokemanager: the ninth bit of each ability goes with it. A randomized ability is never past 255, so a
-        // species of an expansion mod no longer keeps the bit of the ability it had (Nacli's 272 + Sand Rush 146 was
-        // ability 402, which does not exist: a blank name in the game).
-        if (stats.length > abilityHighBitsOffset) {
-            int high = ((pkmn.ability1 >> 8) & 1) | (((savedAbility2 >> 8) & 1) << 1) | (((pkmn.ability3 >> 8) & 1) << 2);
-            stats[abilityHighBitsOffset] = (byte) ((stats[abilityHighBitsOffset] & 0xF8) | high);
+        // Pokemanager: the ninth bit stays only on an ability the randomizer left as it was. Every ability it picks is
+        // under 256, and leaving the bit on one made it another: Nacli's Purifying Salt (272) randomized to Sand Rush
+        // (146) came out as 402, an ability with no name in the game.
+        int[] loaded = loadedAbilityBytes.get(pkmn);
+        if (stats.length > abilityHighBitsOffset && loaded != null) {
+            int highBits = stats[abilityHighBitsOffset] & 0xFF;
+            int[] saved = { pkmn.ability1, savedAbility2, pkmn.ability3 };
+            for (int i = 0; i < 3; i++) {
+                if (saved[i] != loaded[i]) {
+                    highBits &= ~(1 << i);
+                }
+            }
+            stats[abilityHighBitsOffset] = (byte) highBits;
         }
 
         stats[Gen7Constants.bsCallRateOffset] = (byte) pkmn.callRate;
