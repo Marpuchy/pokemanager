@@ -24,7 +24,8 @@ public static class ProjectLoader
             string? randomRomFs = upr.TryGetCached(project, project.Randomization.Preset) is { } cached
                 ? System.IO.Path.Combine(cached.TitleDirectory, "romfs")
                 : null;
-            return new LoadedProject(path, project, dump, EditorSession.Open(project, randomRomFs));
+            // The session reads through the service's mod library, so what is read is what the build will pack.
+            return new LoadedProject(path, project, dump, EditorSession.Open(project, randomRomFs, upr.Mods));
         }
         catch (InvalidDumpException ex)
         {

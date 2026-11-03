@@ -297,7 +297,7 @@ public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
             RebuildBoxSlots();
 
             Bag = new SaveBagViewModel(this, doc, names, editor.Names.ItemDescriptions);
-            var layers = new RomFsLayers(editor.Session.Project.RomFsPath);
+            var layers = editor.Session.Layers;
             Trainer = new SaveTrainerViewModel(this, doc, names, editor.Dump.Title, MilestoneIcons.Load(layers, editor.Dump.Title),
                 ItemIcons.LoadTypeCrystals(layers, editor.Dump.Title), editor.ProfileAvatar,
                 TrainerPortraits.Load(layers, editor.Dump.Title, doc.TrainerGender, doc.TrainerLook));

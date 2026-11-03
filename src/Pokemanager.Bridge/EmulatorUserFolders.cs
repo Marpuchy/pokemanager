@@ -46,6 +46,21 @@ public static class EmulatorUserFolders
         System.IO.Path.Combine(userDirectory, "load", "mods", titleIdHex);
 
     /// <summary>
+    /// Where the emulator looks for a game's 3GX plugins on the emulated SD card:
+    /// <c>sdmc/luma/plugins/&lt;TitleID&gt;</c>. One plugin is loaded per title, and only when the emulator's own 3GX
+    /// plugin loader is switched on (Azahar: Emulation &gt; Configure &gt; System).
+    /// </summary>
+    /// <remarks>
+    /// This is not the LayeredFS folder of <see cref="ModDirectory"/>: a plugin is not an override of the game's
+    /// files, it is code the emulator loads beside it. What goes in here is put there by
+    /// <c>Pokemanager.Model.Mods.ModPluginInstaller</c>, which takes this path as a parameter — the model does not
+    /// reference this assembly.
+    /// </remarks>
+    /// <param name="titleIdHex">The title id as 16 upper-case hex digits (<c>GameTitle.TitleIdHex</c>).</param>
+    public static string PluginDirectory(string userDirectory, string titleIdHex) =>
+        System.IO.Path.Combine(userDirectory, "sdmc", "luma", "plugins", titleIdHex);
+
+    /// <summary>
     /// Main save file of the game on the emulated SD card:
     /// <c>sdmc/Nintendo 3DS/&lt;32 zeros&gt;/&lt;32 zeros&gt;/title/&lt;TID high&gt;/&lt;TID low&gt;/data/00000001/main</c>.
     /// </summary>

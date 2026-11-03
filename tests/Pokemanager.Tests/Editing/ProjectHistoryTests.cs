@@ -89,6 +89,32 @@ public sealed class ProjectHistoryTests : IDisposable
         Assert.Equal(ProjectHistory.Fingerprint(a), ProjectHistory.Fingerprint(b));
     }
 
+    /// <summary>
+    /// Which mods are on is in the ROM as much as the seed is, so two versions that differ only by a mod are two
+    /// versions, and restoring one brings its mods back.
+    /// </summary>
+    [Fact]
+    public void TheMods_AreAPartOfWhatIdentifiesABuild_AndComeBackWithAVersion()
+    {
+        var a = NewProject(1);
+        var b = NewProject(1);
+        Assert.Equal(ProjectHistory.Fingerprint(a), ProjectHistory.Fingerprint(b));
+
+        b.Mods.Set("usum-expansion", true);
+        Assert.NotEqual(ProjectHistory.Fingerprint(a), ProjectHistory.Fingerprint(b));
+
+        a.Mods.Set("usum-expansion", true);
+        Assert.Equal(ProjectHistory.Fingerprint(a), ProjectHistory.Fingerprint(b));
+
+        var target = NewProject(2);
+        ProjectHistory.RestoreInto(target, a);
+        Assert.True(target.Mods.Has("usum-expansion"));
+
+        a.Mods.Set("usum-expansion", false);
+        ProjectHistory.RestoreInto(target, a);
+        Assert.True(target.Mods.IsEmpty);
+    }
+
     [Fact]
     public void SameConfigTwice_ReplacesInsteadOfStacking_DifferentConfigStacks()
     {

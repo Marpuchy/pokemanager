@@ -324,13 +324,22 @@ public static class ModBuilder
         }
     }
 
-    /// <summary>The executable the build starts from: the randomizer's when it ran, the game folder's otherwise.</summary>
+    /// <summary>
+    /// The executable the build starts from: the randomizer's when it ran, otherwise a mod's when one replaces it, and
+    /// the game folder's otherwise.
+    /// </summary>
+    /// <remarks>
+    /// The mod's own executable matters. A species-expansion mod ships the <c>code.bin</c> that reads its expanded
+    /// tables, and it is already inside the packed base ROM; taking the dump's here and writing it into the built ROM
+    /// would put the game's original executable back over it and undo the mod. With a randomization there is nothing to
+    /// do, because UPR ran on the modded base and its output already carries the mod's code.
+    /// </remarks>
     private static byte[]? ReadCode(EditorSession session, string? randomizedTitleDirectory)
     {
         string[] candidates =
         [
             .. randomizedTitleDirectory is null ? Array.Empty<string>() : [Path.Combine(randomizedTitleDirectory, CodeFile)],
-            Path.Combine(session.Project.DumpDirectory, "exefs", CodeFile),
+            session.Project.CodePath(session.Mods),
         ];
         foreach (string path in candidates)
         {

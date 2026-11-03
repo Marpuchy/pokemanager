@@ -37,8 +37,12 @@ public partial class EditorViewModel : ObservableObject
     public LockeViewModel Locke { get; }
     public IDialogs Dialogs => dialogs;
 
-    /// <summary>Pokémon icons from the dump.</summary>
-    public PokemonSprites Sprites { get; }
+    /// <summary>
+    /// Pokémon icons from the project's read stack. Replaced when the session is reopened over another base: a
+    /// species-expansion mod ships the icon archive and the <c>code.bin</c> that holds the species-to-icon table, so
+    /// the sprites of a project with a mod turned on are not the ones loaded before it was.
+    /// </summary>
+    public PokemonSprites Sprites { get; private set; }
 
     /// <summary>Pokémon of the save to show when the view appears (opened from the project preview).</summary>
     public SaveSlot? PendingSaveSlot { get; set; }
@@ -79,6 +83,12 @@ public partial class EditorViewModel : ObservableObject
 
     /// <summary>The level cap by milestones and the indicator of the cap the save is on.</summary>
     public LevelCapViewModel LevelCap { get; }
+
+    /// <summary>
+    /// Juego (ROM) → Mods: the community mods of this game, what the user's library holds for each and whether this
+    /// project plays with one.
+    /// </summary>
+    public ModsViewModel Mods { get; }
 
     [ObservableProperty]
     public partial string SpeciesFilter { get; set; } = "";
@@ -154,8 +164,12 @@ public partial class EditorViewModel : ObservableObject
     /// </summary>
     public bool RandomizedBaseMissing => Session.RandomizedBaseMissing;
 
-    /// <summary>Which base the advanced editor uses: the original game or a seed's randomization.</summary>
-    public string BaseText => Session.Layers.Roots.Count > 1
+    /// <summary>
+    /// Which base the advanced editor uses: the original game or a seed's randomization. Asked of the session and not
+    /// of the number of layers, because a project with a mod has more than one layer and no randomization at all —
+    /// counting the roots called a mod a randomization.
+    /// </summary>
+    public string BaseText => Session.RandomizedRomFs is not null
         ? string.Format(Strings.Editor_BaseRandom, Session.Project.Randomization.Seed)
         : Strings.Editor_BaseOriginal;
 
@@ -187,6 +201,7 @@ public partial class EditorViewModel : ObservableObject
         Locke = new LockeViewModel(this);
         GameTweaks = new GameTweaksViewModel(this, session);
         LevelCap = new LevelCapViewModel(this);
+        Mods = new ModsViewModel(this);
 
         ProjectUndo = new SnapshotHistory(() => Session.Project.CaptureState(), RestoreProjectState);
         ProjectUndo.Changed += NotifyUndo;
@@ -747,13 +762,18 @@ public partial class EditorViewModel : ObservableObject
 
             var progress = new Progress<string>(line => SetStatus(line));
 
+            // The stage before the randomization: a base ROM with the project's mods packed into it, cached, so UPR
+            // randomizes the species a mod added instead of ignoring them. A project with no mods gets its own ROM
+            // back and the rest of this method is what it always was.
+            var (moddedBase, installedMods) = await upr.BaseRomAsync(project, baseRom, progress);
+
             UprResult? random = null;
             if (r.Enabled)
-                random = await upr.RandomizeAsync(tools, project, baseRom, r.Preset!, progress);
+                random = await upr.RandomizeAsync(tools, project, moddedBase, r.Preset!, progress);
 
             ReloadBaseIfNeeded(random is null ? null : Path.Combine(random.TitleDirectory, "romfs"));
 
-            var built = await RomBuilder.BuildAsync(new UprRunner(tools), baseRom, random, ModBuilder.BuildEdits(Session, random?.TitleDirectory),
+            var built = await RomBuilder.BuildAsync(new UprRunner(tools), moddedBase, random, ModBuilder.BuildEdits(Session, random?.TitleDirectory),
                 output, r.Seed, upr.Cache.Root, progress);
             r.LastBuiltRom = built.RomPath;
             if (random is null && File.Exists(built.RomPath + ".log"))
@@ -761,6 +781,8 @@ public partial class EditorViewModel : ObservableObject
 
             // Do not pile things up: keep the latest cached randomizations and save backups only.
             upr.Cache.Prune(keep: 3, keepTitleDirectory: random?.TitleDirectory);
+            // A modded base is a whole ROM of some gigabytes, so far fewer are kept than of randomizations.
+            upr.ModdedRoms.Prune(keep: 1, keepRom: installedMods.Count > 0 ? moddedBase : null);
 
             // LayeredFS mods installed by earlier app versions apply to every ROM of the game: remove them.
             int removedMods = 0;
@@ -936,11 +958,14 @@ public partial class EditorViewModel : ObservableObject
             ? Path.Combine(cached.TitleDirectory, "romfs")
             : null;
         Session.Changed -= OnSessionChanged;
-        Session = EditorSession.Open(project, randomRomFs);
+        Session = EditorSession.Open(project, randomRomFs, upr.Mods);
         Names = new GameNames(Dump, Session.Original);
+        // Restoring a version brings its mods back too (ProjectHistory.RestoreInto), and a mod ships the icon archive.
+        Sprites = PokemonSprites.Load(project, Session.Original);
         LoadLists();
         OnPropertyChanged(nameof(EditCountText));
         OnPropertyChanged(nameof(RandomizedBaseMissing));
+        Mods.RefreshMeasured();
         RefreshRomNotice();
     }
 
@@ -1217,17 +1242,55 @@ public partial class EditorViewModel : ObservableObject
     }
 
     /// <summary>If the base (randomized or not, and which seed) no longer matches, reopens the session keeping the edits.</summary>
+    /// <remarks>
+    /// The whole stack of layers is compared and not just "the first of several roots", which is what this did: with a
+    /// mod enabled a project has more than one layer and no randomization at all, so counting the roots read a mod as
+    /// a randomization. Comparing the stack also catches a mod turned on or off, which moves the base just as a new
+    /// seed does.
+    /// </remarks>
     private void ReloadBaseIfNeeded(string? randomizedRomFs)
     {
-        string? current = Session.Layers.Roots.Count > 1 ? Session.Layers.Roots[0] : null;
         string? wanted = randomizedRomFs is null ? null : Path.GetFullPath(randomizedRomFs);
-        if (string.Equals(current, wanted, StringComparison.OrdinalIgnoreCase))
+        var expected = Session.Project.ReadLayers(wanted, upr.Mods);
+        if (Session.Layers.Roots.SequenceEqual(expected.Roots, StringComparer.OrdinalIgnoreCase))
             return;
 
         Session.Changed -= OnSessionChanged;
-        Session = EditorSession.Open(Session.Project, wanted);
+        Session = EditorSession.Open(Session.Project, wanted, upr.Mods);
         Names = new GameNames(Dump, Session.Original);
+        // The icons come from the new stack too: a species-expansion mod ships the icon archive and the executable
+        // that holds the species-to-icon table, so the sprites loaded over the old base are not this ROM's.
+        Sprites = PokemonSprites.Load(Session.Project, Session.Original);
         LoadLists();
+    }
+
+    /// <summary>
+    /// A mod was turned on or off in the Mods tab: the base the session reads has moved, so the session is reopened
+    /// over the new stack, keeping the edits and the randomization it already had.
+    /// <see cref="ReloadBaseIfNeeded"/> sees the change on its own, by comparing the whole stack of layers, which is
+    /// also how a new seed is seen; the caller marks the project dirty, because a mod is in the ROM and so it asks for
+    /// a <b>build</b> and not for a new seed.
+    /// </summary>
+    /// <returns>
+    /// False when the game data could not be read over that stack (half a mod in the library, an edit that no longer
+    /// fits its tables). The old session keeps working and the caller puts the setting back.
+    /// </returns>
+    internal bool ReopenOverMods()
+    {
+        try
+        {
+            ReloadBaseIfNeeded(Session.RandomizedRomFs);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException)
+        {
+            // The reopen detached the handler before it failed; LoadLists subscribes to the session again.
+            LoadLists();
+            SetStatus(string.Format(Strings.Mods_ReopenFailed, ex.Message), error: true);
+            return false;
+        }
+        Mods.RefreshMeasured();
+        OnPropertyChanged(nameof(RandomizedBaseMissing));
+        return true;
     }
 
     private static string LastLines(string text, int count) =>

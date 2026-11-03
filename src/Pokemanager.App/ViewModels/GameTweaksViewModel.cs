@@ -372,7 +372,7 @@ public sealed partial class GameTweaksViewModel : ObservableObject
     {
         try
         {
-            string code = Path.Combine(session.Project.DumpDirectory, "exefs", "code.bin");
+            string code = session.Project.CodePath(session.Mods);
             return File.Exists(code) && GameCode.HasShinyBranch(File.ReadAllBytes(code));
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)

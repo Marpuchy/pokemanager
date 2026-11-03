@@ -17,6 +17,16 @@ public partial class EditorView : UserControl
                 vm.SaveEditor.EnsureOpen();
         };
 
+        // The mod library is hashed when its tab is first shown, for the same reason: a mod file can be hundreds of
+        // megabytes, and a project that never visits the page should not pay for reading it.
+        GameTabs.SelectionChanged += (_, e) =>
+        {
+            if (e.Source != GameTabs || DataContext is not EditorViewModel vm)
+                return;
+            if (GameTabs.SelectedItem == ModsTab)
+                vm.Mods.EnsureLoaded();
+        };
+
         // Opened from the project preview on a Pokémon of the save: go straight to it.
         DataContextChanged += (_, _) =>
         {

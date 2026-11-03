@@ -1041,4 +1041,13 @@
   <data name="Tip_TrainersLevelModifier" xml:space="preserve">
     <value>El porcentaje, de -50 a +50: +20 convierte un Pokémon de nivel 30 en uno de nivel 36.</value>
   </data>
+  <data name="Mods_NoFiles" xml:space="preserve">
+    <value>No se ha dado ning&#250;n archivo de mod para empaquetar en la ROM base.</value>
+  </data>
+  <data name="Mods_UsingCachedBase" xml:space="preserve">
+    <value>Se usa la ROM base ya empaquetada con los mods.</value>
+  </data>
+  <data name="Mods_PackingBase" xml:space="preserve">
+    <value>Empaquetando la ROM base con los mods ({0} archivos)…</value>
+  </data>
 </root>

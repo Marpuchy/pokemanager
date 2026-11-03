@@ -85,4 +85,39 @@ public sealed class ProjectTests : IDisposable
         Assert.Equal(14, loaded.Tweaks.LevelCap);
         Assert.Equal(30, loaded.Tweaks.LevelCapOverrides[2]);
     }
+
+    /// <summary>
+    /// The mods are part of the project file too. The same thing happened once to the shops and the game options
+    /// (<see cref="SaveLoad_KeepsTheGameOptionsAndTheShops"/>): they were only kept in memory and were gone on
+    /// reopening, which here would mean a project quietly going back to the species the game shipped with. Only the
+    /// ids travel — the files are the user's own — so a shared project still weighs kilobytes.
+    /// </summary>
+    [Fact]
+    public void SaveLoad_KeepsTheMods()
+    {
+        var project = new Project { DumpDirectory = dir };
+        project.Mods.Set("second", true);
+        project.Mods.Set("usum-expansion", true); // the newest one is the highest priority
+        string path = Path.Combine(dir, "mods.json");
+
+        project.Save(path);
+        var loaded = Project.Load(path);
+
+        Assert.Equal(new[] { "usum-expansion", "second" }, loaded.Mods.Enabled.ToArray());
+        Assert.True(loaded.Mods.Has("usum-expansion"));
+        Assert.False(loaded.Mods.IsEmpty);
+    }
+
+    /// <summary>A project file written before mods existed loads with none, and reads exactly what it always read.</summary>
+    [Fact]
+    public void Load_AProjectWithoutModsHasNone()
+    {
+        string path = Path.Combine(dir, "old.json");
+        new Project { DumpDirectory = dir }.Save(path);
+
+        var loaded = Project.Load(path);
+
+        Assert.True(loaded.Mods.IsEmpty);
+        Assert.Equal(new[] { loaded.RomFsPath }, loaded.ReadLayers().Roots.ToArray());
+    }
 }

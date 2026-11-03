@@ -39,12 +39,15 @@ public sealed class PokemonSprites
 
     public static PokemonSprites Load(Project project, GameData data)
     {
-        // Each game keeps its icons in a different archive; an imported game folder only has the one it uses.
-        var layers = new RomFsLayers(project.RomFsPath);
+        // Each game keeps its icons in a different archive; an imported game folder only has the one it uses. Read
+        // through the project's own stack of layers, so a mod that replaces the icon archive or the executable (where
+        // the species-to-icon table lives) is the one that answers.
+        var layers = project.ReadLayers();
         var layout = project.Game.Layout();
+        string code = project.CodePath();
         var icons = layout.Icons
-            .Where(garc => File.Exists(Path.Combine(project.RomFsPath, garc.Replace('/', Path.DirectorySeparatorChar))))
-            .Select(garc => PokemonIcons.Load(layers, Path.Combine(project.ExeFsPath, "code.bin"), garc, layout.SpeciesCount))
+            .Where(layers.Has)
+            .Select(garc => PokemonIcons.Load(layers, code, garc, data.SpeciesCount))
             .FirstOrDefault(i => i is not null);
         return icons is null ? Empty : new PokemonSprites(icons, data);
     }

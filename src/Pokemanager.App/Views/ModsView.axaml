@@ -1,0 +1,236 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Pokemanager.App.ViewModels"
+             xmlns:r="using:Pokemanager.App.Resources"
+             xmlns:c="using:Pokemanager.App.Controls"
+             x:Class="Pokemanager.App.Views.ModsView"
+             x:DataType="vm:ModsViewModel">
+  <ScrollViewer>
+    <!-- 10 px clear on the right: the scroll bar is drawn over the content and never auto-hides -->
+    <StackPanel Margin="14,10,24,14" Spacing="10">
+      <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="900" HorizontalAlignment="Left"
+                 Text="{x:Static r:Strings.Mods_TabHint}" />
+      <TextBlock Classes="hint" TextWrapping="Wrap" Text="{Binding LibraryText}"
+                 ToolTip.Tip="{x:Static r:Strings.Mods_LibraryTip}" />
+      <TextBlock TextWrapping="Wrap" IsVisible="{Binding !HasMods}" Text="{Binding NoneText}" />
+
+      <ItemsControl ItemsSource="{Binding Mods}" IsVisible="{Binding HasMods}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <c:AdaptiveColumnsPanel MinColumnWidth="470" MaxColumns="2" Spacing="12" />
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:ModCardViewModel">
+            <Border Classes="card">
+              <StackPanel Spacing="6">
+
+                <!-- ============ who it is ============ -->
+                <TextBlock Classes="card-title" FontSize="13" Text="{Binding Name}" TextWrapping="Wrap" />
+                <TextBlock Classes="hint" Text="{Binding Identity}" TextWrapping="Wrap"
+                           ToolTip.Tip="{x:Static r:Strings.Mods_IdentityTip}" />
+                <TextBlock Classes="hint" Text="{Binding GamesText}" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding Description}" TextWrapping="Wrap" />
+
+                <!-- The author declares two licences that do not agree: both are shown and neither is chosen -->
+                <Border Padding="10" CornerRadius="2" Background="#14305FA8" BorderBrush="#AFC4DE" BorderThickness="1"
+                        IsVisible="{Binding HasLicenseWarning}" ToolTip.Tip="{x:Static r:Strings.Mods_LicenseTip}">
+                  <TextBlock Text="{Binding LicenseWarning}" TextWrapping="Wrap" />
+                </Border>
+
+                <!-- ============ on or off in this project (only a mod that is built into the ROM) ============ -->
+                <CheckBox IsChecked="{Binding IsEnabled}" Content="{x:Static r:Strings.Mods_Enable}"
+                          FontWeight="SemiBold" IsVisible="{Binding IsRomMod}" ToolTip.Tip="{Binding EnableTip}" />
+
+                <!-- ============ a plugin does nothing until the emulator's loader is on ============ -->
+                <Border Padding="10" CornerRadius="2" Background="#26E07B00" BorderBrush="#E07B00" BorderThickness="1"
+                        IsVisible="{Binding HasSetupNote}" ToolTip.Tip="{x:Static r:Strings.Mods_PluginHint}">
+                  <StackPanel Spacing="4">
+                    <TextBlock FontWeight="SemiBold" Foreground="#7A4B00"
+                               Text="{x:Static r:Strings.Mods_PluginSetupTitle}" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding SetupNote}" TextWrapping="Wrap" />
+                  </StackPanel>
+                </Border>
+
+                <!-- ============ the known faults, where they cannot be missed ============ -->
+                <Border Padding="10" CornerRadius="2" Background="#26E07B00" BorderBrush="#E07B00" BorderThickness="1"
+                        IsVisible="{Binding HasKnownIssues}" ToolTip.Tip="{x:Static r:Strings.Mods_KnownIssuesTip}">
+                  <StackPanel Spacing="4">
+                    <TextBlock FontWeight="SemiBold" Foreground="#7A4B00" Text="{Binding KnownIssuesTitle}" TextWrapping="Wrap" />
+                    <ItemsControl ItemsSource="{Binding KnownIssues}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                          <Grid ColumnDefinitions="12,*" Margin="0,1">
+                            <TextBlock Text="•" Foreground="#7A4B00" FontWeight="Bold" />
+                            <TextBlock Grid.Column="1" Text="{Binding}" TextWrapping="Wrap" />
+                          </Grid>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Mods_KnownIssuesHint}" />
+                  </StackPanel>
+                </Border>
+
+                <!-- ============ what it will not work alongside, before it is installed ============ -->
+                <Border Padding="10" CornerRadius="2" Background="#1AD13438" BorderBrush="#D13438" BorderThickness="1"
+                        IsVisible="{Binding HasConflicts}" ToolTip.Tip="{x:Static r:Strings.Mods_PluginConflictsTip}">
+                  <StackPanel Spacing="4">
+                    <TextBlock FontWeight="SemiBold" Text="{x:Static r:Strings.Mods_PluginConflictsTitle}" TextWrapping="Wrap" />
+                    <ItemsControl ItemsSource="{Binding Conflicts}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                          <Grid ColumnDefinitions="12,*" Margin="0,1">
+                            <TextBlock Text="•" FontWeight="Bold" />
+                            <TextBlock Grid.Column="1" Text="{Binding}" TextWrapping="Wrap" />
+                          </Grid>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </StackPanel>
+                </Border>
+
+                <!-- ============ what the library holds ============ -->
+                <TextBlock Classes="card-title" Margin="0,8,0,0" Text="{x:Static r:Strings.Mods_FilesTitle}" />
+                <TextBlock Text="{Binding FilesSummary}" TextWrapping="Wrap"
+                           ToolTip.Tip="{x:Static r:Strings.Mods_FilesSummaryTip}" />
+                <TextBlock Text="{Binding VersionText}" TextWrapping="Wrap" Classes="hint"
+                           ToolTip.Tip="{x:Static r:Strings.Mods_VersionTip}" />
+                <!-- A missing required file says which one and the folder it goes in, not just "it does not work" -->
+                <Border Padding="10" CornerRadius="2" Background="#1AD13438" BorderBrush="#D13438" BorderThickness="1"
+                        IsVisible="{Binding HasProblem}">
+                  <TextBlock Text="{Binding Problem}" TextWrapping="Wrap" />
+                </Border>
+                <TextBlock Classes="hint" Text="{Binding FolderText}" TextWrapping="Wrap"
+                           ToolTip.Tip="{Binding OpenFolderTip}" />
+
+                <Expander Header="{x:Static r:Strings.Mods_FilesExpander}" HorizontalAlignment="Stretch"
+                          ToolTip.Tip="{x:Static r:Strings.Mods_FilesSummaryTip}">
+                  <ItemsControl ItemsSource="{Binding Files}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vm:ModFileRowViewModel">
+                        <Border Classes="info-row" ToolTip.Tip="{Binding Tip}">
+                          <Grid ColumnDefinitions="*,Auto,Auto">
+                            <StackPanel>
+                              <TextBlock Text="{Binding ServedPath}" FontSize="11" TextTrimming="CharacterEllipsis"
+                                         FontFamily="Consolas, Menlo, monospace" />
+                              <TextBlock Classes="hint" FontSize="10" Text="{Binding TagsText}" IsVisible="{Binding HasTags}" />
+                            </StackPanel>
+                            <TextBlock Grid.Column="1" Classes="hint" FontSize="11" Margin="8,0" VerticalAlignment="Center"
+                                       Text="{Binding SizeText}" />
+                            <TextBlock Grid.Column="2" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"
+                                       MinWidth="110" TextAlignment="Right" Text="{Binding StateText}"
+                                       Classes.error="{Binding IsBlocking}" />
+                          </Grid>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </Expander>
+
+                <!-- ============ the file that comes apart ============ -->
+                <Border Padding="10" CornerRadius="2" Background="#14305FA8" BorderBrush="#AFC4DE" BorderThickness="1"
+                        IsVisible="{Binding HasSeparateNote}">
+                  <StackPanel Spacing="4">
+                    <TextBlock FontWeight="SemiBold" Foreground="#1C3A70" Text="{x:Static r:Strings.Mods_SeparateTitle}" />
+                    <TextBlock Text="{Binding SeparateNote}" TextWrapping="Wrap" />
+                  </StackPanel>
+                </Border>
+
+                <!-- ============ in the emulator: a plugin mod is installed there and not built ============ -->
+                <StackPanel Spacing="6" IsVisible="{Binding IsPlugin}">
+                  <TextBlock Classes="card-title" Margin="0,8,0,0" Text="{x:Static r:Strings.Mods_PluginTitle}" />
+                  <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Mods_PluginHint}" />
+                  <TextBlock Text="{Binding PluginStateText}" TextWrapping="Wrap" FontWeight="SemiBold"
+                             ToolTip.Tip="{x:Static r:Strings.Mods_PluginStateTip}" />
+                  <TextBlock Classes="hint" Text="{Binding PluginFolderText}" TextWrapping="Wrap"
+                             IsVisible="{Binding HasPluginFolder}" ToolTip.Tip="{x:Static r:Strings.Mods_PluginFolderTip}" />
+                  <TextBlock Classes="hint" TextWrapping="Wrap" FontFamily="Consolas, Menlo, monospace" FontSize="10"
+                             IsVisible="{Binding HasPluginHash}" Text="{Binding PluginHashText}"
+                             ToolTip.Tip="{x:Static r:Strings.Mods_PluginStateTip}" />
+
+                  <!-- Another .3gx in the same folder: installed, and still not the one that loads -->
+                  <Border Padding="10" CornerRadius="2" Background="#26E07B00" BorderBrush="#E07B00" BorderThickness="1"
+                          IsVisible="{Binding HasPluginOther}" ToolTip.Tip="{x:Static r:Strings.Mods_PluginConflictsTip}">
+                    <TextBlock Text="{Binding PluginOtherText}" TextWrapping="Wrap" Foreground="#7A4B00" />
+                  </Border>
+
+                  <WrapPanel>
+                    <Button Margin="0,0,6,6" Content="{x:Static r:Strings.Mods_PluginInstall}"
+                            Command="{Binding InstallPluginCommand}" IsVisible="{Binding !PluginInstalled}"
+                            IsEnabled="{Binding CanInstallPlugin}" ToolTip.Tip="{Binding PluginInstallTip}" />
+                    <Button Margin="0,0,6,6" Content="{x:Static r:Strings.Mods_PluginUninstall}"
+                            Command="{Binding UninstallPluginCommand}" IsVisible="{Binding PluginInstalled}"
+                            ToolTip.Tip="{Binding PluginUninstallTip}" />
+                    <Button Margin="0,0,6,6" Content="{x:Static r:Strings.Mods_PluginOpenFolder}"
+                            Command="{Binding OpenPluginFolderCommand}" IsEnabled="{Binding HasPluginFolder}"
+                            ToolTip.Tip="{Binding PluginOpenFolderTip}" />
+                  </WrapPanel>
+                </StackPanel>
+
+                <!-- ============ what the ROM really gained, measured in the ROM ============ -->
+                <StackPanel Spacing="6" IsVisible="{Binding ShowMeasured}">
+                  <TextBlock Classes="card-title" Margin="0,8,0,0" Text="{x:Static r:Strings.Mods_MeasuredTitle}" />
+                  <TextBlock Text="{Binding MeasuredText}" TextWrapping="Wrap" FontWeight="SemiBold"
+                             ToolTip.Tip="{x:Static r:Strings.Mods_MeasuredTip}" />
+                  <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Mods_MeasuredHint}" />
+
+                  <Border Padding="10" CornerRadius="2" Background="#26E07B00" BorderBrush="#E07B00" BorderThickness="1"
+                          ToolTip.Tip="{x:Static r:Strings.Mods_SideEffectsTip}">
+                    <StackPanel Spacing="4">
+                      <TextBlock FontWeight="SemiBold" Foreground="#7A4B00" Text="{x:Static r:Strings.Mods_SideEffectsTitle}" />
+                      <TextBlock TextWrapping="Wrap" Text="{Binding ShinyEffectText}" Classes.error="{Binding ShinyGone}" />
+                      <TextBlock TextWrapping="Wrap" Text="{Binding ShopsEffectText}" Classes.error="{Binding ShopsGone}" />
+                      <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Mods_SideEffectsHint}" />
+                    </StackPanel>
+                  </Border>
+                </StackPanel>
+
+                <!-- ============ the actions: the user brings the files, the app only opens pages and folders ============ -->
+                <TextBlock Classes="card-title" Margin="0,8,0,0" Text="{x:Static r:Strings.Mods_ActionsTitle}" />
+                <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Mods_ActionsHint}" />
+                <WrapPanel>
+                  <!-- Fetches what is missing from the author's own release; hidden while it runs, replaced by the
+                       progress line and its Stop below. -->
+                  <Button Margin="0,0,6,6" Content="{x:Static r:Strings.Mods_Download}" Command="{Binding DownloadCommand}"
+                          IsEnabled="{Binding CanDownload}" IsVisible="{Binding !IsDownloading}"
+                          ToolTip.Tip="{Binding DownloadTip}" />
+                  <Button Margin="0,0,6,6" Content="{x:Static r:Strings.Mods_OpenSource}" Command="{Binding OpenSourceCommand}"
+                          ToolTip.Tip="{Binding OpenSourceTip}" />
+                  <Button Margin="0,0,6,6" Content="{x:Static r:Strings.Mods_ImportRelease}" Command="{Binding ImportReleaseCommand}"
+                          ToolTip.Tip="{x:Static r:Strings.Mods_ImportTip}" />
+                  <Button Margin="0,0,6,6" Content="{Binding ImportApartText}" Command="{Binding ImportApartFileCommand}"
+                          IsVisible="{Binding HasApartFile}" ToolTip.Tip="{Binding ImportApartTip}" />
+                  <Button Margin="0,0,6,6" Content="{x:Static r:Strings.Mods_OpenFolder}" Command="{Binding OpenFolderCommand}"
+                          ToolTip.Tip="{Binding OpenFolderTip}" />
+                  <Button Margin="0,0,6,6" Content="{x:Static r:Strings.Mods_Recheck}" Command="{Binding RecheckCommand}"
+                          ToolTip.Tip="{x:Static r:Strings.Mods_RecheckTip}" />
+                </WrapPanel>
+
+                <!-- ============ while it is downloading: what, how much, and a way out ============ -->
+                <Border Padding="10" CornerRadius="2" Background="#14305FA8" BorderBrush="#AFC4DE" BorderThickness="1"
+                        IsVisible="{Binding IsDownloading}" ToolTip.Tip="{x:Static r:Strings.Mods_DownloadProgressTip}">
+                  <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                    <TextBlock Text="{Binding DownloadText}" TextWrapping="Wrap" VerticalAlignment="Center"
+                               ToolTip.Tip="{x:Static r:Strings.Mods_DownloadProgressTip}" />
+                    <!-- No percentage when the host declares no length (Drive, for a large file): the bar runs instead -->
+                    <ProgressBar Grid.Row="1" Margin="0,6,0,0" Height="6" Minimum="0" Maximum="100"
+                                 Value="{Binding DownloadPercent}" IsIndeterminate="{Binding DownloadUnknownTotal}"
+                                 ToolTip.Tip="{x:Static r:Strings.Mods_DownloadProgressTip}" />
+                    <Button Grid.Column="1" Grid.RowSpan="2" Margin="10,0,0,0" VerticalAlignment="Center"
+                            Content="{x:Static r:Strings.Mods_DownloadStop}" Command="{Binding StopDownloadCommand}"
+                            ToolTip.Tip="{x:Static r:Strings.Mods_DownloadStopTip}" />
+                  </Grid>
+                </Border>
+
+                <!-- The hash of what was downloaded, for a file this version cannot confirm: measured, not guessed -->
+                <TextBlock Classes="hint" TextWrapping="Wrap" IsVisible="{Binding HasMeasuredHashes}"
+                           Text="{Binding MeasuredHashText}" FontFamily="Consolas, Menlo, monospace" FontSize="10"
+                           ToolTip.Tip="{x:Static r:Strings.Mods_VersionTip}" />
+              </StackPanel>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

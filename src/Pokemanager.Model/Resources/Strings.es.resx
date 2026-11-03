@@ -219,4 +219,130 @@
   <data name="Data_OtherGameTrainers" xml:space="preserve">
     <value>un entrenador de otro juego es aquí un entrenador distinto</value>
   </data>
+  <data name="Mods_UsumExpansion_Name" xml:space="preserve">
+    <value>Ultra Sun &amp; Ultra Moon Pok&#233;mon Expansion</value>
+  </data>
+  <data name="Mods_UsumExpansion_Author" xml:space="preserve">
+    <value>Aqua, mejorado por la comunidad</value>
+  </data>
+  <data name="Mods_UsumExpansion_Description" xml:space="preserve">
+    <value>A&#241;ade los Pok&#233;mon de la 8.&#170; y la 9.&#170; generaci&#243;n a Ultra Sol y Ultra Luna, y pasa de las 807 especies de los juegos a unas 1025. No edita campos: sustituye archivos enteros (una tabla personal ampliada, los movimientos, los textos del juego), un code.bin modificado y el icono y el banner del exefs. Pokemanager no lo distribuye ni lo descarga &#8212; los archivos los consigues t&#250; y los pones en tu biblioteca, igual que las ROMs. Tiene fallos conocidos que conviene leer antes de empezar una partida.</value>
+  </data>
+  <data name="Mods_UsumExpansion_Issue_Learnsets" xml:space="preserve">
+    <value>Los learnsets de la 1.&#170; a la 7.&#170; generaci&#243;n no incluyen los movimientos nuevos.</value>
+  </data>
+  <data name="Mods_UsumExpansion_Issue_UpperHand" xml:space="preserve">
+    <value>Mano Adelantada funciona con cualquier movimiento, no s&#243;lo con los que deber&#237;a.</value>
+  </data>
+  <data name="Mods_UsumExpansion_Issue_Baxcalibur" xml:space="preserve">
+    <value>El modelo de Baxcalibur est&#225; descolocado en la pantalla de resumen.</value>
+  </data>
+  <data name="Mods_UsumExpansion_Models" xml:space="preserve">
+    <value>El archivo de modelos a/0/9/4 se distribuye aparte del repositorio por su tama&#241;o (2,3 GB) y lleva modelos sacados de los juegos de Switch: la CC0 que declara el mod cubre el trabajo del mod y no el copyright de otros, as&#237; que nada de &#233;l viaja nunca con Pokemanager. El bot&#243;n de descarga lo trae del enlace de Google Drive del propio autor, el que apunta la descripci&#243;n del repositorio. Google cambia esa p&#225;gina de descarga sin avisar: cuando deje de funcionar, abre el enlace t&#250; mismo y a&#241;ade el archivo con el bot&#243;n de importar.</value>
+  </data>
+  <data name="Mods_NothingProvided" xml:space="preserve">
+    <value>{0}: todav&#237;a no hay ning&#250;n archivo de este mod en tu biblioteca. Pon sus archivos en {1}.</value>
+  </data>
+  <data name="Mods_RequiredMissing" xml:space="preserve">
+    <value>{0}: falta {1}, y sin ese archivo el mod no hace nada. Ponlo en {2}.</value>
+  </data>
+  <data name="Mods_FileWrong" xml:space="preserve">
+    <value>{0}: {1} no es el archivo que dice ser (su hash no es el que esta versi&#243;n espera).</value>
+  </data>
+  <data name="Mods_VersionConfirmed" xml:space="preserve">
+    <value>Los archivos son la versi&#243;n {0}.</value>
+  </data>
+  <data name="Mods_VersionUnknown" xml:space="preserve">
+    <value>No se puede confirmar que los archivos sean la versi&#243;n {0}: todav&#237;a no se conoce ning&#250;n hash de este mod, as&#237; que se dan por buenos.</value>
+  </data>
+  <data name="Mods_Download_AlreadyThere" xml:space="preserve">
+    <value>{0} ya est&#225; en la biblioteca, as&#237; que no se ha vuelto a descargar.</value>
+  </data>
+  <data name="Mods_Download_Done" xml:space="preserve">
+    <value>{0} se ha descargado en la biblioteca como {1}.</value>
+  </data>
+  <data name="Mods_Download_Unpacked" xml:space="preserve">
+    <value>{0} se ha descargado y descomprimido: {1} archivos en la biblioteca.</value>
+  </data>
+  <data name="Mods_Download_WrongHash" xml:space="preserve">
+    <value>Lo que se ha descargado para {0} no es el archivo que describe esta versi&#243;n (su hash es {1} y deber&#237;a ser {2}). Se ha descartado y no se ha tocado nada de la biblioteca.</value>
+  </data>
+  <data name="Mods_Download_Cancelled" xml:space="preserve">
+    <value>Se ha detenido la descarga de {0} y se ha borrado la parte que hab&#237;a llegado.</value>
+  </data>
+  <data name="Mods_Download_SourceFailed" xml:space="preserve">
+    <value>No se ha podido descargar {0} desde {1}: {2}.</value>
+  </data>
+  <data name="Mods_Download_NoAutomaticSource" xml:space="preserve">
+    <value>{0} no se puede descargar autom&#225;ticamente: esta versi&#243;n solo sabe abrir {1} para conseguirlo.</value>
+  </data>
+  <data name="Mods_Download_BadArchive" xml:space="preserve">
+    <value>Lo que se ha descargado para {0} no es un zip legible: {1}.</value>
+  </data>
+  <data name="Mods_Download_DiskFailed" xml:space="preserve">
+    <value>{0} se ha descargado pero no se ha podido escribir en la biblioteca: {1}.</value>
+  </data>
+  <data name="Mods_Download_GotAPage" xml:space="preserve">
+    <value>el servidor ha contestado con una p&#225;gina web en lugar del archivo.</value>
+  </data>
+  <data name="Mods_Download_DriveRefused" xml:space="preserve">
+    <value>Google Drive ha vuelto a contestar con su p&#225;gina de confirmaci&#243;n, as&#237; que su enlace de descarga ha cambiado y esta versi&#243;n no sabe pasar de ah&#237;.</value>
+  </data>
+  <data name="Mods_Download_Truncated" xml:space="preserve">
+    <value>la descarga se ha cortado antes de acabar ({0} de {1} bytes).</value>
+  </data>
+  <data name="Mods_Download_EntryOutside" xml:space="preserve">
+    <value>el archivo comprimido lleva una entrada que apunta fuera de la carpeta del mod ({0}), as&#237; que se ha rechazado.</value>
+  </data>
+  <data name="Mods_Download_EmptyArchive" xml:space="preserve">
+    <value>el archivo comprimido no lleva ning&#250;n archivo del juego, as&#237; que no hab&#237;a nada que poner en la biblioteca.</value>
+  </data>
+  <data name="Mods_Plugin_EmulatorOpen" xml:space="preserve">
+    <value>Cierra antes {0}: el emulador lee su carpeta de plugins al cargar un juego, as&#237; que un plugin escrito con el emulador abierto en el mejor de los casos se ignora y en el peor se lee a medio copiar.</value>
+  </data>
+  <data name="Mods_Plugin_NotInLibrary" xml:space="preserve">
+    <value>El plugin de {0} todav&#237;a no est&#225; en tu biblioteca, as&#237; que no hay nada que instalar. Tendr&#237;a que estar en {1}: usa Descargar, o ponlo t&#250; mismo ah&#237;.</value>
+  </data>
+  <data name="Mods_Plugin_NotAPluginMod" xml:space="preserve">
+    <value>{0} no es un plugin del emulador: aporta archivos a la ROM, as&#237; que se construye dentro del juego y nunca se copia al emulador.</value>
+  </data>
+  <data name="Mods_Follower_Name" xml:space="preserve">
+    <value>Pokemon Follower Mod (Includes SM)</value>
+  </data>
+  <data name="Mods_Follower_Author" xml:space="preserve">
+    <value>Aqua_</value>
+  </data>
+  <data name="Mods_Follower_Description" xml:space="preserve">
+    <value>El Pok&#233;mon de cabecera te sigue por el mapa, con un men&#250; dentro del juego en Start+Select. Es un plugin 3GX que el emulador carga junto al juego, no un cambio en la ROM: no tiene romfs, ni exefs, ni code.bin, as&#237; que no se empaqueta nada y no hace falta construir &#8212; instalarlo copia un archivo en la carpeta de plugins de tu emulador, y desinstalarlo lo vuelve a quitar. Pokemanager no distribuye nada de esto: el archivo viene de la p&#225;gina de GameBanana del propio autor a tu propia biblioteca, igual que tus ROMs.</value>
+  </data>
+  <data name="Mods_Follower_Issue_FormCycling" xml:space="preserve">
+    <value>Cambiar de forma con L+A es, en palabras del propio autor, &#8220;very experimental and prone to crashes&#8221;, y su FAQ reconoce que est&#225; roto. Puede congelar o cerrar el juego.</value>
+  </data>
+  <data name="Mods_Follower_Issue_Untested" xml:space="preserve">
+    <value>No se han podido probar todas las especies, formas y mapas, as&#237; que combinaciones poco habituales pueden dar fallos gr&#225;ficos o colgar el juego.</value>
+  </data>
+  <data name="Mods_Follower_Issue_OldHardware" xml:space="preserve">
+    <value>En una 3DS antigua el modo Lite anima a 5 fotogramas interpolados por segundo, y el Pok&#233;mon parece deslizarse en lugar de andar.</value>
+  </data>
+  <data name="Mods_Follower_Issue_FlyingHeight" xml:space="preserve">
+    <value>Algunos Pok&#233;mon voladores flotan a una altura rara, porque sus animaciones est&#225;n hechas de otra forma que las dem&#225;s.</value>
+  </data>
+  <data name="Mods_Follower_Issue_NoPokemon" xml:space="preserve">
+    <value>Si sale el men&#250; del plugin pero no aparece ning&#250;n Pok&#233;mon, es un fallo que el autor reconoce y que a&#250;n no ha parcheado.</value>
+  </data>
+  <data name="Mods_Follower_Setup" xml:space="preserve">
+    <value>Activa el cargador de plugins 3GX en tu emulador, o no pasar&#225; absolutamente nada y parecer&#225; que el mod no funciona. En Azahar est&#225; en Emulation &gt; Configure &gt; System. Pokemanager no puede activarlo por ti.</value>
+  </data>
+  <data name="Mods_Follower_Conflict_OnePlugin" xml:space="preserve">
+    <value>Solo se carga un plugin 3GX por juego. Si ya hay otro .3gx en esa carpeta, este no se cargar&#225; &#8212; la tarjeta dice qu&#233; archivos ha encontrado all&#237;.</value>
+  </data>
+  <data name="Mods_Follower_Conflict_LayeredFs" xml:space="preserve">
+    <value>Si vienes de la versi&#243;n antigua de este mod por LayeredFS: borra FieldRo.cro y FieldDebug.cro y &#8212; solo si instalaste ese paquete &#8212; .crr/static.crr.</value>
+  </data>
+  <data name="Mods_Follower_Conflict_Expansion" xml:space="preserve">
+    <value>Con el USUM Expansion Mod: compatible a partir de la versi&#243;n 3.1, que es la que a&#241;adi&#243; ese soporte (antes se congelaba). Adem&#225;s chocan en la versi&#243;n del juego &#8212; el Expansion exige USUM 1.0 USA y el follower acepta el juego sin parchear y la 1.2 &#8212; as&#237; que para tener los dos hay que estar en USUM 1.0.</value>
+  </data>
+  <data name="Mods_LicenseDisagrees" xml:space="preserve">
+    <value>El autor declara una licencia distinta seg&#250;n d&#243;nde se mire: {0}. Pokemanager no elige entre ellas &#8212; las dos son palabras del propio autor, en sitios distintos.</value>
+  </data>
 </root>

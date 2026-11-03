@@ -231,7 +231,11 @@ public sealed class RomFsLayers
     }
 
     /// <summary>Physical path of the relative file (<c>a/2/1/8</c>) in the highest layer that contains it.</summary>
-    public string Resolve(string relative)
+    public string Resolve(string relative) =>
+        TryResolve(relative) ?? throw new FileNotFoundException(string.Format(Strings.Layers_NotFound, relative), relative);
+
+    /// <summary>The same, or null when no layer has it: for a reader that has candidates to try.</summary>
+    public string? TryResolve(string relative)
     {
         string native = relative.Replace('/', Path.DirectorySeparatorChar);
         foreach (string root in Roots)
@@ -240,6 +244,9 @@ public sealed class RomFsLayers
             if (File.Exists(path))
                 return path;
         }
-        throw new FileNotFoundException(string.Format(Strings.Layers_NotFound, relative), relative);
+        return null;
     }
+
+    /// <summary>Whether any layer has that file.</summary>
+    public bool Has(string relative) => TryResolve(relative) is not null;
 }

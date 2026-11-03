@@ -183,6 +183,8 @@ public sealed class ProjectHistory
         target.Tweaks = version.Tweaks.Clone();
         target.Tweaks.InstalledLevelCap = installed;
         target.Shops = version.Shops.Clone();
+        // The mods are in the ROM too: a version built with a species-expansion mod is not the same ROM without it.
+        target.Mods = version.Mods.Clone();
     }
 
     public static VersionDifference Compare(Project current, Project version)
@@ -211,6 +213,10 @@ public sealed class ProjectHistory
           .Append(Percent(t.TrainerLevelPercent)).Append('|').Append(Percent(t.WildLevelPercent)).Append('|')
           .Append(Percent(t.StaticLevelPercent)).Append('|')
           .Append(project.Shops.FreeRareCandies).Append('|').Append(project.Shops.MegaStonesOnSale).Append('|');
+        // Which mods are on changes the ROM as much as a seed does: a version has to be told apart by them. Only the
+        // ones that are *in* the ROM, though: a 3GX plugin is loaded by the emulator and changes no byte of what was
+        // built, so two versions that differ only by one are the same ROM and must not look different here.
+        sb.Append(string.Join(',', project.Mods.EnabledRomMods)).Append('|');
         foreach (var edit in project.Edits.All.OrderBy(e => e.Table, StringComparer.Ordinal).ThenBy(e => e.Id).ThenBy(e => e.Field, StringComparer.Ordinal))
             sb.Append(edit.Table).Append('/').Append(edit.Id).Append('/').Append(edit.Field).Append('=').Append(edit.Value.ToJsonString()).Append(';');
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(sb.ToString())))[..16];

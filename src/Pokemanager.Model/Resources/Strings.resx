@@ -219,4 +219,130 @@
   <data name="Data_OtherGameTrainers" xml:space="preserve">
     <value>a trainer of another game is a different trainer here</value>
   </data>
+  <data name="Mods_UsumExpansion_Name" xml:space="preserve">
+    <value>Ultra Sun &amp; Ultra Moon Pok&#233;mon Expansion</value>
+  </data>
+  <data name="Mods_UsumExpansion_Author" xml:space="preserve">
+    <value>Aqua, improved by the community</value>
+  </data>
+  <data name="Mods_UsumExpansion_Description" xml:space="preserve">
+    <value>Adds the Pok&#233;mon of Generations 8 and 9 to Ultra Sun and Ultra Moon, raising the 807 species the games ship with to about 1025. It does not edit fields: it replaces whole files (an expanded personal table, the moves, the game texts), a modified code.bin and the exefs icon and banner. Pokemanager does not distribute or download any of it &#8212; the files are yours to fetch and to put in your own library, like your ROMs. It has known faults worth reading before a run.</value>
+  </data>
+  <data name="Mods_UsumExpansion_Issue_Learnsets" xml:space="preserve">
+    <value>The learnsets of Generations 1 to 7 do not include the new moves.</value>
+  </data>
+  <data name="Mods_UsumExpansion_Issue_UpperHand" xml:space="preserve">
+    <value>Upper Hand works with any move, not only with the ones it should.</value>
+  </data>
+  <data name="Mods_UsumExpansion_Issue_Baxcalibur" xml:space="preserve">
+    <value>Baxcalibur's model is out of place in the summary screen.</value>
+  </data>
+  <data name="Mods_UsumExpansion_Models" xml:space="preserve">
+    <value>The model archive a/0/9/4 is distributed apart from the repository because of its size (2.3 GB), and it holds models taken from the Switch games: the CC0 the mod declares covers the mod's own work and not somebody else's copyright, so nothing of it is ever shipped with Pokemanager. The download button fetches it from the author's own Google Drive link, the one the repository's description points at. Google changes that download page without notice: when it stops working, open the link yourself and add the file with the Import button.</value>
+  </data>
+  <data name="Mods_NothingProvided" xml:space="preserve">
+    <value>{0}: no file of this mod is in your library yet. Put its files in {1}.</value>
+  </data>
+  <data name="Mods_RequiredMissing" xml:space="preserve">
+    <value>{0}: {1} is missing, and the mod does nothing without it. Put it in {2}.</value>
+  </data>
+  <data name="Mods_FileWrong" xml:space="preserve">
+    <value>{0}: {1} is not the file it claims to be (its hash is not the one this version expects).</value>
+  </data>
+  <data name="Mods_VersionConfirmed" xml:space="preserve">
+    <value>The files are version {0}.</value>
+  </data>
+  <data name="Mods_VersionUnknown" xml:space="preserve">
+    <value>The files cannot be confirmed as version {0}: no hash is known for this mod yet, so they are taken as given.</value>
+  </data>
+  <data name="Mods_Download_AlreadyThere" xml:space="preserve">
+    <value>{0} is already in the library, so it was not downloaded again.</value>
+  </data>
+  <data name="Mods_Download_Done" xml:space="preserve">
+    <value>{0} was downloaded into the library as {1}.</value>
+  </data>
+  <data name="Mods_Download_Unpacked" xml:space="preserve">
+    <value>{0} was downloaded and unpacked: {1} files into the library.</value>
+  </data>
+  <data name="Mods_Download_WrongHash" xml:space="preserve">
+    <value>What was downloaded for {0} is not the file this version describes (its hash is {1} and should be {2}). It was thrown away and nothing in the library was touched.</value>
+  </data>
+  <data name="Mods_Download_Cancelled" xml:space="preserve">
+    <value>The download of {0} was stopped, and the part of it that had arrived was deleted.</value>
+  </data>
+  <data name="Mods_Download_SourceFailed" xml:space="preserve">
+    <value>{0} could not be downloaded from {1}: {2}.</value>
+  </data>
+  <data name="Mods_Download_NoAutomaticSource" xml:space="preserve">
+    <value>{0} cannot be downloaded automatically: this version only knows how to open {1} for it.</value>
+  </data>
+  <data name="Mods_Download_BadArchive" xml:space="preserve">
+    <value>What was downloaded for {0} is not a readable zip: {1}.</value>
+  </data>
+  <data name="Mods_Download_DiskFailed" xml:space="preserve">
+    <value>{0} was downloaded but could not be written to the library: {1}.</value>
+  </data>
+  <data name="Mods_Download_GotAPage" xml:space="preserve">
+    <value>the host answered with a web page instead of the file.</value>
+  </data>
+  <data name="Mods_Download_DriveRefused" xml:space="preserve">
+    <value>Google Drive answered with its confirmation page again, so its download link has changed and this version cannot get past it.</value>
+  </data>
+  <data name="Mods_Download_Truncated" xml:space="preserve">
+    <value>the download stopped early ({0} of {1} bytes).</value>
+  </data>
+  <data name="Mods_Download_EntryOutside" xml:space="preserve">
+    <value>the archive holds an entry that points outside the mod's own folder ({0}), so it was refused.</value>
+  </data>
+  <data name="Mods_Download_EmptyArchive" xml:space="preserve">
+    <value>the archive holds no game files at all, so there was nothing to put in the library.</value>
+  </data>
+  <data name="Mods_Plugin_EmulatorOpen" xml:space="preserve">
+    <value>Close {0} first: the emulator reads its plugin folder when it loads a game, so a plugin written under a running one is at best ignored and at worst read half-copied.</value>
+  </data>
+  <data name="Mods_Plugin_NotInLibrary" xml:space="preserve">
+    <value>The plugin of {0} is not in your library yet, so there is nothing to install. It should be at {1}: use Download, or put it there yourself.</value>
+  </data>
+  <data name="Mods_Plugin_NotAPluginMod" xml:space="preserve">
+    <value>{0} is not an emulator plugin: it puts files in the ROM, so it is built into the game and never copied into the emulator.</value>
+  </data>
+  <data name="Mods_Follower_Name" xml:space="preserve">
+    <value>Pokemon Follower Mod (Includes SM)</value>
+  </data>
+  <data name="Mods_Follower_Author" xml:space="preserve">
+    <value>Aqua_</value>
+  </data>
+  <data name="Mods_Follower_Description" xml:space="preserve">
+    <value>Your lead Pok&#233;mon walks behind you around the map, with an in-game menu on Start+Select. It is a 3GX plugin the emulator loads beside the game, not a change to the ROM: it has no romfs, no exefs and no code.bin, so nothing is packed and no build is needed &#8212; installing it copies one file into your emulator's plugin folder, and removing it takes that file back out. Pokemanager distributes none of it: the file comes from the author's own GameBanana page into your own library, like your ROMs.</value>
+  </data>
+  <data name="Mods_Follower_Issue_FormCycling" xml:space="preserve">
+    <value>Cycling forms with L+A is, in the author's own words, &#8220;very experimental and prone to crashes&#8221;, and their FAQ says it is broken. It can freeze or close the game.</value>
+  </data>
+  <data name="Mods_Follower_Issue_Untested" xml:space="preserve">
+    <value>Not every species, form and map could be tested, so unusual combinations can give graphical faults or hang the game.</value>
+  </data>
+  <data name="Mods_Follower_Issue_OldHardware" xml:space="preserve">
+    <value>On an older 3DS the Lite mode animates at 5 interpolated frames a second, which makes the Pok&#233;mon look like it is sliding rather than walking.</value>
+  </data>
+  <data name="Mods_Follower_Issue_FlyingHeight" xml:space="preserve">
+    <value>Some flying Pok&#233;mon float at an odd height, because their animations are built differently from the rest.</value>
+  </data>
+  <data name="Mods_Follower_Issue_NoPokemon" xml:space="preserve">
+    <value>If the plugin's menu appears but no Pok&#233;mon ever does, that is a fault the author acknowledges and has not patched yet.</value>
+  </data>
+  <data name="Mods_Follower_Setup" xml:space="preserve">
+    <value>Switch on the 3GX plugin loader in your emulator, or nothing at all will happen and the mod will look broken. In Azahar it is Emulation &gt; Configure &gt; System. Pokemanager cannot switch it on for you.</value>
+  </data>
+  <data name="Mods_Follower_Conflict_OnePlugin" xml:space="preserve">
+    <value>Only one 3GX plugin is loaded per game. If another .3gx is already in that folder, this one will not load &#8212; the card says which files it found there.</value>
+  </data>
+  <data name="Mods_Follower_Conflict_LayeredFs" xml:space="preserve">
+    <value>Coming from the old LayeredFS version of this mod: delete FieldRo.cro and FieldDebug.cro, and &#8212; only if you installed that package &#8212; .crr/static.crr.</value>
+  </data>
+  <data name="Mods_Follower_Conflict_Expansion" xml:space="preserve">
+    <value>With the USUM Expansion Mod: compatible from version 3.1 onwards, the release that added that support (earlier ones froze). The two also disagree on the game version &#8212; the Expansion requires USUM 1.0 USA, while the follower accepts an unpatched game and 1.2 &#8212; so running both means being on USUM 1.0.</value>
+  </data>
+  <data name="Mods_LicenseDisagrees" xml:space="preserve">
+    <value>The author declares a different licence depending on where you look: {0}. Pokemanager does not choose between them &#8212; both are the author's own words, in different places.</value>
+  </data>
 </root>

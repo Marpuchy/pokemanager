@@ -1,8 +1,10 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using Pokemanager.Model.Data;
 using Pokemanager.Model.Dump;
 using Pokemanager.Model.Edits;
+using Pokemanager.Model.Mods;
 using Pokemanager.Model.Resources;
 
 namespace Pokemanager.Model.Projects;
@@ -108,10 +110,55 @@ public sealed class Project
     /// <summary>How the built ROM behaves (shiny odds and the like). Defaults to the game's own behaviour.</summary>
     public GameSettings Tweaks { get; set; } = new();
 
+    /// <summary>
+    /// Community mods this project plays with, by id. Only the ids are in the file: the files themselves are the
+    /// user's own (<see cref="ModLibrary"/>). Defaults to none, which is the behaviour the application always had.
+    /// </summary>
+    public ModSettings Mods { get; set; } = new();
+
     public EditSet Edits { get; } = new();
 
     public string RomFsPath => Path.Combine(DumpDirectory, "romfs");
     public string ExeFsPath => Path.Combine(DumpDirectory, "exefs");
+
+    /// <summary>
+    /// The romfs the application reads for this project, as a stack: the randomization (when there is one) over the
+    /// enabled mods over the dump. This is the one place that order is decided, so every reader — the editing session,
+    /// the icons, the trainer portraits — sees the same thing.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The mod layer sits <b>under</b> the randomization and <b>over</b> the dump: the randomizer worked on a base ROM
+    /// that already had the mod, so its output is the newer word on any file it wrote, while a file the mod replaces
+    /// and the randomizer did not touch has to come from the mod and not from the dump. With no mods the stack is the
+    /// single dump folder it always was.
+    /// </para>
+    /// <para>
+    /// <b>Only a mod that brings files to the game is a layer</b> (<see cref="ModSettings.EnabledRomMods"/>): a 3GX
+    /// plugin mod changes no byte of the ROM, so a project with nothing but one of those reads exactly the single dump
+    /// folder it read before mods existed.
+    /// </para>
+    /// </remarks>
+    /// <param name="randomizedRomFs">romfs the randomizer produced, or null when there is no randomization.</param>
+    /// <param name="library">The mod library to read from; <see cref="ModLibrary.Default"/> when not given.</param>
+    public RomFsLayers ReadLayers(string? randomizedRomFs = null, ModLibrary? library = null)
+    {
+        if (randomizedRomFs is null && Mods.HasNoRomMods)
+            return new RomFsLayers(RomFsPath); // the ordinary case: not a single file is looked at
+        var roots = new List<string>();
+        if (randomizedRomFs is not null)
+            roots.Add(randomizedRomFs);
+        roots.AddRange((library ?? ModLibrary.Default).RomFsRoots(Mods));
+        roots.Add(RomFsPath);
+        return new RomFsLayers([.. roots]);
+    }
+
+    /// <summary>
+    /// The executable the application reads: a mod's <c>code.bin</c> when one replaces it, the dump's otherwise. A mod
+    /// that adds species carries the code that reads them, so taking the dump's would undo it.
+    /// </summary>
+    public string CodePath(ModLibrary? library = null) =>
+        (Mods.HasNoRomMods ? null : (library ?? ModLibrary.Default).CodePath(Mods)) ?? Path.Combine(ExeFsPath, "code.bin");
 
     /// <summary><see cref="RomFile"/> or, when not set, the original ROM in the dump folder.</summary>
     public string? ResolveRomFile()
@@ -149,7 +196,7 @@ public sealed class Project
     public void Save(string path)
     {
         var file = new ProjectFile(CurrentFormat, DumpDirectory, RomFile, Language, EmulatorUserDirectory, Randomization,
-            Edits.All.Select(e => new EditEntry(e.Table, e.Id, e.Field, e.Value)).ToList(), Locke, Game, Shops, Tweaks);
+            Edits.All.Select(e => new EditEntry(e.Table, e.Id, e.Field, e.Value)).ToList(), Locke, Game, Shops, Tweaks, Mods);
 
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
         string tmp = path + ".tmp";
@@ -161,6 +208,11 @@ public sealed class Project
     /// What the user changes in a project — edits, randomization and Locke rules — as bytes, for undo. Edits are sorted,
     /// so the same state always gives the same bytes.
     /// </summary>
+    /// <remarks>
+    /// <see cref="Mods"/> is deliberately not part of it, for the same reason the randomizer's own options are not:
+    /// turning a mod on or off changes the base data the editing session was opened over, so putting it back needs the
+    /// session reopened and not a value restored. The project file keeps them all the same.
+    /// </remarks>
     public byte[] CaptureState() => JsonSerializer.SerializeToUtf8Bytes(new ProjectState(
         Edits.All.OrderBy(e => e.Table, StringComparer.Ordinal).ThenBy(e => e.Id).ThenBy(e => e.Field, StringComparer.Ordinal)
             .Select(e => new EditEntry(e.Table, e.Id, e.Field, e.Value)).ToList(),
@@ -197,6 +249,7 @@ public sealed class Project
             Game = file.Game ?? GameTitle.X, // added with other games; earlier projects were X/Y
             Shops = file.Shops ?? new ShopSettings(), // 3.0
             Tweaks = file.Tweaks ?? new GameSettings(), // 3.0
+            Mods = file.Mods ?? new ModSettings(), // added with the community mods
         };
         foreach (var e in file.Edits ?? [])
             project.Edits.Set(e.Table, e.Id, e.Field, e.Value);
@@ -214,7 +267,8 @@ public sealed class Project
         LockeSettings? Locke = null,
         GameTitle? Game = null,
         ShopSettings? Shops = null,
-        GameSettings? Tweaks = null);
+        GameSettings? Tweaks = null,
+        ModSettings? Mods = null);
 
     private sealed record EditEntry(string Table, int Id, string Field, JsonNode Value);
 }

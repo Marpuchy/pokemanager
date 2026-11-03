@@ -4041,4 +4041,349 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Game_ResetRunDone" xml:space="preserve">
     <value>{0} things were put back.</value>
   </data>
+  <data name="Mods_UnknownMod" xml:space="preserve">
+    <value>This project uses the mod "{0}", which this version of Pokemanager does not know.</value>
+  </data>
+  <data name="Tab_GameMods" xml:space="preserve">
+    <value>Mods</value>
+  </data>
+  <data name="Mods_TabHint" xml:space="preserve">
+    <value>Community mods of this game. A mod replaces whole files of the game instead of editing fields, so it is packed into a base ROM before the randomizer runs and it needs the ROM to be built again — never a new seed. Pokemanager distributes not a single byte of a mod: the files come from the author's own release into your library, which is yours and this machine's, and whatever is already there is never downloaded twice.</value>
+  </data>
+  <data name="Mods_LibraryIs" xml:space="preserve">
+    <value>Your library: {0}</value>
+  </data>
+  <data name="Mods_LibraryTip" xml:space="preserve">
+    <value>One folder per mod, laid out the way the game is (romfs/ and exefs/), so a release can be unzipped straight into it. It lives with the randomization cache and the save backups: regenerable, never inside the project, and moved by POKEMANAGER_DATA.</value>
+  </data>
+  <data name="Mods_NoneForGame" xml:space="preserve">
+    <value>This version of Pokemanager knows no mod for {0}.</value>
+  </data>
+  <data name="Mods_Identity" xml:space="preserve">
+    <value>{0} · version {1} · licence {2}</value>
+  </data>
+  <data name="Mods_IdentityTip" xml:space="preserve">
+    <value>Who made it, the release this catalogue describes, and every licence the author declares with the place that declares it. A licence covers the mod's own work and not material with somebody else's copyright in it &#8212; and when the declarations disagree, both are shown rather than one of them chosen.</value>
+  </data>
+  <data name="Mods_Games" xml:space="preserve">
+    <value>For: {0}</value>
+  </data>
+  <data name="Mods_KnownIssuesTitle" xml:space="preserve">
+    <value>Known faults ({0})</value>
+  </data>
+  <data name="Mods_KnownIssuesHint" xml:space="preserve">
+    <value>They are the mod's own faults, not Pokemanager's, and there is nothing this application can do about them.</value>
+  </data>
+  <data name="Mods_KnownIssuesTip" xml:space="preserve">
+    <value>Shown without being asked for, so the decision is made before a run and not halfway through one.</value>
+  </data>
+  <data name="Mods_Enable" xml:space="preserve">
+    <value>Play with this mod in this project</value>
+  </data>
+  <data name="Mods_EnableTip" xml:space="preserve">
+    <value>Turns the mod on for this project. Its files become one more layer, over the dump and under the randomization, and the editing session is reopened over them at once, so every tab reads the mod's data. The ROM carries it, so it asks for a build and not for a new seed. Only the mod's id travels in the project file; the files stay in your library.</value>
+  </data>
+  <data name="Mods_EnableBlockedTip" xml:space="preserve">
+    <value>It cannot be turned on yet: {0}</value>
+  </data>
+  <data name="Mods_NothingYet" xml:space="preserve">
+    <value>{0}: there is nothing of this mod in your library yet.</value>
+  </data>
+  <data name="Mods_FilesTitle" xml:space="preserve">
+    <value>What your library holds</value>
+  </data>
+  <data name="Mods_FilesSummary" xml:space="preserve">
+    <value>{0} files there, {1} missing, {2} with a hash that does not match.</value>
+  </data>
+  <data name="Mods_FilesSummaryTip" xml:space="preserve">
+    <value>Every file in the folder is hashed and checked against what this version knows about the mod. Files the catalogue does not name are counted and packed all the same: a mod that replaces whole archives can ship more than is listed.</value>
+  </data>
+  <data name="Mods_FilesExpander" xml:space="preserve">
+    <value>File by file</value>
+  </data>
+  <data name="Mods_Checking" xml:space="preserve">
+    <value>Reading your library…</value>
+  </data>
+  <data name="Mods_ReadFailed" xml:space="preserve">
+    <value>Your library could not be read: {0}</value>
+  </data>
+  <data name="Mods_VersionTip" xml:space="preserve">
+    <value>What can honestly be said about which release these files are. No hash of this mod has been measured yet, so while that is the case the files are taken as given instead of being called a version nothing was checked against.</value>
+  </data>
+  <data name="Mods_FolderIs" xml:space="preserve">
+    <value>Its folder: {0}</value>
+  </data>
+  <data name="Mods_StateMissing" xml:space="preserve">
+    <value>missing</value>
+  </data>
+  <data name="Mods_StateVerified" xml:space="preserve">
+    <value>verified</value>
+  </data>
+  <data name="Mods_StateWrongHash" xml:space="preserve">
+    <value>wrong hash</value>
+  </data>
+  <data name="Mods_StateHashUnknown" xml:space="preserve">
+    <value>cannot be confirmed</value>
+  </data>
+  <data name="Mods_FileRequired" xml:space="preserve">
+    <value>required</value>
+  </data>
+  <data name="Mods_FileApart" xml:space="preserve">
+    <value>downloaded apart</value>
+  </data>
+  <data name="Mods_FileExtra" xml:space="preserve">
+    <value>not in the catalogue, packed anyway</value>
+  </data>
+  <data name="Mods_FileNotInRom" xml:space="preserve">
+    <value>kept and checked, not written into the ROM</value>
+  </data>
+  <data name="Mods_FileTipVerified" xml:space="preserve">
+    <value>{0} is there, {1}, and its hash is the one this version expects.</value>
+  </data>
+  <data name="Mods_FileTipWrongHash" xml:space="preserve">
+    <value>{0} is there, {1}, but its hash is not the one this version expects: it is not the file it claims to be, and the build refuses to go on with it.</value>
+  </data>
+  <data name="Mods_FileTipHashUnknown" xml:space="preserve">
+    <value>{0} is there, {1}. No hash is known for this mod yet, so nothing about this file can be confirmed — it is taken as given.</value>
+  </data>
+  <data name="Mods_FileTipMissing" xml:space="preserve">
+    <value>{0} is not in your library. Put it at {1}.</value>
+  </data>
+  <data name="Mods_Bytes" xml:space="preserve">
+    <value>{0} bytes</value>
+  </data>
+  <data name="Mods_SeparateTitle" xml:space="preserve">
+    <value>A file that comes apart from the rest</value>
+  </data>
+  <data name="Mods_MeasuredTitle" xml:space="preserve">
+    <value>What this ROM really gained</value>
+  </data>
+  <data name="Mods_MeasuredExtra" xml:space="preserve">
+    <value>It adds {0} species: the game ships with {1} and the data being read has {2}.</value>
+  </data>
+  <data name="Mods_MeasuredNone" xml:space="preserve">
+    <value>The data being read still has the {0} species the game ships with: nothing of the mod is reaching it. Check the files below.</value>
+  </data>
+  <data name="Mods_MeasuredHint" xml:space="preserve">
+    <value>Read from the ROM's own tables, not taken from what the catalogue promises.</value>
+  </data>
+  <data name="Mods_MeasuredTip" xml:space="preserve">
+    <value>The species count comes from the personal table this project is reading, so it is a measurement and not a claim: a mod whose files are there but are not being read says so here.</value>
+  </data>
+  <data name="Mods_SideEffectsTitle" xml:space="preserve">
+    <value>Two options the mod can switch off by itself</value>
+  </data>
+  <data name="Mods_SideEffectsHint" xml:space="preserve">
+    <value>Both are found in code.bin by a byte signature, and a mod that replaces code.bin can move or remove either one. Nothing is written when it is not found, so the option disables itself instead of corrupting a ROM.</value>
+  </data>
+  <data name="Mods_SideEffectsTip" xml:space="preserve">
+    <value>Measured now, in the code.bin this project is actually reading, instead of being left for you to discover in game.</value>
+  </data>
+  <data name="Mods_SideEffectShinyOk" xml:space="preserve">
+    <value>The shiny patch: its branch is still there in this code.bin, so "every Pokémon shiny" works.</value>
+  </data>
+  <data name="Mods_SideEffectShinyGone" xml:space="preserve">
+    <value>The shiny patch: its branch is not in this code.bin, so "every Pokémon shiny" is off and does nothing.</value>
+  </data>
+  <data name="Mods_SideEffectShopsOk" xml:space="preserve">
+    <value>The shop table: it is still found, so the free Rare Candies and the Mega Stones on sale work.</value>
+  </data>
+  <data name="Mods_SideEffectShopsGone" xml:space="preserve">
+    <value>The shop table: it is not found with this mod on, so the free Rare Candies and the Mega Stones on sale do nothing.</value>
+  </data>
+  <data name="Mods_ActionsTitle" xml:space="preserve">
+    <value>Getting the files</value>
+  </data>
+  <data name="Mods_ActionsHint" xml:space="preserve">
+    <value>Pokemanager can fetch what your library is missing straight from the author's own release page, and nothing of a mod is hosted, mirrored or kept here to pass on: it is the download you would make by hand, into your own library. When an automatic source does not work — the model archive lives in Google Drive, whose download page Google changes without notice — the message says which page to open, and you bring that file in with the Import buttons, the same way you bring the ROM.</value>
+  </data>
+  <data name="Mods_OpenSource" xml:space="preserve">
+    <value>Open the mod's page</value>
+  </data>
+  <data name="Mods_OpenSourceTip" xml:space="preserve">
+    <value>Opens {0} in your system browser. That is the whole of this application's contact with where the mod comes from: it downloads nothing.</value>
+  </data>
+  <data name="Mods_ImportRelease" xml:space="preserve">
+    <value>Import a release from a folder…</value>
+  </data>
+  <data name="Mods_ImportTip" xml:space="preserve">
+    <value>Copies into your library the romfs/ and exefs/ files of a release you have already unzipped somewhere on your disk, keeping the paths inside it. A readme or a licence is left where it is. Nothing is fetched: the folder is already yours.</value>
+  </data>
+  <data name="Mods_ImportTitle" xml:space="preserve">
+    <value>Folder of the unzipped release</value>
+  </data>
+  <data name="Mods_Imported" xml:space="preserve">
+    <value>{0} files copied into {1}.</value>
+  </data>
+  <data name="Mods_ImportedNothing" xml:space="preserve">
+    <value>{0} has no romfs/ or exefs/ folder, so nothing was copied. Pick the folder of the release that has them inside.</value>
+  </data>
+  <data name="Mods_ImportFailed" xml:space="preserve">
+    <value>The files could not be copied: {0}</value>
+  </data>
+  <data name="Mods_ImportFile" xml:space="preserve">
+    <value>Add the separate file ({0})…</value>
+  </data>
+  <data name="Mods_ImportFileTip" xml:space="preserve">
+    <value>Puts the file the mod distributes apart from the rest in your library, at {0}. Pick the file you downloaded yourself.</value>
+  </data>
+  <data name="Mods_ImportFileTitle" xml:space="preserve">
+    <value>The file that goes at {0}</value>
+  </data>
+  <data name="Mods_ImportedFile" xml:space="preserve">
+    <value>{0} was added as {1}.</value>
+  </data>
+  <data name="Mods_OpenFolder" xml:space="preserve">
+    <value>Open its folder</value>
+  </data>
+  <data name="Mods_OpenFolderTip" xml:space="preserve">
+    <value>Opens {0} in your file manager, so the mod's files can be dropped in by hand. Use "Check the files again" afterwards.</value>
+  </data>
+  <data name="Mods_OpenFailed" xml:space="preserve">
+    <value>{0} could not be opened: {1}</value>
+  </data>
+  <data name="Mods_Recheck" xml:space="preserve">
+    <value>Check the files again</value>
+  </data>
+  <data name="Mods_RecheckTip" xml:space="preserve">
+    <value>Reads the folder and hashes its files again, to pick up what you have just put there.</value>
+  </data>
+  <data name="Mods_UndoEnabled" xml:space="preserve">
+    <value>Mod {0} on</value>
+  </data>
+  <data name="Mods_UndoDisabled" xml:space="preserve">
+    <value>Mod {0} off</value>
+  </data>
+  <data name="Mods_ReopenFailed" xml:space="preserve">
+    <value>The game data could not be read with that change, so the project was left as it was: {0}</value>
+  </data>
+  <data name="Mods_Download" xml:space="preserve">
+    <value>Download the missing files</value>
+  </data>
+  <data name="Mods_DownloadTip" xml:space="preserve">
+    <value>Downloads what the library is still missing, straight from the author's own release page and nothing else. Pokemanager does not host, mirror or keep a copy of a mod: this is the download you would make by hand. Whatever is already in the library is left alone.</value>
+  </data>
+  <data name="Mods_DownloadBlockedTip" xml:space="preserve">
+    <value>This version knows no automatic source for {0}, so its files have to be fetched by hand from its own page.</value>
+  </data>
+  <data name="Mods_DownloadStop" xml:space="preserve">
+    <value>Stop</value>
+  </data>
+  <data name="Mods_DownloadStopTip" xml:space="preserve">
+    <value>Stops the download now. What has arrived so far is deleted, so a half file is never taken for a good one; the files already in the library are left as they are.</value>
+  </data>
+  <data name="Mods_DownloadProgressTip" xml:space="preserve">
+    <value>What is being downloaded and how much of it has arrived. A file whose size the host does not declare — which is what Google Drive does for a large one — shows the bytes so far instead of a percentage.</value>
+  </data>
+  <data name="Mods_Downloading" xml:space="preserve">
+    <value>Downloading {0} ({1} of {2})</value>
+  </data>
+  <data name="Mods_DownloadingOf" xml:space="preserve">
+    <value>{0} of {1}</value>
+  </data>
+  <data name="Mods_DownloadingSoFar" xml:space="preserve">
+    <value>{0} so far</value>
+  </data>
+  <data name="Mods_Unpacking" xml:space="preserve">
+    <value>Unpacking {0}: {1} of {2} files</value>
+  </data>
+  <data name="Mods_DownloadFinished" xml:space="preserve">
+    <value>Download finished: {0} files are now in the library.</value>
+  </data>
+  <data name="Mods_DownloadNothingToDo" xml:space="preserve">
+    <value>Nothing to download: the library already holds everything this version knows how to fetch for {0}.</value>
+  </data>
+  <data name="Mods_DownloadStopped" xml:space="preserve">
+    <value>The download was stopped. Nothing that had been written was kept.</value>
+  </data>
+  <data name="Mods_DownloadProblem" xml:space="preserve">
+    <value>{0} What to do: open {1} in your browser, download the file yourself, and then use “{2}” for a single file or “{3}” for a whole release.</value>
+  </data>
+  <data name="Mods_DownloadProblemNoPage" xml:space="preserve">
+    <value>{0} Open the mod's own page with “{1}”, download the file yourself, and then use “{2}”.</value>
+  </data>
+  <data name="Mods_DownloadMeasured" xml:space="preserve">
+    <value>Measured so it can be written down: {0}</value>
+  </data>
+  <data name="Mods_DownloadMeasuredOne" xml:space="preserve">
+    <value>{0} = SHA-256 {1}</value>
+  </data>
+  <data name="Mods_Megabytes" xml:space="preserve">
+    <value>{0} MB</value>
+  </data>
+  <data name="Mods_PluginTitle" xml:space="preserve">
+    <value>In the emulator</value>
+  </data>
+  <data name="Mods_PluginHint" xml:space="preserve">
+    <value>This mod is a 3GX plugin: the emulator loads it beside the game, so it changes no byte of your ROM. It is not part of what the project builds &#8212; switching it on or off asks for no build and no new randomization &#8212; and installing it is one file copied into your emulator's own plugin folder.</value>
+  </data>
+  <data name="Mods_PluginFolderIs" xml:space="preserve">
+    <value>Emulator plugin folder: {0}</value>
+  </data>
+  <data name="Mods_PluginFolderTip" xml:space="preserve">
+    <value>Where the emulator looks for this game's plugin: sdmc/luma/plugins/&lt;TitleID&gt; inside its user folder. Install copies the file there; Remove takes it back out.</value>
+  </data>
+  <data name="Mods_PluginStateTip" xml:space="preserve">
+    <value>Measured in that folder, not remembered: it says whether the plugin file is really there, how big it is and its SHA-256, because this version has no hash to check it against.</value>
+  </data>
+  <data name="Mods_PluginInstalled" xml:space="preserve">
+    <value>Installed in {0}: {1} &#8212; {2}</value>
+  </data>
+  <data name="Mods_PluginReady" xml:space="preserve">
+    <value>Not installed. Install puts {0} in that folder.</value>
+  </data>
+  <data name="Mods_PluginNoFile" xml:space="preserve">
+    <value>Not installed, and your library has not got the plugin yet: use Download, or put {0} in the library folder yourself.</value>
+  </data>
+  <data name="Mods_PluginNoEmulator" xml:space="preserve">
+    <value>No emulator user folder was found, so there is nowhere to install this. Pick your emulator in Settings and come back.</value>
+  </data>
+  <data name="Mods_PluginHash" xml:space="preserve">
+    <value>SHA-256 of the installed file: {0}</value>
+  </data>
+  <data name="Mods_PluginInstall" xml:space="preserve">
+    <value>Install in the emulator</value>
+  </data>
+  <data name="Mods_PluginInstallTip" xml:space="preserve">
+    <value>Copies {0} from your library into the emulator's plugin folder for this game. It refuses while the emulator is open, and it builds nothing: the ROM is not touched.</value>
+  </data>
+  <data name="Mods_PluginInstallBlockedTip" xml:space="preserve">
+    <value>Cannot install yet: {0}</value>
+  </data>
+  <data name="Mods_PluginUninstall" xml:space="preserve">
+    <value>Remove from the emulator</value>
+  </data>
+  <data name="Mods_PluginUninstallTip" xml:space="preserve">
+    <value>Deletes {0} from the emulator's plugin folder and nothing else: another plugin that was already there is left alone. It refuses while the emulator is open.</value>
+  </data>
+  <data name="Mods_PluginOpenFolder" xml:space="preserve">
+    <value>Open the emulator folder</value>
+  </data>
+  <data name="Mods_PluginOpenFolderTip" xml:space="preserve">
+    <value>Opens {0} in your file manager, so you can see what is in it.</value>
+  </data>
+  <data name="Mods_PluginInstalledStatus" xml:space="preserve">
+    <value>{0} installed: {1}. Switch on the 3GX plugin loader in your emulator, or nothing will happen.</value>
+  </data>
+  <data name="Mods_PluginRemovedStatus" xml:space="preserve">
+    <value>{0} removed from {1}.</value>
+  </data>
+  <data name="Mods_PluginFailed" xml:space="preserve">
+    <value>The plugin could not be written: {0}</value>
+  </data>
+  <data name="Mods_PluginSetupTitle" xml:space="preserve">
+    <value>You still have to switch this on in the emulator</value>
+  </data>
+  <data name="Mods_PluginConflictsTitle" xml:space="preserve">
+    <value>What it will not work alongside</value>
+  </data>
+  <data name="Mods_PluginConflictsTip" xml:space="preserve">
+    <value>Read before installing: these are the things that make a correctly installed plugin do nothing, taken from the author's own page.</value>
+  </data>
+  <data name="Mods_PluginOtherFound" xml:space="preserve">
+    <value>Another plugin is already in that folder ({0}), and the emulator loads only one per game &#8212; so this one will not load until that file is moved away.</value>
+  </data>
+  <data name="Mods_LicenseTip" xml:space="preserve">
+    <value>The licence the author declares, and where it is declared. When the declarations disagree, both are shown: Pokemanager states what the author states and does not pick one.</value>
+  </data>
 </root>

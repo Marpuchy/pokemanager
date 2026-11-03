@@ -290,7 +290,7 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
         }
 
         var milestones = project.Game.Milestones();
-        var layers = new RomFsLayers(project.RomFsPath);
+        var layers = project.ReadLayers();
         var images = MilestoneIcons.Load(layers, project.Game);
         var crystals = ItemIcons.LoadTypeCrystals(layers, project.Game);
         for (int i = 0; i < milestones.Count; i++)

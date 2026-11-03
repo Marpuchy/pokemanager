@@ -811,6 +811,10 @@
             </StackPanel>
           </ScrollViewer>
         </TabItem>
+        <!-- ================= Mods: what the community adds to the game itself ================= -->
+        <TabItem x:Name="ModsTab" Header="{x:Static r:Strings.Tab_GameMods}">
+          <ContentControl Content="{Binding Mods}" />
+        </TabItem>
         </TabControl>
       </TabItem>
 
