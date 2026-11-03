@@ -32,6 +32,12 @@ public sealed record UprGameCounts(int Species, int Forms, int Moves)
 /// <summary>Runs the commands of <c>upr/PokemanagerUpr.java</c> on UPR ZX.</summary>
 public sealed class UprRunner(UprTools tools)
 {
+    /// <summary>
+    /// The real counts of a ROM a mod expanded, for every command that loads it (randomizing and packing: both open
+    /// the ROM through UPR ZX's handler, which fails on species past its own count). Null for a game as it ships.
+    /// </summary>
+    public UprGameCounts? Counts { get; init; }
+
     /// <summary>Path of the Java launcher copied next to the binaries.</summary>
     public static string LauncherPath => Path.Combine(AppContext.BaseDirectory, "upr", "PokemanagerUpr.java");
 
@@ -153,7 +159,7 @@ public sealed class UprRunner(UprTools tools)
             ? ["-cp", ClassPath(launcherDir), "PokemanagerUpr"]
             : ["-cp", ClassPath(), LauncherPath];
         foreach (string arg in new[] { "-Xmx4096M", "-Dfile.encoding=UTF-8", "-Dstdout.encoding=UTF-8" }
-                     .Concat(javaProperties ?? []).Concat(launcher))
+                     .Concat(javaProperties ?? Counts?.JavaProperties ?? []).Concat(launcher))
             psi.ArgumentList.Add(arg);
         foreach (string arg in arguments)
             psi.ArgumentList.Add(arg);

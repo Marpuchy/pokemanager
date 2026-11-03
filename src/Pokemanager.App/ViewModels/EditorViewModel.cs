@@ -810,7 +810,10 @@ public partial class EditorViewModel : ObservableObject
 
             ReloadBaseIfNeeded(random is null ? null : Path.Combine(random.TitleDirectory, "romfs"));
 
-            var built = await RomBuilder.BuildAsync(new UprRunner(tools), moddedBase, random, ModBuilder.BuildEdits(Session, random?.TitleDirectory),
+            // The modded base has the species the mod added, and the packer opens it through UPR ZX's handler, which
+            // fails past the game's own count unless it is told the real one.
+            var packer = new UprRunner(tools) { Counts = installedMods.Count > 0 ? upr.GameCounts(project) : null };
+            var built = await RomBuilder.BuildAsync(packer, moddedBase, random, ModBuilder.BuildEdits(Session, random?.TitleDirectory),
                 output, r.Seed, upr.Cache.Root, progress);
             r.LastBuiltRom = built.RomPath;
             if (random is null && File.Exists(built.RomPath + ".log"))
