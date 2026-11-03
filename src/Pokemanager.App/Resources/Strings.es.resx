@@ -4021,7 +4021,7 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>El progreso de la run empieza de cero con ella: vuelven {0} vidas perdidas, se olvidan {1} tiradas de la ruleta y el tope de nivel vuelve al primer paso del plan. Las reglas se quedan como están: las vidas máximas, los premios, cada cuánto sale la ruleta y el plan en sí.</value>
   </data>
   <data name="Game_ResetRomChecks" xml:space="preserve">
-    <value>Esto está dentro de la ROM creada, así que marcar cualquiera de ellos obliga a volver a crearla. Nada de aquí se toca si no lo marcas:</value>
+    <value>Todo esto está dentro de la ROM creada, así que después hay que volver a crearla. Viene todo marcado para que la partida nueva sea el juego tal cual; desmarca lo que quieras conservar:</value>
   </data>
   <data name="Game_ResetEdits" xml:space="preserve">
     <value>Deshacer todos los cambios en las tablas del juego ({0})</value>
@@ -4033,7 +4033,7 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>Devolver las tiendas a lo que vende el juego</value>
   </data>
   <data name="Game_ResetRules" xml:space="preserve">
-    <value>Devolver las opciones del juego: todos variocolor, los tres porcentajes de nivel, el perfil de dificultad y los topes que escribiste sobre los del plan</value>
+    <value>Devolver las opciones del juego: probabilidad shiny, todos los porcentajes de nivel, el perfil de dificultad, los topes que escribiste sobre los del plan — y los iniciales del juego (Rowlet, Litten y Popplio), aunque la ROM base viniera con otros</value>
   </data>
   <data name="Game_ResetRunUndo" xml:space="preserve">
     <value>Progreso de la run reiniciado</value>
@@ -4430,5 +4430,56 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   </data>
   <data name="Status_ModFilesNoEmulator" xml:space="preserve">
     <value> No se han podido colocar los modelos 3D del mod: no se ha encontrado el emulador. Elígelo en Ajustes y vuelve a crear la ROM.</value>
+  </data>
+  <data name="Options_TrainerMoney" xml:space="preserve">
+    <value>Dinero de los entrenadores</value>
+  </data>
+  <data name="Options_LevelsTitle" xml:space="preserve">
+    <value>Niveles</value>
+  </data>
+  <data name="Options_LevelsGlobal" xml:space="preserve">
+    <value>Niveles globales</value>
+  </data>
+  <data name="Tip_LevelsGlobal" xml:space="preserve">
+    <value>Un porcentaje para todo el juego a la vez: entrenadores y jefes, salvajes, estáticos y dominantes, e iniciales. Las filas de abajo se pueden seguir cambiando una a una.</value>
+  </data>
+  <data name="Options_LevelsMixed" xml:space="preserve">
+    <value>Las filas de abajo no tienen todas el mismo valor, así que el global marca 0. Escribir un valor las pone todas igual.</value>
+  </data>
+  <data name="Tip_GameLevelsTrainers" xml:space="preserve">
+    <value>Los Pokémon de todos los entrenadores, jefes incluidos. Un nivel editado a mano conserva su valor.</value>
+  </data>
+  <data name="Game_LevelsStarters" xml:space="preserve">
+    <value>Iniciales</value>
+  </data>
+  <data name="Tip_GameLevelsStarters" xml:space="preserve">
+    <value>El nivel de los tres Pokémon que eliges al principio (Generación 7).</value>
+  </data>
+  <data name="Game_ShinyOdds" xml:space="preserve">
+    <value>Probabilidad shiny: 1 entre</value>
+  </data>
+  <data name="Game_ShinyGameOdds" xml:space="preserve">
+    <value>La probabilidad del juego (1 entre 4096; el Amuleto Iris sigue contando).</value>
+  </data>
+  <data name="Game_ShinyAll" xml:space="preserve">
+    <value>Todos los Pokémon que no estén bloqueados salen shiny.</value>
+  </data>
+  <data name="Game_ShinyOddsReal" xml:space="preserve">
+    <value>Más o menos 1 entre {0} ({1} intentos por Pokémon; el Amuleto Iris ya no suma).</value>
+  </data>
+  <data name="Game_ShinyPresetGame" xml:space="preserve">
+    <value>Del juego (1/4096)</value>
+  </data>
+  <data name="Game_ShinyPresetAll" xml:space="preserve">
+    <value>Todos shiny</value>
+  </data>
+  <data name="Game_ResetBaseModified" xml:space="preserve">
+    <value>Tu ROM base ya venía modificada al importarla (da otros iniciales). Empezar de nuevo devuelve los iniciales del juego y todo lo que cambia esta aplicación, pero lo que cambió la propia ROM base —salvajes, entrenadores, sus niveles— solo puede volver desde una ROM original del juego: elígela como ROM base en Ajustes.</value>
+  </data>
+  <data name="Set_BaseRomOtherGame" xml:space="preserve">
+    <value>Esa ROM es {0} y este proyecto es {1}: no se ha cogido.</value>
+  </data>
+  <data name="Set_ChangeBaseRomTip" xml:space="preserve">
+    <value>Elige la ROM de la que parte el proyecto. Se importan sus datos y el proyecto se vuelve a abrir sobre ella al cerrar esta ventana: elige una ROM original del juego para volver al juego tal cual.</value>
   </data>
 </root>

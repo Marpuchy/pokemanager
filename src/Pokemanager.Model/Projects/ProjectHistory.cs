@@ -212,6 +212,10 @@ public sealed class ProjectHistory
         sb.Append(t.AlwaysShiny).Append('|').Append(t.LevelCap).Append('|')
           .Append(Percent(t.TrainerLevelPercent)).Append('|').Append(Percent(t.WildLevelPercent)).Append('|')
           .Append(Percent(t.StaticLevelPercent)).Append('|')
+          // Only when set, so the fingerprint of every version written before this option stays what it was.
+          .Append(t.StarterLevelPercent != 0 ? "st" + Percent(t.StarterLevelPercent) + "|" : "")
+          .Append(t.OriginalStarters ? "os|" : "")
+          .Append(t.ShinyOdds is { } odds ? "sh" + odds + "|" : "")
           .Append(project.Shops.FreeRareCandies).Append('|').Append(project.Shops.MegaStonesOnSale).Append('|');
         // Which mods are on changes the ROM as much as a seed does: a version has to be told apart by them. Only the
         // ones that are *in* the ROM, though: a 3GX plugin is loaded by the emulator and changes no byte of what was

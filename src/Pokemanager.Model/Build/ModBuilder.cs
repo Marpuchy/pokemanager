@@ -117,11 +117,16 @@ public static class ModBuilder
     {
         var title = session.Current.Title;
         var layout = title.Layout();
-        if (layout.StarterTextFile < 0 || GameStarters.Read(session.Layers, title) is not { } starters)
+        if (layout.StarterTextFile < 0 || layout.Statics.Length == 0)
+            return;
+        // The three the built ROM gives: the statics this build already wrote (original starters, levels) or the
+        // session's, which carry the randomization.
+        int[]? starters = outputs.TryGetValue("romfs/" + layout.Statics, out byte[]? builtStatics)
+            ? GameStarters.Read(new GARC.MemGARC(builtStatics))
+            : GameStarters.Read(session.Layers, title);
+        if (starters is null)
             return;
         int[] shipped = GameStarters.Vanilla(title);
-        if (starters.SequenceEqual(shipped))
-            return;
 
         for (int language = 0; language < layout.LanguageCount; language++)
         {
@@ -138,15 +143,21 @@ public static class ModBuilder
             {
                 string[] species = GameText.Read(title, names.Files[GameText.SpeciesNameFile(title)]);
                 string[] types = TypeNames(title, names);
+                lines = GameText.Read(title, story.Files[layout.StarterTextFile]);
+                // Whom the scene names now is read from the scene itself — the menu at its end lists the three — and
+                // not assumed to be the game's own: a base ROM that was randomized (or built by this application)
+                // before it was imported already names other three, and swapping the shipped names found nothing,
+                // so the player read "Elekid" and got a Quaxly.
+                int[] named = GameStarters.NamedInScene(lines, species) ?? shipped;
                 swaps = [];
                 for (int slot = 0; slot < shipped.Length; slot++)
                 {
-                    if (shipped[slot] >= species.Length || starters[slot] >= species.Length)
+                    if (named[slot] >= species.Length || starters[slot] >= species.Length)
                         continue;
-                    swaps.Add(new GameStarters.StarterSwap(species[shipped[slot]], species[starters[slot]],
-                        TypeName(types, TypeOf(session, shipped[slot])), TypeName(types, TypeOf(session, starters[slot]))));
+                    swaps.Add(new GameStarters.StarterSwap(species[named[slot]], species[starters[slot]],
+                        GameStarters.TypeInScene(lines, slot, species[named[slot]], types),
+                        TypeName(types, TypeOf(session, starters[slot]))));
                 }
-                lines = GameText.Read(title, story.Files[layout.StarterTextFile]);
             }
             catch (Exception ex) when (ex is IndexOutOfRangeException or ArgumentOutOfRangeException or InvalidDataException)
             {
@@ -216,12 +227,15 @@ public static class ModBuilder
         var game = session.Project.Tweaks;
         BuildLevelCap(session, outputs);
         BuildLevels(session, outputs);
-        if (!game.AlwaysShiny)
+        if (game.EffectiveShinyOdds is not { } odds || odds >= GameCode.GameOdds)
             return;
         byte[]? code = outputs.TryGetValue(CodeFile, out byte[]? built) ? built : ReadCode(session, randomizedTitleDirectory);
         if (code is null)
             return;
-        if (game.AlwaysShiny && GameCode.MakeEveryPokemonShiny(code))
+        bool changed = odds <= 1
+            ? GameCode.MakeEveryPokemonShiny(code)
+            : GameCode.SetShinyRolls(code, GameCode.RollsFor(odds));
+        if (changed)
             outputs[CodeFile] = code;
     }
 
@@ -235,6 +249,15 @@ public static class ModBuilder
         var game = session.Project.Tweaks;
         var title = session.Current.Title;
         var layout = title.Layout();
+
+        // The game's own three, for a project that does not randomize over a base ROM that already did.
+        if (game.OriginalStarters && !session.Project.Randomization.Enabled && layout.Statics.Length > 0)
+        {
+            var statics = BuiltOrRead(session, outputs, layout.Statics);
+            byte[][] files = statics.Files;
+            if (GameStarters.SetStarters(files, GameStarters.Vanilla(title)) > 0)
+                outputs["romfs/" + layout.Statics] = GARC.PackGARC(files, statics.Version, statics.ContentPadding).Data;
+        }
 
         if (game.TrainerLevelPercent != 0)
         {
@@ -285,6 +308,14 @@ public static class ModBuilder
             var statics = BuiltOrRead(session, outputs, layout.Statics);
             byte[][] files = statics.Files;
             if (GameLevels.ScaleStatics7(files, game.StaticLevelPercent) > 0)
+                outputs["romfs/" + layout.Statics] = GARC.PackGARC(files, statics.Version, statics.ContentPadding).Data;
+        }
+
+        if (game.StarterLevelPercent != 0 && layout.Statics.Length > 0)
+        {
+            var statics = BuiltOrRead(session, outputs, layout.Statics);
+            byte[][] files = statics.Files;
+            if (GameLevels.ScaleStarters7(files, game.StarterLevelPercent) > 0)
                 outputs["romfs/" + layout.Statics] = GARC.PackGARC(files, statics.Version, statics.ContentPadding).Data;
         }
     }

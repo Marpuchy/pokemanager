@@ -26,7 +26,8 @@ public sealed partial class GameTweaksViewModel : ObservableObject
     {
         this.editor = editor;
         this.session = session;
-        ShinySupported = Supported();
+        ShinySupported = Supported(out bool rolls);
+        ShinyRollsSupported = rolls;
         WildAndStaticSupported = session.Current.Title.Layout().Wild.Length > 0;
     }
 
@@ -41,19 +42,54 @@ public sealed partial class GameTweaksViewModel : ObservableObject
 
     public string ShinyTip => ShinySupported ? Strings.Game_ShinyTip : Strings.Game_ShinyUnsupported;
 
-    /// <summary>Every Pokémon that is not shiny-locked comes out shiny. Needs a rebuild, not a new randomization.</summary>
-    public bool AlwaysShiny
+    /// <summary>
+    /// The game's executable also has the two places where the number of identity rolls is read, so odds other than
+    /// "all" and "the game's" can be written (measured in Ultra Sun / Ultra Moon).
+    /// </summary>
+    public bool ShinyRollsSupported { get; }
+
+    /// <summary>
+    /// The shiny odds as "one in N": 4096 is the game's own, 1 makes every Pokémon that is not shiny-locked shiny.
+    /// Needs a rebuild, not a new randomization.
+    /// </summary>
+    public decimal ShinyOdds
     {
-        get => session.Project.Tweaks.AlwaysShiny;
+        get => session.Project.Tweaks.EffectiveShinyOdds ?? GameCode.GameOdds;
         set
         {
-            if (session.Project.Tweaks.AlwaysShiny == value)
+            int odds = (int)Math.Clamp(Math.Round(value), 1, GameCode.GameOdds);
+            // Without the reads of the roll count only the two ends exist: everything shiny, or the game's own.
+            if (!ShinyRollsSupported && odds is > 1 and < GameCode.GameOdds)
+                odds = odds < GameCode.GameOdds / 2 ? 1 : GameCode.GameOdds;
+            int? stored = odds >= GameCode.GameOdds ? null : odds;
+            var t = session.Project.Tweaks;
+            if (t.ShinyOdds == stored && !t.AlwaysShiny)
                 return;
-            session.Project.Tweaks.AlwaysShiny = value;
+            t.ShinyOdds = stored;
+            t.AlwaysShiny = false; // the old switch is now just odds of 1
             OnPropertyChanged();
+            OnPropertyChanged(nameof(ShinyOddsText));
             editor.MarkDirty(Strings.Game_ShinyUndo);
         }
     }
+
+    /// <summary>What the odds really come to once written as rolls: "≈ 1 in 410 (10 rolls)", or the two ends.</summary>
+    public string ShinyOddsText
+    {
+        get
+        {
+            int odds = session.Project.Tweaks.EffectiveShinyOdds ?? GameCode.GameOdds;
+            if (odds >= GameCode.GameOdds)
+                return Strings.Game_ShinyGameOdds;
+            if (odds <= 1)
+                return Strings.Game_ShinyAll;
+            int rolls = GameCode.RollsFor(odds);
+            return string.Format(Strings.Game_ShinyOddsReal, GameCode.OddsFor(rolls), rolls);
+        }
+    }
+
+    [RelayCommand]
+    private void SetShinyOdds(string odds) => ShinyOdds = decimal.Parse(odds, System.Globalization.CultureInfo.InvariantCulture);
 
     // ------------------------------------------------------------------ levels
 
@@ -138,18 +174,51 @@ public sealed partial class GameTweaksViewModel : ObservableObject
         set => SetLevel(value, () => session.Project.Tweaks.StaticLevelPercent, v => session.Project.Tweaks.StaticLevelPercent = v);
     }
 
-    /// <summary>The value "Everything" puts in the three.</summary>
-    [ObservableProperty]
-    public partial decimal AllLevelPercent { get; set; }
-
-    [RelayCommand]
-    private void ApplyAllLevels()
+    /// <summary>The three starters, apart from the other fixed Pokémon (Generation 7).</summary>
+    public decimal StarterLevelPercent
     {
-        TrainerLevelPercent = AllLevelPercent;
-        if (WildAndStaticSupported)
+        get => (decimal)session.Project.Tweaks.StarterLevelPercent;
+        set => SetLevel(value, () => session.Project.Tweaks.StarterLevelPercent, v => session.Project.Tweaks.StarterLevelPercent = v);
+    }
+
+    /// <summary>
+    /// "Global levels": one value for the whole game. Writing it sets every kind at once — trainers and bosses, wild,
+    /// fixed Pokémon, totems and starters — and the rows below can still be changed one by one afterwards.
+    /// </summary>
+    public decimal AllLevelPercent
+    {
+        get
         {
-            WildLevelPercent = AllLevelPercent;
-            StaticLevelPercent = AllLevelPercent;
+            var t = session.Project.Tweaks;
+            return WildAndStaticSupported
+                   && t.TrainerLevelPercent == t.WildLevelPercent && t.WildLevelPercent == t.StaticLevelPercent
+                   && t.StaticLevelPercent == t.StarterLevelPercent
+                ? (decimal)t.TrainerLevelPercent
+                : !WildAndStaticSupported ? (decimal)t.TrainerLevelPercent : 0;
+        }
+        set
+        {
+            TrainerLevelPercent = value;
+            if (WildAndStaticSupported)
+            {
+                WildLevelPercent = value;
+                StaticLevelPercent = value;
+                StarterLevelPercent = value;
+            }
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(AllLevelsMixed));
+        }
+    }
+
+    /// <summary>The rows do not all say the same: the global value shows 0 and this says why.</summary>
+    public bool AllLevelsMixed
+    {
+        get
+        {
+            var t = session.Project.Tweaks;
+            return WildAndStaticSupported
+                   && !(t.TrainerLevelPercent == t.WildLevelPercent && t.WildLevelPercent == t.StaticLevelPercent
+                        && t.StaticLevelPercent == t.StarterLevelPercent);
         }
     }
 
@@ -160,6 +229,11 @@ public sealed partial class GameTweaksViewModel : ObservableObject
             return;
         set(wanted);
         OnPropertyChanged(name);
+        if (name != nameof(AllLevelPercent))
+        {
+            OnPropertyChanged(nameof(AllLevelPercent));
+            OnPropertyChanged(nameof(AllLevelsMixed));
+        }
         editor.MarkDirty(Strings.Game_LevelsUndo);
         editor.LevelCap.Refresh(); // the caps are the bosses' levels, which just moved
     }
@@ -279,12 +353,15 @@ public sealed partial class GameTweaksViewModel : ObservableObject
         var project = editor.Session.Project;
         string path = document.SavePath;
         int editCount = project.Edits.Count;
-        var edits = new DialogCheck(string.Format(Strings.Game_ResetEdits, editCount), isEnabled: editCount > 0);
-        var randomization = new DialogCheck(Strings.Game_ResetRandomization);
-        var shops = new DialogCheck(Strings.Game_ResetShops);
-        var rules = new DialogCheck(Strings.Game_ResetRules);
+        // Ticked to begin with (user, 2026-11-03): starting over means the game as it ships, not the last run's rules.
+        // Each can still be unticked to keep it.
+        var edits = new DialogCheck(string.Format(Strings.Game_ResetEdits, editCount), isChecked: editCount > 0, isEnabled: editCount > 0);
+        var randomization = new DialogCheck(Strings.Game_ResetRandomization, isChecked: true);
+        var shops = new DialogCheck(Strings.Game_ResetShops, isChecked: true);
+        var rules = new DialogCheck(Strings.Game_ResetRules, isChecked: true);
         string message = string.Format(Strings.Game_ResetMessage, document.TrainerName, path)
-                         + "\n\n" + string.Format(Strings.Game_ResetRunNote, project.Locke.LivesLost, project.Locke.Spins.Count);
+                         + "\n\n" + string.Format(Strings.Game_ResetRunNote, project.Locke.LivesLost, project.Locke.Spins.Count)
+                         + (BaseRomWasModified(project) ? "\n\n" + Strings.Game_ResetBaseModified : "");
         var first = new QuestionViewModel(Strings.Game_ResetTitle, message, Strings.Game_ResetConfirm, Strings.Common_Cancel,
             [edits, randomization, shops, rules], checksTitle: Strings.Game_ResetRomChecks);
         if (!await editor.Dialogs.AskAsync(first))
@@ -362,18 +439,38 @@ public sealed partial class GameTweaksViewModel : ObservableObject
     /// <summary>The project was replaced (undo, restore): show what it holds now.</summary>
     public void Refresh()
     {
-        OnPropertyChanged(nameof(AlwaysShiny));
+        OnPropertyChanged(nameof(ShinyOdds));
+        OnPropertyChanged(nameof(ShinyOddsText));
         OnPropertyChanged(nameof(TrainerLevelPercent));
         OnPropertyChanged(nameof(WildLevelPercent));
         OnPropertyChanged(nameof(StaticLevelPercent));
+        OnPropertyChanged(nameof(StarterLevelPercent));
+        OnPropertyChanged(nameof(AllLevelPercent));
+        OnPropertyChanged(nameof(AllLevelsMixed));
     }
 
-    private bool Supported()
+    /// <summary>
+    /// The project's base ROM is not the game as it ships: it gives other starters (a ROM randomized before it was
+    /// imported). What the application can put back then is only its own part — the base's own changes are in it.
+    /// </summary>
+    private static bool BaseRomWasModified(Project project)
     {
+        var title = project.Game;
+        return GameStarters.Read(new RomFsLayers(project.RomFsPath), title) is { } starters
+               && !starters.SequenceEqual(GameStarters.Vanilla(title));
+    }
+
+    private bool Supported(out bool rolls)
+    {
+        rolls = false;
         try
         {
             string code = session.Project.CodePath(session.Mods);
-            return File.Exists(code) && GameCode.HasShinyBranch(File.ReadAllBytes(code));
+            if (!File.Exists(code))
+                return false;
+            byte[] bytes = File.ReadAllBytes(code);
+            rolls = GameCode.CanSetShinyRolls(bytes);
+            return GameCode.HasShinyBranch(bytes);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {

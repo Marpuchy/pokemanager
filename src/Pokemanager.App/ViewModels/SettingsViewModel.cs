@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Pokemanager.App.Resources;
@@ -117,6 +117,13 @@ public partial class SettingsViewModel : ObservableObject
     }
 
     public bool HasProject => project is not null;
+    /// <summary>A new base ROM was chosen and imported: the editor reopens the project over it when the window closes.</summary>
+    public bool BaseRomChanged { get; private set; }
+
+    /// <summary>Why the ROM just chosen was not taken, or null.</summary>
+    [ObservableProperty]
+    public partial string? BaseRomProblem { get; private set; }
+
     public string BaseRomText => project?.ResolveRomFile() ?? Strings.Set_BaseRomMissing;
 
     public string UprText => File.Exists(UprLocator.BundledJar)
@@ -187,7 +194,27 @@ public partial class SettingsViewModel : ObservableObject
             return;
         if (await dialogs.PickOpenFileAsync(Strings.Set_PickBaseRom, ["*.3ds", "*.cci", "*.cxi"]) is { } path)
         {
-            project.RomFile = path;
+            // The game's data the application reads comes from the base ROM too, so a new base is imported: otherwise
+            // every page would go on showing the old base's Pokémon, levels and trainers while the ROM is built from
+            // the new one — which is exactly what choosing an original ROM is meant to undo.
+            try
+            {
+                Directory.CreateDirectory(AppSettings.GamesRoot);
+                var imported = await Task.Run(() => GameImporter.Import(path, AppSettings.GamesRoot));
+                if (imported.Game != project.Game)
+                {
+                    BaseRomProblem = string.Format(Strings.Set_BaseRomOtherGame, imported.Game.DisplayName(), project.Game.DisplayName());
+                    return;
+                }
+                project.RomFile = path;
+                project.DumpDirectory = imported.Directory;
+                BaseRomChanged = true;
+                BaseRomProblem = null;
+            }
+            catch (Exception ex) when (ex is RomReadException or IOException or UnauthorizedAccessException)
+            {
+                BaseRomProblem = ex.Message;
+            }
             OnPropertyChanged(nameof(BaseRomText));
         }
     }

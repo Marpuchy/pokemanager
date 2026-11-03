@@ -24,7 +24,10 @@ public static class UprOptionCatalog
     public const string Misc = "Misc";
     public const string Totems = "Totems";
 
-    public static IReadOnlyList<string> Groups { get; } = [Traits, Evolutions, Starters, Moves, Trainers, Wild, Totems, TmsTutors, Items, Misc];
+    /// <summary>Not a group of UPR ZX's: the application's level options, all of them in one place.</summary>
+    public const string Levels = "Levels";
+
+    public static IReadOnlyList<string> Groups { get; } = [Traits, Evolutions, Starters, Moves, Trainers, Wild, Totems, Levels, TmsTutors, Items, Misc];
 
     /// <summary>Options the application does not show at all: <c>LimitPokemon</c> is not supported.</summary>
     public static IReadOnlySet<string> Hidden { get; } = new HashSet<string> { "LimitPokemon" };

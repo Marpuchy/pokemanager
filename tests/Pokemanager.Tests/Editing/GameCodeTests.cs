@@ -1,4 +1,4 @@
-using Pokemanager.Model.Data;
+﻿using Pokemanager.Model.Data;
 
 namespace Pokemanager.Tests.Editing;
 
@@ -67,4 +67,40 @@ public class GameCodeTests
         Assert.False(GameCode.MakeEveryPokemonShiny(code));
         Assert.Equal(0x1A, code[0x120 + 9]);
     }
+
+    /// <summary>
+    /// Odds between "all" and the game's: the two reads of the roll count become a constant, measured in Ultra Sun and
+    /// the USUM Expansion at 0x1E and 0xA2 after the signature.
+    /// </summary>
+    [Fact]
+    public void TheRollCountBecomesAConstant()
+    {
+        byte[] code = Code(0x120);
+        BitConverter.TryWriteBytes(code.AsSpan(0x120 + 0x1E, 4), 0xE5D40023u);
+        BitConverter.TryWriteBytes(code.AsSpan(0x120 + 0xA2, 4), 0xE5D40023u);
+
+        Assert.True(GameCode.CanSetShinyRolls(code));
+        Assert.True(GameCode.SetShinyRolls(code, 16));
+        Assert.Equal(0xE3A00010u, BitConverter.ToUInt32(code, 0x120 + 0x1E));
+        Assert.Equal(0xE3A00010u, BitConverter.ToUInt32(code, 0x120 + 0xA2));
+        Assert.Equal(0x0A, code[0x120 + 9]); // the branch is the game's: this is odds, not "all"
+        Assert.True(GameCode.CanSetShinyRolls(code)); // and it can be changed again
+        Assert.True(GameCode.SetShinyRolls(code, 4));
+        Assert.Equal(0xE3A00004u, BitConverter.ToUInt32(code, 0x120 + 0x1E));
+    }
+
+    [Fact]
+    public void WithoutTheReads_NothingIsWritten()
+    {
+        byte[] code = Code(0x120);
+        Assert.False(GameCode.CanSetShinyRolls(code));
+        Assert.False(GameCode.SetShinyRolls(code, 16));
+    }
+
+    [Theory]
+    [InlineData(4096, 1)]
+    [InlineData(1024, 4)]
+    [InlineData(256, 16)]
+    [InlineData(2, 255)]
+    public void TheOddsBecomeRolls(int odds, int rolls) => Assert.Equal(rolls, GameCode.RollsFor(odds));
 }

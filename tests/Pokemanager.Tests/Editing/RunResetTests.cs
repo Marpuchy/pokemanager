@@ -1,4 +1,4 @@
-using System.Text.Json.Nodes;
+﻿using System.Text.Json.Nodes;
 using Pokemanager.Model.Editing;
 using Pokemanager.Model.Edits;
 using Pokemanager.Model.Projects;
@@ -179,7 +179,10 @@ public class RunResetTests
 
         Assert.Equal(4, report.TableEdits);
         Assert.True(report.Randomization && report.Shops);
-        Assert.Equal(7, report.GameRules); // shiny, three percentages, the profile and two cap levels
+        // shiny, three percentages, the profile, two cap levels — and the game's own starters, which a reset turns on
+        Assert.Equal(8, report.GameRules);
+        Assert.True(tweaks.OriginalStarters);
+        Assert.Null(tweaks.ShinyOdds);
         Assert.True(report.AffectsRom);
     }
 

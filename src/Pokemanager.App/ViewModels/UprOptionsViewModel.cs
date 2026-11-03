@@ -84,7 +84,8 @@ public partial class UprOptionsViewModel : ObservableObject
             g.Items.Clear();
             foreach (var item in sorted)
                 g.Items.Add(item);
-            if (g.Items.Count > 0)
+            // The Levels page has none of UPR ZX's options (its level modifiers are hidden behind ours) and is all ours.
+            if (g.Items.Count > 0 || g.IsLevels)
                 Groups.Add(g);
         }
 
@@ -170,12 +171,13 @@ public sealed class UprOptionGroupViewModel(string id)
 
     public bool IsTrainers => HasGame && Id == UprOptionCatalog.Trainers;
 
-    public bool IsWild => HasGame && Id == UprOptionCatalog.Wild && Game!.WildAndStaticSupported;
+    /// <summary>
+    /// Every level option of the application in one page (user, 2026-11-03): one value for the whole game, then
+    /// trainers, wild, fixed and starters apart, and the level cap.
+    /// </summary>
+    public bool IsLevels => HasGame && Id == UprOptionCatalog.Levels;
 
-    /// <summary>Fixed Pokémon, gifts and totems travel together in the game's static archive.</summary>
-    public bool IsStatic => HasGame && Id == UprOptionCatalog.Starters && Game!.WildAndStaticSupported;
-
-    /// <summary>Everything else about the whole game: shiny and the level cap.</summary>
+    /// <summary>Everything else about the whole game: shiny.</summary>
     public bool IsMisc => HasGame && Id == UprOptionCatalog.Misc;
 }
 

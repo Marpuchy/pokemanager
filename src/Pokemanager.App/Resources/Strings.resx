@@ -4021,7 +4021,7 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
     <value>The run's progress starts over with it: {0} lost lives come back, {1} roulette spins are forgotten and the level cap goes back to the first step of the plan. The rules stay as they are — the maximum lives, the prizes, how often the roulette comes up and the plan itself.</value>
   </data>
   <data name="Game_ResetRomChecks" xml:space="preserve">
-    <value>These are in the built ROM, so ticking any of them means building it again. Nothing here is touched unless you tick it:</value>
+    <value>All of this is inside the built ROM, so the ROM has to be built again afterwards. Everything starts ticked, so the new adventure is the game as it ships; untick what you want to keep:</value>
   </data>
   <data name="Game_ResetEdits" xml:space="preserve">
     <value>Undo every edit of the game's tables ({0})</value>
@@ -4033,7 +4033,7 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
     <value>Put the shops back as the game has them</value>
   </data>
   <data name="Game_ResetRules" xml:space="preserve">
-    <value>Put back the game options: all shiny, the three level percentages, the difficulty profile and the cap levels you wrote over the plan's</value>
+    <value>Put back the game options: shiny odds, every level percentage, the difficulty profile, the cap levels you wrote over the plan's — and the game's own starters (Rowlet, Litten and Popplio), even if the base ROM came with others</value>
   </data>
   <data name="Game_ResetRunUndo" xml:space="preserve">
     <value>The run put back</value>
@@ -4430,5 +4430,56 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   </data>
   <data name="Status_ModFilesNoEmulator" xml:space="preserve">
     <value> The mod's 3D models could not be placed: no emulator found. Choose it in Settings and build again.</value>
+  </data>
+  <data name="Options_TrainerMoney" xml:space="preserve">
+    <value>Trainers' money</value>
+  </data>
+  <data name="Options_LevelsTitle" xml:space="preserve">
+    <value>Levels</value>
+  </data>
+  <data name="Options_LevelsGlobal" xml:space="preserve">
+    <value>Global levels</value>
+  </data>
+  <data name="Tip_LevelsGlobal" xml:space="preserve">
+    <value>One percentage for the whole game at once: trainers and bosses, wild Pokémon, fixed Pokémon and totems, and the starters. The rows below can still be changed one by one.</value>
+  </data>
+  <data name="Options_LevelsMixed" xml:space="preserve">
+    <value>The rows below are not all the same, so the global value shows 0. Writing a value sets all of them.</value>
+  </data>
+  <data name="Tip_GameLevelsTrainers" xml:space="preserve">
+    <value>Every trainer's Pokémon, bosses included. A level edited by hand keeps its value.</value>
+  </data>
+  <data name="Game_LevelsStarters" xml:space="preserve">
+    <value>Starters</value>
+  </data>
+  <data name="Tip_GameLevelsStarters" xml:space="preserve">
+    <value>The level of the three Pokémon you choose from at the start (Generation 7).</value>
+  </data>
+  <data name="Game_ShinyOdds" xml:space="preserve">
+    <value>Shiny odds: 1 in</value>
+  </data>
+  <data name="Game_ShinyGameOdds" xml:space="preserve">
+    <value>The game's own odds (1 in 4096; the Shiny Charm still counts).</value>
+  </data>
+  <data name="Game_ShinyAll" xml:space="preserve">
+    <value>Every Pokémon that is not shiny-locked comes out shiny.</value>
+  </data>
+  <data name="Game_ShinyOddsReal" xml:space="preserve">
+    <value>About 1 in {0} ({1} tries per Pokémon; the Shiny Charm no longer adds any).</value>
+  </data>
+  <data name="Game_ShinyPresetGame" xml:space="preserve">
+    <value>Game's (1/4096)</value>
+  </data>
+  <data name="Game_ShinyPresetAll" xml:space="preserve">
+    <value>All shiny</value>
+  </data>
+  <data name="Game_ResetBaseModified" xml:space="preserve">
+    <value>Your base ROM was already modified when it was imported (it gives other starters). Starting over gives back the game's starters and everything this application changes, but what the base ROM itself changed — wild Pokémon, trainers, their levels — can only come back from an original ROM of the game: choose one as the base ROM in Settings.</value>
+  </data>
+  <data name="Set_BaseRomOtherGame" xml:space="preserve">
+    <value>That ROM is {0}, and this project is {1}: it was not taken.</value>
+  </data>
+  <data name="Set_ChangeBaseRomTip" xml:space="preserve">
+    <value>Choose the ROM the project starts from. Its data is imported and the project opens again over it when this window closes — pick an original ROM of the game to go back to the game as it ships.</value>
   </data>
 </root>

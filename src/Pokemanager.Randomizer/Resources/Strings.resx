@@ -1050,4 +1050,7 @@
   <data name="Mods_PackingBase" xml:space="preserve">
     <value>Packing the base ROM with the mods ({0} files)…</value>
   </data>
+  <data name="Group_Levels" xml:space="preserve">
+    <value>Levels</value>
+  </data>
 </root>

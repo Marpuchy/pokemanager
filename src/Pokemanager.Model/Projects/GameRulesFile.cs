@@ -38,7 +38,7 @@ public sealed class GameRulesFile
     /// <summary>What it will change, for the question before importing.</summary>
     public int ValueCount => (Tweaks.AlwaysShiny ? 1 : 0) + (Tweaks.LevelCap is null ? 0 : 1) + (Tweaks.LevelCapByMilestones ? 1 : 0)
         + Tweaks.LevelCapOverrides.Count + (Tweaks.TrainerLevelPercent != 0 ? 1 : 0) + (Tweaks.WildLevelPercent != 0 ? 1 : 0)
-        + (Tweaks.StaticLevelPercent != 0 ? 1 : 0) + (Shops.FreeRareCandies ? 1 : 0) + (Shops.MegaStonesOnSale ? 1 : 0);
+        + (Tweaks.StaticLevelPercent != 0 ? 1 : 0) + (Tweaks.StarterLevelPercent != 0 ? 1 : 0) + (Shops.FreeRareCandies ? 1 : 0) + (Shops.MegaStonesOnSale ? 1 : 0);
 
     public static GameRulesFile FromProject(Project project, GameTitle game, string? description = null) => new()
     {

@@ -1,4 +1,4 @@
-using pk3DS.Core.CTR;
+﻿using pk3DS.Core.CTR;
 
 namespace Pokemanager.Model.Data;
 
@@ -107,6 +107,20 @@ public static class GameLevels
             changed += ScaleAt(files[0], (entry * GiftSize) + LevelOffset, percent);
         for (int entry = 0; entry < files[1].Length / EncounterSize; entry++)
             changed += ScaleAt(files[1], (entry * EncounterSize) + LevelOffset, percent);
+        return changed;
+    }
+
+    /// <summary>
+    /// Scales the three starters of a Generation 7 static archive (the first three gifts of file 0), in place.
+    /// </summary>
+    /// <returns>How many levels changed.</returns>
+    public static int ScaleStarters7(byte[][] files, double percent)
+    {
+        if (percent == 0 || files.Length < 1)
+            return 0;
+        int changed = 0;
+        for (int entry = 0; entry < 3 && entry < files[0].Length / GiftSize; entry++)
+            changed += ScaleAt(files[0], (entry * GiftSize) + LevelOffset, percent);
         return changed;
     }
 

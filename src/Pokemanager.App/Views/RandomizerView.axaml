@@ -204,16 +204,11 @@
                     </StackPanel>
                   </Border>
 
-                  <!-- Trainers: the levels of every trainer and what they pay -->
+                  <!-- Trainers: what they pay (their levels are in Levels) -->
                   <Border Classes="card" Width="470" IsVisible="{Binding IsTrainers}">
                     <StackPanel Spacing="4">
-                      <TextBlock Classes="card-title" Text="{x:Static r:Strings.Options_TrainerLevels}" />
-                      <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Game_LevelsHint}" />
-                      <Grid ColumnDefinitions="200,Auto" Margin="0,2">
-                        <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsTrainers}" />
-                        <NumericUpDown Grid.Column="1" Width="130" Value="{Binding Game.TrainerLevelPercent}" Minimum="-90" Maximum="400"
-                                       Increment="5" FormatString="0.##" />
-                      </Grid>
+                      <TextBlock Classes="card-title" Text="{x:Static r:Strings.Options_TrainerMoney}" />
+                      <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Options_OursHint}" />
                       <Grid ColumnDefinitions="200,Auto" Margin="0,2">
                         <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_Money}" />
                         <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
@@ -224,41 +219,53 @@
                                   ToolTip.Tip="{x:Static r:Strings.Game_ResetTip}" />
                         </StackPanel>
                       </Grid>
-                      <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0" IsVisible="{Binding Game.HasPresetTrainerLevel}">
-                        <TextBlock Classes="hint" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="300" Text="{Binding Game.PresetTrainerLevelText}" />
-                        <Button Content="{x:Static r:Strings.Options_ClearPreset}" Command="{Binding Game.ClearPresetTrainerLevelCommand}" />
-                      </StackPanel>
                       <TextBlock Text="{Binding Game.Result}" FontWeight="SemiBold"
                                  IsVisible="{Binding Game.Result, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
                     </StackPanel>
                   </Border>
 
-                  <!-- Wild Pokemon -->
-                  <Border Classes="card" Width="470" IsVisible="{Binding IsWild}">
+                  <!-- Levels: one value for the whole game, then each kind apart -->
+                  <Border Classes="card" Width="470" IsVisible="{Binding IsLevels}">
                     <StackPanel Spacing="4">
-                      <TextBlock Classes="card-title" Text="{x:Static r:Strings.Options_WildLevels}" />
+                      <TextBlock Classes="card-title" Text="{x:Static r:Strings.Options_LevelsTitle}" />
                       <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Game_LevelsHint}" />
+                      <Grid ColumnDefinitions="200,Auto" Margin="0,4,0,6">
+                        <TextBlock Classes="row-label" VerticalAlignment="Center" FontWeight="SemiBold" Text="{x:Static r:Strings.Options_LevelsGlobal}" />
+                        <NumericUpDown Grid.Column="1" Width="130" Value="{Binding Game.AllLevelPercent}" Minimum="-90" Maximum="400"
+                                       Increment="5" FormatString="0.##" ToolTip.Tip="{x:Static r:Strings.Tip_LevelsGlobal}" />
+                      </Grid>
+                      <TextBlock Classes="hint" TextWrapping="Wrap" IsVisible="{Binding Game.AllLevelsMixed}"
+                                 Text="{x:Static r:Strings.Options_LevelsMixed}" />
                       <Grid ColumnDefinitions="200,Auto" Margin="0,2">
+                        <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsTrainers}" />
+                        <NumericUpDown Grid.Column="1" Width="130" Value="{Binding Game.TrainerLevelPercent}" Minimum="-90" Maximum="400"
+                                       Increment="5" FormatString="0.##" ToolTip.Tip="{x:Static r:Strings.Tip_GameLevelsTrainers}" />
+                      </Grid>
+                      <Grid ColumnDefinitions="200,Auto" Margin="0,2" IsEnabled="{Binding Game.WildAndStaticSupported}">
                         <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsWild}" />
                         <NumericUpDown Grid.Column="1" Width="130" Value="{Binding Game.WildLevelPercent}" Minimum="-90" Maximum="400"
                                        Increment="5" FormatString="0.##" ToolTip.Tip="{Binding Game.WildStaticTip}" />
-                      </Grid>                      <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0" IsVisible="{Binding Game.HasPresetWildLevel}">
-                        <TextBlock Classes="hint" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="300" Text="{Binding Game.PresetWildLevelText}" />
-                        <Button Content="{x:Static r:Strings.Options_ClearPreset}" Command="{Binding Game.ClearPresetWildLevelCommand}" />
-                      </StackPanel>
-                    </StackPanel>
-                  </Border>
-
-                  <!-- Fixed Pokemon, gifts and totems -->
-                  <Border Classes="card" Width="470" IsVisible="{Binding IsStatic}">
-                    <StackPanel Spacing="4">
-                      <TextBlock Classes="card-title" Text="{x:Static r:Strings.Options_StaticLevels}" />
-                      <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Game_LevelsHint}" />
-                      <Grid ColumnDefinitions="200,Auto" Margin="0,2">
+                      </Grid>
+                      <Grid ColumnDefinitions="200,Auto" Margin="0,2" IsEnabled="{Binding Game.WildAndStaticSupported}">
                         <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsStatic}" />
                         <NumericUpDown Grid.Column="1" Width="130" Value="{Binding Game.StaticLevelPercent}" Minimum="-90" Maximum="400"
                                        Increment="5" FormatString="0.##" ToolTip.Tip="{Binding Game.WildStaticTip}" />
-                      </Grid>                      <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0" IsVisible="{Binding Game.HasPresetStaticLevel}">
+                      </Grid>
+                      <Grid ColumnDefinitions="200,Auto" Margin="0,2" IsEnabled="{Binding Game.WildAndStaticSupported}">
+                        <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsStarters}" />
+                        <NumericUpDown Grid.Column="1" Width="130" Value="{Binding Game.StarterLevelPercent}" Minimum="-90" Maximum="400"
+                                       Increment="5" FormatString="0.##" ToolTip.Tip="{x:Static r:Strings.Tip_GameLevelsStarters}" />
+                      </Grid>
+                      <!-- What the randomizer preset already carries, which would pile up with ours -->
+                      <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0" IsVisible="{Binding Game.HasPresetTrainerLevel}">
+                        <TextBlock Classes="hint" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="300" Text="{Binding Game.PresetTrainerLevelText}" />
+                        <Button Content="{x:Static r:Strings.Options_ClearPreset}" Command="{Binding Game.ClearPresetTrainerLevelCommand}" />
+                      </StackPanel>
+                      <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0" IsVisible="{Binding Game.HasPresetWildLevel}">
+                        <TextBlock Classes="hint" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="300" Text="{Binding Game.PresetWildLevelText}" />
+                        <Button Content="{x:Static r:Strings.Options_ClearPreset}" Command="{Binding Game.ClearPresetWildLevelCommand}" />
+                      </StackPanel>
+                      <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0" IsVisible="{Binding Game.HasPresetStaticLevel}">
                         <TextBlock Classes="hint" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="300" Text="{Binding Game.PresetStaticLevelText}" />
                         <Button Content="{x:Static r:Strings.Options_ClearPreset}" Command="{Binding Game.ClearPresetStaticLevelCommand}" />
                       </StackPanel>
@@ -312,13 +319,27 @@
                     <StackPanel Spacing="4">
                       <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_ShinyTitle}" />
                       <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Options_OursHint}" />
-                      <CheckBox IsChecked="{Binding Game.AlwaysShiny}" IsEnabled="{Binding Game.ShinySupported}" ToolTip.Tip="{Binding Game.ShinyTip}"
-                                Content="{x:Static r:Strings.Game_Shiny}" />
+                      <Grid ColumnDefinitions="200,Auto" Margin="0,2" IsEnabled="{Binding Game.ShinySupported}" ToolTip.Tip="{Binding Game.ShinyTip}">
+                        <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_ShinyOdds}" />
+                        <NumericUpDown Grid.Column="1" Width="130" Value="{Binding Game.ShinyOdds}" Minimum="1" Maximum="4096"
+                                       Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
+                      </Grid>
+                      <TextBlock Text="{Binding Game.ShinyOddsText}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                      <WrapPanel IsEnabled="{Binding Game.ShinySupported}">
+                        <Button Margin="0,0,6,6" Content="{x:Static r:Strings.Game_ShinyPresetGame}" Command="{Binding Game.SetShinyOddsCommand}" CommandParameter="4096" />
+                        <Button Margin="0,0,6,6" Content="1/1024" Command="{Binding Game.SetShinyOddsCommand}" CommandParameter="1024"
+                                IsEnabled="{Binding Game.ShinyRollsSupported}" />
+                        <Button Margin="0,0,6,6" Content="1/256" Command="{Binding Game.SetShinyOddsCommand}" CommandParameter="256"
+                                IsEnabled="{Binding Game.ShinyRollsSupported}" />
+                        <Button Margin="0,0,6,6" Content="1/64" Command="{Binding Game.SetShinyOddsCommand}" CommandParameter="64"
+                                IsEnabled="{Binding Game.ShinyRollsSupported}" />
+                        <Button Margin="0,0,6,6" Content="{x:Static r:Strings.Game_ShinyPresetAll}" Command="{Binding Game.SetShinyOddsCommand}" CommandParameter="1" />
+                      </WrapPanel>
                     </StackPanel>
                   </Border>
 
-                  <!-- The whole game: the level cap by milestones, with its plan -->
-                  <Border Classes="card" Width="470" IsVisible="{Binding IsMisc}">
+                  <!-- Levels: the level cap by milestones, with its plan -->
+                  <Border Classes="card" Width="470" IsVisible="{Binding IsLevels}">
                     <Border.Styles>
                       <Style Selector="Border.current">
                         <Setter Property="Background" Value="#E8F1FB" />

@@ -96,8 +96,11 @@
         <TextBlock Text="{x:Static r:Strings.Set_BaseRom}" />
         <Grid ColumnDefinitions="*,Auto">
           <TextBlock Text="{Binding BaseRomText}" TextWrapping="Wrap" VerticalAlignment="Center" />
-          <Button Grid.Column="1" Margin="6,0,0,0" Content="{x:Static r:Strings.Set_Change}" Command="{Binding BrowseBaseRomCommand}" />
+          <Button Grid.Column="1" Margin="6,0,0,0" Content="{x:Static r:Strings.Set_Change}" Command="{Binding BrowseBaseRomCommand}"
+                  ToolTip.Tip="{x:Static r:Strings.Set_ChangeBaseRomTip}" />
         </Grid>
+        <TextBlock Classes="error" TextWrapping="Wrap" Text="{Binding BaseRomProblem}"
+                   IsVisible="{Binding BaseRomProblem, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
       </StackPanel>
 
       <!-- Version history of the open project: it used to be a tab of the editor -->

@@ -1,4 +1,4 @@
-using Pokemanager.Model.Data;
+﻿using Pokemanager.Model.Data;
 using Pokemanager.Model.Editing;
 
 namespace Pokemanager.Model.Projects;
@@ -156,6 +156,17 @@ public static class RunReset
     private static int ResetGameRules(GameSettings tweaks)
     {
         int changed = 0;
+        if (tweaks.ShinyOdds is not null)
+        {
+            tweaks.ShinyOdds = null;
+            changed++;
+        }
+        if (!tweaks.OriginalStarters)
+        {
+            // Starting over starts with the game's own three, whatever the base ROM was given before it was imported.
+            tweaks.OriginalStarters = true;
+            changed++;
+        }
         if (tweaks.AlwaysShiny)
         {
             tweaks.AlwaysShiny = false;
@@ -174,6 +185,11 @@ public static class RunReset
         if (tweaks.StaticLevelPercent != 0)
         {
             tweaks.StaticLevelPercent = 0;
+            changed++;
+        }
+        if (tweaks.StarterLevelPercent != 0)
+        {
+            tweaks.StarterLevelPercent = 0;
             changed++;
         }
         if (tweaks.Difficulty is not null)

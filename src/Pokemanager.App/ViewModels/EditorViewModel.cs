@@ -1361,7 +1361,15 @@ public partial class EditorViewModel : ObservableObject
     [RelayCommand]
     private async Task OpenSettings()
     {
-        await dialogs.ShowSettingsAsync(new SettingsViewModel(settings, upr, dialogs, Session.Project, Dump.Title, History));
+        var vm = new SettingsViewModel(settings, upr, dialogs, Session.Project, Dump.Title, History);
+        await dialogs.ShowSettingsAsync(vm);
+        if (vm.BaseRomChanged)
+        {
+            // Everything read so far is the old base's: save and open the project again over the new one.
+            if (await SaveAsync() && main.OpenProject(ProjectPath) is { } error)
+                SetStatus(error, error: true);
+            return;
+        }
         main.Room.ProfileChanged();
         OnPropertyChanged(nameof(EmulatorText));
         Randomizer.RefreshSave();

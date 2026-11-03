@@ -49,6 +49,89 @@ public static class GameStarters
     }
 
     /// <summary>
+    /// Writes the three starters into file 0 of a static archive (species, form 0), in place.
+    /// </summary>
+    /// <returns>How many of the three changed.</returns>
+    public static int SetStarters(byte[][] files, IReadOnlyList<int> species)
+    {
+        if (files.Length < 1 || files[0].Length < 3 * EntrySize)
+            return 0;
+        int changed = 0;
+        for (int slot = 0; slot < 3; slot++)
+        {
+            int at = slot * EntrySize;
+            if (BitConverter.ToUInt16(files[0], at) == species[slot] && files[0][at + 2] == 0)
+                continue;
+            BitConverter.TryWriteBytes(files[0].AsSpan(at, 2), (ushort)species[slot]);
+            files[0][at + 2] = 0;
+            changed++;
+        }
+        return changed;
+    }
+
+    /// <summary>The three species of an already-read static archive (file 0's first three gifts), or null.</summary>
+    public static int[]? Read(GARC.MemGARC garc)
+    {
+        try
+        {
+            byte[] file = garc.GetFile(0);
+            if (file.Length < 3 * EntrySize)
+                return null;
+            int[] starters = [.. Enumerable.Range(0, 3).Select(i => (int)BitConverter.ToUInt16(file, i * EntrySize))];
+            return starters.All(s => s > 0) ? starters : null;
+        }
+        catch (Exception ex) when (ex is InvalidDataException or ArgumentException or IndexOutOfRangeException)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// The three species the starter scene names now, read from the menu at its end (its last three lines are the
+    /// three names, measured in Ultra Sun and Ultra Moon in English and Spanish), or null when those lines are not three
+    /// species names of this language.
+    /// </summary>
+    public static int[]? NamedInScene(string[] lines, IReadOnlyList<string> species)
+    {
+        var menu = lines.Select(l => l.Trim()).Where(l => l.Length > 0).TakeLast(3).ToArray();
+        if (menu.Length != 3)
+            return null;
+        var ids = new int[3];
+        for (int slot = 0; slot < 3; slot++)
+        {
+            int id = -1;
+            for (int s = 1; s < species.Count; s++)
+            {
+                if (string.Equals(species[s], menu[slot], StringComparison.Ordinal))
+                {
+                    id = s;
+                    break;
+                }
+            }
+            if (id < 0)
+                return null;
+            ids[slot] = id;
+        }
+        return ids;
+    }
+
+    /// <summary>
+    /// The type name the scene gives one slot, found in that slot's own lines (the one naming it or the one the game
+    /// fills in by slot), the longest that appears; null when none does.
+    /// </summary>
+    public static string? TypeInScene(string[] lines, int slot, string name, IReadOnlyList<string> types)
+    {
+        foreach (string line in lines)
+        {
+            if (!line.Contains(name, StringComparison.Ordinal) && !line.Contains($"[VAR 0101({slot + 1:0000})]", StringComparison.Ordinal))
+                continue;
+            if (types.Where(t => t.Length > 2 && line.Contains(t, StringComparison.Ordinal)).OrderByDescending(t => t.Length).FirstOrDefault() is { } type)
+                return type;
+        }
+        return null;
+    }
+
+    /// <summary>
     /// One of the three the scene talks about: the name it used to say and the one it should say now, and the same
     /// for the type it names ("the Fire-type Pokémon"). A type of null leaves that part alone.
     /// </summary>

@@ -25,6 +25,17 @@ public sealed class GameSettings
     /// </summary>
     public bool LevelCapByMilestones { get; set; }
 
+    /// <summary>
+    /// The odds of a Pokémon being shiny, as "one in N" (the game's own is one in 4096): null leaves the game's, 1 makes
+    /// every Pokémon that is not shiny-locked shiny. Anything between is written as the number of times the game rolls
+    /// the Pokémon's identity looking for a shiny one (<see cref="Data.GameCode.SetShinyRolls"/>), which is how the
+    /// Shiny Charm works too — so N is approximate below 1 in 16, the most rolls the patch writes is 255.
+    /// </summary>
+    public int? ShinyOdds { get; set; }
+
+    /// <summary>The odds that will be built: <see cref="ShinyOdds"/>, or 1 in 1 for a project made with the old switch.</summary>
+    public int? EffectiveShinyOdds => ShinyOdds ?? (AlwaysShiny ? 1 : null);
+
     /// <summary>Levels the player chose for some steps of the plan (step index → level), over the computed ones.</summary>
     public Dictionary<int, int> LevelCapOverrides { get; set; } = [];
 
@@ -40,7 +51,22 @@ public sealed class GameSettings
     /// <summary>The fixed Pokémon — legendaries, gifts, totems and their allies — as a percentage (Generation 7).</summary>
     public double StaticLevelPercent { get; set; }
 
-    public bool HasLevelChanges => TrainerLevelPercent != 0 || WildLevelPercent != 0 || StaticLevelPercent != 0;
+    /// <summary>
+    /// The three starters, as a percentage (Generation 7). Apart from <see cref="StaticLevelPercent"/>, which leaves
+    /// them alone as UPR ZX does, so a run can start stronger or weaker without moving every legendary with them.
+    /// </summary>
+    public double StarterLevelPercent { get; set; }
+
+    /// <summary>
+    /// Give the three starters the game ships with (Rowlet, Litten and Popplio in Generation 7) when the project does
+    /// not randomize, whatever the base ROM has. A base ROM that was randomized before it was imported carries other
+    /// three, and starting over has to start with the game's own (user, 2026-11-03). A randomization decides them
+    /// itself, so with one on this does nothing.
+    /// </summary>
+    public bool OriginalStarters { get; set; }
+
+    public bool HasLevelChanges => TrainerLevelPercent != 0 || WildLevelPercent != 0 || StaticLevelPercent != 0
+                                   || StarterLevelPercent != 0;
 
     /// <summary>
     /// The cap of the ROM that was built last, which is the one the save has been played on. It is a fact of what was
@@ -67,7 +93,7 @@ public sealed class GameSettings
     public Difficulty.DifficultyLevel? Difficulty { get; set; }
 
     /// <summary>Whether anything at all has to be done at build time.</summary>
-    public bool IsEmpty => !AlwaysShiny && LevelCap is null && !HasLevelChanges;
+    public bool IsEmpty => !AlwaysShiny && LevelCap is null && !HasLevelChanges && !OriginalStarters && ShinyOdds is null;
 
     public GameSettings Clone() => new()
     {
@@ -81,5 +107,8 @@ public sealed class GameSettings
         TrainerLevelPercent = TrainerLevelPercent,
         WildLevelPercent = WildLevelPercent,
         StaticLevelPercent = StaticLevelPercent,
+        StarterLevelPercent = StarterLevelPercent,
+        OriginalStarters = OriginalStarters,
+        ShinyOdds = ShinyOdds,
     };
 }
