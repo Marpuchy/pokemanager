@@ -4419,4 +4419,7 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Editor_BaseWithMods" xml:space="preserve">
     <value>{0} + {1}</value>
   </data>
+  <data name="Mods_StillChecking" xml:space="preserve">
+    <value>Todavía estoy leyendo tu biblioteca: espera un momento y vuelve a marcarlo.</value>
+  </data>
 </root>

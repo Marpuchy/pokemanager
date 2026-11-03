@@ -4419,4 +4419,7 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Editor_BaseWithMods" xml:space="preserve">
     <value>{0} + {1}</value>
   </data>
+  <data name="Mods_StillChecking" xml:space="preserve">
+    <value>Still reading your library: wait a moment and tick it again.</value>
+  </data>
 </root>

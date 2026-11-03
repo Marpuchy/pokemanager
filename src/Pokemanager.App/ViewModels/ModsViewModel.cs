@@ -74,11 +74,8 @@ public sealed partial class ModsViewModel : ObservableObject
         _ = RefreshAllAsync();
     }
 
-    public async Task RefreshAllAsync()
-    {
-        foreach (var card in Mods)
-            await card.RefreshAsync();
-    }
+    /// <summary>All the cards at once: a small plugin is not kept waiting behind a mod with gigabytes to hash.</summary>
+    public Task RefreshAllAsync() => Task.WhenAll(Mods.Select(card => card.RefreshAsync()));
 
     /// <summary>
     /// The session was reopened (a mod went on or off, a build landed): what the cards measure in the ROM moved, while
@@ -149,13 +146,23 @@ public sealed partial class ModCardViewModel : ObservableObject
     [ObservableProperty]
     public partial bool NeedsDownload { get; private set; } = true;
 
-    public bool ShowDownload => CanDownload && NeedsDownload && !IsDownloading;
+    public bool ShowDownload => LibraryRead && CanDownload && NeedsDownload && !IsDownloading;
+
+    /// <summary>
+    /// The library has been read at least once. Until then nothing is known: the line says it is checking, there is
+    /// no Download button and the check box waits, instead of "not downloaded" for a mod that is all there.
+    /// </summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StatusText), nameof(ShowDownload))]
+    public partial bool LibraryRead { get; private set; }
 
     /// <summary>
     /// One line under the name saying where the mod stands: not downloaded, ready, on (and what the ROM gained), or for
     /// a plugin what the emulator's folder holds.
     /// </summary>
-    public string StatusText => IsPlugin
+    public string StatusText => !LibraryRead
+        ? Strings.Mods_Checking
+        : IsPlugin
         ? PluginStateText
         : IsEnabled
             ? MeasuredText
@@ -265,8 +272,11 @@ public sealed partial class ModCardViewModel : ObservableObject
             // removable.
             if (value && !CanBuild)
             {
-                editor.SetStatus(Problem ?? string.Format(Strings.Mods_NothingYet, Mod.Name), error: true);
-                OnPropertyChanged();
+                editor.SetStatus(!LibraryRead
+                    ? Strings.Mods_StillChecking
+                    : Problem ?? string.Format(Strings.Mods_NothingYet, Mod.Name), error: true);
+                // After the binding has finished writing, or the box stays ticked on a mod that is not on.
+                Avalonia.Threading.Dispatcher.UIThread.Post(() => OnPropertyChanged(nameof(IsEnabled)));
                 return;
             }
 
@@ -363,6 +373,8 @@ public sealed partial class ModCardViewModel : ObservableObject
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             FilesSummary = string.Format(Strings.Mods_ReadFailed, ex.Message);
+            Problem = FilesSummary;
+            LibraryRead = true;
             return;
         }
 
@@ -378,6 +390,7 @@ public sealed partial class ModCardViewModel : ObservableObject
         NeedsDownload = Mod.IsPlugin
             ? found.Plugin is null
             : !found.CanBuild || found.Files.Any(f => f.Apart && !f.Present);
+        LibraryRead = true;
         OnPropertyChanged(nameof(HasProblem));
         OnPropertyChanged(nameof(EnableTip));
         RefreshMeasured();

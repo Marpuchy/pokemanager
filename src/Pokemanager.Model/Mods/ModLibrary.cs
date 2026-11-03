@@ -319,9 +319,24 @@ public sealed class ModLibrary(string root)
     }
 
     /// <summary>SHA-256 of a file, upper-case hex: how a file the user provides is told apart from one that lies.</summary>
+    /// <remarks>
+    /// Remembered per (path, size, last write time) for the life of the process: the model archive is 2.3 GB, and
+    /// hashing it again every time the Mods tab is shown or a ROM is built kept the tab on "reading" for many seconds.
+    /// A file that is replaced gets a new size or time and is hashed again.
+    /// </remarks>
     public static string Hash(string path)
     {
-        using var stream = File.OpenRead(path);
-        return Convert.ToHexString(SHA256.HashData(stream));
+        var info = new FileInfo(path);
+        var key = (Path.GetFullPath(path), info.Length, info.LastWriteTimeUtc);
+        if (HashCache.TryGetValue(key, out string? known))
+            return known;
+        string hash;
+        using (var stream = File.OpenRead(path))
+            hash = Convert.ToHexString(SHA256.HashData(stream));
+        HashCache[key] = hash;
+        return hash;
     }
+
+    private static readonly System.Collections.Concurrent.ConcurrentDictionary<(string, long, DateTime), string> HashCache =
+        new();
 }
