@@ -24,12 +24,13 @@ public sealed class DexDetailViewModel : ObservableObject
 {
     private readonly DexEntryViewModel entry;
 
-    public DexDetailViewModel(SaveEditorViewModel owner, SaveDocument doc, SaveNames names, DexEntryViewModel entry, Action<int>? open = null)
+    public DexDetailViewModel(SaveEditorViewModel owner, SaveDocument doc, SaveNames names, DexEntryViewModel entry, Action<int, int>? open = null)
     {
         this.entry = entry;
         ushort species = entry.Species;
         var game = owner.GameNames;
-        var p = doc.Personal(species, 0);
+        byte form = entry.Form;
+        var p = doc.Personal(species, form);
         int[] types = p is null ? [0] : [.. p.Types.Distinct()];
 
         Number = $"#{species:000}";
@@ -83,12 +84,11 @@ public sealed class DexDetailViewModel : ObservableObject
 
         // The ROM's own data (randomization, mods and the project's edits included): how it evolves and what it learns.
         var rom = doc.Rom;
-        Chain = EvolutionChainViewModel.Build(rom, game, species, 0, (s, f) => owner.Sprites.For(s, f),
-            open is null ? null : (s, _) => open(s));
+        Chain = EvolutionChainViewModel.Build(rom, game, species, form, (s, f) => owner.Sprites.For(s, f), open);
 
-        if (species < rom.Learnsets.Length)
+        if (entry.Row < rom.Learnsets.Length)
         {
-            var learnset = rom.Learnsets[species];
+            var learnset = rom.Learnsets[entry.Row];
             Moves = [.. Enumerable.Range(0, learnset.Moves.Length).Select(i => new DexMoveLine(
                 learnset.Levels[i] == 0 ? Strings.Dex_MoveOnEvolution : string.Format(Strings.Dex_MoveLevel, learnset.Levels[i]),
                 learnset.Moves[i] < game.Moves.Count ? game.Moves[learnset.Moves[i]] : $"#{learnset.Moves[i]}",
@@ -131,6 +131,9 @@ public sealed class DexDetailViewModel : ObservableObject
     public int Total { get; }
 
     /// <summary>Registered in the save's Pokédex, as the list's check boxes (two-way).</summary>
+    /// <summary>The save's Pokédex has flags for it (a species of the game's own Pokédex, not a form or a mod's Pokémon).</summary>
+    public bool InDex => entry.InDex;
+
     public bool Seen
     {
         get => entry.Seen;

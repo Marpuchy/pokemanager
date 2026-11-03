@@ -359,6 +359,10 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
     [RelayCommand]
     private void Manage() => main.Manage(Loaded);
 
+    /// <summary>Straight to the Pokédex of the save (user, 2026-11-04: a shortcut on the start page).</summary>
+    [RelayCommand]
+    private void OpenPokedex() => main.Manage(Loaded, pokedex: true);
+
     /// <summary>What the last ▶ Play did (or why it could not), under the project's summary.</summary>
     [ObservableProperty]
     public partial string PlayStatus { get; private set; } = "";

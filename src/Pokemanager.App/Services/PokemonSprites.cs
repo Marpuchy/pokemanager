@@ -62,15 +62,49 @@ public sealed class PokemonSprites
 
     /// <summary>
     /// Canvas of Gen 6 box icons. Gen 7 draws the same sprites on a 64×32 canvas (verified on Ultra Moon: same sprite box,
-    /// 12 px further right and 1 px lower), which looked smaller when fitted into the same space; it is cropped to this.
+    /// 12 px further right and 1 px lower), which looked smaller when fitted into the same space; it is brought to this.
     /// </summary>
     private const int IconWidth = 40, IconHeight = 30;
 
-    /// <summary>A Pokémon box icon on the Gen 6 canvas (Gen 7's wider canvas cropped around the sprite).</summary>
-    private static Bitmap PokemonBitmap(IconImage image) =>
-        ToBitmap(image.Width > IconWidth || image.Height > IconHeight
-            ? Crop(image, (image.Width - IconWidth) / 2, (image.Height - IconHeight) / 2, Math.Min(IconWidth, image.Width), Math.Min(IconHeight, image.Height))
-            : image);
+    /// <summary>
+    /// A Pokémon box icon on the Gen 6 canvas with the sprite centred in it (user, 2026-11-04: "centra las imágenes
+    /// siempre"). The games draw each icon wherever on its canvas — Gen 7 12 px to the right, and the mods' Pokémon
+    /// each in its own place — so the drawn pixels are found and put in the middle. A sprite larger than the canvas
+    /// keeps its centre and loses its edges.
+    /// </summary>
+    private static Bitmap PokemonBitmap(IconImage image) => ToBitmap(Centred(image, IconWidth, IconHeight));
+
+    internal static IconImage Centred(IconImage image, int width, int height)
+    {
+        int minX = image.Width, minY = image.Height, maxX = -1, maxY = -1;
+        for (int y = 0; y < image.Height; y++)
+        for (int x = 0; x < image.Width; x++)
+        {
+            if (image.Rgba[((y * image.Width) + x) * 4 + 3] == 0)
+                continue;
+            minX = Math.Min(minX, x); maxX = Math.Max(maxX, x);
+            minY = Math.Min(minY, y); maxY = Math.Max(maxY, y);
+        }
+        if (maxX < 0)
+            return new IconImage(width, height, new byte[width * height * 4]);
+        // Where the sprite's box starts on the new canvas; negative when it is wider than the canvas.
+        int offsetX = (width - (maxX - minX + 1)) / 2 - minX;
+        int offsetY = (height - (maxY - minY + 1)) / 2 - minY;
+        byte[] rgba = new byte[width * height * 4];
+        for (int y = 0; y < height; y++)
+        {
+            int sy = y - offsetY;
+            if (sy < 0 || sy >= image.Height)
+                continue;
+            for (int x = 0; x < width; x++)
+            {
+                int sx = x - offsetX;
+                if (sx >= 0 && sx < image.Width)
+                    Array.Copy(image.Rgba, ((sy * image.Width) + sx) * 4, rgba, ((y * width) + x) * 4, 4);
+            }
+        }
+        return new IconImage(width, height, rgba);
+    }
 
     /// <summary>Any decoded image as it is (badges, stamps…).</summary>
     public static Bitmap ToBitmap(IconImage image)
@@ -82,14 +116,6 @@ public sealed class PokemonSprites
                 System.Runtime.InteropServices.Marshal.Copy(image.Rgba, y * image.Width * 4, buffer.Address + (y * buffer.RowBytes), image.Width * 4);
         }
         return writeable;
-    }
-
-    private static IconImage Crop(IconImage image, int left, int top, int width, int height)
-    {
-        byte[] rgba = new byte[width * height * 4];
-        for (int y = 0; y < height; y++)
-            Array.Copy(image.Rgba, ((top + y) * image.Width + left) * 4, rgba, y * width * 4, width * 4);
-        return new IconImage(width, height, rgba);
     }
 
     private Bitmap? Bitmap(int index)

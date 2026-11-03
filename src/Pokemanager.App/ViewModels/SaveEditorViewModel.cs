@@ -240,6 +240,12 @@ public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
     // ------------------------------------------------------------------ open / reload
 
     /// <summary>Opens the save the first time the tab is shown.</summary>
+    /// <summary>The save editor's own tab: Pokémon, Bag, Trainer, Pokédex, Locke.</summary>
+    [ObservableProperty]
+    public partial int SelectedTab { get; set; }
+
+    public const int DexTab = 3;
+
     public void EnsureOpen()
     {
         if (Document is null)
@@ -821,27 +827,40 @@ public partial class SaveBagViewModel : ObservableObject
     }
 }
 
-public sealed class DexEntryViewModel(SaveDexViewModel owner, SaveDocument doc, ushort species, string name, PokemonSprites sprites) : ObservableObject
+/// <summary>
+/// One Pokémon of the list: every row of the ROM's personal table, forms included (an expansion mod's 1300-odd), not only
+/// the species the save's Pokédex can register. Seen and caught exist only for those.
+/// </summary>
+public sealed class DexEntryViewModel(SaveDexViewModel owner, SaveDocument doc, ushort species, byte form, int row, string name,
+    PokemonSprites sprites) : ObservableObject
 {
     public ushort Species { get; } = species;
+    public byte Form { get; } = form;
+
+    /// <summary>The row of the personal table (learnset and evolutions are kept per row).</summary>
+    public int Row { get; } = row;
+
     public string Number => $"#{Species:000}";
-    public Avalonia.Media.Imaging.Bitmap? Icon => sprites.For(Species);
+    public Avalonia.Media.Imaging.Bitmap? Icon => sprites.For(Species, Form);
     public string Name { get; } = name;
 
-    public Avalonia.Media.IBrush TypeBrush => doc.Personal(Species, 0)?.Types is { Length: > 0 } t
+    /// <summary>The save's Pokédex has a flag for it: a species (not a form) within the save's own Pokédex.</summary>
+    public bool InDex => Form == 0 && Species <= doc.DexMaxSpecies;
+
+    public Avalonia.Media.IBrush TypeBrush => doc.Personal(Species, Form)?.Types is { Length: > 0 } t
         ? TypeColors.Background(t[0], t[^1])
         : Avalonia.Media.Brushes.Transparent;
 
     public bool Seen
     {
-        get => doc.GetSeen(Species);
-        set { doc.SetSeen(Species, value); owner.Changed(this); }
+        get => InDex && doc.GetSeen(Species);
+        set { if (InDex) { doc.SetSeen(Species, value); owner.Changed(this); } }
     }
 
     public bool Caught
     {
-        get => doc.GetCaught(Species);
-        set { doc.SetCaught(Species, value); owner.Changed(this); }
+        get => InDex && doc.GetCaught(Species);
+        set { if (InDex) { doc.SetCaught(Species, value); owner.Changed(this); } }
     }
 
     public void Refresh() => OnPropertyChanged(string.Empty);
@@ -861,7 +880,8 @@ public partial class SaveDexViewModel : ObservableObject
     [ObservableProperty]
     public partial string Filter { get; set; } = "";
 
-    public string CountText => string.Format(Strings.Dex_Count, all.Count(e => e.Seen), all.Count(e => e.Caught), all.Count);
+    public string CountText => string.Format(Strings.Dex_Count, all.Count(e => e.Seen), all.Count(e => e.Caught), all.Count(e => e.InDex))
+        + " · " + string.Format(Strings.Dex_InList, all.Count);
 
     [ObservableProperty]
     public partial DexEntryViewModel? SelectedEntry { get; set; }
@@ -886,7 +906,17 @@ public partial class SaveDexViewModel : ObservableObject
         this.owner = owner;
         this.doc = doc;
         this.names = names;
-        all = Enumerable.Range(1, doc.DexMaxSpecies).Select(s => new DexEntryViewModel(this, doc, (ushort)s, names.SpeciesName((ushort)s), owner.Sprites)).ToList();
+        // Every Pokémon of the ROM: its species first, then each form (Megas, regional forms…), by personal row.
+        var index = Pokemanager.Model.Data.PersonalIndex.Of(doc.Rom);
+        var game = owner.GameNames;
+        all = [.. Enumerable.Range(1, doc.Rom.Personal.Length - 1)
+            .Select(row => (Row: row, Mon: index.Pokemon(row)))
+            .Where(r => r.Mon is { Species: > 0 })
+            .OrderBy(r => r.Mon!.Value.Species).ThenBy(r => r.Mon!.Value.Form)
+            .Select(r => new DexEntryViewModel(this, doc, (ushort)r.Mon!.Value.Species, (byte)r.Mon.Value.Form, r.Row,
+                r.Mon.Value.Form == 0 ? names.SpeciesName((ushort)r.Mon.Value.Species)
+                    : r.Row < game.PersonalEntries.Count ? game.PersonalEntries[r.Row] : names.SpeciesName((ushort)r.Mon.Value.Species),
+                owner.Sprites))];
         ApplyFilter();
         SelectedEntry = Entries.FirstOrDefault();
     }
@@ -901,14 +931,15 @@ public partial class SaveDexViewModel : ObservableObject
     partial void OnSelectedEntryChanged(DexEntryViewModel? value) =>
         Detail = value is null ? null : new DexDetailViewModel(owner, doc, names, value, OpenSpecies);
 
-    /// <summary>Opens another species' entry (a Pokémon of the evolution line was clicked).</summary>
-    private void OpenSpecies(int species)
+    /// <summary>Opens another Pokémon's entry (one of the evolution line was clicked).</summary>
+    private void OpenSpecies(int species, int form)
     {
-        var target = Entries.FirstOrDefault(e => e.Species == species);
-        if (target is null && all.FirstOrDefault(e => e.Species == species) is not null)
+        bool Match(DexEntryViewModel e) => e.Species == species && e.Form == form;
+        var target = Entries.FirstOrDefault(Match) ?? Entries.FirstOrDefault(e => e.Species == species && e.Form == 0);
+        if (target is null && all.Any(e => e.Species == species))
         {
             Filter = "";
-            target = Entries.FirstOrDefault(e => e.Species == species);
+            target = Entries.FirstOrDefault(Match) ?? Entries.FirstOrDefault(e => e.Species == species && e.Form == 0);
         }
         if (target is not null)
             SelectedEntry = target;
@@ -934,7 +965,7 @@ public partial class SaveDexViewModel : ObservableObject
     [RelayCommand]
     private void AllSeen()
     {
-        foreach (var e in all)
+        foreach (var e in all.Where(e => e.InDex))
             doc.SetSeen(e.Species, true);
         foreach (var e in all) e.Refresh();
         OnPropertyChanged(nameof(CountText));
@@ -944,7 +975,7 @@ public partial class SaveDexViewModel : ObservableObject
     [RelayCommand]
     private void AllCaught()
     {
-        foreach (var e in all)
+        foreach (var e in all.Where(e => e.InDex))
             doc.SetCaught(e.Species, true);
         foreach (var e in all) e.Refresh();
         OnPropertyChanged(nameof(CountText));

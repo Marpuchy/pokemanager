@@ -76,7 +76,7 @@
         </Grid>
       </Border>
 
-      <TabControl Padding="0">
+      <TabControl Padding="0" SelectedIndex="{Binding SelectedTab}">
         <!-- ================= Pokémon ================= -->
         <TabItem Header="{x:Static r:Strings.Save_TabPokemon}">
           <Grid ColumnDefinitions="404,*">
@@ -966,10 +966,10 @@
                     <TextBlock Grid.Column="2" Classes="hint" VerticalAlignment="Center" Text="{Binding Number}" />
                     <TextBlock Grid.Column="3" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
                     <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                      <ToggleButton ToolTip.Tip="{x:Static r:Strings.Tip_DexSeenFlag}" Classes="flag seen" IsChecked="{Binding Seen}">
+                      <ToggleButton ToolTip.Tip="{x:Static r:Strings.Tip_DexSeenFlag}" Classes="flag seen" IsChecked="{Binding Seen}" IsVisible="{Binding InDex}">
                         <TextBlock Text="{x:Static r:Strings.Dex_Seen}" />
                       </ToggleButton>
-                      <ToggleButton ToolTip.Tip="{x:Static r:Strings.Tip_DexCaughtFlag}" Classes="flag caught" IsChecked="{Binding Caught}">
+                      <ToggleButton ToolTip.Tip="{x:Static r:Strings.Tip_DexCaughtFlag}" Classes="flag caught" IsChecked="{Binding Caught}" IsVisible="{Binding InDex}">
                         <TextBlock Text="{x:Static r:Strings.Dex_Caught}" />
                       </ToggleButton>
                     </StackPanel>
@@ -1018,10 +1018,10 @@
                             </Border>
                           </StackPanel>
                           <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Right">
-                            <ToggleButton ToolTip.Tip="{x:Static r:Strings.Tip_DexSeenFlag}" Classes="flag seen large" IsChecked="{Binding Seen}">
+                            <ToggleButton ToolTip.Tip="{x:Static r:Strings.Tip_DexSeenFlag}" Classes="flag seen large" IsChecked="{Binding Seen}" IsVisible="{Binding InDex}">
                               <TextBlock Text="{x:Static r:Strings.Dex_Seen}" />
                             </ToggleButton>
-                            <ToggleButton ToolTip.Tip="{x:Static r:Strings.Tip_DexCaughtFlag}" Classes="flag caught large" IsChecked="{Binding Caught}">
+                            <ToggleButton ToolTip.Tip="{x:Static r:Strings.Tip_DexCaughtFlag}" Classes="flag caught large" IsChecked="{Binding Caught}" IsVisible="{Binding InDex}">
                               <TextBlock Text="{x:Static r:Strings.Dex_Caught}" />
                             </ToggleButton>
                           </StackPanel>

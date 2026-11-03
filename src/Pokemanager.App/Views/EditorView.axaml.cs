@@ -37,6 +37,7 @@ public partial class EditorView : UserControl
                 vm.SaveEditor.EnsureOpen();
                 vm.SaveEditor.SelectSlot(slot);
             }
+
         };
     }
 }

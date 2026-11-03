@@ -1458,6 +1458,12 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Set_PickProgram" xml:space="preserve">
     <value>Elige el programa del emulador</value>
   </data>
+  <data name="Preview_Pokedex" xml:space="preserve">
+    <value>Pokédex</value>
+  </data>
+  <data name="Preview_PokedexTip" xml:space="preserve">
+    <value>Abre la Pokédex de la partida: todos los Pokémon y formas del juego, con stats, habilidades, evoluciones y movimientos.</value>
+  </data>
   <data name="Preview_Manage" xml:space="preserve">
     <value>Gestionar</value>
   </data>
@@ -4733,5 +4739,8 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   </data>
   <data name="Evo_OpenTip" xml:space="preserve">
     <value>Abrir este Pokémon</value>
+  </data>
+  <data name="Dex_InList" xml:space="preserve">
+    <value>{0} Pokémon y formas en la lista</value>
   </data>
 </root>

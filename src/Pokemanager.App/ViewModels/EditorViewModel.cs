@@ -49,6 +49,14 @@ public partial class EditorViewModel : ObservableObject
 
     public void ShowSavePokemon(SaveSlot slot) => PendingSaveSlot = slot;
 
+    /// <summary>Opens on the save's Pokédex (the shortcut of the project preview).</summary>
+    public void ShowSaveDex()
+    {
+        SelectedTab = SaveTabIndex;
+        SaveEditor.EnsureOpen();
+        SaveEditor.SelectedTab = SaveEditorViewModel.DexTab;
+    }
+
     [ObservableProperty]
     public partial EditorSession Session { get; private set; }
 

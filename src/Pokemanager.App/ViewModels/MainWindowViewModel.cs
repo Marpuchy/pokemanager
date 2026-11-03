@@ -64,11 +64,13 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     /// <summary>Opens an already loaded project in the editor, optionally on a Pokémon of the save.</summary>
-    public void Manage(LoadedProject loaded, Pokemanager.Save.SaveSlot? saveSlot = null)
+    public void Manage(LoadedProject loaded, Pokemanager.Save.SaveSlot? saveSlot = null, bool pokedex = false)
     {
         var editor = new EditorViewModel(this, dialogs, Upr, settings, loaded.Path, loaded.Dump, loaded.Session);
         if (saveSlot is { } slot)
             editor.ShowSavePokemon(slot);
+        else if (pokedex)
+            editor.ShowSaveDex();
         settings.TouchProject(loaded.Path);
         CurrentPage = editor;
     }

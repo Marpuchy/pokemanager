@@ -1458,6 +1458,12 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Set_PickProgram" xml:space="preserve">
     <value>Choose the emulator program</value>
   </data>
+  <data name="Preview_Pokedex" xml:space="preserve">
+    <value>Pokédex</value>
+  </data>
+  <data name="Preview_PokedexTip" xml:space="preserve">
+    <value>Opens the Pokédex of the save: every Pokémon and form of the game, with stats, abilities, evolutions and moves.</value>
+  </data>
   <data name="Preview_Manage" xml:space="preserve">
     <value>Manage</value>
   </data>
@@ -4733,5 +4739,8 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   </data>
   <data name="Evo_OpenTip" xml:space="preserve">
     <value>Open this Pokémon</value>
+  </data>
+  <data name="Dex_InList" xml:space="preserve">
+    <value>{0} Pokémon and forms in the list</value>
   </data>
 </root>
