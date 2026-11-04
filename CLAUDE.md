@@ -10,6 +10,9 @@ This document started as the handover of an earlier research session. Everything
 `.resx` resources; Spanish (`Strings.es.resx`) is selectable in Settings and applies on restart.
 Talk to the user in Spanish.
 
+**Design:** follow the skill `pokemanager-design-system` (`.claude/skills/`) for any view, control or style.
+**Ask before implementing** a fix or a feature whose behaviour the user has not spelled out (user, 2026-11-04).
+
 ---
 
 ## 1. What it is
