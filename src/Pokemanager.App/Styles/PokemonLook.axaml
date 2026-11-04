@@ -91,6 +91,15 @@
     <Setter Property="Background" Value="#66FFFFFF" />
     <Setter Property="BorderBrush" Value="#B0FFFFFF" />
   </Style>
+  <!-- Where a dragged Pokémon would land (Controls/SlotDrag) -->
+  <Style Selector="Button.drop > Border.member, Button.drop > Border.cell">
+    <Setter Property="BorderBrush" Value="#1C3A70" />
+    <Setter Property="BorderThickness" Value="3" />
+  </Style>
+  <Style Selector="Button.drop > Border.cell">
+    <Setter Property="Background" Value="#CCE4F7" />
+  </Style>
+
   <Style Selector="Border.cell.selected">
     <Setter Property="Background" Value="#90FFFFFF" />
     <Setter Property="BorderBrush" Value="#0078D7" />
@@ -175,7 +184,7 @@
     <ResourceDictionary>
       <!-- A party member: sprite with held item, name, ★ and level, type chips -->
       <DataTemplate x:Key="PartyCard" x:DataType="vm:IMonCard">
-        <Button Classes="plain" Command="{Binding SelectCommand}" ToolTip.Tip="{Binding Tooltip}">
+        <Button Classes="plain" Command="{Binding SelectCommand}" ToolTip.Tip="{Binding Tooltip}" c:SlotDrag.Enabled="True">
           <Border Classes="member" Classes.empty="{Binding IsEmpty}" Classes.selected="{Binding IsSelected}" Classes.problem="{Binding HasProblem}"
                   Background="{Binding TypeBackground}">
             <Grid ColumnDefinitions="Auto,*">
@@ -214,7 +223,7 @@
 
       <!-- A box cell: sprite on the wallpaper, held item, ★ -->
       <DataTemplate x:Key="BoxCell" x:DataType="vm:IMonCard">
-        <Button Classes="plain" Margin="1" Command="{Binding SelectCommand}" ToolTip.Tip="{Binding Tooltip}">
+        <Button Classes="plain" Margin="1" Command="{Binding SelectCommand}" ToolTip.Tip="{Binding Tooltip}" c:SlotDrag.Enabled="True">
           <Border Classes="cell" Classes.selected="{Binding IsSelected}" Classes.problem="{Binding HasProblem}">
             <Panel>
               <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="52" Height="39" />

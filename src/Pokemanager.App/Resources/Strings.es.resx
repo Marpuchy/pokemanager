@@ -4749,4 +4749,16 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Dex_InList" xml:space="preserve">
     <value>{0} Pokémon y formas en la lista</value>
   </data>
+  <data name="Save_PartyFull" xml:space="preserve">
+    <value>El equipo ya tiene seis Pokémon: suéltalo sobre uno de ellos para intercambiarlos.</value>
+  </data>
+  <data name="Save_PartyNeedsOne" xml:space="preserve">
+    <value>El equipo necesita al menos un Pokémon que no sea un huevo.</value>
+  </data>
+  <data name="Undo_SaveMove" xml:space="preserve">
+    <value>Mover Pokémon</value>
+  </data>
+  <data name="Tip_SaveDragSlot" xml:space="preserve">
+    <value>Arrástralo a otro hueco de una caja o del equipo para moverlo; sobre uno ocupado, se intercambian. Mantenlo sobre ◀ ▶ para cambiar de caja.</value>
+  </data>
 </root>

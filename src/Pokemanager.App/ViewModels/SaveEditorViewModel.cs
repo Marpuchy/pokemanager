@@ -18,6 +18,9 @@ public partial class SlotViewModel(SaveEditorViewModel owner, SaveSlot slot) : O
 {
     public SaveSlot Slot { get; } = slot;
 
+    /// <summary>The editor the slot belongs to (drag and drop moves within one).</summary>
+    public SaveEditorViewModel Owner { get; } = owner;
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Tooltip))]
     public partial string Name { get; set; } = "";
@@ -387,6 +390,29 @@ public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
         CanCreate = empty && (!slot.IsParty || Document.PartyCount < SaveDocument.PartySize);
         foreach (var s in PartySlots.Concat(BoxSlots))
             s.IsSelected = s.Slot == slot;
+    }
+
+    /// <summary>
+    /// Drag and drop between boxes and the party (2026-11-04, user): moves the Pokémon, swapping with whatever is in the
+    /// target, and selects it where it landed. Refusals are said in the status bar.
+    /// </summary>
+    public void MoveSlot(SaveSlot from, SaveSlot to)
+    {
+        if (Document is null)
+            return;
+        switch (Document.Move(from, to, out var placed))
+        {
+            case SaveDocument.MoveResult.Moved:
+                Touch(Strings.Undo_SaveMove);
+                SelectSlot(placed);
+                break;
+            case SaveDocument.MoveResult.PartyFull:
+                editor.SetStatus(Strings.Save_PartyFull, error: true);
+                break;
+            case SaveDocument.MoveResult.PartyWouldBeEmpty:
+                editor.SetStatus(Strings.Save_PartyNeedsOne, error: true);
+                break;
+        }
     }
 
     /// <summary>Called by the Pokémon editor after every change.</summary>

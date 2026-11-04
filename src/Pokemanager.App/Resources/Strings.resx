@@ -4749,4 +4749,16 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Dex_InList" xml:space="preserve">
     <value>{0} Pokémon and forms in the list</value>
   </data>
+  <data name="Save_PartyFull" xml:space="preserve">
+    <value>The party already has six Pokémon: drop it on one of them to swap.</value>
+  </data>
+  <data name="Save_PartyNeedsOne" xml:space="preserve">
+    <value>The party needs at least one Pokémon that is not an egg.</value>
+  </data>
+  <data name="Undo_SaveMove" xml:space="preserve">
+    <value>Move Pokémon</value>
+  </data>
+  <data name="Tip_SaveDragSlot" xml:space="preserve">
+    <value>Drag it onto another slot of a box or the party to move it; onto an occupied one to swap them. Hold it over ◀ ▶ to change box.</value>
+  </data>
 </root>

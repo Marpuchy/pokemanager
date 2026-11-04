@@ -86,7 +86,7 @@
                 <!-- Party -->
                 <Border Classes="card" Margin="0,0,0,8" Padding="6,4,6,6">
                   <StackPanel>
-                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Save_Party}" />
+                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Save_Party}" ToolTip.Tip="{x:Static r:Strings.Tip_SaveDragSlot}" />
                     <ItemsControl ItemsSource="{Binding PartySlots}" ItemTemplate="{StaticResource PartyCard}">
                       <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>

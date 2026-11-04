@@ -27,6 +27,58 @@ public sealed class SaveDocumentTests : IDisposable
         return doc;
     }
 
+    /// <summary>Drag and drop in the save editor (2026-11-04, user): boxes and party, swapping when the target is taken.</summary>
+    [Fact]
+    public void Move_BetweenBoxesAndParty_SwapsAndKeepsTheParty()
+    {
+        var doc = Open();                                   // party: species 1
+        var party0 = new SaveSlot(null, 0);
+        var box0 = new SaveSlot(0, 0);
+        var box1 = new SaveSlot(0, 1);
+        doc.Set(box0, doc.Create(2, 10));
+
+        // The last Pokémon of the party cannot go into an empty box slot.
+        Assert.Equal(SaveDocument.MoveResult.PartyWouldBeEmpty, doc.Move(party0, box1, out _));
+
+        // Box → end of the party.
+        Assert.Equal(SaveDocument.MoveResult.Moved, doc.Move(box0, new SaveSlot(null, 4), out var placed));
+        Assert.Equal(new SaveSlot(null, 1), placed);
+        Assert.Equal(2, doc.PartyCount);
+        Assert.True(doc.IsEmpty(box0));
+        var inParty = doc.Get(placed);
+        Assert.Equal(2, inParty.Species);
+        Assert.Equal(doc.Stats(inParty), (int[])[inParty.Stat_HPMax, inParty.Stat_ATK, inParty.Stat_DEF, inParty.Stat_SPE, inParty.Stat_SPA, inParty.Stat_SPD]);
+
+        // Party → empty box slot: the party closes the gap.
+        Assert.Equal(SaveDocument.MoveResult.Moved, doc.Move(party0, box1, out placed));
+        Assert.Equal(box1, placed);
+        Assert.Equal(1, doc.PartyCount);
+        Assert.Equal(2, doc.Get(party0).Species);
+        Assert.Equal(1, doc.Get(box1).Species);
+
+        // Party ↔ occupied box slot swap.
+        Assert.Equal(SaveDocument.MoveResult.Moved, doc.Move(party0, box1, out _));
+        Assert.Equal(1, doc.Get(party0).Species);
+        Assert.Equal(2, doc.Get(box1).Species);
+
+        // Box ↔ box swap and reorder inside the party.
+        doc.Set(box0, doc.Create(3, 5));
+        Assert.Equal(SaveDocument.MoveResult.Moved, doc.Move(box0, box1, out _));
+        Assert.Equal(2, doc.Get(box0).Species);
+        Assert.Equal(3, doc.Get(box1).Species);
+        doc.Move(box0, new SaveSlot(null, 5), out _);         // party: 1, 2
+        Assert.Equal(SaveDocument.MoveResult.Moved, doc.Move(new SaveSlot(null, 0), new SaveSlot(null, 1), out placed));
+        Assert.Equal((2, 1), ((int)doc.Get(party0).Species, (int)doc.Get(new SaveSlot(null, 1)).Species));
+        Assert.Equal(new SaveSlot(null, 1), placed);
+
+        // A full party takes nothing more from a box.
+        for (int i = 0; i < 4; i++)
+            doc.Set(new SaveSlot(null, 6), doc.Create(1, 5));
+        Assert.Equal(6, doc.PartyCount);
+        Assert.Equal(SaveDocument.MoveResult.PartyFull, doc.Move(box1, new SaveSlot(null, 6), out _));
+        Assert.Empty(doc.Validate());
+    }
+
     [Fact]
     public void Create_UsesTheRom_AbilityGrowthMovesAndStats()
     {

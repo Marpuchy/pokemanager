@@ -457,6 +457,86 @@ public sealed class SaveDocument
         return true;
     }
 
+    /// <summary>Why <see cref="Move"/> refused, or <see cref="MoveResult.Moved"/>.</summary>
+    public enum MoveResult { Moved, Nothing, PartyFull, PartyWouldBeEmpty }
+
+    /// <summary>
+    /// Moves the Pokémon in <paramref name="from"/> to <paramref name="to"/>, between boxes and the party, like the game's
+    /// PC (2026-11-04, user: drag and drop). An occupied target swaps the two; a party slot past the last one means "at
+    /// the end of the party". The party is never left without a Pokémon that is not an egg, and never over six.
+    /// </summary>
+    /// <returns>What happened; <paramref name="placed"/> is where the moved Pokémon ended up.</returns>
+    public MoveResult Move(SaveSlot from, SaveSlot to, out SaveSlot placed)
+    {
+        placed = from;
+        var moving = Get(from);
+        if (moving.Species == 0 || from == to)
+            return MoveResult.Nothing;
+        // A party slot past the end is "the end of the party".
+        if (to.IsParty && to.Slot >= PartyCount)
+            to = new SaveSlot(null, from.IsParty ? PartyCount - 1 : PartyCount);
+        if (from == to)
+            return MoveResult.Nothing;
+        var other = Get(to);
+        bool swap = other.Species != 0;
+
+        if (to.IsParty && !from.IsParty && !swap && PartyCount >= PartySize)
+            return MoveResult.PartyFull;
+
+        // What the party holds afterwards, to keep one Pokémon that can fight.
+        var party = Enumerable.Range(0, PartyCount).Select(i => sav.GetPartySlotAtIndex(i)).ToList();
+        if (from.IsParty && to.IsParty)
+        {
+            if (swap)
+                (party[from.Slot], party[to.Slot]) = (party[to.Slot], party[from.Slot]);
+            else
+            {
+                party.RemoveAt(from.Slot);
+                party.Add(moving);
+            }
+        }
+        else if (from.IsParty)
+        {
+            if (swap)
+                party[from.Slot] = other;
+            else
+                party.RemoveAt(from.Slot);
+        }
+        else if (to.IsParty)
+        {
+            if (swap)
+                party[to.Slot] = moving;
+            else
+                party.Add(moving);
+        }
+        if (party.Count == 0 || party.All(p => p.IsEgg))
+            return MoveResult.PartyWouldBeEmpty;
+
+        if (from.IsParty && to.IsParty)
+        {
+            for (int i = 0; i < party.Count; i++)
+                sav.SetPartySlotAtIndex(party[i], i, EntityImportSettings.None);
+            placed = new SaveSlot(null, party.IndexOf(moving) is var at and >= 0 ? at : to.Slot);
+        }
+        else if (from.IsParty && !swap)
+        {
+            Set(to, moving);
+            sav.DeletePartySlot(from.Slot);
+            placed = to;
+        }
+        else
+        {
+            // Both places hold something afterwards (or the target is the end of the party): write both.
+            if (swap)
+                Set(from, other);
+            placed = Set(to, moving);
+            if (!from.IsParty && !swap)
+                sav.SetBoxSlotAtIndex(sav.BlankPKM, from.Box!.Value, from.Slot, EntityImportSettings.None);
+        }
+        MarkDirty();
+        return MoveResult.Moved;
+    }
+
     /// <summary>A new Pokémon of the trainer: level, ability 1, the latest level-up moves and a random nature and IVs.</summary>
     public PKM Create(ushort species, int level)
     {
