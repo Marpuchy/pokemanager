@@ -682,6 +682,36 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
         }
     }
 
+    // Pokemanager: moves the ROM has no data for. The USUM Expansion Mod lists the Let's Go and Max moves (729-741,
+    // 743-774) with every byte 0: no type, no power, 0 PP. The randomizer drew them like any other, so a Pokémon could
+    // "want to learn" a move with no name and 0 PP (2026-11-04, user: Hydrapple at level 20). They are not banned (that
+    // would change what every other draw picks, so the same seed would give another run): whatever the randomizer chose
+    // is written as it chose it, except an empty move, which becomes a usable one picked from the slot itself, outside
+    // the randomizer's random numbers.
+    private boolean[] emptyMove;
+    private List<Integer> usableMoves;
+
+    private static boolean isEmptyMove(byte[] data) {
+        if (data == null || data.length < 6) return true;
+        if ((data[5] & 0xFF) == 0) return true; // no PP: the game cannot use it
+        for (byte b : data) if (b != 0) return false;
+        return true;
+    }
+
+    private int usableMove(int move, long slot) {
+        if (move <= 0 || emptyMove == null || move >= emptyMove.length || !emptyMove[move]) return move;
+        if (usableMoves == null) {
+            usableMoves = new ArrayList<>();
+            for (int i = 1; i < emptyMove.length; i++) {
+                if (!emptyMove[i] && !GlobalConstants.bannedRandomMoves[i] && !GlobalConstants.zMoves.contains(i)
+                        && !Gen7Constants.bannedMoves.contains(i)) usableMoves.add(i);
+            }
+        }
+        if (usableMoves.isEmpty()) return move;
+        Random own = new Random(slot * 0x9E3779B97F4A7C15L + move);
+        return usableMoves.get(own.nextInt(usableMoves.size()));
+    }
+
     private void loadMoves() {
         try {
             moveGarc = this.readGARC(romEntry.getFile("MoveData"),true);
@@ -689,8 +719,10 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
             moves = new Move[moveCount + 1];
             List<String> moveNames = getStrings(false, romEntry.getInt("MoveNamesTextOffset"));
             byte[][] movesData = Mini.UnpackMini(moveGarc.files.get(0).get(0), "WD");
+            emptyMove = new boolean[moveCount + 1];
             for (int i = 1; i <= moveCount; i++) {
                 byte[] moveData = movesData[i];
+                emptyMove[i] = isEmptyMove(moveData);
                 moves[i] = new Move();
                 moves[i].name = moveNames.get(i);
                 moves[i].number = i;
@@ -1791,6 +1823,7 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
                     pokeOffs += 4;
                     if (tp.resetMoves) {
                         int[] pokeMoves = RomFunctions.getMovesAtLevel(getAltFormeOfPokemon(tp.pokemon, tp.forme).number, movesets, tp.level);
+                        for (int m = 0; m < 4; m++) pokeMoves[m] = usableMove(pokeMoves[m], (5L << 32) + i * 64L + m);
                         for (int m = 0; m < 4; m++) {
                             writeWord(trpoke, pokeOffs + m * 2, pokeMoves[m]);
                         }
@@ -1800,6 +1833,7 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
                             writeWord(trpoke, pokeOffs - 4, newZCrystal);
                         }
                     } else {
+                        for (int m = 0; m < 4; m++) tp.moves[m] = usableMove(tp.moves[m], (5L << 32) + i * 64L + m);
                         writeWord(trpoke, pokeOffs, tp.moves[0]);
                         writeWord(trpoke, pokeOffs + 2, tp.moves[1]);
                         writeWord(trpoke, pokeOffs + 4, tp.moves[2]);
@@ -1929,7 +1963,7 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
                 int j = 0;
                 for (; j < learnt.size(); j++) {
                     MoveLearnt ml = learnt.get(j);
-                    writeWord(moveset, j * 4, ml.move);
+                    writeWord(moveset, j * 4, usableMove(ml.move, (1L << 32) + i * 64L + j));
                     writeWord(moveset, j * 4 + 2, ml.level);
                 }
                 writeWord(moveset, j * 4, 0xFFFF);
@@ -2006,7 +2040,7 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
                 }
                 List<Integer> moves = eggMoves.get(pkmn.number);
                 for (int j = 0; j < moves.size(); j++) {
-                    writeWord(movedata, 4 + (j * 2), moves.get(j));
+                    writeWord(movedata, 4 + (j * 2), usableMove(moves.get(j), (2L << 32) + i * 64L + j));
                 }
             }
             Iterator<Pokemon> iter = altFormeEggMoveFiles.keySet().iterator();
@@ -2019,7 +2053,7 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
                     byte[] movedata = eggMovesGarc.files.get(fileNumber).get(0);
                     List<Integer> moves = eggMoves.get(altForme.number);
                     for (int j = 0; j < moves.size(); j++) {
-                        writeWord(movedata, 4 + (j * 2), moves.get(j));
+                        writeWord(movedata, 4 + (j * 2), usableMove(moves.get(j), (2L << 32) + fileNumber * 64L + j));
                     }
                     formeNumber++;
                     fileNumber++;
@@ -2528,6 +2562,9 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
 
     @Override
     public void setTMMoves(List<Integer> moveIndexes) {
+        List<Integer> chosen = moveIndexes;
+        moveIndexes = new ArrayList<>(chosen.size());
+        for (int i = 0; i < chosen.size(); i++) moveIndexes.add(usableMove(chosen.get(i), (3L << 32) + i));
         String tmDataPrefix = Gen7Constants.getTmDataPrefix(romEntry.romType);
         int offset = find(code, tmDataPrefix);
         if (offset > 0) {
@@ -2668,6 +2705,9 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
 
     @Override
     public void setMoveTutorMoves(List<Integer> moves) {
+        List<Integer> chosen = moves;
+        moves = new ArrayList<>(chosen.size());
+        for (int i = 0; i < chosen.size(); i++) moves.add(usableMove(chosen.get(i), (4L << 32) + i));
         int mtOffset = find(code, Gen7Constants.tutorsPrefix);
         if (mtOffset > 0) {
             mtOffset += Gen7Constants.tutorsPrefix.length() / 2;
