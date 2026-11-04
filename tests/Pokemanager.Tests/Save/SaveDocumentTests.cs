@@ -203,7 +203,7 @@ public sealed class SaveDocumentTests : IDisposable
         doc.Money = 50_000_000; // clamped
         doc.SetBadge(2, true);
         var pouch = doc.Pouches.First(p => p.Type == InventoryType.Medicine);
-        ushort potion = SaveDocument.PouchItems(pouch)[0];
+        ushort potion = doc.PouchItems(pouch)[0];
         doc.SetPouch(pouch, [(potion, 5)]);
         doc.SetCaught(4, true);
 

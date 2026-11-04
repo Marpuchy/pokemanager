@@ -107,6 +107,42 @@ public sealed class RealExpansionTests
     }
 
     /// <summary>
+    /// The mod's own Mega Stones (505-520, 961+) are items PKHeX's Ultra Sun lists do not have, and the game keeps them in
+    /// the Items pocket (2026-11-04, user: "the Mega Stones give this error, but they are in my bag in game"). The pocket
+    /// comes from the ROM's item table, so they are safe for the game, can be picked and can be given.
+    /// </summary>
+    [Fact]
+    public void TheModsMegaStones_GoInTheItemsPocket()
+    {
+        Assert.SkipWhen(Paths() is null, "POKEMANAGER_USUM_DUMP / POKEMANAGER_MOD_LIBRARY are not set.");
+
+        var (_, session) = Open(withMod: true);
+        var rom = session.Original;
+        string dir = Directory.CreateTempSubdirectory("pokemanager-expansion-bag-").FullName;
+        try
+        {
+            var sav = new SAV7USUM { OT = "Test", Language = (int)LanguageID.English };
+            string path = Path.Combine(dir, "main");
+            File.WriteAllBytes(path, sav.Write().ToArray());
+            var doc = SaveDocument.Open(path, rom);
+            doc.Set(new SaveSlot(null, 0), doc.Create(25, 5));
+
+            var items = doc.Pouches.First(p => p.Type == InventoryType.Items);
+            Assert.Contains((ushort)517, doc.PouchItems(items));
+            Assert.Contains((ushort)520, doc.PouchItems(items));
+            Assert.DoesNotContain((ushort)517, doc.PouchItems(doc.Pouches.First(p => p.Type == InventoryType.Medicine)));
+            doc.SetPouch(items, [(517, 1), (520, 1)]);
+            Assert.Empty(doc.Validate());
+            Assert.Equal(1, doc.GiveItem(1000, 1));
+            Assert.True(doc.HasItem(1000));
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
+
+    /// <summary>
     /// The mod keeps the game's icon table and appends the new species' icons after it, in species order: Meltan is
     /// the first icon after the egg, and every species up to the last one has its own.
     /// </summary>

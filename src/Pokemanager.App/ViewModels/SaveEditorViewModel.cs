@@ -618,7 +618,7 @@ public sealed partial class BagItemViewModel(SaveBagViewModel owner, PocketViewM
     [RelayCommand]
     private void Remove() => owner.RemoveItem(this);
 }
-public sealed class PocketViewModel(InventoryPouch pouch, SaveNames names)
+public sealed class PocketViewModel(InventoryPouch pouch, IReadOnlyList<ushort> itemIds, SaveNames names)
 {
     public InventoryPouch Pouch { get; } = pouch;
 
@@ -657,8 +657,8 @@ public sealed class PocketViewModel(InventoryPouch pouch, SaveNames names)
         _ => "#7D8A96",
     }));
 
-    public IReadOnlyList<ushort> ItemIds { get; } = SaveDocument.PouchItems(pouch);
-    public IReadOnlyList<string> ItemNames { get; } = SaveDocument.PouchItems(pouch).Select(i => names.ItemName(i)).ToList();
+    public IReadOnlyList<ushort> ItemIds { get; } = itemIds;
+    public IReadOnlyList<string> ItemNames { get; } = itemIds.Select(i => names.ItemName(i)).ToList();
     public int MaxCount => Pouch.MaxCount;
     public int Capacity => Pouch.Items.Length;
     public System.Collections.ObjectModel.ObservableCollection<BagItemViewModel> Items { get; } = [];
@@ -764,7 +764,7 @@ public partial class SaveBagViewModel : ObservableObject
         this.owner = owner;
         this.doc = doc;
         this.descriptions = descriptions;
-        Pockets = doc.Pouches.Select(p => new PocketViewModel(p, names)).ToList();
+        Pockets = doc.Pouches.Select(p => new PocketViewModel(p, doc.PouchItems(p), names)).ToList();
         foreach (var pocket in Pockets)
         {
             foreach (var item in pocket.Pouch.Items.Where(i => i.Index != 0))

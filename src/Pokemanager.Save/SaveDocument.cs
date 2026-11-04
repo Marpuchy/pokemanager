@@ -720,7 +720,7 @@ public sealed class SaveDocument
 
         foreach (var pouch in bag.Pouches)
         {
-            var legal = pouch.GetAllItems().ToArray().Select(i => (int)i).ToHashSet();
+            var legal = PouchItems(pouch).Select(i => (int)i).ToHashSet();
             foreach (var item in pouch.Items.Where(i => i.Index != 0))
             {
                 if (!legal.Contains(item.Index))
@@ -760,8 +760,31 @@ public sealed class SaveDocument
     public bool HasItem(int item) =>
         item > 0 && bag.Pouches.Any(p => p.Items.Any(i => i.Index == item && i.Count > 0));
 
-    /// <summary>Item IDs a pouch accepts.</summary>
-    public static IReadOnlyList<ushort> PouchItems(InventoryPouch pouch) => pouch.GetAllItems().ToArray();
+    private readonly Dictionary<InventoryType, IReadOnlyList<ushort>> pouchItems = [];
+
+    /// <summary>
+    /// Item IDs a pouch accepts: PKHeX's list for the save's game, plus the items <b>the ROM</b> adds that PKHeX does not
+    /// know, in the pocket the ROM's item table puts them (2026-11-04, user: the USUM Expansion's Mega Stones, items
+    /// 505-520 and 961+, are in the game's bag but were reported as "cannot go in the Items pocket"). Measured on Ultra
+    /// Sun: every item of each PKHeX pouch has the same pocket field in the item table (Items 0, Medicine 1, TMs 2,
+    /// Berries 3, Key items 4, Z-crystals 5, Battle items 6), so the pouch's field is read from its own items.
+    /// </summary>
+    public IReadOnlyList<ushort> PouchItems(InventoryPouch pouch)
+    {
+        if (pouchItems.TryGetValue(pouch.Type, out var cached))
+            return cached;
+        var legal = pouch.GetAllItems().ToArray();
+        var items = Rom.Items;
+        var known = bag.Pouches.SelectMany(p => p.GetAllItems().ToArray()).ToHashSet();
+        var field = legal.Where(i => i < items.Length).GroupBy(i => items[i].PocketField)
+            .OrderByDescending(g => g.Count()).Select(g => (int?)g.Key).FirstOrDefault();
+        var list = legal.ToList();
+        if (field is { } f)
+            for (int i = 1; i < items.Length && i <= ushort.MaxValue; i++)
+                if (!known.Contains((ushort)i) && items[i].PocketField == f && items[i].Write().Any(b => b != 0))
+                    list.Add((ushort)i);
+        return pouchItems[pouch.Type] = list;
+    }
 
     /// <summary>Replaces the contents of a pouch with (item, count) pairs, in order.</summary>
     public void SetPouch(InventoryPouch pouch, IEnumerable<(int Item, int Count)> items)
@@ -790,7 +813,8 @@ public sealed class SaveDocument
     {
         if (item <= 0 || count <= 0)
             return 0;
-        var pouch = bag.Pouches.FirstOrDefault(p => p.CanContain((ushort)item));
+        var pouch = bag.Pouches.FirstOrDefault(p => p.CanContain((ushort)item))
+                    ?? bag.Pouches.FirstOrDefault(p => PouchItems(p).Contains((ushort)item));
         if (pouch is null)
             return 0;
 
