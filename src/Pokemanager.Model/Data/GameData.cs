@@ -83,9 +83,13 @@ public sealed class GameData
     /// </summary>
     public IReadOnlyDictionary<int, int> MegaStoneBySpecies { get; }
 
+    /// <summary>Every (species, form) the mega evolution table turns a Pokémon into: forms that only exist in battle.</summary>
+    public IReadOnlySet<(int Species, int Form)> MegaForms { get; }
+
     private GameData(GameTitle title, PersonalInfoXY[] personal, Move[] moves, Learnset6[] learnsets, string[] moveDescriptions,
-        Trainer[] trainers, Item[] items, (int[] Stones, Dictionary<int, int> BySpecies) mega, EvolutionSlots[] evolutions)
+        Trainer[] trainers, Item[] items, (int[] Stones, Dictionary<int, int> BySpecies, HashSet<(int, int)> Forms) mega, EvolutionSlots[] evolutions)
     {
+        MegaForms = mega.Forms;
         Evolutions = evolutions;
         Title = title;
         Personal = personal;
@@ -154,15 +158,16 @@ public sealed class GameData
     /// argument and a spare; method 1 is "hold this item", and the argument is the stone. Verified on the real X dump:
     /// 30 stones, exactly the items whose names end in -ite minus the Eviolite, which is not one.
     /// </summary>
-    private static (int[] Stones, Dictionary<int, int> BySpecies) ReadMegaStoneTable(RomFsLayers layers, GameTitle title)
+    private static (int[] Stones, Dictionary<int, int> BySpecies, HashSet<(int, int)> Forms) ReadMegaStoneTable(RomFsLayers layers, GameTitle title)
     {
         try
         {
             int items = ReadItems(layers, title).Length;
             if (items == 0)
-                return ([], []);
+                return ([], [], []);
             var stones = new SortedSet<int>();
             var bySpecies = new Dictionary<int, int>();
+            var forms = new HashSet<(int, int)>();
             byte[][] files = ReadFiles(layers, title.Layout().MegaEvolutions);
             for (int species = 0; species < files.Length; species++)
             {
@@ -171,17 +176,19 @@ public sealed class GameData
                     continue;
                 for (int i = 0; i < mega.Method.Length; i++)
                 {
+                    if (mega.Method[i] != 0 && mega.Form[i] != 0)
+                        forms.Add((species, mega.Form[i]));
                     if (mega.Method[i] != 1 || mega.Argument[i] == 0 || mega.Argument[i] >= items)
                         continue;
                     stones.Add(mega.Argument[i]);
                     bySpecies.TryAdd(species, mega.Argument[i]);
                 }
             }
-            return ([.. stones], bySpecies);
+            return ([.. stones], bySpecies, forms);
         }
         catch (Exception ex) when (ex is FileNotFoundException or DirectoryNotFoundException or InvalidDataException or ArgumentException)
         {
-            return ([], []);
+            return ([], [], []);
         }
     }
 

@@ -55,7 +55,37 @@ public static class ModBuilder
         BuildShops(session, randomizedTitleDirectory, outputs);
         BuildGameSettings(session, randomizedTitleDirectory, outputs);
         BuildStarterText(session, outputs);
+        BuildBattleSafety(session, outputs);
         return outputs;
+    }
+
+    /// <summary>
+    /// Last, over everything else: no trainer or fixed Pokémon starts a battle in a mega or battle-only form, and no
+    /// team carries more than one Mega Stone or Z-crystal (<see cref="BattleSafety"/>). Only what changes is written.
+    /// </summary>
+    private static void BuildBattleSafety(EditorSession session, Dictionary<string, byte[]> outputs)
+    {
+        var data = session.Current;
+        var layout = data.Layout;
+        if (layout.TrainerData.Length > 0 && layout.TrainerPokemon.Length > 0
+            && session.Layers.Has(layout.TrainerData) && session.Layers.Has(layout.TrainerPokemon))
+        {
+            var records = BuiltOrRead(session, outputs, layout.TrainerData);
+            var teams = BuiltOrRead(session, outputs, layout.TrainerPokemon);
+            byte[][] recordFiles = records.Files, teamFiles = teams.Files;
+            if (BattleSafety.FixTrainers(data, data.Title, recordFiles, teamFiles) > 0)
+            {
+                outputs["romfs/" + layout.TrainerData] = GARC.PackGARC(recordFiles, records.Version, records.ContentPadding).Data;
+                outputs["romfs/" + layout.TrainerPokemon] = GARC.PackGARC(teamFiles, teams.Version, teams.ContentPadding).Data;
+            }
+        }
+        if (data.Title.Generation() == 7 && layout.Statics.Length > 0 && session.Layers.Has(layout.Statics))
+        {
+            var statics = BuiltOrRead(session, outputs, layout.Statics);
+            byte[][] files = statics.Files;
+            if (BattleSafety.FixStatics7(data, files) > 0)
+                outputs["romfs/" + layout.Statics] = GARC.PackGARC(files, statics.Version, statics.ContentPadding).Data;
+        }
     }
 
     /// <summary>

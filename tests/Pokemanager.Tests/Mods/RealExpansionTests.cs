@@ -165,4 +165,39 @@ public sealed class RealExpansionTests
         Assert.False(string.IsNullOrWhiteSpace(names.Abilities[272]));
         Assert.True(names.Abilities.Count > 300);
     }
+
+    /// <summary>
+    /// What hung the user's battle against Hala (2026-11-04): the mod's megas sit among the ordinary forms, so the
+    /// randomizer can hand a trainer Mega Staraptor itself, and the difficulty can add a stone to a team that already
+    /// has a Z-crystal. The build takes both out.
+    /// </summary>
+    [Fact]
+    public void BattleSafety_TakesMegaFormsAndASecondSpecialItemOut()
+    {
+        Assert.SkipWhen(Paths() is null, "POKEMANAGER_USUM_DUMP / POKEMANAGER_MOD_LIBRARY are not set.");
+        var (_, session) = Open(withMod: true);
+        var data = session.Current;
+        const int Staraptor = 398;
+        Assert.Contains((Staraptor, 1), data.MegaForms);
+        int staraptorite = data.MegaStoneBySpecies[Staraptor];
+
+        byte[][] records = [.. Pokemanager.Model.Data.GameData.ReadFiles(session.Layers, data.Layout.TrainerData)];
+        byte[][] teams = [.. Pokemanager.Model.Data.GameData.ReadFiles(session.Layers, data.Layout.TrainerPokemon)];
+        var hala = Trainer.Read(data.Title, records[23], teams[23]);
+        var team = hala.Team.ToList();
+        team[0].Item = 782; // Fightinium Z
+        team[^1].Species = Staraptor;
+        team[^1].Form = 1;
+        team[^1].Item = staraptorite;
+        records[23] = hala.WriteData().ToArray();
+        teams[23] = hala.WriteTeam().ToArray();
+
+        Assert.True(BattleSafety.FixTrainers(data, data.Title, records, teams) >= 2);
+
+        var fixedTeam = Trainer.Read(data.Title, records[23], teams[23]).Team.ToList();
+        Assert.Equal(0, fixedTeam[^1].Form);
+        Assert.Equal(staraptorite, fixedTeam[^1].Item); // the ace keeps its stone
+        Assert.Equal(0, fixedTeam[0].Item);             // and the Z-crystal goes
+        Assert.Equal(0, BattleSafety.FixTrainers(data, data.Title, records, teams));
+    }
 }
