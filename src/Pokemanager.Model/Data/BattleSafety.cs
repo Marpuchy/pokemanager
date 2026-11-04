@@ -46,6 +46,19 @@ public static class BattleSafety
         (1024, 1), (1024, 2),               // Terapagos Terastal and Stellar (mod)
     ];
 
+    /// <summary>
+    /// Totem forms (2026-11-04, user): the game only uses them in its totem battles, never in a trainer's team, and
+    /// UPR ZX puts them there as ordinary forms — Hala's team in the user's Ultra Moon carried a Totem Lurantis in the
+    /// battle that hung. In trainer teams they go back to the Pokémon's own form; the totem battles keep theirs.
+    /// </summary>
+    private static readonly HashSet<(int Species, int Form)> TotemForms =
+    [
+        (20, 2), (105, 2), (735, 1), (738, 1), (743, 1), (752, 1), (754, 1), (758, 1), (777, 1), (778, 2), (778, 3), (784, 1),
+    ];
+
+    /// <summary>A totem form, which only a totem battle should have.</summary>
+    public static bool IsTotem(int species, int form) => form != 0 && TotemForms.Contains((species, form));
+
     /// <summary>Minior's core forms (7-13): the shell breaks in battle.</summary>
     private const int Minior = 774;
 
@@ -102,10 +115,10 @@ public static class BattleSafety
         int touched = 0;
         List<TrainerMon> Team() => trainer.Team.ToList();
 
-        // 1. Out of battle-only forms; a mega form becomes its Pokémon holding the stone it needs.
+        // 1. Out of battle-only and totem forms; a mega form becomes its Pokémon holding the stone it needs.
         foreach (var mon in Team())
         {
-            if (!IsBattleOnly(data, mon.Species, mon.Form))
+            if (!IsBattleOnly(data, mon.Species, mon.Form) && !IsTotem(mon.Species, mon.Form))
                 continue;
             if (data.MegaStoneByForm.TryGetValue((mon.Species, mon.Form), out int stone) && stone != 0)
                 mon.Item = stone;
@@ -199,7 +212,9 @@ public static class BattleSafety
             for (int at = 0; at + size <= entries.Length; at += size)
             {
                 int species = BitConverter.ToUInt16(entries, at + SpeciesOffset);
-                if (species == 0 || !IsBattleOnly(data, species, entries[at + FormOffset]))
+                int form = entries[at + FormOffset];
+                // A gift is never a totem; the encounters file holds the real totem battles, which keep theirs.
+                if (species == 0 || !(IsBattleOnly(data, species, form) || (file == 0 && IsTotem(species, form))))
                     continue;
                 entries[at + FormOffset] = 0;
                 changed++;

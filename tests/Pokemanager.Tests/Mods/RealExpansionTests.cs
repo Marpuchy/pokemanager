@@ -194,6 +194,9 @@ public sealed class RealExpansionTests
         team[0].Form = 1;
         team[0].Item = 0;
         team[^1].Item = 782;
+        // And a Totem Lurantis in the middle, as UPR ZX put it in the user's Ultra Moon.
+        team[1].Species = 754;
+        team[1].Form = 1;
         records[23] = hala.WriteData().ToArray();
         teams[23] = hala.WriteTeam().ToArray();
 
@@ -206,6 +209,7 @@ public sealed class RealExpansionTests
         Assert.Equal(staraptorite, fixedTeam[^1].Item);  // and mega evolves with its stone
         Assert.Equal(1, fixedTeam.Count(m => BattleSafety.IsZCrystal(m.Item)));
         Assert.False(BattleSafety.IsZCrystal(fixedTeam[^1].Item));
+        Assert.DoesNotContain(fixedTeam, m => BattleSafety.IsTotem(m.Species, m.Form)); // no totem outside a totem battle
         Assert.Equal(0, BattleSafety.FixTrainers(data, data.Title, records, teams)); // nothing left to do
     }
 }
