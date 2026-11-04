@@ -86,10 +86,14 @@ public sealed class GameData
     /// <summary>Every (species, form) the mega evolution table turns a Pokémon into: forms that only exist in battle.</summary>
     public IReadOnlySet<(int Species, int Form)> MegaForms { get; }
 
+    /// <summary>The Mega Stone each mega form needs (Charizard's two each have their own); 0 when it is not a stone.</summary>
+    public IReadOnlyDictionary<(int Species, int Form), int> MegaStoneByForm { get; }
+
     private GameData(GameTitle title, PersonalInfoXY[] personal, Move[] moves, Learnset6[] learnsets, string[] moveDescriptions,
-        Trainer[] trainers, Item[] items, (int[] Stones, Dictionary<int, int> BySpecies, HashSet<(int, int)> Forms) mega, EvolutionSlots[] evolutions)
+        Trainer[] trainers, Item[] items, (int[] Stones, Dictionary<int, int> BySpecies, Dictionary<(int, int), int> Forms) mega, EvolutionSlots[] evolutions)
     {
-        MegaForms = mega.Forms;
+        MegaForms = mega.Forms.Keys.ToHashSet();
+        MegaStoneByForm = mega.Forms;
         Evolutions = evolutions;
         Title = title;
         Personal = personal;
@@ -158,7 +162,7 @@ public sealed class GameData
     /// argument and a spare; method 1 is "hold this item", and the argument is the stone. Verified on the real X dump:
     /// 30 stones, exactly the items whose names end in -ite minus the Eviolite, which is not one.
     /// </summary>
-    private static (int[] Stones, Dictionary<int, int> BySpecies, HashSet<(int, int)> Forms) ReadMegaStoneTable(RomFsLayers layers, GameTitle title)
+    private static (int[] Stones, Dictionary<int, int> BySpecies, Dictionary<(int, int), int> Forms) ReadMegaStoneTable(RomFsLayers layers, GameTitle title)
     {
         try
         {
@@ -167,7 +171,7 @@ public sealed class GameData
                 return ([], [], []);
             var stones = new SortedSet<int>();
             var bySpecies = new Dictionary<int, int>();
-            var forms = new HashSet<(int, int)>();
+            var forms = new Dictionary<(int, int), int>();
             byte[][] files = ReadFiles(layers, title.Layout().MegaEvolutions);
             for (int species = 0; species < files.Length; species++)
             {
@@ -177,7 +181,7 @@ public sealed class GameData
                 for (int i = 0; i < mega.Method.Length; i++)
                 {
                     if (mega.Method[i] != 0 && mega.Form[i] != 0)
-                        forms.Add((species, mega.Form[i]));
+                        forms.TryAdd((species, mega.Form[i]), mega.Method[i] == 1 && mega.Argument[i] < items ? mega.Argument[i] : 0);
                     if (mega.Method[i] != 1 || mega.Argument[i] == 0 || mega.Argument[i] >= items)
                         continue;
                     stones.Add(mega.Argument[i]);

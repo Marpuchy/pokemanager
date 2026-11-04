@@ -216,6 +216,17 @@ public sealed class Trainer
 
     public IEnumerable<TrainerMon> Team => Enumerable.Range(0, Count).Select(i => Member(i)!);
 
+    /// <summary>Exchanges two team members, everything about them included.</summary>
+    public void Swap(int a, int b)
+    {
+        if (a == b || (uint)a >= Count || (uint)b >= Count)
+            return;
+        if (six is not null)
+            (six.Team[a], six.Team[b]) = (six.Team[b], six.Team[a]);
+        else if (seven is not null)
+            (seven.Pokemon[a], seven.Pokemon[b]) = (seven.Pokemon[b], seven.Pokemon[a]);
+    }
+
     /// <summary>The record as the game stores it.</summary>
     public byte[] WriteData() => six?.Write() ?? WriteSeven().Data ?? rawData;
 

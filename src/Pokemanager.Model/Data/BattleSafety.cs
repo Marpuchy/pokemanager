@@ -57,45 +57,37 @@ public static class BattleSafety
         form != 0 && (data.MegaForms.Contains((species, form)) || BattleOnlyForms.Contains((species, form))
                       || (species == Minior && form >= 7));
 
+    /// <summary>The held Z-crystal of a type in game order (the crystals 776-793 follow the Pokédex's order of types).</summary>
+    private static readonly int[] ZCrystalByType =
+        // Normal Fighting Flying Poison Ground Rock Bug Ghost Steel Fire Water Grass Electric Psychic Ice Dragon Dark Fairy
+        [776, 782, 785, 783, 784, 788, 787, 789, 792, 777, 778, 780, 779, 786, 781, 790, 791, 793];
+
     /// <summary>
-    /// Every trainer of the two archives, in place: battle-only forms back to the Pokémon's own form, and at most one
-    /// special item a team — one Mega Stone or one Z-crystal, the one held furthest back in the team (where the game puts
-    /// its ace) wins and the others hold nothing.
+    /// Every trainer of the two archives, in place, the way the user asked for it (2026-11-04): a team carries at most
+    /// one Z-crystal and one Mega Stone; <b>the mega is the last Pokémon</b>, sent out as itself and mega evolving in
+    /// battle with its own stone; <b>the Z-crystal is never on the last one</b>. In detail:
+    /// <list type="bullet">
+    /// <item>A Pokémon in a battle-only form goes back to its own form; one that was a mega keeps its mega as its stone.</item>
+    /// <item>Of the Pokémon holding their own stone, the one furthest back stays the mega and is moved to the last slot;
+    /// any other Mega Stone is taken away.</item>
+    /// <item>Of the Z-crystals, the one furthest back stays; if it is on the last Pokémon it moves to the one before (a
+    /// team of one keeps none). The crystal is the type of the strongest damaging move of whoever holds it, so it can
+    /// be used.</item>
+    /// </list>
     /// </summary>
-    /// <returns>How many Pokémon changed.</returns>
+    /// <returns>How many things changed.</returns>
     public static int FixTrainers(GameData data, GameTitle title, byte[][] dataFiles, byte[][] teamFiles)
     {
         var stones = data.MegaStones.ToHashSet();
+        var ownStones = data.MegaStoneByForm.Where(p => p.Value != 0)
+            .GroupBy(p => p.Key.Species).ToDictionary(g => g.Key, g => g.Select(p => p.Value).ToHashSet());
         int changed = 0;
         for (int id = 0; id < Math.Min(dataFiles.Length, teamFiles.Length); id++)
         {
             var trainer = Trainer.Read(title, dataFiles[id], teamFiles[id]);
-            if (trainer.Unreadable)
+            if (trainer.Unreadable || trainer.Count == 0)
                 continue;
-            var team = trainer.Team.ToList();
-            int touched = 0;
-            foreach (var mon in team)
-            {
-                if (IsBattleOnly(data, mon.Species, mon.Form))
-                {
-                    mon.Form = 0;
-                    touched++;
-                }
-            }
-
-            bool Special(TrainerMon m) => stones.Contains(m.Item) || IsZCrystal(m.Item);
-            if (team.FindLastIndex(Special) is var keep and >= 0)
-            {
-                for (int slot = 0; slot < team.Count; slot++)
-                {
-                    if (slot != keep && Special(team[slot]))
-                    {
-                        team[slot].Item = 0;
-                        touched++;
-                    }
-                }
-            }
-
+            int touched = FixTeam(data, trainer, stones, ownStones);
             if (touched == 0)
                 continue;
             changed += touched;
@@ -103,6 +95,93 @@ public static class BattleSafety
             teamFiles[id] = trainer.WriteTeam().ToArray();
         }
         return changed;
+    }
+
+    private static int FixTeam(GameData data, Trainer trainer, HashSet<int> stones, Dictionary<int, HashSet<int>> ownStones)
+    {
+        int touched = 0;
+        List<TrainerMon> Team() => trainer.Team.ToList();
+
+        // 1. Out of battle-only forms; a mega form becomes its Pokémon holding the stone it needs.
+        foreach (var mon in Team())
+        {
+            if (!IsBattleOnly(data, mon.Species, mon.Form))
+                continue;
+            if (data.MegaStoneByForm.TryGetValue((mon.Species, mon.Form), out int stone) && stone != 0)
+                mon.Item = stone;
+            mon.Form = 0;
+            touched++;
+        }
+
+        // 2. One mega, the last Pokémon.
+        bool OwnStone(TrainerMon m) => ownStones.TryGetValue(m.Species, out var own) && own.Contains(m.Item);
+        var team = Team();
+        int mega = team.FindLastIndex(OwnStone);
+        for (int slot = 0; slot < team.Count; slot++)
+        {
+            if (slot != mega && stones.Contains(team[slot].Item))
+            {
+                team[slot].Item = 0;
+                touched++;
+            }
+        }
+        int last = team.Count - 1;
+        if (mega >= 0 && mega != last)
+        {
+            trainer.Swap(mega, last);
+            touched++;
+        }
+
+        // 3. One Z-crystal, never on the last Pokémon.
+        team = Team();
+        int z = team.FindLastIndex(m => IsZCrystal(m.Item));
+        for (int slot = 0; slot < team.Count; slot++)
+        {
+            if (slot != z && IsZCrystal(team[slot].Item))
+            {
+                team[slot].Item = 0;
+                touched++;
+            }
+        }
+        if (z == last && z >= 0)
+        {
+            int crystal = team[z].Item;
+            team[z].Item = 0;
+            touched++;
+            if (team.Count >= 2)
+            {
+                var holder = team[last - 1];
+                holder.Item = UsableCrystal(data, holder) ?? crystal;
+            }
+        }
+
+        // 4. A team that keeps either has the record say it carries items (Generation 6 ignores them otherwise).
+        team = Team();
+        if (touched > 0 && team.Any(m => stones.Contains(m.Item) || IsZCrystal(m.Item)))
+        {
+            trainer.HeldItems = true;
+            if (data.Title.Generation() == 7)
+                trainer.Flag = true;
+        }
+        return touched;
+    }
+
+    /// <summary>The Z-crystal of the type of the Pokémon's strongest damaging move, or null when it has none.</summary>
+    private static int? UsableCrystal(GameData data, TrainerMon mon)
+    {
+        int best = -1, type = -1;
+        for (int i = 0; i < 4; i++)
+        {
+            int move = mon.GetMove(i);
+            if (move <= 0 || move >= data.Moves.Length)
+                continue;
+            var m = data.Moves[move];
+            if (m.Category == 0 || m.Power <= best)
+                continue;
+            best = m.Power;
+            type = m.Type;
+        }
+        return (uint)type < ZCrystalByType.Length ? ZCrystalByType[type] : null;
     }
 
     /// <summary>Gift entries of the Generation 7 static archive (file 0) and encounters, totems and allies (file 1).</summary>

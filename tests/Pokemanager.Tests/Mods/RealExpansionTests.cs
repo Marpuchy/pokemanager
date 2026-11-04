@@ -167,37 +167,45 @@ public sealed class RealExpansionTests
     }
 
     /// <summary>
-    /// What hung the user's battle against Hala (2026-11-04): the mod's megas sit among the ordinary forms, so the
-    /// randomizer can hand a trainer Mega Staraptor itself, and the difficulty can add a stone to a team that already
-    /// has a Z-crystal. The build takes both out.
+    /// What hung the user's battle against Hala (2026-11-04), and the rule they asked for: the mod's megas sit among the
+    /// ordinary forms, so the randomizer can hand a trainer Mega Staraptor itself. The build sends it out as Staraptor
+    /// holding its stone, as the last Pokémon, so it mega evolves in battle; the Z-crystal stays on another one.
     /// </summary>
     [Fact]
-    public void BattleSafety_TakesMegaFormsAndASecondSpecialItemOut()
+    public void BattleSafety_MegaLastAndAsItself_ZCrystalNeverLast()
     {
         Assert.SkipWhen(Paths() is null, "POKEMANAGER_USUM_DUMP / POKEMANAGER_MOD_LIBRARY are not set.");
         var (_, session) = Open(withMod: true);
         var data = session.Current;
         const int Staraptor = 398;
         Assert.Contains((Staraptor, 1), data.MegaForms);
-        int staraptorite = data.MegaStoneBySpecies[Staraptor];
+        int staraptorite = data.MegaStoneByForm[(Staraptor, 1)];
+        Assert.NotEqual(0, staraptorite);
 
         byte[][] records = [.. Pokemanager.Model.Data.GameData.ReadFiles(session.Layers, data.Layout.TrainerData)];
         byte[][] teams = [.. Pokemanager.Model.Data.GameData.ReadFiles(session.Layers, data.Layout.TrainerPokemon)];
+
+        // Hala: Mega Staraptor (form 1, no item) in the first slot and the Fightinium Z on the last one.
         var hala = Trainer.Read(data.Title, records[23], teams[23]);
         var team = hala.Team.ToList();
-        team[0].Item = 782; // Fightinium Z
-        team[^1].Species = Staraptor;
-        team[^1].Form = 1;
-        team[^1].Item = staraptorite;
+        int count = team.Count;
+        Assert.True(count >= 3);
+        team[0].Species = Staraptor;
+        team[0].Form = 1;
+        team[0].Item = 0;
+        team[^1].Item = 782;
         records[23] = hala.WriteData().ToArray();
         teams[23] = hala.WriteTeam().ToArray();
 
-        Assert.True(BattleSafety.FixTrainers(data, data.Title, records, teams) >= 2);
+        Assert.True(BattleSafety.FixTrainers(data, data.Title, records, teams) > 0);
 
         var fixedTeam = Trainer.Read(data.Title, records[23], teams[23]).Team.ToList();
-        Assert.Equal(0, fixedTeam[^1].Form);
-        Assert.Equal(staraptorite, fixedTeam[^1].Item); // the ace keeps its stone
-        Assert.Equal(0, fixedTeam[0].Item);             // and the Z-crystal goes
-        Assert.Equal(0, BattleSafety.FixTrainers(data, data.Title, records, teams));
+        Assert.Equal(count, fixedTeam.Count);
+        Assert.Equal(Staraptor, fixedTeam[^1].Species);  // the mega is the last one
+        Assert.Equal(0, fixedTeam[^1].Form);             // sent out as itself
+        Assert.Equal(staraptorite, fixedTeam[^1].Item);  // and mega evolves with its stone
+        Assert.Equal(1, fixedTeam.Count(m => BattleSafety.IsZCrystal(m.Item)));
+        Assert.False(BattleSafety.IsZCrystal(fixedTeam[^1].Item));
+        Assert.Equal(0, BattleSafety.FixTrainers(data, data.Title, records, teams)); // nothing left to do
     }
 }
