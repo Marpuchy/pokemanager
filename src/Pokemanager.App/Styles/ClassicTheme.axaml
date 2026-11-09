@@ -251,6 +251,8 @@
     <Setter Property="Padding" Value="6,2" />
     <Setter Property="MinHeight" Value="0" />
     <Setter Property="FontSize" Value="12" />
+    <!-- Rows that name nothing ("???", "(?)": unused ids of the game's item text) are not offered. -->
+    <Setter Property="IsVisible" Value="{ReflectionBinding Converter={x:Static c:UnnamedEntry.Visible}}" />
   </Style>
   <Style Selector="ComboBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter, ComboBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
     <Setter Property="Background" Value="{StaticResource ClassicSelectionBrush}" />
