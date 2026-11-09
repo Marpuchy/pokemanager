@@ -4773,4 +4773,19 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Tip_DifficultyMegaFrom" xml:space="preserve">
     <value>From this level on, the trainers this profile gives megas to carry the Mega Stone of their last Pokémon. Applied with the profile.</value>
   </data>
+  <data name="Detail_OriginalStats" xml:space="preserve">
+    <value>Original</value>
+  </data>
+  <data name="Detail_OriginalStatsTitle" xml:space="preserve">
+    <value>Base stats before your edits</value>
+  </data>
+  <data name="Detail_OriginalColumn" xml:space="preserve">
+    <value>Original</value>
+  </data>
+  <data name="Detail_NowColumn" xml:space="preserve">
+    <value>Now</value>
+  </data>
+  <data name="Tip_DetailOriginalStats" xml:space="preserve">
+    <value>Shows this Pokémon's base stats as the ROM has them (mod and randomization included) before this project's edits, next to the current ones.</value>
+  </data>
 </root>

@@ -49,6 +49,14 @@ public partial class SpeciesDetailViewModel : ObservableObject
     }
 
     public int BaseStatTotal => Stats.Sum(s => (int)(s.Value ?? 0));
+
+    /// <summary>
+    /// The base stats the ROM has before this project's edits, next to the current ones (2026-11-09, user: "un botón al
+    /// lado del BST que te muestre los stats originales"). Rebuilt on every read, so it follows the edits.
+    /// </summary>
+    public IReadOnlyList<OriginalStatRow> OriginalStats =>
+        [.. Stats.Select(s => new OriginalStatRow(s.Label, s.OriginalInt, (int)(s.Value ?? 0))),
+         new OriginalStatRow(Strings.Badge_Total, Stats.Sum(s => s.OriginalInt), BaseStatTotal)];
     public bool IsLearnsetModified => session.IsModified(GameTables.Learnsets, Id, GameTables.LevelUp);
     public bool IsModified => session.IsModified(P, Id) || session.IsModified(GameTables.Learnsets, Id) || IsEvolutionModified;
 
@@ -200,7 +208,11 @@ public partial class SpeciesDetailViewModel : ObservableObject
             : [];
 
         foreach (var stat in Stats)
-            stat.PropertyChanged += (_, _) => OnPropertyChanged(nameof(BaseStatTotal));
+            stat.PropertyChanged += (_, _) =>
+            {
+                OnPropertyChanged(nameof(BaseStatTotal));
+                OnPropertyChanged(nameof(OriginalStats));
+            };
         // The colored header follows the types as they are edited.
         foreach (var type in Types)
             type.PropertyChanged += (_, _) => NotifyHeader();
@@ -323,4 +335,11 @@ public partial class LearnsetRowViewModel(SpeciesDetailViewModel owner, int leve
 
     [RelayCommand]
     private void Remove() => owner.RemoveRow(this);
+}
+
+/// <summary>One base stat as the ROM has it and as the project leaves it.</summary>
+public sealed record OriginalStatRow(string Label, int Original, int Current)
+{
+    public string Difference => Current == Original ? "" : (Current - Original).ToString("+0;-0");
+    public bool Changed => Current != Original;
 }

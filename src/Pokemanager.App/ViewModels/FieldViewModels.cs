@@ -18,6 +18,9 @@ public abstract class FieldViewModel(EditorSession session, string table, int id
     /// What the field is, from the resources (<c>Tip_Field_&lt;table&gt;_&lt;field&gt;</c>, the team slot of a trainer dropped
     /// so the six share one text), or null when nothing is written for it.
     /// </summary>
+    /// <summary>The value the ROM has before the project's edits (mod and randomization included).</summary>
+    public int OriginalInt => Session.GetOriginal(Table, Id, Field).GetValue<int>();
+
     public string? Description =>
         Strings.ResourceManager.GetString($"Tip_Field_{Table}_{Field[(Field.IndexOf('.') + 1)..]}", Strings.Culture);
 

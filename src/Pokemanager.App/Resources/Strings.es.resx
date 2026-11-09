@@ -4773,4 +4773,19 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Tip_DifficultyMegaFrom" xml:space="preserve">
     <value>A partir de este nivel, los entrenadores a los que el perfil da megas llevan la megapiedra de su último Pokémon. Se aplica con el perfil.</value>
   </data>
+  <data name="Detail_OriginalStats" xml:space="preserve">
+    <value>Originales</value>
+  </data>
+  <data name="Detail_OriginalStatsTitle" xml:space="preserve">
+    <value>Stats base sin tus cambios</value>
+  </data>
+  <data name="Detail_OriginalColumn" xml:space="preserve">
+    <value>Original</value>
+  </data>
+  <data name="Detail_NowColumn" xml:space="preserve">
+    <value>Ahora</value>
+  </data>
+  <data name="Tip_DetailOriginalStats" xml:space="preserve">
+    <value>Muestra los stats base de este Pokémon tal como los tiene la ROM (con el mod y la randomización) antes de los retoques del proyecto, junto a los actuales.</value>
+  </data>
 </root>

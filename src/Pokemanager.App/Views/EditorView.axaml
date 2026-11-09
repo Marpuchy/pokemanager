@@ -218,6 +218,33 @@
                               <TextBlock Classes="badge-value" Text="{Binding BaseStatTotal}" />
                             </StackPanel>
                           </Border>
+                          <!-- The ROM's own base stats, before this project's edits -->
+                          <Button Content="{x:Static r:Strings.Detail_OriginalStats}" ToolTip.Tip="{x:Static r:Strings.Tip_DetailOriginalStats}">
+                            <Button.Flyout>
+                              <Flyout Placement="BottomEdgeAlignedRight">
+                                <StackPanel Spacing="4" MinWidth="240">
+                                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Detail_OriginalStatsTitle}" />
+                                  <Grid ColumnDefinitions="90,56,56,48">
+                                    <TextBlock Grid.Column="1" Classes="hint" Text="{x:Static r:Strings.Detail_OriginalColumn}" HorizontalAlignment="Right" />
+                                    <TextBlock Grid.Column="2" Classes="hint" Text="{x:Static r:Strings.Detail_NowColumn}" HorizontalAlignment="Right" />
+                                  </Grid>
+                                  <ItemsControl ItemsSource="{Binding OriginalStats}">
+                                    <ItemsControl.ItemTemplate>
+                                      <DataTemplate x:DataType="vm:OriginalStatRow">
+                                        <Grid ColumnDefinitions="90,56,56,48" Margin="0,1">
+                                          <TextBlock Text="{Binding Label}" />
+                                          <TextBlock Grid.Column="1" Text="{Binding Original}" HorizontalAlignment="Right" FontWeight="SemiBold" />
+                                          <TextBlock Grid.Column="2" Text="{Binding Current}" HorizontalAlignment="Right" />
+                                          <TextBlock Grid.Column="3" Text="{Binding Difference}" HorizontalAlignment="Right" Foreground="#7A4B00"
+                                                     FontWeight="SemiBold" IsVisible="{Binding Changed}" />
+                                        </Grid>
+                                      </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                  </ItemsControl>
+                                </StackPanel>
+                              </Flyout>
+                            </Button.Flyout>
+                          </Button>
                           <Button Content="{x:Static r:Strings.Detail_Revert}" Command="{Binding RevertCommand}" IsEnabled="{Binding IsModified}" />
                         </StackPanel>
                       </Grid>
