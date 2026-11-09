@@ -181,6 +181,58 @@
                    </StackPanel>
                   </Border>
 
+                  <!-- Trainers: the options that come once per kind of trainer, as one table -->
+                  <Border Classes="card" Width="760" IsVisible="{Binding HasKindTable}">
+                    <StackPanel Spacing="4" DataContext="{Binding KindTable}" x:DataType="vm:TrainerKindTableViewModel">
+                      <TextBlock Classes="card-title" Text="{x:Static r:Strings.TrainerKinds_Title}" />
+                      <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.TrainerKinds_Hint}" />
+                      <Grid ColumnDefinitions="180,*,*,*" Margin="0,6,0,2">
+                        <TextBlock FontWeight="SemiBold" Text="{x:Static r:Strings.TrainerKinds_Option}" />
+                        <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{x:Static vm:TrainerKindTableViewModel.RegularHeader}" />
+                        <TextBlock Grid.Column="2" FontWeight="SemiBold" Text="{x:Static vm:TrainerKindTableViewModel.ImportantHeader}" />
+                        <TextBlock Grid.Column="3" FontWeight="SemiBold" Text="{x:Static vm:TrainerKindTableViewModel.BossHeader}" />
+                      </Grid>
+                      <ItemsControl ItemsSource="{Binding Rows}">
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate x:DataType="vm:TrainerKindRowViewModel">
+                            <Border Classes="info-row">
+                              <Grid ColumnDefinitions="180,*,*,*" MinHeight="28" ToolTip.Tip="{Binding Tip}">
+                                <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Spacing="6">
+                                  <TextBlock Text="{Binding Label}" VerticalAlignment="Center" />
+                                  <TextBlock Classes="hint" FontSize="11" Text="{x:Static r:Strings.TrainerKinds_Ours}" IsVisible="{Binding IsOurs}"
+                                             VerticalAlignment="Center" />
+                                </StackPanel>
+                                <ContentControl Grid.Column="1" Content="{Binding Regular}" VerticalAlignment="Center" />
+                                <ContentControl Grid.Column="2" Content="{Binding Important}" VerticalAlignment="Center" />
+                                <ContentControl Grid.Column="3" Content="{Binding Boss}" VerticalAlignment="Center" />
+                              </Grid>
+                            </Border>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.DataTemplates>
+                          <DataTemplate DataType="vm:TrainerKindCellViewModel">
+                            <Panel>
+                              <CheckBox IsVisible="{Binding IsSwitch}" IsChecked="{Binding Option.BoolValue}" IsEnabled="{Binding Option.IsEnabled}" />
+                              <NumericUpDown IsVisible="{Binding IsNumber}" Value="{Binding Option.IntValue}" Minimum="{Binding Option.Min}"
+                                             Maximum="{Binding Option.Max}" Increment="1" FormatString="0" ParsingNumberStyle="Integer"
+                                             Width="116" HorizontalAlignment="Left" IsEnabled="{Binding Option.IsEnabled}" />
+                              <StackPanel IsVisible="{Binding IsMegaCell}" Orientation="Horizontal" Spacing="6">
+                                <CheckBox IsChecked="{Binding Items.Mega}" VerticalAlignment="Center" />
+                                <NumericUpDown Width="116" Value="{Binding Items.MegaFromLevel}" Minimum="1" Maximum="100" Increment="1"
+                                               FormatString="0" ParsingNumberStyle="Integer" IsEnabled="{Binding Items.Mega}" />
+                              </StackPanel>
+                              <StackPanel IsVisible="{Binding IsZCell}" Orientation="Horizontal" Spacing="6">
+                                <CheckBox IsChecked="{Binding Items.Z}" VerticalAlignment="Center" />
+                                <NumericUpDown Width="116" Value="{Binding Items.ZFromLevel}" Minimum="1" Maximum="100" Increment="1"
+                                               FormatString="0" ParsingNumberStyle="Integer" IsEnabled="{Binding Items.Z}" />
+                              </StackPanel>
+                            </Panel>
+                          </DataTemplate>
+                        </ItemsControl.DataTemplates>
+                      </ItemsControl>
+                    </StackPanel>
+                  </Border>
+
                   <!-- Trainers: the difficulty of the run, which writes over every trainer -->
                   <Border Classes="card" Width="470" IsVisible="{Binding HasDifficulty}">
                     <StackPanel Spacing="4" DataContext="{Binding Difficulty}" x:DataType="vm:DifficultyViewModel"
@@ -201,40 +253,6 @@
                       <TextBlock Text="{Binding Selected.Detail}" TextWrapping="Wrap" Margin="0,2" />
                       <Button Content="{x:Static r:Strings.Difficulty_Apply}" Command="{Binding ApplyCommand}" HorizontalAlignment="Left" />
                       <TextBlock Text="{Binding Result}" TextWrapping="Wrap" Classes="hint" />
-                    </StackPanel>
-                  </Border>
-
-                  <!-- Trainers: who mega evolves and who carries a Z-crystal, by kind and level -->
-                  <Border Classes="card" Width="470" IsVisible="{Binding IsTrainers}">
-                    <StackPanel Spacing="4">
-                      <TextBlock Classes="card-title" Text="{x:Static r:Strings.TrainerItems_Title}" />
-                      <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.TrainerItems_Hint}" />
-                      <Grid ColumnDefinitions="120,*,*" Margin="0,4,0,0">
-                        <TextBlock Classes="row-label" FontWeight="SemiBold" Text="{x:Static r:Strings.TrainerItems_Kind}" />
-                        <TextBlock Grid.Column="1" Classes="row-label" FontWeight="SemiBold" Text="{x:Static r:Strings.TrainerItems_Mega}" />
-                        <TextBlock Grid.Column="2" Classes="row-label" FontWeight="SemiBold" Text="{x:Static r:Strings.TrainerItems_Z}"
-                                   IsVisible="{Binding Game.HasZCrystals}" />
-                      </Grid>
-                      <ItemsControl ItemsSource="{Binding Game.TrainerItems}">
-                        <ItemsControl.ItemTemplate>
-                          <DataTemplate x:DataType="vm:TrainerItemRowViewModel">
-                            <Grid ColumnDefinitions="120,*,*" Margin="0,2">
-                              <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{Binding Name}" />
-                              <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" ToolTip.Tip="{x:Static r:Strings.TrainerItems_MegaTip}">
-                                <CheckBox IsChecked="{Binding Mega}" VerticalAlignment="Center" />
-                                <NumericUpDown Width="90" Value="{Binding MegaFromLevel}" Minimum="1" Maximum="100" Increment="1"
-                                               FormatString="0" ParsingNumberStyle="Integer" IsEnabled="{Binding Mega}" />
-                              </StackPanel>
-                              <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" ToolTip.Tip="{x:Static r:Strings.TrainerItems_ZTip}"
-                                          IsVisible="{Binding $parent[ItemsControl].((vm:UprOptionGroupViewModel)DataContext).Game.HasZCrystals}">
-                                <CheckBox IsChecked="{Binding Z}" VerticalAlignment="Center" />
-                                <NumericUpDown Width="90" Value="{Binding ZFromLevel}" Minimum="1" Maximum="100" Increment="1"
-                                               FormatString="0" ParsingNumberStyle="Integer" IsEnabled="{Binding Z}" />
-                              </StackPanel>
-                            </Grid>
-                          </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                      </ItemsControl>
                     </StackPanel>
                   </Border>
 

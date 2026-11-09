@@ -76,6 +76,8 @@ public partial class UprOptionsViewModel : ObservableObject
             groups[UprOptionCatalog.Misc].Items.Add(vm);
         }
 
+        BuildTrainerTable(groups[UprOptionCatalog.Trainers], game?.Invoke());
+
         // Catalog order within each group (uncatalogued options last).
         var order = UprOptionCatalog.Options.Keys.Select((k, i) => (k, i)).ToDictionary(p => p.k, p => p.i);
         foreach (var g in groups.Values)
@@ -94,6 +96,36 @@ public partial class UprOptionsViewModel : ObservableObject
         SelectedGroup = Groups.FirstOrDefault();
         IsLoaded = true;
         LoadStatus = "";
+    }
+
+    /// <summary>The options that come once per kind of trainer, taken out of the columns into one table.</summary>
+    private void BuildTrainerTable(UprOptionGroupViewModel group, GameTweaksViewModel? tweaks)
+    {
+        var rows = new List<TrainerKindRowViewModel>();
+        void Upr(string label, string regular, string important, string boss)
+        {
+            if (!group.Items.Contains(byName.GetValueOrDefault(boss)!) || !byName.TryGetValue(regular, out var r)
+                || !byName.TryGetValue(important, out var i) || !byName.TryGetValue(boss, out var b)
+                || !group.Items.Contains(r) || !group.Items.Contains(i))
+                return;
+            group.Items.Remove(r);
+            group.Items.Remove(i);
+            group.Items.Remove(b);
+            rows.Add(new(label, b.Tip, TrainerKindCellViewModel.For(r), TrainerKindCellViewModel.For(i), TrainerKindCellViewModel.For(b), false));
+        }
+        Upr(Strings.TrainerKinds_Extra, "AdditionalRegularTrainerPokemon", "AdditionalImportantTrainerPokemon", "AdditionalBossTrainerPokemon");
+        Upr(Strings.TrainerKinds_HeldItems, "RandomizeHeldItemsForRegularTrainerPokemon",
+            "RandomizeHeldItemsForImportantTrainerPokemon", "RandomizeHeldItemsForBossTrainerPokemon");
+        if (tweaks is not null)
+        {
+            var items = tweaks.TrainerItems; // boss, important, ordinary
+            rows.Add(new(Strings.TrainerItems_Mega, Strings.TrainerItems_MegaTip, TrainerKindCellViewModel.Mega(items[2]),
+                TrainerKindCellViewModel.Mega(items[1]), TrainerKindCellViewModel.Mega(items[0]), true));
+            if (tweaks.HasZCrystals)
+                rows.Add(new(Strings.TrainerItems_Z, Strings.TrainerItems_ZTip, TrainerKindCellViewModel.Z(items[2]),
+                    TrainerKindCellViewModel.Z(items[1]), TrainerKindCellViewModel.Z(items[0]), true));
+        }
+        group.KindTable = rows.Count > 0 ? new TrainerKindTableViewModel(rows) : null;
     }
 
     public void Fail(string message)
@@ -160,6 +192,11 @@ public sealed class UprOptionGroupViewModel(string id)
     public DifficultyViewModel? Difficulty { get; set; }
 
     public bool HasDifficulty => Difficulty is not null;
+
+    /// <summary>The trainer options that come once per kind of trainer, as one table (trainers group only).</summary>
+    public TrainerKindTableViewModel? KindTable { get; set; }
+
+    public bool HasKindTable => KindTable is not null;
 
     /// <summary>Our own game options; each group shows the ones about its subject.</summary>
     public GameTweaksViewModel? Game { get; set; }

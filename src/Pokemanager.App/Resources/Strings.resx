@@ -4824,4 +4824,22 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="TrainerItems_Undo" xml:space="preserve">
     <value>Megas and Z-crystals · {0}</value>
   </data>
+  <data name="TrainerKinds_Title" xml:space="preserve">
+    <value>By kind of trainer</value>
+  </data>
+  <data name="TrainerKinds_Hint" xml:space="preserve">
+    <value>The options that come once for each kind of trainer, side by side. Extra Pokémon and random held items are the randomizer's (they need a new randomization); mega and Z-crystal are this application's, written when the ROM is built: the level is the trainer's last Pokémon's, below it or switched off it carries neither, from it on it always does.</value>
+  </data>
+  <data name="TrainerKinds_Extra" xml:space="preserve">
+    <value>Extra Pokémon</value>
+  </data>
+  <data name="TrainerKinds_HeldItems" xml:space="preserve">
+    <value>Random held items</value>
+  </data>
+  <data name="TrainerKinds_Option" xml:space="preserve">
+    <value>Option</value>
+  </data>
+  <data name="TrainerKinds_Ours" xml:space="preserve">
+    <value>built</value>
+  </data>
 </root>

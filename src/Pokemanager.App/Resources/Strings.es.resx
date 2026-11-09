@@ -4824,4 +4824,22 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="TrainerItems_Undo" xml:space="preserve">
     <value>Megas y cristales Z · {0}</value>
   </data>
+  <data name="TrainerKinds_Title" xml:space="preserve">
+    <value>Por tipo de entrenador</value>
+  </data>
+  <data name="TrainerKinds_Hint" xml:space="preserve">
+    <value>Las opciones que van una vez por cada tipo de entrenador, lado a lado. Pokémon extra y objetos aleatorios son del randomizer (hace falta randomizar de nuevo); mega y cristal Z son de esta aplicación y se escriben al crear la ROM: cuenta el nivel de su último Pokémon, por debajo o desactivado no lleva nada, desde ese nivel siempre.</value>
+  </data>
+  <data name="TrainerKinds_Extra" xml:space="preserve">
+    <value>Pokémon extra</value>
+  </data>
+  <data name="TrainerKinds_HeldItems" xml:space="preserve">
+    <value>Objetos aleatorios</value>
+  </data>
+  <data name="TrainerKinds_Option" xml:space="preserve">
+    <value>Opción</value>
+  </data>
+  <data name="TrainerKinds_Ours" xml:space="preserve">
+    <value>al crear</value>
+  </data>
 </root>
