@@ -89,8 +89,10 @@ public static class BattleSafety
     /// </list>
     /// </summary>
     /// <returns>How many things changed.</returns>
-    public static int FixTrainers(GameData data, GameTitle title, byte[][] dataFiles, byte[][] teamFiles)
+    public static int FixTrainers(GameData data, GameTitle title, byte[][] dataFiles, byte[][] teamFiles,
+        Projects.TrainerBattleItems? rules = null)
     {
+        rules ??= new Projects.TrainerBattleItems();
         var stones = data.MegaStones.ToHashSet();
         var ownStones = data.MegaStoneByForm.Where(p => p.Value != 0)
             .GroupBy(p => p.Key.Species).ToDictionary(g => g.Key, g => g.Select(p => p.Value).ToHashSet());
@@ -100,7 +102,7 @@ public static class BattleSafety
             var trainer = Trainer.Read(title, dataFiles[id], teamFiles[id]);
             if (trainer.Unreadable || trainer.Count == 0)
                 continue;
-            int touched = FixTeam(data, trainer, stones, ownStones, TrainerRoles.DifficultyOf(title, id), id);
+            int touched = FixTeam(data, trainer, stones, ownStones, rules.For(TrainerRoles.DifficultyOf(title, id)), id);
             if (touched == 0)
                 continue;
             changed += touched;
@@ -111,64 +113,65 @@ public static class BattleSafety
     }
 
     private static int FixTeam(GameData data, Trainer trainer, HashSet<int> stones, Dictionary<int, HashSet<int>> ownStones,
-        TrainerDifficulty kind, int id)
+        Projects.TrainerItemRule rule, int id)
     {
         int touched = 0;
         List<TrainerMon> Team() => trainer.Team.ToList();
-        // Who may mega evolve (2026-11-09, user: a random kid's Camerupt and a level 10 Tatsugiri mega evolved): only
-        // the bosses and the important trainers. The others lose any Mega Stone, and a mega form the randomizer put in
-        // their team becomes the plain Pokémon.
-        bool mayMega = kind != TrainerDifficulty.Regular;
+        // Who mega evolves and who carries a crystal: the rule of this kind of trainer at its last Pokémon's level
+        // (2026-11-09, user: a random kid's Camerupt mega evolved; bosses always; megas from level 35).
+        int level = trainer.Team.Last().Level;
+        bool mega = rule.MegaAt(level);
+        bool zCrystal = rule.ZAt(level) && trainer.Count >= 2;
 
-        // 1. Out of battle-only and totem forms; a mega form becomes its Pokémon holding the stone it needs.
+        // 1. Out of battle-only and totem forms; a mega form becomes its Pokémon, holding its stone when it may mega evolve.
         foreach (var mon in Team())
         {
             if (!IsBattleOnly(data, mon.Species, mon.Form) && !IsTotem(mon.Species, mon.Form))
                 continue;
-            if (mayMega && data.MegaStoneByForm.TryGetValue((mon.Species, mon.Form), out int stone) && stone != 0)
+            if (mega && data.MegaStoneByForm.TryGetValue((mon.Species, mon.Form), out int stone) && stone != 0)
                 mon.Item = stone;
             mon.Form = 0;
             touched++;
         }
 
-        // 2. One mega, the last Pokémon. A boss always has one (2026-11-09, user: "mega siempre"): one of its team that
-        // can mega evolve gets its stone, or else its last Pokémon becomes one that can.
+        // 2. One mega, the last Pokémon, always there when the rule says so: one of the team that can mega evolve gets
+        // its stone, or else the last Pokémon becomes one that can. Otherwise no Mega Stone at all.
         bool OwnStone(TrainerMon m) => ownStones.TryGetValue(m.Species, out var own) && own.Contains(m.Item);
         var team = Team();
-        int mega = mayMega ? team.FindLastIndex(OwnStone) : -1;
-        if (mega < 0 && kind == TrainerDifficulty.Boss && team.Count > 0)
+        int megaSlot = mega ? team.FindLastIndex(OwnStone) : -1;
+        if (mega && megaSlot < 0)
         {
-            mega = team.FindLastIndex(m => ownStones.ContainsKey(m.Species) && !Legendaries.Contains(m.Species));
-            if (mega >= 0)
-                team[mega].Item = ownStones[team[mega].Species].Min();
+            megaSlot = team.FindLastIndex(m => ownStones.ContainsKey(m.Species) && !Legendaries.Contains(m.Species));
+            if (megaSlot >= 0)
+                team[megaSlot].Item = ownStones[team[megaSlot].Species].Min();
             else if (MegaReplacement(data, team, ownStones, id) is { } species)
             {
-                mega = team.Count - 1;
-                Become(data, trainer, team[mega], species, ownStones[species].Min());
+                megaSlot = team.Count - 1;
+                Become(data, trainer, team[megaSlot], species, ownStones[species].Min());
             }
-            if (mega >= 0)
+            if (megaSlot >= 0)
                 touched++;
         }
         for (int slot = 0; slot < team.Count; slot++)
         {
-            if (slot != mega && stones.Contains(team[slot].Item))
+            if (slot != megaSlot && stones.Contains(team[slot].Item))
             {
                 team[slot].Item = 0;
                 touched++;
             }
         }
         int last = team.Count - 1;
-        if (mega >= 0 && mega != last)
+        if (megaSlot >= 0 && megaSlot != last)
         {
-            trainer.Swap(mega, last);
+            trainer.Swap(megaSlot, last);
             touched++;
         }
 
-        // 3. One Z-crystal, never on the last Pokémon, and one its holder can use (2026-11-09, user: "Z mejor elegido"):
-        // a type crystal is the type of the holder's strongest damaging move of its own type, or of any type; a holder
-        // with no damaging move hands it to one before it that has one.
+        // 3. One Z-crystal when the rule says so, never on the last Pokémon, and one its holder can use: a type crystal
+        // is the type of the holder's strongest damaging move of its own type, or of any type; a holder with no damaging
+        // move hands it to one before it that has one. A team without one gets it on the Pokémon before the last.
         team = Team();
-        int z = team.FindLastIndex(m => IsZCrystal(m.Item));
+        int z = zCrystal ? team.FindLastIndex(m => IsZCrystal(m.Item)) : -1;
         for (int slot = 0; slot < team.Count; slot++)
         {
             if (slot != z && IsZCrystal(team[slot].Item))
@@ -177,13 +180,14 @@ public static class BattleSafety
                 touched++;
             }
         }
-        if (z >= 0)
+        if (zCrystal)
         {
-            int crystal = team[z].Item;
-            bool typeCrystal = crystal is >= 776 and <= 793;
-            // The holder: not the last, and (for a type crystal) one with a damaging move, looking back from where it was.
+            int crystal = z >= 0 ? team[z].Item : 0;
+            bool typeCrystal = crystal is 0 or (>= 776 and <= 793);
+            // Looking back from where it was first, then forward; never the last Pokémon.
+            int start = Math.Min(z < 0 ? last - 1 : z, last - 1);
             int holder = -1;
-            for (int slot = Math.Min(z, last - 1); slot >= 0; slot--)
+            foreach (int slot in Enumerable.Range(0, start + 1).Reverse().Concat(Enumerable.Range(start + 1, Math.Max(0, last - 1 - start))))
                 if (!typeCrystal || UsableCrystal(data, team[slot]) is not null)
                 {
                     holder = slot;
@@ -192,7 +196,8 @@ public static class BattleSafety
             int newCrystal = holder < 0 ? 0 : typeCrystal ? UsableCrystal(data, team[holder])!.Value : crystal;
             if (holder != z || newCrystal != crystal)
             {
-                team[z].Item = 0;
+                if (z >= 0)
+                    team[z].Item = 0;
                 if (holder >= 0)
                     team[holder].Item = newCrystal;
                 touched++;

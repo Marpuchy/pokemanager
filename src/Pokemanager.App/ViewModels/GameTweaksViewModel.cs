@@ -29,7 +29,19 @@ public sealed partial class GameTweaksViewModel : ObservableObject
         ShinySupported = Supported(out bool rolls);
         ShinyRollsSupported = rolls;
         WildAndStaticSupported = session.Current.Title.Layout().Wild.Length > 0;
+        TrainerItems =
+        [
+            new(editor, session, Pokemanager.Model.Data.TrainerDifficulty.Boss, Strings.Role_Bosses),
+            new(editor, session, Pokemanager.Model.Data.TrainerDifficulty.Important, Strings.Role_Important),
+            new(editor, session, Pokemanager.Model.Data.TrainerDifficulty.Regular, Strings.Role_Ordinary),
+        ];
     }
+
+    /// <summary>Who mega evolves and who carries a Z-crystal, by kind of trainer (built once: bound to the view).</summary>
+    public IReadOnlyList<TrainerItemRowViewModel> TrainerItems { get; }
+
+    /// <summary>Z-crystals only exist in Generation 7.</summary>
+    public bool HasZCrystals => session.Current.Title.Generation() == 7;
 
     /// <summary>The item and shop options, shown on this page: they are the ROM's too, and one place is enough.</summary>
     public ShopExtrasViewModel Shops => editor.Randomizer.Shops;
@@ -447,6 +459,8 @@ public sealed partial class GameTweaksViewModel : ObservableObject
         OnPropertyChanged(nameof(StarterLevelPercent));
         OnPropertyChanged(nameof(AllLevelPercent));
         OnPropertyChanged(nameof(AllLevelsMixed));
+        foreach (var row in TrainerItems)
+            row.Refresh();
     }
 
     /// <summary>
@@ -476,5 +490,65 @@ public sealed partial class GameTweaksViewModel : ObservableObject
         {
             return false;
         }
+    }
+}
+
+/// <summary>
+/// One row of the "Megas and Z-crystals" card of Opciones → Entrenadores: a kind of trainer, its mega switch and level,
+/// its Z-crystal switch and level (2026-11-09, user). Writes <see cref="Pokemanager.Model.Projects.TrainerBattleItems"/>,
+/// which the build applies last over every trainer.
+/// </summary>
+public sealed class TrainerItemRowViewModel(EditorViewModel editor, EditorSession session,
+    Pokemanager.Model.Data.TrainerDifficulty kind, string name) : ObservableObject
+{
+    public string Name { get; } = name;
+
+    private Pokemanager.Model.Projects.TrainerItemRule Rule =>
+        (session.Project.Tweaks.TrainerItems ??= new()).For(kind);
+
+    private void Changed(string property)
+    {
+        OnPropertyChanged(property);
+        editor.MarkDirty(string.Format(Strings.TrainerItems_Undo, Name));
+    }
+
+    public bool Mega
+    {
+        get => Rule.Mega;
+        set { if (value != Rule.Mega) { Rule.Mega = value; Changed(nameof(Mega)); } }
+    }
+
+    public decimal? MegaFromLevel
+    {
+        get => Rule.MegaFromLevel;
+        set
+        {
+            int level = (int)Math.Clamp(value ?? 1, 1, 100);
+            if (level != Rule.MegaFromLevel) { Rule.MegaFromLevel = level; Changed(nameof(MegaFromLevel)); }
+        }
+    }
+
+    public bool Z
+    {
+        get => Rule.Z;
+        set { if (value != Rule.Z) { Rule.Z = value; Changed(nameof(Z)); } }
+    }
+
+    public decimal? ZFromLevel
+    {
+        get => Rule.ZFromLevel;
+        set
+        {
+            int level = (int)Math.Clamp(value ?? 1, 1, 100);
+            if (level != Rule.ZFromLevel) { Rule.ZFromLevel = level; Changed(nameof(ZFromLevel)); }
+        }
+    }
+
+    public void Refresh()
+    {
+        OnPropertyChanged(nameof(Mega));
+        OnPropertyChanged(nameof(MegaFromLevel));
+        OnPropertyChanged(nameof(Z));
+        OnPropertyChanged(nameof(ZFromLevel));
     }
 }

@@ -4800,4 +4800,28 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Character_ACEROLA" xml:space="preserve">
     <value>Acerola</value>
   </data>
+  <data name="TrainerItems_Title" xml:space="preserve">
+    <value>Megas and Z-crystals</value>
+  </data>
+  <data name="TrainerItems_Hint" xml:space="preserve">
+    <value>From what level each kind of trainer mega evolves and carries a Z-crystal; the level is that of its last Pokémon. Applied over everything when the ROM is built (randomizer, difficulty, hand edits): below the level, or switched off, it carries neither; from the level on, it always does — if nobody in the team can mega evolve, its last Pokémon becomes one that can, and the crystal goes to the Pokémon before the last, of the type of its best move. Needs a ROM build, not a new seed.</value>
+  </data>
+  <data name="TrainerItems_Kind" xml:space="preserve">
+    <value>Trainers</value>
+  </data>
+  <data name="TrainerItems_Mega" xml:space="preserve">
+    <value>Mega from level</value>
+  </data>
+  <data name="TrainerItems_Z" xml:space="preserve">
+    <value>Z-crystal from level</value>
+  </data>
+  <data name="TrainerItems_MegaTip" xml:space="preserve">
+    <value>Tick to let these trainers mega evolve from the level on the right (their last Pokémon's). The mega is always their last Pokémon.</value>
+  </data>
+  <data name="TrainerItems_ZTip" xml:space="preserve">
+    <value>Tick to give these trainers a Z-crystal from the level on the right. It never goes on the last Pokémon, and it is the type of its holder's best move.</value>
+  </data>
+  <data name="TrainerItems_Undo" xml:space="preserve">
+    <value>Megas and Z-crystals · {0}</value>
+  </data>
 </root>

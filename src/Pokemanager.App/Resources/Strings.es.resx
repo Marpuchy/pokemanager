@@ -4800,4 +4800,28 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Character_ACEROLA" xml:space="preserve">
     <value>Zarala</value>
   </data>
+  <data name="TrainerItems_Title" xml:space="preserve">
+    <value>Megas y cristales Z</value>
+  </data>
+  <data name="TrainerItems_Hint" xml:space="preserve">
+    <value>Desde qué nivel megaevoluciona y lleva cristal Z cada tipo de entrenador; cuenta el nivel de su último Pokémon. Se aplica al crear la ROM por encima de todo (randomizer, dificultad, retoques a mano): por debajo del nivel, o desactivado, no lleva ninguno; desde el nivel, siempre — si nadie del equipo puede megaevolucionar, su último Pokémon pasa a ser uno que sí, y el cristal va al penúltimo, del tipo de su mejor ataque. Necesita crear la ROM, no otra seed.</value>
+  </data>
+  <data name="TrainerItems_Kind" xml:space="preserve">
+    <value>Entrenadores</value>
+  </data>
+  <data name="TrainerItems_Mega" xml:space="preserve">
+    <value>Mega desde nivel</value>
+  </data>
+  <data name="TrainerItems_Z" xml:space="preserve">
+    <value>Cristal Z desde nivel</value>
+  </data>
+  <data name="TrainerItems_MegaTip" xml:space="preserve">
+    <value>Márcalo para que estos entrenadores megaevolucionen desde el nivel de la derecha (el de su último Pokémon). La mega es siempre su último Pokémon.</value>
+  </data>
+  <data name="TrainerItems_ZTip" xml:space="preserve">
+    <value>Márcalo para que estos entrenadores lleven un cristal Z desde el nivel de la derecha. Nunca va en el último Pokémon y es del tipo del mejor ataque de quien lo lleva.</value>
+  </data>
+  <data name="TrainerItems_Undo" xml:space="preserve">
+    <value>Megas y cristales Z · {0}</value>
+  </data>
 </root>

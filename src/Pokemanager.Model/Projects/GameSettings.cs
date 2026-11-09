@@ -98,6 +98,9 @@ public sealed class GameSettings
     /// </summary>
     public int? DifficultyMegaFromLevel { get; set; }
 
+    /// <summary>Who mega evolves and who carries a Z-crystal, by kind of trainer and level (<see cref="TrainerBattleItems"/>).</summary>
+    public TrainerBattleItems TrainerItems { get; set; } = new();
+
     /// <summary>Whether anything at all has to be done at build time.</summary>
     public bool IsEmpty => !AlwaysShiny && LevelCap is null && !HasLevelChanges && !OriginalStarters && ShinyOdds is null;
 
@@ -117,5 +120,6 @@ public sealed class GameSettings
         StarterLevelPercent = StarterLevelPercent,
         OriginalStarters = OriginalStarters,
         ShinyOdds = ShinyOdds,
+        TrainerItems = (TrainerItems ?? new()).Clone(),
     };
 }

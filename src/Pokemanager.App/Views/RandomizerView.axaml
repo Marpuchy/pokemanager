@@ -199,14 +199,42 @@
                         </ListBox.ItemTemplate>
                       </ListBox>
                       <TextBlock Text="{Binding Selected.Detail}" TextWrapping="Wrap" Margin="0,2" />
-                      <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding HasMegas}"
-                                  ToolTip.Tip="{x:Static r:Strings.Tip_DifficultyMegaFrom}">
-                        <TextBlock Text="{x:Static r:Strings.Difficulty_MegaFromLabel}" VerticalAlignment="Center" />
-                        <NumericUpDown Value="{Binding MegaFromLevel}" Minimum="1" Maximum="100" Increment="1" FormatString="0"
-                                       ParsingNumberStyle="Integer" Width="110" />
-                      </StackPanel>
                       <Button Content="{x:Static r:Strings.Difficulty_Apply}" Command="{Binding ApplyCommand}" HorizontalAlignment="Left" />
                       <TextBlock Text="{Binding Result}" TextWrapping="Wrap" Classes="hint" />
+                    </StackPanel>
+                  </Border>
+
+                  <!-- Trainers: who mega evolves and who carries a Z-crystal, by kind and level -->
+                  <Border Classes="card" Width="470" IsVisible="{Binding IsTrainers}">
+                    <StackPanel Spacing="4">
+                      <TextBlock Classes="card-title" Text="{x:Static r:Strings.TrainerItems_Title}" />
+                      <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.TrainerItems_Hint}" />
+                      <Grid ColumnDefinitions="120,*,*" Margin="0,4,0,0">
+                        <TextBlock Classes="row-label" FontWeight="SemiBold" Text="{x:Static r:Strings.TrainerItems_Kind}" />
+                        <TextBlock Grid.Column="1" Classes="row-label" FontWeight="SemiBold" Text="{x:Static r:Strings.TrainerItems_Mega}" />
+                        <TextBlock Grid.Column="2" Classes="row-label" FontWeight="SemiBold" Text="{x:Static r:Strings.TrainerItems_Z}"
+                                   IsVisible="{Binding Game.HasZCrystals}" />
+                      </Grid>
+                      <ItemsControl ItemsSource="{Binding Game.TrainerItems}">
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate x:DataType="vm:TrainerItemRowViewModel">
+                            <Grid ColumnDefinitions="120,*,*" Margin="0,2">
+                              <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{Binding Name}" />
+                              <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" ToolTip.Tip="{x:Static r:Strings.TrainerItems_MegaTip}">
+                                <CheckBox IsChecked="{Binding Mega}" VerticalAlignment="Center" />
+                                <NumericUpDown Width="90" Value="{Binding MegaFromLevel}" Minimum="1" Maximum="100" Increment="1"
+                                               FormatString="0" ParsingNumberStyle="Integer" IsEnabled="{Binding Mega}" />
+                              </StackPanel>
+                              <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" ToolTip.Tip="{x:Static r:Strings.TrainerItems_ZTip}"
+                                          IsVisible="{Binding $parent[ItemsControl].((vm:UprOptionGroupViewModel)DataContext).Game.HasZCrystals}">
+                                <CheckBox IsChecked="{Binding Z}" VerticalAlignment="Center" />
+                                <NumericUpDown Width="90" Value="{Binding ZFromLevel}" Minimum="1" Maximum="100" Increment="1"
+                                               FormatString="0" ParsingNumberStyle="Integer" IsEnabled="{Binding Z}" />
+                              </StackPanel>
+                            </Grid>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
                     </StackPanel>
                   </Border>
 

@@ -236,7 +236,11 @@ public sealed class RealExpansionTests
         records[23] = hala.WriteData().ToArray();
         teams[23] = hala.WriteTeam().ToArray();
 
-        Assert.True(BattleSafety.FixTrainers(data, data.Title, records, teams) > 0);
+        // Megas from level 1 here: Hala's team is level 26, under the default 35.
+        var rules = new TrainerBattleItems();
+        rules.Boss.MegaFromLevel = 1;
+        rules.Important.MegaFromLevel = 1;
+        Assert.True(BattleSafety.FixTrainers(data, data.Title, records, teams, rules) > 0);
 
         var fixedTeam = Trainer.Read(data.Title, records[23], teams[23]).Team.ToList();
         Assert.Equal(count, fixedTeam.Count);
@@ -246,9 +250,11 @@ public sealed class RealExpansionTests
         Assert.Equal(1, fixedTeam.Count(m => BattleSafety.IsZCrystal(m.Item)));
         Assert.False(BattleSafety.IsZCrystal(fixedTeam[^1].Item));
         Assert.DoesNotContain(fixedTeam, m => BattleSafety.IsTotem(m.Species, m.Form)); // no totem outside a totem battle
-        Assert.Equal(0, BattleSafety.FixTrainers(data, data.Title, records, teams)); // nothing left to do
+        Assert.Equal(0, BattleSafety.FixTrainers(data, data.Title, records, teams, rules)); // nothing left to do
 
-        // 2026-11-09, user: only bosses and important trainers mega evolve, and every boss does.
+        // 2026-11-09, user: with the default rules, bosses and important trainers mega evolve from level 35 and carry a
+        // crystal, ordinary ones neither.
+        BattleSafety.FixTrainers(data, data.Title, records, teams, new TrainerBattleItems());
         var stones = data.MegaStones.ToHashSet();
         for (int id = 1; id < records.Length; id++)
         {
@@ -257,10 +263,16 @@ public sealed class RealExpansionTests
                 continue;
             var kind = TrainerRoles.DifficultyOf(data.Title, id);
             int megas = trainer.Team.Count(m => stones.Contains(m.Item));
+            int crystals = trainer.Team.Count(m => BattleSafety.IsZCrystal(m.Item));
+            bool high = trainer.Team.Last().Level >= 35;
             if (kind == TrainerDifficulty.Regular)
-                Assert.Equal(0, megas);
+                Assert.Equal((0, 0), (megas, crystals));
             if (kind == TrainerDifficulty.Boss)
-                Assert.True(megas == 1 && stones.Contains(trainer.Team.Last().Item), $"boss {id}");
+            {
+                Assert.True(high ? megas == 1 && stones.Contains(trainer.Team.Last().Item) : megas == 0, $"boss {id} mega");
+                Assert.True(trainer.Count < 2 || crystals == 1, $"boss {id} crystal");
+                Assert.False(BattleSafety.IsZCrystal(trainer.Team.Last().Item), $"boss {id} crystal on the last");
+            }
         }
     }
 }
