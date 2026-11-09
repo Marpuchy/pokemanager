@@ -116,19 +116,38 @@ public sealed class UprService
             }
         }
         var (allItems, goodItems) = CacheOptions(project);
-        return Cache.TryGet(rom, effectivePreset, r.Seed, t.JarPath, allItems, goodItems);
+        return Cache.TryGet(rom, effectivePreset, r.Seed, t.JarPath, allItems, goodItems) is { } found ? Repaired(project, found) : null;
+    }
+
+    /// <summary>
+    /// The randomizer's output with the evolutions it dropped put back (<see cref="EvolutionRepair"/>). Done on the
+    /// cached files themselves, so the editor and the build read the same thing; a second pass changes nothing, which
+    /// is also what repairs a randomization cached before this existed.
+    /// </summary>
+    private UprResult Repaired(Project project, UprResult result)
+    {
+        try
+        {
+            EvolutionRepair.RepairOutput(Path.Combine(result.TitleDirectory, "romfs"), project.ReadLayers(null, Mods), project.Game);
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException or InvalidDataException or ArgumentException)
+        {
+            // The randomization stays as the randomizer left it.
+        }
+        return result;
     }
 
     /// <summary>
     /// The project's randomization, from the cache or run now. The counterpart of <see cref="TryGetCached"/>: both
     /// build the key from <see cref="CacheOptions"/>, so what the build stores is what the lookup finds.
     /// </summary>
-    public Task<UprResult> RandomizeAsync(UprTools t, Project project, string romFile, byte[] preset,
+    public async Task<UprResult> RandomizeAsync(UprTools t, Project project, string romFile, byte[] preset,
         IProgress<string>? progress = null, CancellationToken cancellationToken = default)
     {
         var (allItems, goodItems) = CacheOptions(project);
-        return Cache.GetOrCreateAsync(new UprRunner(t), t, romFile, preset, project.Randomization.Seed, progress,
+        var result = await Cache.GetOrCreateAsync(new UprRunner(t), t, romFile, preset, project.Randomization.Seed, progress,
             cancellationToken, allItems, goodItems, GameCounts(project));
+        return Repaired(project, result);
     }
 
     /// <summary>
