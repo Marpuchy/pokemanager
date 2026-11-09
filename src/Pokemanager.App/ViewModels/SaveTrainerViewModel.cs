@@ -99,17 +99,10 @@ public partial class SaveTrainerViewModel : ObservableObject
     {
         StartPoint = new Avalonia.RelativePoint(0, 0, Avalonia.RelativeUnit.Relative),
         EndPoint = new Avalonia.RelativePoint(1, 1, Avalonia.RelativeUnit.Relative),
-        GradientStops = { new(Avalonia.Media.Color.Parse(GameColor(game)), 0), new(Darker(Avalonia.Media.Color.Parse(GameColor(game))), 1) },
+        GradientStops = { new(GameLook.Color(game), 0), new(Darker(GameLook.Color(game)), 1) },
     };
 
     private static Avalonia.Media.Color Darker(Avalonia.Media.Color c) => Avalonia.Media.Color.FromRgb((byte)(c.R * 0.62), (byte)(c.G * 0.62), (byte)(c.B * 0.62));
-
-    private static string GameColor(GameTitle game) => game switch
-    {
-        GameTitle.X => "#2A5DB0", GameTitle.Y => "#C0392B", GameTitle.OmegaRuby => "#B8322A", GameTitle.AlphaSapphire => "#1F5FA8",
-        GameTitle.Sun => "#E07B20", GameTitle.Moon => "#5B3F9E", GameTitle.UltraSun => "#D9601F", GameTitle.UltraMoon => "#44349A",
-        _ => "#1C3A70",
-    };
 
     public string CardName => doc.TrainerName;
     public string CardId => doc.TrainerId.ToString("00000");

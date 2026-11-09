@@ -6,6 +6,46 @@
              x:Class="Pokemanager.App.Views.WelcomeView"
              x:DataType="vm:WelcomeViewModel">
 
+  <UserControl.Styles>
+    <!-- Project list on a box wallpaper: the frame clips the picture, the list is see-through, each project a white card. -->
+    <Style Selector="Border.projects-frame">
+      <Setter Property="BorderBrush" Value="#828790" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="ClipToBounds" Value="True" />
+    </Style>
+    <Style Selector="ListBox.projects">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="8,8,8,4" />
+    </Style>
+    <Style Selector="ListBox.projects ListBoxItem">
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Margin" Value="0,0,0,6" />
+    </Style>
+    <Style Selector="ListBox.projects ListBoxItem /template/ ContentPresenter#PART_ContentPresenter, ListBox.projects ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter, ListBox.projects ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter, ListBox.projects ListBoxItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="ListBox.projects ListBoxItem:selected TextBlock">
+      <Setter Property="Foreground" Value="#1A1A1A" />
+    </Style>
+    <Style Selector="ListBox.projects ListBoxItem:selected TextBlock.hint">
+      <Setter Property="Foreground" Value="#6D6D6D" />
+    </Style>
+    <Style Selector="Border.project-card">
+      <Setter Property="Background" Value="White" />
+      <Setter Property="BorderBrush" Value="#D5DFE5" />
+      <Setter Property="BorderThickness" Value="2" />
+      <Setter Property="CornerRadius" Value="2" />
+      <Setter Property="Padding" Value="0,6,8,6" />
+    </Style>
+    <Style Selector="ListBoxItem:pointerover Border.project-card">
+      <Setter Property="Background" Value="#E5F1FB" />
+    </Style>
+    <Style Selector="ListBoxItem:selected Border.project-card">
+      <Setter Property="BorderBrush" Value="#0078D7" />
+    </Style>
+  </UserControl.Styles>
+
   <UserControl.DataTemplates>
     <!-- ======================= Preview of a project: ROM and team, read only ======================= -->
     <DataTemplate DataType="vm:ProjectPreviewViewModel">
@@ -202,26 +242,39 @@
           </StackPanel>
           <TextBlock DockPanel.Dock="Bottom" Classes="error" Margin="0,6,0,0" Text="{Binding Error}"
                      IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
-          <Grid>
-            <TextBlock Classes="hint" Text="{x:Static r:Strings.Welcome_NoProjects}" IsVisible="{Binding !HasRecentProjects}" TextWrapping="Wrap" />
-            <ListBox ItemsSource="{Binding RecentProjects}" SelectedItem="{Binding SelectedProject}" IsVisible="{Binding HasRecentProjects}"
-                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-              <ListBox.ItemTemplate>
-                <DataTemplate x:DataType="vm:RecentProjectItem">
-                  <Grid ColumnDefinitions="*,Auto" Margin="0,2">
-                    <StackPanel VerticalAlignment="Center">
-                      <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                      <TextBlock Classes="hint" Text="{Binding Details}" FontSize="11" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
-                    </StackPanel>
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" Margin="6,0,0,0" VerticalAlignment="Center">
-                      <Button Content="{x:Static r:Strings.Preview_Manage}" Command="{Binding ManageCommand}" ToolTip.Tip="{x:Static r:Strings.Preview_ManageTip}" />
-                      <Button Content="✕" Padding="6,2" Command="{Binding ForgetCommand}" ToolTip.Tip="{x:Static r:Strings.Welcome_RemoveTip}" />
-                    </StackPanel>
-                  </Grid>
-                </DataTemplate>
-              </ListBox.ItemTemplate>
-            </ListBox>
-          </Grid>
+          <!-- The list sits on a box wallpaper of the selected project's game (2026-11-09, user); rows are white cards. -->
+          <Border Classes="projects-frame">
+            <Panel>
+              <Image Source="{Binding ProjectsWallpaper}" Stretch="UniformToFill" RenderOptions.BitmapInterpolationMode="HighQuality" />
+              <Border Classes="project-card" VerticalAlignment="Top" Margin="8" IsVisible="{Binding !HasRecentProjects}">
+                <TextBlock Classes="hint" Text="{x:Static r:Strings.Welcome_NoProjects}" TextWrapping="Wrap" />
+              </Border>
+              <ListBox Classes="projects" ItemsSource="{Binding RecentProjects}" SelectedItem="{Binding SelectedProject}" IsVisible="{Binding HasRecentProjects}"
+                       ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListBox.ItemTemplate>
+                  <DataTemplate x:DataType="vm:RecentProjectItem">
+                    <Border Classes="project-card">
+                      <DockPanel>
+                        <Border DockPanel.Dock="Left" Width="4" Margin="0,0,8,0" Background="{Binding GameBrush}" />
+                        <Grid ColumnDefinitions="*,Auto">
+                          <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Classes="hint" Text="{Binding GameName}" TextTrimming="CharacterEllipsis"
+                                       IsVisible="{Binding GameName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                            <TextBlock Classes="hint" Text="{Binding Details}" FontSize="11" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
+                          </StackPanel>
+                          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" Margin="6,0,0,0" VerticalAlignment="Center">
+                            <Button Content="{x:Static r:Strings.Preview_Manage}" Command="{Binding ManageCommand}" ToolTip.Tip="{x:Static r:Strings.Preview_ManageTip}" />
+                            <Button Content="✕" Padding="6,2" Command="{Binding ForgetCommand}" ToolTip.Tip="{x:Static r:Strings.Welcome_RemoveTip}" />
+                          </StackPanel>
+                        </Grid>
+                      </DockPanel>
+                    </Border>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+            </Panel>
+          </Border>
         </DockPanel>
       </Border>
       </DockPanel>

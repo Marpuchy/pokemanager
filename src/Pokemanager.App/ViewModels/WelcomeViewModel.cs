@@ -144,8 +144,12 @@ public partial class WelcomeViewModel : ObservableObject
         OnPropertyChanged(nameof(HasRecentProjects));
     }
 
+    /// <summary>The box wallpaper behind the project list: the selected project's game (2026-11-09, user).</summary>
+    public Avalonia.Media.Imaging.Bitmap? ProjectsWallpaper => GameLook.Wallpaper(SelectedProject?.Game);
+
     partial void OnSelectedProjectChanged(RecentProjectItem? value)
     {
+        OnPropertyChanged(nameof(ProjectsWallpaper));
         if (value is not null)
         {
             // Before a room starts, picking a project only chooses the save to share; afterwards it shows its preview.
