@@ -11,6 +11,41 @@
   <Styles.Resources>
     <ResourceDictionary>
       <!-- The randomizer's options of one group, in columns across the width -->
+      <!-- One option of the randomizer: a switch, a list or a number -->
+      <DataTemplate x:Key="UprOption" x:DataType="vm:UprOptionViewModel">
+        <StackPanel Margin="0,3" Spacing="2" IsEnabled="{Binding IsEnabled}" ToolTip.Tip="{Binding Tip}">
+          <CheckBox IsVisible="{Binding IsBool}" IsChecked="{Binding BoolValue}">
+            <TextBlock Text="{Binding Label}" TextWrapping="Wrap" />
+          </CheckBox>
+          <TextBlock IsVisible="{Binding !IsBool}" Text="{Binding Label}" TextWrapping="Wrap" Margin="0,4,0,0" />
+          <ComboBox IsVisible="{Binding IsChoice}" ItemsSource="{Binding ChoiceLabels}" SelectedIndex="{Binding ChoiceIndex}"
+                    HorizontalAlignment="Stretch" MaxDropDownHeight="400" />
+          <NumericUpDown IsVisible="{Binding IsInt}" Value="{Binding IntValue}" Minimum="{Binding Min}" Maximum="{Binding Max}"
+                         Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="150" HorizontalAlignment="Left" />
+        </StackPanel>
+      </DataTemplate>
+
+      <!-- A group's options grouped in titled cards (groups that have sections) -->
+      <DataTemplate x:Key="UprGroupSections" x:DataType="vm:UprOptionGroupViewModel">
+        <ItemsControl Margin="16,10,16,10" ItemsSource="{Binding Sections}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <WrapPanel />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:UprOptionSectionViewModel">
+              <Border Classes="card" Width="380" Margin="0,0,12,12" VerticalAlignment="Top">
+                <StackPanel Spacing="2">
+                  <TextBlock Classes="card-title" Text="{Binding Title}" Margin="0,0,0,4" />
+                  <ItemsControl ItemsSource="{Binding Items}" ItemTemplate="{StaticResource UprOption}" />
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </DataTemplate>
+
       <DataTemplate x:Key="UprGroupOptions" x:DataType="vm:UprOptionGroupViewModel">
     <ItemsControl Margin="16,10,16,10" ItemsSource="{Binding Items}">
       <ItemsControl.ItemsPanel>
@@ -138,11 +173,20 @@
         </StackPanel>
       </Border>
 
-      <!-- Trainers: what they pay (their levels are in Levels) -->
+      <!-- Trainers: their levels and what they pay (2026-11-09, user: the trainer level % lives with the trainers) -->
       <Border Classes="card" Width="470" IsVisible="{Binding IsTrainers}">
         <StackPanel Spacing="4">
           <TextBlock Classes="card-title" Text="{x:Static r:Strings.Options_TrainerMoney}" />
           <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Options_OursHint}" />
+          <Grid ColumnDefinitions="200,Auto" Margin="0,2">
+            <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Options_TrainerLevelRow}" />
+            <NumericUpDown Grid.Column="1" Width="110" Value="{Binding Game.TrainerLevelPercent}" Minimum="-90" Maximum="400"
+                           Increment="5" FormatString="0.##" ToolTip.Tip="{x:Static r:Strings.Tip_GameLevelsTrainers}" />
+          </Grid>
+          <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0" IsVisible="{Binding Game.HasPresetTrainerLevel}">
+            <TextBlock Classes="hint" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="300" Text="{Binding Game.PresetTrainerLevelText}" />
+            <Button Content="{x:Static r:Strings.Options_ClearPreset}" Command="{Binding Game.ClearPresetTrainerLevelCommand}" />
+          </StackPanel>
           <Grid ColumnDefinitions="200,Auto" Margin="0,2">
             <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_Money}" />
             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
@@ -170,11 +214,6 @@
           </Grid>
           <TextBlock Classes="hint" TextWrapping="Wrap" IsVisible="{Binding Game.AllLevelsMixed}"
                      Text="{x:Static r:Strings.Options_LevelsMixed}" />
-          <Grid ColumnDefinitions="200,Auto" Margin="0,2">
-            <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsTrainers}" />
-            <NumericUpDown Grid.Column="1" Width="130" Value="{Binding Game.TrainerLevelPercent}" Minimum="-90" Maximum="400"
-                           Increment="5" FormatString="0.##" ToolTip.Tip="{x:Static r:Strings.Tip_GameLevelsTrainers}" />
-          </Grid>
           <Grid ColumnDefinitions="200,Auto" Margin="0,2" IsEnabled="{Binding Game.WildAndStaticSupported}">
             <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsWild}" />
             <NumericUpDown Grid.Column="1" Width="130" Value="{Binding Game.WildLevelPercent}" Minimum="-90" Maximum="400"
@@ -191,10 +230,6 @@
                            Increment="5" FormatString="0.##" ToolTip.Tip="{x:Static r:Strings.Tip_GameLevelsStarters}" />
           </Grid>
           <!-- What the randomizer preset already carries, which would pile up with ours -->
-          <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0" IsVisible="{Binding Game.HasPresetTrainerLevel}">
-            <TextBlock Classes="hint" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="300" Text="{Binding Game.PresetTrainerLevelText}" />
-            <Button Content="{x:Static r:Strings.Options_ClearPreset}" Command="{Binding Game.ClearPresetTrainerLevelCommand}" />
-          </StackPanel>
           <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0" IsVisible="{Binding Game.HasPresetWildLevel}">
             <TextBlock Classes="hint" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="300" Text="{Binding Game.PresetWildLevelText}" />
             <Button Content="{x:Static r:Strings.Options_ClearPreset}" Command="{Binding Game.ClearPresetWildLevelCommand}" />
@@ -320,7 +355,8 @@
                   <StackPanel>
                     <TextBlock Classes="section" Margin="16,10,16,0" Text="{Binding Name}"
                                IsVisible="{Binding $parent[ItemsControl].((vm:UprSubjectViewModel)DataContext).ShowTitles}" />
-                    <ContentControl Content="{Binding}" ContentTemplate="{StaticResource UprGroupOptions}" />
+                    <ContentControl Content="{Binding}" ContentTemplate="{StaticResource UprGroupOptions}" IsVisible="{Binding !HasSections}" />
+                    <ContentControl Content="{Binding}" ContentTemplate="{StaticResource UprGroupSections}" IsVisible="{Binding HasSections}" />
                   </StackPanel>
                 </DataTemplate>
               </ItemsControl.ItemTemplate>

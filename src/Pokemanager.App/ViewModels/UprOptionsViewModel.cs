@@ -87,6 +87,7 @@ public partial class UprOptionsViewModel : ObservableObject
             g.Items.Clear();
             foreach (var item in sorted)
                 g.Items.Add(item);
+            g.Sections = Sectioned(g);
             // The Levels page has none of UPR ZX's options (its level modifiers are hidden behind ours) and is all ours.
             if (g.Items.Count > 0 || g.IsLevels)
                 Groups.Add(g);
@@ -98,6 +99,42 @@ public partial class UprOptionsViewModel : ObservableObject
         IsLoaded = true;
         OnPropertyChanged(nameof(IsLoaded)); // the groups are new even when they were loaded before
         LoadStatus = "";
+    }
+
+    /// <summary>
+    /// Groups whose options are shown as titled cards instead of loose columns (2026-11-09, user): the option names of
+    /// each card, in order. An option of the group that no card names goes into a last "Others" card.
+    /// </summary>
+    private static readonly Dictionary<string, (string Title, string[] Names)[]> SectionsByGroup = new()
+    {
+        [UprOptionCatalog.Trainers] =
+        [
+            (Strings.Section_TrainerTeams, ["TrainersMod", "RivalCarriesStarterThroughout", "TrainersUsePokemonOfSimilarStrength",
+                "TrainersMatchTypingDistribution", "TrainersBlockLegendaries", "TrainersBlockEarlyWonderGuard",
+                "TrainersEnforceDistribution", "TrainersEnforceMainPlaythrough", "TrainersForceFullyEvolved",
+                "TrainersForceFullyEvolvedLevel", "EliteFourUniquePokemonNumber", "AllowTrainerAlternateFormes", "SwapTrainerMegaEvos"]),
+            (Strings.Section_TrainerItems, ["ConsumableItemsOnlyForTrainers", "SensibleItemsOnlyForTrainers", "HighestLevelGetsItemsForTrainers"]),
+            (Strings.Section_TrainerBattle, ["DoubleBattleMode", "BetterTrainerMovesets", "RandomizeTrainerNames", "RandomizeTrainerClassNames"]),
+        ],
+    };
+
+    private static IReadOnlyList<UprOptionSectionViewModel> Sectioned(UprOptionGroupViewModel group)
+    {
+        if (!SectionsByGroup.TryGetValue(group.Id, out var sections) || group.Items.Count == 0)
+            return [];
+        var byName = group.Items.ToDictionary(i => i.Name);
+        var used = new HashSet<string>();
+        var result = new List<UprOptionSectionViewModel>();
+        foreach (var (title, names) in sections)
+        {
+            var items = names.Where(byName.ContainsKey).Select(n => { used.Add(n); return byName[n]; }).ToList();
+            if (items.Count > 0)
+                result.Add(new(title, items));
+        }
+        var rest = group.Items.Where(i => !used.Contains(i.Name)).ToList();
+        if (rest.Count > 0)
+            result.Add(new(Strings.Section_Others, rest));
+        return result;
     }
 
     /// <summary>The options that come once per kind of trainer, taken out of the columns into one table.</summary>
@@ -205,6 +242,11 @@ public sealed class UprOptionGroupViewModel(string id)
     public DifficultyViewModel? Difficulty { get; set; }
 
     public bool HasDifficulty => Difficulty is not null;
+
+    /// <summary>The group's options as titled cards, when the group has them (empty otherwise: loose columns).</summary>
+    public IReadOnlyList<UprOptionSectionViewModel> Sections { get; set; } = [];
+
+    public bool HasSections => Sections.Count > 0;
 
     /// <summary>The trainer options that come once per kind of trainer, as one table (trainers group only).</summary>
     public TrainerKindTableViewModel? KindTable { get; set; }
@@ -332,3 +374,6 @@ public partial class UprOptionViewModel : ObservableObject
 
     public string SerializedValue => IsBool ? (boolValue ? "true" : "false") : IsInt ? intValue.ToString() : Choices[choiceIndex];
 }
+
+/// <summary>A titled card of a group's randomizer options.</summary>
+public sealed record UprOptionSectionViewModel(string Title, IReadOnlyList<UprOptionViewModel> Items);

@@ -4435,7 +4435,7 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value> No se han podido colocar los modelos 3D del mod: no se ha encontrado el emulador. Elígelo en Ajustes y vuelve a crear la ROM.</value>
   </data>
   <data name="Options_TrainerMoney" xml:space="preserve">
-    <value>Dinero de los entrenadores</value>
+    <value>Nivel y dinero</value>
   </data>
   <data name="Options_LevelsTitle" xml:space="preserve">
     <value>Niveles</value>
@@ -4868,5 +4868,23 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   </data>
   <data name="Subject_SettingsHint" xml:space="preserve">
     <value>Lo que esta aplicación escribe al crear la ROM: cambiarlo necesita crear la ROM, no otra semilla.</value>
+  </data>
+  <data name="Section_TrainerTeams" xml:space="preserve">
+    <value>Equipos</value>
+  </data>
+  <data name="Section_TrainerItems" xml:space="preserve">
+    <value>Objetos que llevan</value>
+  </data>
+  <data name="Section_TrainerBattle" xml:space="preserve">
+    <value>Combate y nombres</value>
+  </data>
+  <data name="Section_Others" xml:space="preserve">
+    <value>Otras</value>
+  </data>
+  <data name="Trainer_WhoWins" xml:space="preserve">
+    <value>El perfil de dificultad también escribe esto; lo último que apliques es lo que queda.</value>
+  </data>
+  <data name="Options_TrainerLevelRow" xml:space="preserve">
+    <value>Nivel de los entrenadores (%)</value>
   </data>
 </root>

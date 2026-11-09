@@ -735,6 +735,7 @@
                               <Border Classes="card detail" Width="470">
                                 <StackPanel Spacing="4">
                                   <TextBlock Classes="card-title" Text="{x:Static r:Strings.Ai_Title}" />
+                                  <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="430" Text="{x:Static r:Strings.Trainer_WhoWins}" />
                                   <Grid ColumnDefinitions="190,240" Margin="0,2">
                                     <TextBlock Classes="field-label" Text="{x:Static r:Strings.Ai_Level}" />
                                     <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_TrainerAiLevelPick}" Grid.Column="1" ItemsSource="{Binding AiLevels}" SelectedIndex="{Binding AiLevel}" HorizontalAlignment="Stretch"
@@ -761,6 +762,7 @@
                               <Border Classes="card detail" Width="470">
                                 <StackPanel Spacing="4">
                                   <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_Ivs}" />
+                                  <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="430" Text="{x:Static r:Strings.Trainer_WhoWins}" />
                                   <Grid ColumnDefinitions="190,150,Auto" Margin="0,2">
                                     <TextBlock Classes="field-label" Text="{x:Static r:Strings.Trainer_IvsValue}" />
                                     <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerIvsValue}" Grid.Column="1" Value="{Binding Ivs}" Minimum="0" Maximum="31" Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
@@ -787,6 +789,7 @@
                               <Border Classes="card detail" Width="470">
                                 <StackPanel Spacing="4">
                                   <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_Level}" />
+                                  <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="430" Text="{x:Static r:Strings.Trainer_WhoWins}" />
                                   <Grid ColumnDefinitions="190,150" Margin="0,2">
                                     <TextBlock Classes="field-label" Text="{x:Static r:Strings.Trainer_BulkLevelPercent}" />
                                     <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerLevelPercentValue}" Grid.Column="1" Value="{Binding LevelPercent}" Minimum="10" Maximum="300" Increment="5" FormatString="0" ParsingNumberStyle="Integer" />
@@ -796,19 +799,6 @@
                                 </StackPanel>
                               </Border>
 
-                              <!-- The last Pokémon of a team that reaches the level carries its own Mega Stone -->
-                              <Border Classes="card detail" Width="470" IsVisible="{Binding HasMegaStones}">
-                                <StackPanel Spacing="4">
-                                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_MegaTitle}" />
-                                  <Grid ColumnDefinitions="190,150" Margin="0,2">
-                                    <TextBlock Classes="field-label" Text="{x:Static r:Strings.Trainer_MegaFromLevel}" />
-                                    <NumericUpDown Grid.Column="1" ToolTip.Tip="{Binding MegaTip}" Value="{Binding MegaFromLevel}" Minimum="1" Maximum="100"
-                                                   Increment="5" FormatString="0" ParsingNumberStyle="Integer" />
-                                  </Grid>
-                                  <Button Content="{x:Static r:Strings.Trainer_BulkApply}" Command="{Binding ApplyMegaStonesCommand}" HorizontalAlignment="Left" />
-                                  <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="430" Text="{x:Static r:Strings.Trainer_MegaHint}" Margin="0,4,0,0" />
-                                </StackPanel>
-                              </Border>
                             </WrapPanel>
 
                             <TextBlock Text="{Binding Result}" FontWeight="SemiBold" IsVisible="{Binding Result, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
