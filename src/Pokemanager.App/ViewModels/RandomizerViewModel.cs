@@ -74,6 +74,49 @@ public partial class RandomizerViewModel : ObservableObject
     /// <summary>The difficulty of the run, which writes over the trainers: ours, and set up with the rest of the run.</summary>
     public DifficultyViewModel Difficulty { get; }
 
+    public UprSubjectViewModel PokemonSubject { get; }
+    public UprSubjectViewModel MovesSubject { get; }
+    public UprSubjectViewModel EncountersSubject { get; }
+    public UprSubjectViewModel TrainersSubject { get; }
+    public UprSubjectViewModel ItemsSubject { get; }
+    public UprSubjectViewModel RulesSubject { get; }
+
+    /// <summary>Why the base ROM just chosen cannot be used (another game, unreadable), or null.</summary>
+    [ObservableProperty]
+    public partial string? BaseRomProblem { get; set; }
+
+    /// <summary>
+    /// Choose another base ROM (moved here from the settings window, 2026-11-09: it is the project's, not the app's).
+    /// The game's data is read from the base, so a new base is imported and the project opened again over it — otherwise
+    /// every page would go on showing the old base's Pokémon, levels and trainers while the ROM is built from the new one.
+    /// </summary>
+    [RelayCommand]
+    private async Task ChangeBaseRom()
+    {
+        var project = editor.Session.Project;
+        if (await dialogs.PickOpenFileAsync(Strings.Set_PickBaseRom, ["*.3ds", "*.cci", "*.cxi"]) is not { } path)
+            return;
+        try
+        {
+            Directory.CreateDirectory(AppSettings.GamesRoot);
+            var imported = await Task.Run(() => Pokemanager.Model.Dump.GameImporter.Import(path, AppSettings.GamesRoot));
+            if (imported.Game != project.Game)
+            {
+                BaseRomProblem = string.Format(Strings.Set_BaseRomOtherGame, imported.Game.DisplayName(), project.Game.DisplayName());
+                return;
+            }
+            project.RomFile = path;
+            project.DumpDirectory = imported.Directory;
+            BaseRomProblem = null;
+        }
+        catch (Exception ex) when (ex is RomReadException or IOException or UnauthorizedAccessException)
+        {
+            BaseRomProblem = ex.Message;
+            return;
+        }
+        await editor.ReopenOverNewBaseAsync();
+    }
+
     public RandomizerViewModel(EditorViewModel editor, IDialogs dialogs, UprService upr, AppSettings settings)
     {
         this.editor = editor;
@@ -83,6 +126,13 @@ public partial class RandomizerViewModel : ObservableObject
         Shops = new ShopExtrasViewModel(editor);
         Difficulty = new DifficultyViewModel(editor, editor.Session);
         Options = new UprOptionsViewModel(editor.MarkDirty, Shops, () => editor.GameTweaks, Difficulty);
+        // One page per subject (2026-11-09, user): the randomizer's groups (Aleatorio) and our cards (Ajustes).
+        PokemonSubject = new(Options, [UprOptionCatalog.Traits, UprOptionCatalog.Evolutions], [UprOptionCatalog.Traits]);
+        MovesSubject = new(Options, [UprOptionCatalog.Moves, UprOptionCatalog.TmsTutors], []);
+        EncountersSubject = new(Options, [UprOptionCatalog.Wild, UprOptionCatalog.Totems, UprOptionCatalog.Starters], []);
+        TrainersSubject = new(Options, [UprOptionCatalog.Trainers], [UprOptionCatalog.Trainers]);
+        ItemsSubject = new(Options, [UprOptionCatalog.Items], [UprOptionCatalog.Items]);
+        RulesSubject = new(Options, [UprOptionCatalog.Misc], [UprOptionCatalog.Levels, UprOptionCatalog.Misc]);
 
         SeedText = Settings.Seed > 0 ? Settings.Seed.ToString() : UprRunner.NewSeed().ToString();
         OutputName = Settings.OutputName ?? DefaultOutputName();

@@ -544,10 +544,10 @@ public partial class EditorViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(UndoCommand), nameof(RedoCommand))]
     public partial int SelectedTab { get; set; }
 
-    private const int SaveTabIndex = 1;
+    private const int SaveTabIndex = 7;
 
     /// <summary>The Pokédex, a top-level tab since issue #2; its flags are the save's, so it shares the save's undo.</summary>
-    private const int DexTabIndex = 2;
+    private const int DexTabIndex = 8;
 
     private SnapshotHistory ActiveUndo => SelectedTab is SaveTabIndex or DexTabIndex ? SaveEditor.Undo : ProjectUndo;
 
@@ -1403,6 +1403,14 @@ public partial class EditorViewModel : ObservableObject
         OnPropertyChanged(nameof(EmulatorText));
         Randomizer.RefreshSave();
         MarkDirty(); // the project's base ROM may have changed
+    }
+
+    /// <summary>The project's base ROM changed: everything read so far is the old base's, so save and open it again.</summary>
+    public async Task ReopenOverNewBaseAsync()
+    {
+        MarkDirty();
+        if (await SaveAsync() && main.OpenProject(ProjectPath) is { } error)
+            SetStatus(error, error: true);
     }
 
     [RelayCommand]

@@ -472,10 +472,10 @@
     <value>ROM base</value>
   </data>
   <data name="Rnd_BaseRomHint" xml:space="preserve">
-    <value>Nunca se modifica. Cámbiala en Ajustes.</value>
+    <value>Nunca se modifica. Cámbiala con «Cambiar…».</value>
   </data>
   <data name="Rnd_BaseRomMissing" xml:space="preserve">
-    <value>No se encuentra la ROM base (.3ds) en la carpeta del volcado. Elígela en Ajustes.</value>
+    <value>No se encuentra la ROM base (.3ds) en la carpeta del volcado. Elígela con «Cambiar…».</value>
   </data>
   <data name="Rnd_OptionsAndSeed" xml:space="preserve">
     <value>Opciones y semilla</value>
@@ -487,7 +487,7 @@
     <value>Exportar…</value>
   </data>
   <data name="Rnd_EditOptionsHint" xml:space="preserve">
-    <value>Edita las opciones en la pestaña Opciones.</value>
+    <value>Las opciones de cada tema están en su pestaña Aleatorio (Pokémon, Movimientos, Encuentros, Entrenadores, Objetos, Reglas).</value>
   </data>
   <data name="Rnd_SeedWatermark" xml:space="preserve">
     <value>Semilla</value>
@@ -1519,7 +1519,7 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>◀ Ver ROM</value>
   </data>
   <data name="Editor_ViewRomTip" xml:space="preserve">
-    <value>Volver a la vista de la ROM con su equipo (antes guarda el proyecto)</value>
+    <value>Volver a los proyectos, con la vista previa de este (antes se guarda el proyecto)</value>
   </data>
   <data name="Tab_Locke" xml:space="preserve">
     <value>Locke</value>
@@ -3784,7 +3784,7 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>Reglas y tiendas</value>
   </data>
   <data name="Tab_Data" xml:space="preserve">
-    <value>Datos</value>
+    <value>Archivos</value>
   </data>
   <data name="Data_TabHint" xml:space="preserve">
     <value>Un archivo por apartado, para llevarte un conjunto de cambios a otra ROM sin rehacerlo. Guardan valores, nunca bytes del juego, y al importar solo se escribe lo que este juego tiene.</value>
@@ -3820,7 +3820,7 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>Las opciones del propio randomizer viajan en su preset: se importa y exporta en Aleatorizar, junto a la semilla.</value>
   </data>
   <data name="Data_SeeDataTab" xml:space="preserve">
-    <value>Los archivos de Pokémon, movimientos, entrenadores y reglas están en la pestaña Datos.</value>
+    <value>Los archivos de Pokémon, movimientos, entrenadores y reglas y el preset del randomizer (.rnqs) están en Proyecto → Archivos.</value>
   </data>
   <data name="Trainer_UnlockBoxesHint" xml:space="preserve">
     <value>Abre todas las cajas del PC. Queda en el editor hasta que escribas la partida.</value>
@@ -3850,7 +3850,7 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>Niveles de estáticos, regalos y dominantes</value>
   </data>
   <data name="Tab_GameBuild" xml:space="preserve">
-    <value>Crear y opciones</value>
+    <value>Generar</value>
   </data>
   <data name="Options_PresetModifier" xml:space="preserve">
     <value>El preajuste también suma aquí un {0} %. Con esta opción basta: la del randomizador se sumaría encima.</value>
@@ -4477,7 +4477,7 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>Todos shiny</value>
   </data>
   <data name="Game_ResetBaseModified" xml:space="preserve">
-    <value>Tu ROM base ya venía modificada al importarla (da otros iniciales). Empezar de nuevo devuelve los iniciales del juego y todo lo que cambia esta aplicación, pero lo que cambió la propia ROM base —salvajes, entrenadores, sus niveles— solo puede volver desde una ROM original del juego: elígela como ROM base en Ajustes.</value>
+    <value>Tu ROM base ya venía modificada al importarla (da otros iniciales). Empezar de nuevo devuelve los iniciales del juego y todo lo que cambia esta aplicación, pero lo que cambió la propia ROM base —salvajes, entrenadores, sus niveles— solo puede volver desde una ROM original del juego: elígela como ROM base en Proyecto → Generar.</value>
   </data>
   <data name="Set_BaseRomOtherGame" xml:space="preserve">
     <value>Esa ROM es {0} y este proyecto es {1}: no se ha cogido.</value>
@@ -4841,5 +4841,32 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   </data>
   <data name="TrainerKinds_Ours" xml:space="preserve">
     <value>al crear</value>
+  </data>
+  <data name="Tab_Project" xml:space="preserve">
+    <value>Proyecto</value>
+  </data>
+  <data name="Tab_Encounters" xml:space="preserve">
+    <value>Encuentros</value>
+  </data>
+  <data name="Tab_Items" xml:space="preserve">
+    <value>Objetos</value>
+  </data>
+  <data name="Tab_Rules" xml:space="preserve">
+    <value>Reglas</value>
+  </data>
+  <data name="Tab_History" xml:space="preserve">
+    <value>Historial</value>
+  </data>
+  <data name="Sub_Random" xml:space="preserve">
+    <value>Aleatorio</value>
+  </data>
+  <data name="Sub_Settings" xml:space="preserve">
+    <value>Ajustes</value>
+  </data>
+  <data name="Sub_Editor" xml:space="preserve">
+    <value>Editor avanzado</value>
+  </data>
+  <data name="Subject_SettingsHint" xml:space="preserve">
+    <value>Lo que esta aplicación escribe al crear la ROM: cambiarlo necesita crear la ROM, no otra semilla.</value>
   </data>
 </root>

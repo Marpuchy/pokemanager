@@ -17,14 +17,25 @@ public partial class EditorView : UserControl
                 vm.SaveEditor.EnsureOpen();
         };
 
+        // The randomizer's options are read from UPR ZX (a few seconds) the first time a subject tab is shown.
+        MainTabs.SelectionChanged += async (_, e) =>
+        {
+            if (e.Source != MainTabs || DataContext is not EditorViewModel vm)
+                return;
+            if (MainTabs.SelectedIndex is >= 1 and <= 6)
+                await vm.Randomizer.LoadOptionsAsync();
+        };
+
         // The mod library is hashed when its tab is first shown, for the same reason: a mod file can be hundreds of
         // megabytes, and a project that never visits the page should not pay for reading it.
-        GameTabs.SelectionChanged += (_, e) =>
+        ProjectTabs.SelectionChanged += (_, e) =>
         {
-            if (e.Source != GameTabs || DataContext is not EditorViewModel vm)
+            if (e.Source != ProjectTabs || DataContext is not EditorViewModel vm)
                 return;
-            if (GameTabs.SelectedItem == ModsTab)
+            if (ProjectTabs.SelectedItem == ModsTab)
                 vm.Mods.EnsureLoaded();
+            if (ProjectTabs.SelectedItem == HistoryTab)
+                vm.History.Refresh();
         };
 
         // Opened from the project preview on a Pokémon of the save: go straight to it.

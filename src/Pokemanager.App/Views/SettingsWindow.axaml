@@ -91,24 +91,7 @@
                 IsVisible="{Binding HasChosenExecutable}" />
       </Grid>
 
-      <StackPanel IsVisible="{Binding HasProject}" Spacing="6">
-        <TextBlock Classes="section" Text="{x:Static r:Strings.Set_CurrentProject}" />
-        <TextBlock Text="{x:Static r:Strings.Set_BaseRom}" />
-        <Grid ColumnDefinitions="*,Auto">
-          <TextBlock Text="{Binding BaseRomText}" TextWrapping="Wrap" VerticalAlignment="Center" />
-          <Button Grid.Column="1" Margin="6,0,0,0" Content="{x:Static r:Strings.Set_Change}" Command="{Binding BrowseBaseRomCommand}"
-                  ToolTip.Tip="{x:Static r:Strings.Set_ChangeBaseRomTip}" />
-        </Grid>
-        <TextBlock Classes="error" TextWrapping="Wrap" Text="{Binding BaseRomProblem}"
-                   IsVisible="{Binding BaseRomProblem, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
-      </StackPanel>
-
-      <!-- Version history of the open project: it used to be a tab of the editor -->
-      <StackPanel IsVisible="{Binding HasHistory}">
-        <TextBlock Classes="section" Text="{x:Static r:Strings.History_Title}" />
-        <TextBlock Classes="hint" Text="{x:Static r:Strings.Set_HistoryHint}" TextWrapping="Wrap" />
-        <Button Margin="0,6,0,0" HorizontalAlignment="Left" Content="{x:Static r:Strings.Set_OpenHistory}" Command="{Binding OpenHistoryCommand}" />
-      </StackPanel>
+      <!-- The project's base ROM and its version history are in the editor's Proyecto tab now (2026-11-09) -->
 
       <TextBlock Classes="section" Text="{x:Static r:Strings.Set_Tools}" />
       <TextBlock Text="{Binding UprText}" TextWrapping="Wrap" />

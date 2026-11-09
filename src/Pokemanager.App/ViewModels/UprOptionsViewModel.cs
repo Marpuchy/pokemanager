@@ -51,6 +51,7 @@ public partial class UprOptionsViewModel : ObservableObject
         Groups.Clear();
         byName.Clear();
         var groups = UprOptionCatalog.Groups.ToDictionary(g => g, g => new UprOptionGroupViewModel(g));
+        groupsById = groups;
         groups[UprOptionCatalog.Items].Shops = shops;
         groups[UprOptionCatalog.Trainers].Difficulty = difficulty;
         if (game?.Invoke() is { } tweaks)
@@ -95,6 +96,7 @@ public partial class UprOptionsViewModel : ObservableObject
         RefreshEnabled();
         SelectedGroup = Groups.FirstOrDefault();
         IsLoaded = true;
+        OnPropertyChanged(nameof(IsLoaded)); // the groups are new even when they were loaded before
         LoadStatus = "";
     }
 
@@ -127,6 +129,17 @@ public partial class UprOptionsViewModel : ObservableObject
         }
         group.KindTable = rows.Count > 0 ? new TrainerKindTableViewModel(rows) : null;
     }
+
+    private Dictionary<string, UprOptionGroupViewModel> groupsById = [];
+
+    /// <summary>
+    /// The groups with these ids, in that order, once the options are loaded (none before). With
+    /// <paramref name="withOptions"/>, only the ones that have options of the randomizer's to show.
+    /// </summary>
+    public IReadOnlyList<UprOptionGroupViewModel> GroupsFor(IEnumerable<string> ids, bool withOptions) => !IsLoaded
+        ? []
+        : [.. ids.Select(id => groupsById.GetValueOrDefault(id)).OfType<UprOptionGroupViewModel>()
+            .Where(g => !withOptions || g.Items.Count > 0)];
 
     public void Fail(string message)
     {
