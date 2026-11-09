@@ -73,7 +73,9 @@ public sealed class EvolutionChainViewModel
         }
 
         var self = (species, form);
-        var root = self;
+        // A mega form evolves from nothing in the table: its line is its Pokémon's, with the mega framed in the last
+        // column (2026-11-09, user: "cuando selecciono la mega no salen las preevoluciones").
+        var root = data.MegaStoneByForm.ContainsKey(self) ? (species, 0) : self;
         var seen = new HashSet<(int, int)> { root };
         while (parent.TryGetValue(root, out var up) && seen.Add(up))
             root = up;
