@@ -3535,7 +3535,7 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>Samina</value>
   </data>
   <data name="Character_MALLOW" xml:space="preserve">
-    <value>Mayla</value>
+    <value>Lulú</value>
   </data>
   <data name="Character_LANA" xml:space="preserve">
     <value>Nereida</value>
@@ -4793,5 +4793,11 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   </data>
   <data name="Species_FormNamed" xml:space="preserve">
     <value>{0} ({1})</value>
+  </data>
+  <data name="Character_ILIMA" xml:space="preserve">
+    <value>Liam</value>
+  </data>
+  <data name="Character_ACEROLA" xml:space="preserve">
+    <value>Zarala</value>
   </data>
 </root>

@@ -4794,4 +4794,10 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Species_FormNamed" xml:space="preserve">
     <value>{0} ({1})</value>
   </data>
+  <data name="Character_ILIMA" xml:space="preserve">
+    <value>Ilima</value>
+  </data>
+  <data name="Character_ACEROLA" xml:space="preserve">
+    <value>Acerola</value>
+  </data>
 </root>

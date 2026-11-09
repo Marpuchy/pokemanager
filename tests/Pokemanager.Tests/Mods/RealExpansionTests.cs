@@ -247,5 +247,20 @@ public sealed class RealExpansionTests
         Assert.False(BattleSafety.IsZCrystal(fixedTeam[^1].Item));
         Assert.DoesNotContain(fixedTeam, m => BattleSafety.IsTotem(m.Species, m.Form)); // no totem outside a totem battle
         Assert.Equal(0, BattleSafety.FixTrainers(data, data.Title, records, teams)); // nothing left to do
+
+        // 2026-11-09, user: only bosses and important trainers mega evolve, and every boss does.
+        var stones = data.MegaStones.ToHashSet();
+        for (int id = 1; id < records.Length; id++)
+        {
+            var trainer = Trainer.Read(data.Title, records[id], teams[id]);
+            if (trainer.Unreadable || trainer.Count == 0)
+                continue;
+            var kind = TrainerRoles.DifficultyOf(data.Title, id);
+            int megas = trainer.Team.Count(m => stones.Contains(m.Item));
+            if (kind == TrainerDifficulty.Regular)
+                Assert.Equal(0, megas);
+            if (kind == TrainerDifficulty.Boss)
+                Assert.True(megas == 1 && stones.Contains(trainer.Team.Last().Item), $"boss {id}");
+        }
     }
 }
