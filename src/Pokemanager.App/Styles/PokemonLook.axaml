@@ -382,49 +382,59 @@
           </Grid>
         </StackPanel>
       </DataTemplate>
-      <!-- An evolution line: stages left to right, each Pokémon a card in its type colours that opens its own page -->
+      <!-- An evolution line: a tree left to right — each Pokémon a card in its type colours that opens its own page,
+           its branches stacked one under the other behind an arrow, two or more columns when there are many -->
       <DataTemplate x:Key="EvolutionChain" x:DataType="vm:EvolutionChainViewModel">
-        <ItemsControl ItemsSource="{Binding Stages}" HorizontalAlignment="Center">
-          <ItemsControl.ItemsPanel>
-            <ItemsPanelTemplate>
-              <WrapPanel Orientation="Horizontal" />
-            </ItemsPanelTemplate>
-          </ItemsControl.ItemsPanel>
-          <ItemsControl.ItemTemplate>
-            <DataTemplate x:DataType="vm:EvolutionStageViewModel">
+        <ContentControl Content="{Binding Root}" HorizontalAlignment="Center">
+          <ContentControl.DataTemplates>
+            <DataTemplate DataType="vm:EvolutionBranchViewModel">
               <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock Text="➜" FontSize="22" Foreground="#8A96A3" VerticalAlignment="Center" Margin="6,0,6,0"
-                           IsVisible="{Binding !IsFirst}" />
-                <ItemsControl ItemsSource="{Binding Nodes}" VerticalAlignment="Center" MaxWidth="636">
-                  <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                      <WrapPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                  </ItemsControl.ItemsPanel>
+                <Button Classes="plain evo-node" Classes.current="{Binding Node.IsCurrent}" Command="{Binding Node.OpenCommand}"
+                        IsHitTestVisible="{Binding Node.CanOpen}" Width="150" Margin="3" VerticalAlignment="Center"
+                        ToolTip.Tip="{x:Static r:Strings.Evo_OpenTip}">
+                  <Border Classes="evo-card" Background="{Binding Node.Background}">
+                    <StackPanel Spacing="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                      <Image Source="{Binding Node.Icon}" Width="80" Height="60" Stretch="Uniform"
+                             RenderOptions.BitmapInterpolationMode="None" HorizontalAlignment="Center" />
+                      <TextBlock Text="{Binding Node.Name}" Foreground="{Binding Node.Foreground}" FontWeight="Bold" FontSize="13"
+                                 HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                      <Border Classes="evo-how" IsVisible="{Binding Node.HasHow}">
+                        <TextBlock Text="{Binding Node.How}" TextWrapping="Wrap" TextAlignment="Center" FontSize="11" />
+                      </Border>
+                    </StackPanel>
+                  </Border>
+                </Button>
+                <!-- Up to four branches: one column, each as tall as it needs -->
+                <ItemsControl ItemsSource="{Binding Children}" IsVisible="{Binding IsNarrow}" VerticalAlignment="Center">
                   <ItemsControl.ItemTemplate>
-                    <DataTemplate x:DataType="vm:EvolutionNodeViewModel">
-                      <Button Classes="plain evo-node" Classes.current="{Binding IsCurrent}" Command="{Binding OpenCommand}"
-                              IsHitTestVisible="{Binding CanOpen}" Width="150" Margin="3"
-                              ToolTip.Tip="{x:Static r:Strings.Evo_OpenTip}">
-                        <Border Classes="evo-card" Background="{Binding Background}">
-                          <StackPanel Spacing="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <Image Source="{Binding Icon}" Width="80" Height="60" Stretch="Uniform"
-                                   RenderOptions.BitmapInterpolationMode="None" HorizontalAlignment="Center" />
-                            <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground}" FontWeight="Bold" FontSize="13"
-                                       HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" />
-                            <Border Classes="evo-how" IsVisible="{Binding HasHow}">
-                              <TextBlock Text="{Binding How}" TextWrapping="Wrap" TextAlignment="Center" FontSize="11" />
-                            </Border>
-                          </StackPanel>
-                        </Border>
-                      </Button>
+                    <DataTemplate x:DataType="vm:EvolutionBranchViewModel">
+                      <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="➜" FontSize="22" Foreground="#8A96A3" VerticalAlignment="Center" Margin="6,0" />
+                        <ContentControl Content="{Binding}" VerticalAlignment="Center" />
+                      </StackPanel>
                     </DataTemplate>
                   </ItemsControl.ItemTemplate>
                 </ItemsControl>
+                <!-- Many branches (Eevee): columns of four, behind one arrow -->
+                <StackPanel Orientation="Horizontal" IsVisible="{Binding IsWide}" VerticalAlignment="Center">
+                  <TextBlock Text="➜" FontSize="22" Foreground="#8A96A3" VerticalAlignment="Center" Margin="6,0" />
+                  <ItemsControl ItemsSource="{Binding Children}" VerticalAlignment="Center">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <UniformGrid Rows="4" />
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vm:EvolutionBranchViewModel">
+                        <ContentControl Content="{Binding}" VerticalAlignment="Center" />
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
               </StackPanel>
             </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
+          </ContentControl.DataTemplates>
+        </ContentControl>
       </DataTemplate>
     </ResourceDictionary>
   </Styles.Resources>

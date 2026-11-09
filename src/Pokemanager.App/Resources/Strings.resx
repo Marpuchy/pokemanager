@@ -4788,4 +4788,10 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Tip_DetailOriginalStats" xml:space="preserve">
     <value>Shows this Pokémon's base stats as the ROM has them (mod and randomization included) before this project's edits, next to the current ones.</value>
   </data>
+  <data name="Species_Mega" xml:space="preserve">
+    <value>Mega {0}</value>
+  </data>
+  <data name="Species_FormNamed" xml:space="preserve">
+    <value>{0} ({1})</value>
+  </data>
 </root>

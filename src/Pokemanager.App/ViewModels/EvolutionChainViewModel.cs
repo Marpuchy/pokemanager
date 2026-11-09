@@ -1,4 +1,4 @@
-using Avalonia.Media;
+﻿using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.Input;
 using Pokemanager.App.Resources;
@@ -28,23 +28,38 @@ public sealed class EvolutionNodeViewModel(int species, int form, string name, s
     public IRelayCommand OpenCommand { get; } = new RelayCommand(() => open?.Invoke(species, form));
 }
 
-/// <summary>A column of the line: the Pokémon of the same stage (one, or several when it branches like Eevee).</summary>
-public sealed record EvolutionStageViewModel(IReadOnlyList<EvolutionNodeViewModel> Nodes, bool IsFirst);
+/// <summary>
+/// A Pokémon of the line and what it becomes: drawn as its card, then its branches stacked one under the other, each
+/// behind an arrow (2026-11-09, user chose vertical branches: the Raichu megas fell into a second row with no arrow).
+/// </summary>
+public sealed class EvolutionBranchViewModel(EvolutionNodeViewModel node, IReadOnlyList<EvolutionBranchViewModel> children)
+{
+    /// <summary>Above this many branches they go in two or more columns (Eevee's eight: two columns of four).</summary>
+    public const int MostInAColumn = 4;
+
+    public EvolutionNodeViewModel Node { get; } = node;
+    public IReadOnlyList<EvolutionBranchViewModel> Children { get; } = children;
+    public bool HasChildren => Children.Count > 0;
+    public bool IsWide => Children.Count > MostInAColumn;
+    public bool IsNarrow => HasChildren && !IsWide;
+    public int Columns => (Children.Count + MostInAColumn - 1) / MostInAColumn;
+}
 
 /// <summary>
-/// The whole evolution line of a Pokémon as the ROM has it (mods, randomization and edits included): from its first stage
-/// to its last, every branch, with how each one is reached. Each Pokémon of the line opens its own page.
+/// The whole evolution line of a Pokémon as the ROM has it (mods, randomization and edits included): a tree from its
+/// first stage, every branch with how it is reached, and each mega evolution next to the Pokémon it comes from. Each
+/// Pokémon of the line opens its own page.
 /// </summary>
 public sealed class EvolutionChainViewModel
 {
-    private const int MostStages = 6;
+    private const int MostDepth = 8;
 
-    public IReadOnlyList<EvolutionStageViewModel> Stages { get; }
+    public EvolutionBranchViewModel Root { get; }
 
     /// <summary>Only the Pokémon itself: it neither evolves nor comes from anything.</summary>
-    public bool IsAlone => Stages.Count <= 1;
+    public bool IsAlone => !Root.HasChildren;
 
-    private EvolutionChainViewModel(IReadOnlyList<EvolutionStageViewModel> stages) => Stages = stages;
+    private EvolutionChainViewModel(EvolutionBranchViewModel root) => Root = root;
 
     /// <param name="open">What a click on another Pokémon of the line does (species, form); null for no links.</param>
     public static EvolutionChainViewModel Build(GameData data, GameNames names, int species, int form,
@@ -72,10 +87,24 @@ public sealed class EvolutionChainViewModel
             }
         }
 
+        // The mega evolutions hang from the Pokémon they come from (issue #2: "las megas deben salir"). They come from
+        // the ROM's own mega table, so a mod's megas (Mega Raichu, Mega Staraptor) are there too.
+        foreach (var (key, stone) in data.MegaStoneByForm.OrderBy(p => p.Key.Species).ThenBy(p => p.Key.Form))
+        {
+            var from = (key.Species, 0);
+            if (!children.TryGetValue(from, out var list))
+                children[from] = list = [];
+            if (list.Any(c => c.To == key))
+                continue;
+            string how = stone > 0 && stone < names.Items.Count
+                ? string.Format(Strings.Evo_MegaWith, names.Items[stone])
+                : Strings.Evo_Mega;
+            list.Add((key, how));
+            parent.TryAdd(key, from);
+        }
+
         var self = (species, form);
-        // A mega form evolves from nothing in the table: its line is its Pokémon's, with the mega framed in the last
-        // column (2026-11-09, user: "cuando selecciono la mega no salen las preevoluciones").
-        var root = data.MegaStoneByForm.ContainsKey(self) ? (species, 0) : self;
+        var root = self;
         var seen = new HashSet<(int, int)> { root };
         while (parent.TryGetValue(root, out var up) && seen.Add(up))
             root = up;
@@ -91,40 +120,17 @@ public sealed class EvolutionChainViewModel
                 TypeColors.Background(types[0], types[1]), TypeColors.Foreground(types), mon == self, open);
         }
 
-        var stages = new List<EvolutionStageViewModel> { new([Node(root, "")], true) };
         var visited = new HashSet<(int, int)> { root };
-        var current = new List<(int, int)> { root };
-        while (stages.Count < MostStages)
+        EvolutionBranchViewModel Branch((int Species, int Form) mon, string how, int depth)
         {
-            var next = new List<EvolutionNodeViewModel>();
-            var nextKeys = new List<(int, int)>();
-            foreach (var mon in current)
-                foreach (var (to, how) in children.GetValueOrDefault(mon) ?? [])
+            var below = new List<EvolutionBranchViewModel>();
+            if (depth < MostDepth)
+                foreach (var (to, toHow) in children.GetValueOrDefault(mon) ?? [])
                     if (visited.Add(to))
-                    {
-                        next.Add(Node(to, how));
-                        nextKeys.Add(to);
-                    }
-            if (next.Count == 0)
-                break;
-            stages.Add(new EvolutionStageViewModel(next, false));
-            current = nextKeys;
+                        below.Add(Branch(to, toHow, depth + 1));
+            return new EvolutionBranchViewModel(Node(mon, how), below);
         }
 
-        // The mega evolutions of every Pokémon of the line, as one more column (2026-11-09, issue #2: "las megas deben
-        // salir"). They come from the ROM's own mega table, so a mod's megas (Mega Staraptor) are there too.
-        var megas = new List<EvolutionNodeViewModel>();
-        foreach (var (key, stone) in data.MegaStoneByForm.OrderBy(p => p.Key.Species).ThenBy(p => p.Key.Form))
-        {
-            if (!visited.Contains((key.Species, 0)) || !visited.Add(key))
-                continue;
-            string how = stone > 0 && stone < names.Items.Count
-                ? string.Format(Strings.Evo_MegaWith, names.Items[stone])
-                : Strings.Evo_Mega;
-            megas.Add(Node(key, how));
-        }
-        if (megas.Count > 0)
-            stages.Add(new EvolutionStageViewModel(megas, false));
-        return new EvolutionChainViewModel(stages);
+        return new EvolutionChainViewModel(Branch(root, "", 0));
     }
 }

@@ -4788,4 +4788,10 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Tip_DetailOriginalStats" xml:space="preserve">
     <value>Muestra los stats base de este Pokémon tal como los tiene la ROM (con el mod y la randomización) antes de los retoques del proyecto, junto a los actuales.</value>
   </data>
+  <data name="Species_Mega" xml:space="preserve">
+    <value>Mega {0}</value>
+  </data>
+  <data name="Species_FormNamed" xml:space="preserve">
+    <value>{0} ({1})</value>
+  </data>
 </root>

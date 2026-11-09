@@ -79,7 +79,7 @@ public sealed class GameNames
         ItemDescriptions = [.. text.Get(TextName.ItemFlavor).Select(Plain)];
         // The split between species and forms comes from the ROM's own personal table, not from pk3DS's
         // GameInfo.MaxSpeciesID: a ROM with a species-expansion mod has more species than the game ships with.
-        PersonalEntries = BuildPersonalEntryNames(original, Species, original.LastSpecies);
+        PersonalEntries = BuildPersonalEntryNames(original, Species, original.LastSpecies, dump.Language);
         var (classifications, entries) = GameText.PokedexFiles(dump.Title);
         Classifications = [.. (text.Raw(classifications) ?? []).Select(Plain)];
         PokedexEntries = [.. (text.Raw(entries) ?? []).Select(Plain)];
@@ -176,7 +176,7 @@ public sealed class GameNames
     /// they start and with <c>FormeCount</c> how many forms it has.
     /// </summary>
     /// <param name="maxSpecies">The ROM's last species (<see cref="GameData.LastSpecies"/>); the rows above it are forms.</param>
-    private static string[] BuildPersonalEntryNames(GameData data, IReadOnlyList<string> species, int maxSpecies)
+    private static string[] BuildPersonalEntryNames(GameData data, IReadOnlyList<string> species, int maxSpecies, GameLanguage language)
     {
         var names = new string[data.Personal.Length];
         for (int i = 0; i < names.Length; i++)
@@ -186,16 +186,33 @@ public sealed class GameNames
         // leaves the extra ones with their row label, and their forms are named after it.
         string SpeciesName(int id) => id < species.Count ? species[id] : string.Format(Strings.Species_Entry, id);
 
+        // Forms by name (2026-11-09, user: "Raichu (forma 1)" in the evolution line): a mega from the ROM's own mega
+        // table — so a mod's megas are named too —, otherwise PKHeX's form name for the species as the game shipped it
+        // ("Alola", "Gorra Original"); a form neither knows (one a mod added) keeps its number.
+        var pkhex = PKHeX.Core.GameInfo.GetStrings(SaveNames.PkhexLanguage(language));
+        var context = data.Title.Generation() == 7 ? PKHeX.Core.EntityContext.Gen7 : PKHeX.Core.EntityContext.Gen6;
+        int vanillaLast = data.Title.Generation() == 7 ? 807 : 721;
+
         for (int s = 1; s <= maxSpecies && s < data.Personal.Length; s++)
         {
             var p = data.Personal[s];
             if (p.FormStatsIndex <= 0)
                 continue;
+            var megas = data.MegaForms.Where(m => m.Species == s).Select(m => m.Form).Order().ToList();
+            string[] known = s <= vanillaLast
+                ? PKHeX.Core.FormConverter.GetFormList((ushort)s, pkhex.types, pkhex.forms, PKHeX.Core.GameInfo.GenderSymbolUnicode, context)
+                : [];
             for (int form = 1; form < p.FormeCount; form++)
             {
                 int index = p.FormStatsIndex + form - 1;
-                if (index < names.Length)
-                    names[index] = string.Format(Strings.Species_Form, SpeciesName(s), form);
+                if (index >= names.Length)
+                    continue;
+                int mega = megas.IndexOf(form);
+                names[index] = mega >= 0
+                    ? string.Format(Strings.Species_Mega, SpeciesName(s)) + (megas.Count > 1 ? " " + (char)('X' + mega) : "")
+                    : form < known.Length && known[form].Trim() is { Length: > 0 } formName && !known[form].StartsWith("Mega", StringComparison.Ordinal)
+                        ? string.Format(Strings.Species_FormNamed, SpeciesName(s), formName)
+                        : string.Format(Strings.Species_Form, SpeciesName(s), form);
             }
         }
 
