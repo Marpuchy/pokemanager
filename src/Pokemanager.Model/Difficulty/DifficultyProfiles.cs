@@ -107,6 +107,10 @@ public static class DifficultyProfiles
 
     public static DifficultyProfile Of(DifficultyLevel level) => All.First(p => p.Level == level);
 
+    /// <summary>The level from which the profile gives megas (the lowest of its rules), or null when it gives none.</summary>
+    public static int? MegaFromLevel(DifficultyProfile profile) =>
+        new[] { profile.Regular, profile.Important, profile.Boss }.Select(r => r.MegaFromLevel).Where(l => l is not null).Min();
+
     /// <summary>
     /// The fields a profile owns: they are put back to what the ROM says before it writes, so a profile applied over
     /// another is that profile and not the two together. Everything else a trainer has — its team, its moves, its
@@ -135,7 +139,8 @@ public static class DifficultyProfiles
     /// Writes the profile over every trainer of the game. The caller wraps it in one undo step; nothing is written for
     /// a value that already says what the profile wants, so the count is what actually moved.
     /// </summary>
-    public static DifficultyResult Apply(EditorSession session, DifficultyLevel level)
+    /// <param name="megaFromLevel">Overrides the level from which the profile's rules give megas; null keeps theirs.</param>
+    public static DifficultyResult Apply(EditorSession session, DifficultyLevel level, int? megaFromLevel = null)
     {
         var profile = Of(level);
         var title = session.Current.Title;
@@ -174,7 +179,7 @@ public static class DifficultyProfiles
                 for (int i = 1; i <= 4; i++)
                     changed += Set(session, id, $"item{i}", i <= bag ? FullRestore : 0);
             }
-            if (rule.MegaFromLevel is { } from && stones.Count > 0)
+            if ((rule.MegaFromLevel is null ? null : megaFromLevel ?? rule.MegaFromLevel) is { } from && stones.Count > 0)
                 changed += SetMegaStone(session, id, generation, from, stones);
 
             values += changed;

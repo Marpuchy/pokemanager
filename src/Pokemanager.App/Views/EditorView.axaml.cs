@@ -13,7 +13,7 @@ public partial class EditorView : UserControl
         {
             if (e.Source != MainTabs || DataContext is not EditorViewModel vm)
                 return;
-            if (MainTabs.SelectedItem == SaveTab)
+            if (MainTabs.SelectedItem == SaveTab || MainTabs.SelectedItem == DexTab)
                 vm.SaveEditor.EnsureOpen();
         };
 

@@ -30,7 +30,20 @@ public static class PkhexImages
     /// <summary>An item's icon; TMs and HMs share one; unknown items get a question mark. Null for no item.</summary>
     public static Bitmap? Item(int item, bool isTm = false) => item <= 0
         ? null
-        : isTm ? Load("items/bitem_tm.png") : Load($"items/bitem_{Piece(item)}.png") ?? Load("items/bitem_unk.png");
+        : isTm ? Load("items/bitem_tm.png")
+        : Load($"items/bitem_{Piece(item)}.png")
+          ?? (RomMegaStones.Contains(item) ? Load($"items/bitem_{GenericMegaStone}.png") : null)
+          ?? Load("items/bitem_unk.png");
+
+    /// <summary>
+    /// The Mega Stones of the ROM being shown, from its own mega evolution table. A mod's stones (the USUM Expansion
+    /// reuses ids 505-520 and adds 961-1023) have no PKHeX icon and showed as "?" (2026-11-09, issue #2): they get the
+    /// look of a Mega Stone instead. Set whenever a session is opened; ids PKHeX has an icon for keep theirs.
+    /// </summary>
+    public static IReadOnlySet<int> RomMegaStones { get; set; } = new HashSet<int>();
+
+    /// <summary>A Mega Stone PKHeX draws (Gengarite), used for the stones it has no icon of.</summary>
+    private const int GenericMegaStone = 656;
 
     /// <summary>
     /// The held piece of a Z-crystal, which is the id PKHeX has an icon for: the bag keeps the bead instead, a second id

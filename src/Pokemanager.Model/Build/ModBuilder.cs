@@ -106,7 +106,7 @@ public static class ModBuilder
             byte[][] files = garc.Files;
             if (GameShops.RareCandy < files.Length)
             {
-                var item = new Item(files[GameShops.RareCandy]) { BuyPrice = 0 };
+                var item = new Item(files[GameShops.RareCandy]) { BuyPrice = GameShops.CheapestPrice };
                 files[GameShops.RareCandy] = item.Write();
                 outputs["romfs/" + path] = GARC.PackGARC(files, garc.Version, garc.ContentPadding).Data;
             }

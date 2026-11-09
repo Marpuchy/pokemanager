@@ -1,4 +1,4 @@
-<Application xmlns="https://github.com/avaloniaui"
+﻿<Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Pokemanager.App.ViewModels"
              xmlns:views="using:Pokemanager.App.Views"
@@ -17,6 +17,9 @@
     </DataTemplate>
     <DataTemplate DataType="vm:SaveEditorViewModel">
       <views:SaveEditorView />
+    </DataTemplate>
+    <DataTemplate DataType="vm:SaveDexViewModel">
+      <views:SaveDexView />
     </DataTemplate>
     <DataTemplate DataType="vm:HistoryViewModel">
       <views:HistoryView />

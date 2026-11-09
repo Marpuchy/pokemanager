@@ -23,9 +23,26 @@ public sealed partial class DifficultyViewModel : ObservableObject
         Levels = [.. DifficultyProfiles.All.Select(p => new DifficultyOptionViewModel(p))];
         Selected = Levels.FirstOrDefault(o => o.Level == session.Project.Tweaks.Difficulty)
                    ?? Levels.First(o => o.Level == DifficultyLevel.Normal);
+        MegaFromLevel = session.Project.Tweaks.DifficultyMegaFromLevel ?? Selected.MegaFromLevel;
     }
 
     public IReadOnlyList<DifficultyOptionViewModel> Levels { get; }
+
+    /// <summary>
+    /// From what level the trainers the profile gives megas to carry them (issue #2: it must be adjustable). Shown only
+    /// for a profile that gives megas; it starts at the project's choice or the profile's own.
+    /// </summary>
+    [ObservableProperty]
+    public partial decimal? MegaFromLevel { get; set; }
+
+    public bool HasMegas => Selected.MegaFromLevel is not null;
+
+    partial void OnSelectedChanged(DifficultyOptionViewModel value)
+    {
+        OnPropertyChanged(nameof(HasMegas));
+        if (value.MegaFromLevel is { } own)
+            MegaFromLevel = session.Project.Tweaks.DifficultyMegaFromLevel ?? own;
+    }
 
     [ObservableProperty]
     public partial DifficultyOptionViewModel Selected { get; set; }
@@ -46,8 +63,11 @@ public sealed partial class DifficultyViewModel : ObservableObject
         DifficultyResult result;
         using (editor.BeginBatch(string.Format(Strings.Difficulty_Undo, Selected.Name)))
         {
-            result = DifficultyProfiles.Apply(session, level);
+            int? megas = HasMegas && MegaFromLevel is { } chosen ? (int)Math.Clamp(chosen, 1, 100) : null;
+            result = DifficultyProfiles.Apply(session, level, megas);
             session.Project.Tweaks.TrainerLevelPercent = DifficultyProfiles.Of(level).TrainerLevelPercent;
+            // Only a choice that differs from the profile's own is kept, so changing the profile later follows it.
+            session.Project.Tweaks.DifficultyMegaFromLevel = megas is { } m && m != Selected.MegaFromLevel ? m : null;
             session.Project.Tweaks.Difficulty = level == DifficultyLevel.Normal ? null : level;
         }
 
@@ -88,6 +108,7 @@ public sealed class DifficultyOptionViewModel
     }
 
     public DifficultyLevel Level => profile.Level;
+    public int? MegaFromLevel => DifficultyProfiles.MegaFromLevel(profile);
     public string Name { get; }
     public string About { get; }
 
@@ -119,8 +140,8 @@ public sealed class DifficultyOptionViewModel
             parts.Add(string.Format(Strings.Difficulty_Ivs, ivs));
         if (rule.BagItems is { } bag)
             parts.Add(bag == 0 ? Strings.Difficulty_NoBag : string.Format(Strings.Difficulty_Bag, bag));
-        if (rule.MegaFromLevel is not null)
-            parts.Add(Strings.Difficulty_Mega);
+        if (rule.MegaFromLevel is { } from)
+            parts.Add(string.Format(Strings.Difficulty_MegaFrom, from));
         return $"{group}: {string.Join(" · ", parts)}";
     }
 }

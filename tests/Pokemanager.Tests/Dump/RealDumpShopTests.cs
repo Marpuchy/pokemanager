@@ -73,9 +73,8 @@ public class RealDumpShopTests
         // The price, in the item table.
         var layout = GameTitle.X.Layout();
         byte[][] items = new GARC.MemGARC(built["romfs/" + layout.Items]).Files;
-        // The game keeps one price and derives both from it, so free to buy is also worth nothing to sell.
-        Assert.Equal(0, new Item(items[GameShops.RareCandy]).BuyPrice);
-        Assert.Equal(0, new Item(items[GameShops.RareCandy]).SellPrice);
+        // The cheapest price there is: at 0 the shop only lets the player buy one at a time.
+        Assert.Equal(GameShops.CheapestPrice, new Item(items[GameShops.RareCandy]).BuyPrice);
         Assert.Equal(200, new Item(items[4]).BuyPrice); // nothing else moved
 
         // The shops, in code.bin.
@@ -177,11 +176,11 @@ public class RealDumpShopTests
         var project = new Project { DumpDirectory = dumpDir };
         project.Shops.FreeRareCandies = true;
         var session = EditorSession.Open(project);
-        session.SetInt(GameTables.Items, GameShops.RareCandy, "price", 10);
+        session.SetInt(GameTables.Items, GameShops.RareCandy, "price", 50);
 
         var built = ModBuilder.BuildEdits(session);
 
         byte[][] items = new GARC.MemGARC(built["romfs/" + GameTitle.X.Layout().Items]).Files;
-        Assert.Equal(10, new Item(items[GameShops.RareCandy]).BuyPrice);
+        Assert.Equal(50, new Item(items[GameShops.RareCandy]).BuyPrice);
     }
 }

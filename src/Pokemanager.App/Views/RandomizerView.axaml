@@ -199,6 +199,12 @@
                         </ListBox.ItemTemplate>
                       </ListBox>
                       <TextBlock Text="{Binding Selected.Detail}" TextWrapping="Wrap" Margin="0,2" />
+                      <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding HasMegas}"
+                                  ToolTip.Tip="{x:Static r:Strings.Tip_DifficultyMegaFrom}">
+                        <TextBlock Text="{x:Static r:Strings.Difficulty_MegaFromLabel}" VerticalAlignment="Center" />
+                        <NumericUpDown Value="{Binding MegaFromLevel}" Minimum="1" Maximum="100" Increment="1" FormatString="0"
+                                       ParsingNumberStyle="Integer" Width="110" />
+                      </StackPanel>
                       <Button Content="{x:Static r:Strings.Difficulty_Apply}" Command="{Binding ApplyCommand}" HorizontalAlignment="Left" />
                       <TextBlock Text="{Binding Result}" TextWrapping="Wrap" Classes="hint" />
                     </StackPanel>

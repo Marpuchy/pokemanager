@@ -1,6 +1,7 @@
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.Input;
+using Pokemanager.App.Resources;
 using Pokemanager.App.Services;
 using Pokemanager.Model.Data;
 using Pokemanager.Model.Dump;
@@ -107,6 +108,21 @@ public sealed class EvolutionChainViewModel
             stages.Add(new EvolutionStageViewModel(next, false));
             current = nextKeys;
         }
+
+        // The mega evolutions of every Pokémon of the line, as one more column (2026-11-09, issue #2: "las megas deben
+        // salir"). They come from the ROM's own mega table, so a mod's megas (Mega Staraptor) are there too.
+        var megas = new List<EvolutionNodeViewModel>();
+        foreach (var (key, stone) in data.MegaStoneByForm.OrderBy(p => p.Key.Species).ThenBy(p => p.Key.Form))
+        {
+            if (!visited.Contains((key.Species, 0)) || !visited.Add(key))
+                continue;
+            string how = stone > 0 && stone < names.Items.Count
+                ? string.Format(Strings.Evo_MegaWith, names.Items[stone])
+                : Strings.Evo_Mega;
+            megas.Add(Node(key, how));
+        }
+        if (megas.Count > 0)
+            stages.Add(new EvolutionStageViewModel(megas, false));
         return new EvolutionChainViewModel(stages);
     }
 }

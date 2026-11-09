@@ -913,6 +913,19 @@
       <TabItem x:Name="SaveTab" Header="{x:Static r:Strings.Tab_Save}">
         <ContentControl Content="{Binding SaveEditor}" />
       </TabItem>
+
+      <!-- ================= Pokédex: next to the ROM and the run (issue #2) ================= -->
+      <TabItem x:Name="DexTab" Header="{x:Static r:Strings.Save_TabDex}">
+        <Panel>
+          <ContentControl Content="{Binding SaveEditor.Dex}" IsVisible="{Binding SaveEditor.Dex, Converter={x:Static ObjectConverters.IsNotNull}}" />
+          <StackPanel Margin="24" Spacing="8" MaxWidth="760" HorizontalAlignment="Left"
+                      IsVisible="{Binding SaveEditor.Dex, Converter={x:Static ObjectConverters.IsNull}}">
+            <TextBlock Classes="section" Text="{x:Static r:Strings.Save_TabDex}" />
+            <TextBlock Text="{Binding SaveEditor.Message}" TextWrapping="Wrap" />
+            <Button Content="{x:Static r:Strings.Save_ReloadButton}" Command="{Binding SaveEditor.ReloadCommand}" />
+          </StackPanel>
+        </Panel>
+      </TabItem>
     </TabControl>
   </DockPanel>
 </UserControl>

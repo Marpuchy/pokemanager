@@ -52,9 +52,8 @@ public partial class EditorViewModel : ObservableObject
     /// <summary>Opens on the save's Pokédex (the shortcut of the project preview).</summary>
     public void ShowSaveDex()
     {
-        SelectedTab = SaveTabIndex;
+        SelectedTab = DexTabIndex;
         SaveEditor.EnsureOpen();
-        SaveEditor.SelectedTab = SaveEditorViewModel.DexTab;
     }
 
     [ObservableProperty]
@@ -207,6 +206,7 @@ public partial class EditorViewModel : ObservableObject
         Dump = dump;
         Session = session;
         Names = new GameNames(dump, session.Original, session.Layers);
+        PkhexImages.RomMegaStones = session.Original.MegaStones.ToHashSet();
         Sprites = PokemonSprites.Load(session.Project, session.Original);
         LoadLists();
 
@@ -546,7 +546,10 @@ public partial class EditorViewModel : ObservableObject
 
     private const int SaveTabIndex = 1;
 
-    private SnapshotHistory ActiveUndo => SelectedTab == SaveTabIndex ? SaveEditor.Undo : ProjectUndo;
+    /// <summary>The Pokédex, a top-level tab since issue #2; its flags are the save's, so it shares the save's undo.</summary>
+    private const int DexTabIndex = 2;
+
+    private SnapshotHistory ActiveUndo => SelectedTab is SaveTabIndex or DexTabIndex ? SaveEditor.Undo : ProjectUndo;
 
     public string UndoText => ActiveUndo.UndoCount > 0 ? string.Format(Strings.Undo_Button, ActiveUndo.UndoCount) : Strings.Undo_ButtonNone;
     public string RedoText => ActiveUndo.RedoCount > 0 ? string.Format(Strings.Redo_Button, ActiveUndo.RedoCount) : Strings.Redo_ButtonNone;
@@ -1043,6 +1046,7 @@ public partial class EditorViewModel : ObservableObject
         Session.Changed -= OnSessionChanged;
         Session = EditorSession.Open(project, randomRomFs, upr.Mods);
         Names = new GameNames(Dump, Session.Original, Session.Layers);
+        PkhexImages.RomMegaStones = Session.Original.MegaStones.ToHashSet();
         // Restoring a version brings its mods back too (ProjectHistory.RestoreInto), and a mod ships the icon archive.
         Sprites = PokemonSprites.Load(project, Session.Original);
         LoadLists();
@@ -1341,6 +1345,7 @@ public partial class EditorViewModel : ObservableObject
         Session.Changed -= OnSessionChanged;
         Session = EditorSession.Open(Session.Project, wanted, upr.Mods);
         Names = new GameNames(Dump, Session.Original, Session.Layers);
+        PkhexImages.RomMegaStones = Session.Original.MegaStones.ToHashSet();
         // The icons come from the new stack too: a species-expansion mod ships the icon archive and the executable
         // that holds the species-to-icon table, so the sprites loaded over the old base are not this ROM's.
         Sprites = PokemonSprites.Load(Session.Project, Session.Original);

@@ -1,0 +1,254 @@
+﻿<!--
+  The Pokédex of the run: every Pokémon and form of the ROM, with the save's seen / caught flags. A top-level tab of its
+  own since 2026-11-09 (issue #2: "el apartado de pokedex debe salir arriba al lado de rom y partida").
+-->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Pokemanager.App.ViewModels"
+             xmlns:r="using:Pokemanager.App.Resources"
+             xmlns:c="using:Pokemanager.App.Controls"
+             x:Class="Pokemanager.App.Views.SaveDexView"
+             x:DataType="vm:SaveDexViewModel">
+
+  <UserControl.Styles>
+    <!-- Pokédex: seen / caught as small flags (grey outline off, filled on), rows with a rule between them -->
+    <Style Selector="ToggleButton.flag">
+      <Setter Property="Padding" Value="7,1" />
+      <Setter Property="MinHeight" Value="0" />
+      <Setter Property="CornerRadius" Value="2" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="ToggleButton.flag.large">
+      <Setter Property="Padding" Value="10,3" />
+    </Style>
+    <Style Selector="ToggleButton.flag /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="White" />
+      <Setter Property="BorderBrush" Value="#C8D0D6" />
+    </Style>
+    <Style Selector="ToggleButton.flag:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#F2F6FA" />
+      <Setter Property="BorderBrush" Value="#8FA3B3" />
+    </Style>
+    <Style Selector="ToggleButton.flag TextBlock, ListBoxItem:selected ToggleButton.flag TextBlock">
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="#7A8690" />
+    </Style>
+    <Style Selector="ToggleButton.flag.seen:checked /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#2F7BBF" />
+      <Setter Property="BorderBrush" Value="#1F5E96" />
+    </Style>
+    <Style Selector="ToggleButton.flag.caught:checked /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#C0392B" />
+      <Setter Property="BorderBrush" Value="#8E2A20" />
+    </Style>
+    <Style Selector="ToggleButton.flag:checked TextBlock, ListBoxItem:selected ToggleButton.flag:checked TextBlock">
+      <Setter Property="Foreground" Value="White" />
+    </Style>
+  </UserControl.Styles>
+
+    <Grid ColumnDefinitions="440,*">
+    <DockPanel Margin="8,8,4,8">
+      <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="0,0,0,6">
+        <TextBox Text="{Binding Filter}" PlaceholderText="{x:Static r:Strings.Search_Watermark}" />
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <Button Content="{x:Static r:Strings.Dex_AllSeen}" Command="{Binding AllSeenCommand}" />
+          <Button Content="{x:Static r:Strings.Dex_AllCaught}" Command="{Binding AllCaughtCommand}" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="12">
+          <CheckBox IsChecked="{Binding ShowAbilities}" Content="{x:Static r:Strings.Adv_ShowAbilities}"
+                    ToolTip.Tip="{x:Static r:Strings.Dex_ShowAbilitiesTip}" />
+          <CheckBox IsChecked="{Binding ShowMoves}" Content="{x:Static r:Strings.Dex_ShowMoves}"
+                    ToolTip.Tip="{x:Static r:Strings.Dex_ShowMovesTip}" />
+        </StackPanel>
+        <TextBlock Classes="hint" Text="{Binding CountText}" />
+      </StackPanel>
+      <ListBox ItemsSource="{Binding Entries}" SelectedItem="{Binding SelectedEntry}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:DexEntryViewModel">
+            <Grid ColumnDefinitions="11,46,46,*,Auto" Margin="0,0,12,0">
+              <Border Width="5" Margin="0,2,6,2" Background="{Binding TypeBrush}" />
+              <Image Grid.Column="1" Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="40" Height="30" />
+              <TextBlock Grid.Column="2" Classes="hint" VerticalAlignment="Center" Text="{Binding Number}" />
+              <TextBlock Grid.Column="3" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+              <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                <ToggleButton ToolTip.Tip="{x:Static r:Strings.Tip_DexSeenFlag}" Classes="flag seen" IsChecked="{Binding Seen}" IsVisible="{Binding InDex}">
+                  <TextBlock Text="{x:Static r:Strings.Dex_Seen}" />
+                </ToggleButton>
+                <ToggleButton ToolTip.Tip="{x:Static r:Strings.Tip_DexCaughtFlag}" Classes="flag caught" IsChecked="{Binding Caught}" IsVisible="{Binding InDex}">
+                  <TextBlock Text="{x:Static r:Strings.Dex_Caught}" />
+                </ToggleButton>
+              </StackPanel>
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </DockPanel>
+
+    <!-- The selected species as the game's Pokédex shows it -->
+    <ScrollViewer Grid.Column="1" Padding="4,8,12,8">
+      <ContentControl Content="{Binding Detail}">
+        <ContentControl.ContentTemplate>
+          <DataTemplate x:DataType="vm:DexDetailViewModel">
+            <StackPanel Spacing="8">
+              <Border Classes="detail-header" Background="{Binding TypeBackground}">
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                  <Border Background="#50FFFFFF" Width="112" Height="84" Margin="0,0,14,0" CornerRadius="2">
+                    <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="100" Height="75" />
+                  </Border>
+                  <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="3">
+                    <TextBlock Foreground="{Binding TypeForeground}" Opacity="0.85" Text="{Binding Number}" FontWeight="SemiBold" />
+                    <TextBlock Foreground="{Binding TypeForeground}" FontSize="20" FontWeight="Bold" Text="{Binding Name}" />
+                    <TextBlock Foreground="{Binding TypeForeground}" Text="{Binding Classification}" />
+                    <ItemsControl ItemsSource="{Binding TypeChips}">
+                      <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                          <StackPanel Orientation="Horizontal" Spacing="4" />
+                        </ItemsPanelTemplate>
+                      </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                  </StackPanel>
+                  <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="6">
+                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Right">
+                      <Border Classes="badge">
+                        <StackPanel>
+                          <TextBlock Classes="badge-label" Text="{x:Static r:Strings.Dex_HeightLabel}" />
+                          <TextBlock Classes="badge-value" Text="{Binding Height}" />
+                        </StackPanel>
+                      </Border>
+                      <Border Classes="badge">
+                        <StackPanel>
+                          <TextBlock Classes="badge-label" Text="{x:Static r:Strings.Dex_WeightLabel}" />
+                          <TextBlock Classes="badge-value" Text="{Binding Weight}" />
+                        </StackPanel>
+                      </Border>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="4" HorizontalAlignment="Right">
+                      <ToggleButton ToolTip.Tip="{x:Static r:Strings.Tip_DexSeenFlag}" Classes="flag seen large" IsChecked="{Binding Seen}" IsVisible="{Binding InDex}">
+                        <TextBlock Text="{x:Static r:Strings.Dex_Seen}" />
+                      </ToggleButton>
+                      <ToggleButton ToolTip.Tip="{x:Static r:Strings.Tip_DexCaughtFlag}" Classes="flag caught large" IsChecked="{Binding Caught}" IsVisible="{Binding InDex}">
+                        <TextBlock Text="{x:Static r:Strings.Dex_Caught}" />
+                      </ToggleButton>
+                    </StackPanel>
+                  </StackPanel>
+                </Grid>
+              </Border>
+
+              <!-- Entry text: a plain card with a bar in the type colors -->
+              <Border Classes="card" Padding="0">
+                <Grid ColumnDefinitions="5,*">
+                  <Border Background="{Binding TypeBackground}" />
+                  <StackPanel Grid.Column="1" Margin="14,10,14,12" Spacing="6">
+                    <TextBlock Classes="card-title" Text="{Binding GameName, StringFormat={x:Static r:Strings.Dex_EntryTitle}}" />
+                    <TextBlock FontSize="14" LineHeight="22" TextWrapping="Wrap" Text="{Binding Entry}" Classes.hint="{Binding !HasEntry}" />
+                  </StackPanel>
+                </Grid>
+              </Border>
+
+              <Grid ColumnDefinitions="*,8,*">
+                <Border Classes="card" ToolTip.Tip="{x:Static r:Strings.Dex_DataHint}">
+                  <StackPanel>
+                    <TextBlock Classes="card-title" Margin="0,0,0,4" Text="{x:Static r:Strings.Dex_DataTitle}" />
+                    <ItemsControl ItemsSource="{Binding Abilities}"
+                                  IsVisible="{Binding $parent[UserControl].((vm:SaveDexViewModel)DataContext).ShowAbilities}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:DexInfoLine">
+                          <Border Classes="info-row">
+                            <Grid ColumnDefinitions="130,*">
+                              <TextBlock Classes="hint" VerticalAlignment="Center" Text="{Binding Label}" />
+                              <TextBlock Grid.Column="1" FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding Value}" />
+                            </Grid>
+                          </Border>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Border Classes="info-row"
+                            IsVisible="{Binding !$parent[UserControl].((vm:SaveDexViewModel)DataContext).ShowAbilities}">
+                      <TextBlock Classes="hint" Text="{x:Static r:Strings.Dex_AbilitiesHidden}" VerticalAlignment="Center" />
+                    </Border>
+                    <ItemsControl ItemsSource="{Binding Info}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:DexInfoLine">
+                          <Border Classes="info-row">
+                            <Grid ColumnDefinitions="130,*">
+                              <TextBlock Classes="hint" VerticalAlignment="Center" Text="{Binding Label}" />
+                              <TextBlock Grid.Column="1" FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding Value}" />
+                            </Grid>
+                          </Border>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Classes="card">
+                  <StackPanel>
+                    <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,4">
+                      <TextBlock Classes="card-title" Text="{x:Static r:Strings.Section_BaseStats}" />
+                      <TextBlock Grid.Column="1" FontWeight="Bold" Text="{Binding Total, StringFormat='Total {0}'}" />
+                    </Grid>
+                    <ItemsControl ItemsSource="{Binding Stats}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:DexStatLine">
+                          <Border Classes="info-row">
+                            <Grid ColumnDefinitions="80,36,*">
+                              <TextBlock Classes="hint" Text="{Binding Label}" VerticalAlignment="Center" />
+                              <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{Binding Value}" VerticalAlignment="Center" />
+                              <Border Grid.Column="2" Height="10" Background="#E8ECEF" VerticalAlignment="Center">
+                                <Border HorizontalAlignment="Left" Width="{Binding BarWidth}" Background="{Binding BarBrush}" BorderBrush="#30000000" BorderThickness="1" />
+                              </Border>
+                            </Grid>
+                          </Border>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </StackPanel>
+                </Border>
+              </Grid>
+
+              <StackPanel Spacing="8">
+                <!-- How it evolves, as the ROM played has it (randomization, mods and edits included) -->
+                <Border Classes="card">
+                  <StackPanel>
+                    <TextBlock Classes="card-title" Margin="0,0,0,4" Text="{x:Static r:Strings.Section_Evolution}" />
+                    <TextBlock Classes="hint" Text="{x:Static r:Strings.Evo_None}" IsVisible="{Binding HasNoEvolution}" />
+                    <ContentControl Content="{Binding Chain}" ContentTemplate="{StaticResource EvolutionChain}"
+                                    IsVisible="{Binding !HasNoEvolution}" />
+                  </StackPanel>
+                </Border>
+                <!-- What it learns by level: hidden like the abilities -->
+                <Border Classes="card">
+                  <StackPanel>
+                    <TextBlock Classes="card-title" Margin="0,0,0,4" Text="{x:Static r:Strings.Dex_MovesTitle}" />
+                    <!-- The levels it learns at, as one line across the card; the moves themselves only with
+                         "Show moves" (no spoilers) -->
+                    <c:LevelTimeline Levels="{Binding Levels}" EvolutionLabel="{x:Static r:Strings.Dex_TimelineEvolution}"
+                                       Margin="0,2,0,4" HorizontalAlignment="Stretch" />
+                    <ItemsControl ItemsSource="{Binding Moves}" IsVisible="{Binding $parent[UserControl].((vm:SaveDexViewModel)DataContext).ShowMoves}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:DexMoveLine">
+                          <Border Classes="info-row">
+                            <Grid ColumnDefinitions="110,*,Auto">
+                              <TextBlock Classes="hint" VerticalAlignment="Center" Text="{Binding Level}" />
+                              <TextBlock Grid.Column="1" FontWeight="SemiBold" VerticalAlignment="Center" Text="{Binding Move}" />
+                              <Border Grid.Column="2" Background="{Binding Type.Background}" CornerRadius="2" Padding="6,1" MinWidth="70" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Type.Name}" Foreground="{Binding Type.Foreground}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Center" />
+                              </Border>
+                            </Grid>
+                          </Border>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Classes="hint" Margin="0,4,0,0" Text="{x:Static r:Strings.Dex_MovesHidden}"
+                               IsVisible="{Binding !$parent[UserControl].((vm:SaveDexViewModel)DataContext).ShowMoves}" />
+                  </StackPanel>
+                </Border>
+              </StackPanel>
+            </StackPanel>
+          </DataTemplate>
+        </ContentControl.ContentTemplate>
+      </ContentControl>
+    </ScrollViewer>
+    </Grid>
+</UserControl>

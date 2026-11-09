@@ -2818,13 +2818,13 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>Las tiendas de {0} no están en un sitio que la aplicación sepa cambiar todavía.</value>
   </data>
   <data name="Shops_FreeCandies" xml:space="preserve">
-    <value>Caramelos Raros gratis en las tiendas</value>
+    <value>Caramelos Raros a 10 ₽ en las tiendas</value>
   </data>
   <data name="Shops_FreeCandiesTip" xml:space="preserve">
-    <value>Los pone a la venta en todas las tiendas normales y deja su precio a 0. Hacen falta las dos cosas: un objeto gratis que nadie vende no es gratis.</value>
+    <value>Los pone a la venta en todas las tiendas normales a 10 ₽, el precio más bajo que admite el juego. A 0 ₽ la tienda solo deja comprarlos de uno en uno; a 10 ₽ se pueden comprar los que quieras de golpe.</value>
   </data>
   <data name="Shops_UndoCandies" xml:space="preserve">
-    <value>Caramelos Raros gratis</value>
+    <value>Caramelos Raros a 10 ₽</value>
   </data>
   <data name="Tip_SettingsLanguage" xml:space="preserve">
     <value>Idioma de la aplicación y de los textos del juego que enseña. Se aplica al reiniciar.</value>
@@ -3835,7 +3835,7 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>Objetos y tiendas</value>
   </data>
   <data name="Items_SeeRulesTab" xml:space="preserve">
-    <value>Lo que añade esta aplicación sobre objetos (megapiedras, todos los objetos, caramelos gratis, piedras a la venta) está en Reglas y tiendas.</value>
+    <value>Lo que añade esta aplicación sobre objetos (megapiedras, todos los objetos, caramelos a 10 ₽, piedras a la venta) está en Reglas y tiendas.</value>
   </data>
   <data name="Options_OursHint" xml:space="preserve">
     <value>No es del randomizer: se escribe al crear la ROM, así que cambiarlo no obliga a aleatorizar de nuevo.</value>
@@ -4017,9 +4017,6 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Difficulty_NoBag" xml:space="preserve">
     <value>mochila vacía</value>
   </data>
-  <data name="Difficulty_Mega" xml:space="preserve">
-    <value>megapiedras</value>
-  </data>
   <data name="Difficulty_Levels" xml:space="preserve">
     <value>Niveles de entrenador {0} %</value>
   </data>
@@ -4192,10 +4189,10 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>El parche shiny: su salto no está en este code.bin, así que «todos los Pokémon shiny» queda desactivado y no hace nada.</value>
   </data>
   <data name="Mods_SideEffectShopsOk" xml:space="preserve">
-    <value>La tabla de tiendas: se sigue encontrando, así que los Caramelos Raros gratis y las Megapiedras a la venta funcionan.</value>
+    <value>La tabla de tiendas: se sigue encontrando, así que los Caramelos Raros a 10 ₽ y las Megapiedras a la venta funcionan.</value>
   </data>
   <data name="Mods_SideEffectShopsGone" xml:space="preserve">
-    <value>La tabla de tiendas: con este mod activado no se encuentra, así que los Caramelos Raros gratis y las Megapiedras a la venta no hacen nada.</value>
+    <value>La tabla de tiendas: con este mod activado no se encuentra, así que los Caramelos Raros a 10 ₽ y las Megapiedras a la venta no hacen nada.</value>
   </data>
   <data name="Mods_ActionsTitle" xml:space="preserve">
     <value>Conseguir los archivos</value>
@@ -4760,5 +4757,20 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   </data>
   <data name="Tip_SaveDragSlot" xml:space="preserve">
     <value>Arrástralo a otro hueco de una caja o del equipo para moverlo; sobre uno ocupado, se intercambian. Mantenlo sobre ◀ ▶ para cambiar de caja.</value>
+  </data>
+  <data name="Evo_MegaWith" xml:space="preserve">
+    <value>Megaevolución con {0}</value>
+  </data>
+  <data name="Evo_Mega" xml:space="preserve">
+    <value>Megaevolución</value>
+  </data>
+  <data name="Difficulty_MegaFrom" xml:space="preserve">
+    <value>megapiedra en el último Pokémon desde el nivel {0}</value>
+  </data>
+  <data name="Difficulty_MegaFromLabel" xml:space="preserve">
+    <value>Megas desde el nivel</value>
+  </data>
+  <data name="Tip_DifficultyMegaFrom" xml:space="preserve">
+    <value>A partir de este nivel, los entrenadores a los que el perfil da megas llevan la megapiedra de su último Pokémon. Se aplica con el perfil.</value>
   </data>
 </root>

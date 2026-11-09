@@ -44,6 +44,14 @@ public static class GameShops
     /// <summary>Rare Candy, the same id in both generations (item 50; verified in the X dump's item names).</summary>
     public const int RareCandy = 50;
 
+    /// <summary>
+    /// What the "free" Rare Candies cost: the cheapest price the item table can hold (it stores a tenth of the price).
+    /// At 0 the shop lets the player buy only one at a time (2026-11-09, issue #2: "deja comprar o 1 o 0 y hay que ir de
+    /// uno en uno") — the quantity it offers is the money divided by the price — so they cost ₽10 and can be bought by
+    /// the dozen.
+    /// </summary>
+    public const int CheapestPrice = 10;
+
     public static ShopLayout? For(GameTitle title) => title.Family() switch
     {
         // Poké Ball, Potion, Poké Ball, Great Ball — the start of the table in X and Y.

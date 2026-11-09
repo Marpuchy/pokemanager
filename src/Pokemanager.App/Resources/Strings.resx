@@ -2818,13 +2818,13 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
     <value>The shops of {0} are not in a place this application can change yet.</value>
   </data>
   <data name="Shops_FreeCandies" xml:space="preserve">
-    <value>Free Rare Candies in the Poké Marts</value>
+    <value>Rare Candies for ₽10 in the shops</value>
   </data>
   <data name="Shops_FreeCandiesTip" xml:space="preserve">
-    <value>Puts them on sale in every ordinary Poké Mart and sets their price to 0. Both halves are needed: a free item nobody sells is not free.</value>
+    <value>Puts them on sale in every ordinary Poké Mart for ₽10, the lowest price the game can hold. At ₽0 the shop only lets you buy them one at a time; at ₽10 you can buy as many as you like at once.</value>
   </data>
   <data name="Shops_UndoCandies" xml:space="preserve">
-    <value>Free Rare Candies</value>
+    <value>Rare Candies for ₽10</value>
   </data>
   <data name="Tip_SettingsLanguage" xml:space="preserve">
     <value>Language of the application and of the game texts it shows. It applies when you restart.</value>
@@ -3835,7 +3835,7 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
     <value>Items and shops</value>
   </data>
   <data name="Items_SeeRulesTab" xml:space="preserve">
-    <value>What this application adds about items — Mega Stones, every item, free Rare Candies, stones on sale — is in Rules and shops.</value>
+    <value>What this application adds about items — Mega Stones, every item, ₽10 Rare Candies, stones on sale — is in Rules and shops.</value>
   </data>
   <data name="Options_OursHint" xml:space="preserve">
     <value>Not the randomizer: written when the ROM is built, so changing it needs no new randomization.</value>
@@ -4017,9 +4017,6 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Difficulty_NoBag" xml:space="preserve">
     <value>empty bag</value>
   </data>
-  <data name="Difficulty_Mega" xml:space="preserve">
-    <value>Mega Stones</value>
-  </data>
   <data name="Difficulty_Levels" xml:space="preserve">
     <value>Trainer levels {0} %</value>
   </data>
@@ -4192,10 +4189,10 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
     <value>The shiny patch: its branch is not in this code.bin, so "every Pokémon shiny" is off and does nothing.</value>
   </data>
   <data name="Mods_SideEffectShopsOk" xml:space="preserve">
-    <value>The shop table: it is still found, so the free Rare Candies and the Mega Stones on sale work.</value>
+    <value>The shop table: it is still found, so the ₽10 Rare Candies and the Mega Stones on sale work.</value>
   </data>
   <data name="Mods_SideEffectShopsGone" xml:space="preserve">
-    <value>The shop table: it is not found with this mod on, so the free Rare Candies and the Mega Stones on sale do nothing.</value>
+    <value>The shop table: it is not found with this mod on, so the ₽10 Rare Candies and the Mega Stones on sale do nothing.</value>
   </data>
   <data name="Mods_ActionsTitle" xml:space="preserve">
     <value>Getting the files</value>
@@ -4760,5 +4757,20 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   </data>
   <data name="Tip_SaveDragSlot" xml:space="preserve">
     <value>Drag it onto another slot of a box or the party to move it; onto an occupied one to swap them. Hold it over ◀ ▶ to change box.</value>
+  </data>
+  <data name="Evo_MegaWith" xml:space="preserve">
+    <value>Mega Evolution holding {0}</value>
+  </data>
+  <data name="Evo_Mega" xml:space="preserve">
+    <value>Mega Evolution</value>
+  </data>
+  <data name="Difficulty_MegaFrom" xml:space="preserve">
+    <value>Mega Stone on the last Pokémon from level {0}</value>
+  </data>
+  <data name="Difficulty_MegaFromLabel" xml:space="preserve">
+    <value>Megas from level</value>
+  </data>
+  <data name="Tip_DifficultyMegaFrom" xml:space="preserve">
+    <value>From this level on, the trainers this profile gives megas to carry the Mega Stone of their last Pokémon. Applied with the profile.</value>
   </data>
 </root>

@@ -25,7 +25,9 @@ public static class ProjectLoader
                 ? System.IO.Path.Combine(cached.TitleDirectory, "romfs")
                 : null;
             // The session reads through the service's mod library, so what is read is what the build will pack.
-            return new LoadedProject(path, project, dump, EditorSession.Open(project, randomRomFs, upr.Mods));
+            var session = EditorSession.Open(project, randomRomFs, upr.Mods);
+            PkhexImages.RomMegaStones = session.Original.MegaStones.ToHashSet();
+            return new LoadedProject(path, project, dump, session);
         }
         catch (InvalidDumpException ex)
         {

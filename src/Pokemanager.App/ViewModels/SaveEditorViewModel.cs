@@ -247,7 +247,6 @@ public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
     [ObservableProperty]
     public partial int SelectedTab { get; set; }
 
-    public const int DexTab = 3;
 
     public void EnsureOpen()
     {
@@ -785,12 +784,27 @@ public partial class SaveBagViewModel : ObservableObject
 
     public string CapacityText => SelectedPocket is { } p ? string.Format(Strings.Bag_Capacity, p.Items.Count, p.Capacity) : "";
 
+    /// <summary>
+    /// What a pocket's picker offers: PKHeX's list, and of the items only the ROM has (a mod's), the ones with a name.
+    /// The Expansion leaves leftover ids in its item table with real data and the name "???" (885-903 in Ultra Sun);
+    /// they are not items the game hands out. Whatever the bag already holds stays, so its row can still be shown.
+    /// </summary>
+    private static IReadOnlyList<ushort> Pickable(SaveDocument doc, InventoryPouch pouch, SaveNames names)
+    {
+        var known = pouch.GetAllItems().ToArray().ToHashSet();
+        var held = pouch.Items.Select(i => i.Index).ToHashSet();
+        return doc.PouchItems(pouch).Where(i => known.Contains(i) || held.Contains(i) || IsNamed(names.ItemName(i))).ToList();
+    }
+
+    private static bool IsNamed(string name) =>
+        !string.IsNullOrWhiteSpace(name) && name.Any(char.IsLetterOrDigit) && !name.StartsWith('#');
+
     public SaveBagViewModel(SaveEditorViewModel owner, SaveDocument doc, SaveNames names, IReadOnlyList<string> descriptions)
     {
         this.owner = owner;
         this.doc = doc;
         this.descriptions = descriptions;
-        Pockets = doc.Pouches.Select(p => new PocketViewModel(p, doc.PouchItems(p), names)).ToList();
+        Pockets = doc.Pouches.Select(p => new PocketViewModel(p, Pickable(doc, p, names), names)).ToList();
         foreach (var pocket in Pockets)
         {
             foreach (var item in pocket.Pouch.Items.Where(i => i.Index != 0))

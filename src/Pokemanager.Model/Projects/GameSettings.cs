@@ -92,6 +92,12 @@ public sealed class GameSettings
     /// </summary>
     public Difficulty.DifficultyLevel? Difficulty { get; set; }
 
+    /// <summary>
+    /// From what level a difficulty profile that gives megas puts the Mega Stone on a trainer's last Pokémon, instead of
+    /// the profile's own (2026-11-09, issue #2); null keeps the profile's.
+    /// </summary>
+    public int? DifficultyMegaFromLevel { get; set; }
+
     /// <summary>Whether anything at all has to be done at build time.</summary>
     public bool IsEmpty => !AlwaysShiny && LevelCap is null && !HasLevelChanges && !OriginalStarters && ShinyOdds is null;
 
@@ -102,6 +108,7 @@ public sealed class GameSettings
         InstalledLevelCap = InstalledLevelCap,
         TrimOverCap = TrimOverCap,
         Difficulty = Difficulty,
+        DifficultyMegaFromLevel = DifficultyMegaFromLevel,
         LevelCapByMilestones = LevelCapByMilestones,
         LevelCapOverrides = new(LevelCapOverrides),
         TrainerLevelPercent = TrainerLevelPercent,
