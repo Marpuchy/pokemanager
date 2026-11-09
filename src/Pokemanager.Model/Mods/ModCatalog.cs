@@ -62,6 +62,15 @@ public static class ModCatalog
     /// copyright, so the user fetches it themselves and nothing of it is ever packaged here.
     /// </para>
     /// </remarks>
+    /// <summary>The commit of the Expansion's repository whose executable and Battle.cro the catalogue fetches.</summary>
+    private const string UsumExpansionCommit = "596e6b9a09ef74ded99452f1470a92cbc905d362";
+
+    /// <summary>A file of the Expansion's repository at <see cref="UsumExpansionCommit"/>, for one game's folder.</summary>
+    private static ModSource RepositoryFile(string game, string path) => ModSource.Direct(
+        $"https://raw.githubusercontent.com/TheSomewhatUnknownGuy/PokemonUSUMExpansion/{UsumExpansionCommit}/{game}_ExpansionNoModelAndEncounterFile/{path}",
+        "https://github.com/TheSomewhatUnknownGuy/PokemonUSUMExpansion",
+        $"{game} {Path.GetFileName(path)}");
+
     private static ModDefinition UsumExpansion()
     {
         var layout = GameTitle.UltraSun.Layout();
@@ -110,8 +119,8 @@ public static class ModCatalog
                 .Select(language => "romfs/" + GameImporter.GarcPath(layout.GameText + language)),
         ];
 
-        var downloads = new List<ModDownload>
-        {
+        List<ModDownload> downloads =
+        [
             // The mod itself, one zip per game, laid out as the game is — so it unpacks straight into the library.
             ModDownload.Archive(ModSource.GitHub(repo, "v1.4", "UltraSunExpansion_NoModelFile.zip"), GameTitle.UltraSun) with
             {
@@ -125,19 +134,28 @@ public static class ModCatalog
                 Sha256 = "3BA34C85BA89972C3AC05C67E9144384C2F492D1C52D6BFBFD3AF8EC1BB4C338",
                 Provides = fromZip,
             },
-            // v1.41 is the executable and nothing else ("fixes some Pokemon Refresh errors"), so it is fetched after
-            // the zip and replaces the one inside it. One per game: an Ultra Moon executable in an Ultra Sun library
-            // would be a ROM that does not boot.
-            ModDownload.File(ModSource.GitHub(repo, "v1.41", "UltraSuncode.bin"), "exefs/code.bin", GameTitle.UltraSun) with
-            {
-                Bytes = 5_914_624,
-                Sha256 = "BB4CE6AD01DCD7D5DC7ACD2C089F78B79979893D0D8D313071ECF69A5830EFCF",
-            },
-            ModDownload.File(ModSource.GitHub(repo, "v1.41", "UltraMooncode.bin"), "exefs/code.bin", GameTitle.UltraMoon) with
-            {
-                Bytes = 5_914_624,
-                Sha256 = "685D6CEF0F5CEFE1CEB649E9D85CD98A3A727AD0016452A4DD0BE09EA96FD0E9",
-            },
+            // After v1.4 the author publishes the executable and Battle.cro straight to the repository: v1.41 was only
+            // the executables, v1.42 has no assets at all, and the newest fixes (2026-10-22..26: two-byte abilities in
+            // battle, Trace / Role Play / Entrain, a bigger heap for the personal data) are only in the repository's
+            // main branch. They are fetched pinned to that commit, so the bytes cannot change under the hash. Measured
+            // on 2026-11-09: against v1.4 + v1.41 these two files are the only ones of the release that differ. One per
+            // game for the executable (an Ultra Moon one in an Ultra Sun library would not boot); Battle.cro is the
+            // same file for both.
+            .. new[] { (GameTitle.UltraSun, "UltraSun", 5_914_624L, "1249622FEC32B9209932965BB1B100636A76AF79E8ABDFD5EB5A5A12D039986E"),
+                       (GameTitle.UltraMoon, "UltraMoon", 5_914_624L, "C3A3D7647DB2E8FAC854D2C5F8F938BC3B2648961C5D980D9AF8D7ABE28D9317") }
+                .SelectMany(g => new[]
+                {
+                    ModDownload.File(RepositoryFile(g.Item2, "exefs/code.bin"), "exefs/code.bin", g.Item1) with
+                    {
+                        Bytes = g.Item3,
+                        Sha256 = g.Item4,
+                    },
+                    ModDownload.File(RepositoryFile(g.Item2, "romfs/Battle.cro"), "romfs/Battle.cro", g.Item1) with
+                    {
+                        Bytes = 1_425_408,
+                        Sha256 = "AF995142EAFDAF6BD19CDED91D5D5C7E8435840E8144DDFBAD71C7CA1F12C845",
+                    },
+                }),
             // The model archive: 2.3 GB, far past what a repository takes, so the author keeps it in Drive and links
             // it from the repository's own description. The id is the one that description points at and the only one
             // of the three in circulation that still resolves (the links in the v1.3 notes are both dead). Its hash
@@ -148,14 +166,14 @@ public static class ModCatalog
                 Bytes = 2_266_714_724,
                 Apart = true,
             },
-        };
+        ];
 
         return new ModDefinition(
             UsumExpansionId,
             Strings.Mods_UsumExpansion_Name,
             Strings.Mods_UsumExpansion_Author,
             Strings.Mods_UsumExpansion_Description,
-            "1.41",
+            "1.42 (596e6b9)",
             "https://github.com/TheSomewhatUnknownGuy/PokemonUSUMExpansion",
             // Two declarations that do not agree, both the author's own: CC0 waives everything, CC BY-NC-SA does not
             // (it forbids commercial use and requires share-alike). The application says both and where each one is

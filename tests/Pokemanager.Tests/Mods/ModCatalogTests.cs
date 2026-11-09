@@ -19,7 +19,7 @@ public class ModCatalogTests
         var mod = Expansion();
 
         Assert.Equal("usum-expansion", mod.Id);
-        Assert.Equal("1.41", mod.Version);
+        Assert.Equal("1.42 (596e6b9)", mod.Version);
         Assert.Equal("https://github.com/TheSomewhatUnknownGuy/PokemonUSUMExpansion", mod.SourceUrl);
         // It brings files to the ROM, which is what makes it a layer, a cache key and a reason to build.
         Assert.Equal(ModKind.RomFiles, mod.Kind);
@@ -120,8 +120,8 @@ public class ModCatalogTests
     }
 
     /// <summary>
-    /// Where the files come from, as the entry says it: the bulk of the mod is the zip of v1.4 (v1.41 carries only the
-    /// executables), then that release's own executable over it, then the model archive from the author's Drive link.
+    /// Where the files come from, as the entry says it: the bulk of the mod is the zip of v1.4, then the newest
+    /// executable and Battle.cro over it from the repository (pinned to a commit: no release carries them since v1.41), then the model archive from the author's Drive link.
     /// The names, sizes and hashes were verified against the release itself, so this test is what notices if somebody
     /// edits one of them by hand.
     /// </summary>
@@ -131,7 +131,7 @@ public class ModCatalogTests
         var mod = Expansion();
 
         Assert.True(mod.CanDownload);
-        Assert.Equal(5, mod.Downloads.Count);
+        Assert.Equal(7, mod.Downloads.Count);
         // Everything that is fetched from GitHub is fetched from the mod's own repository and no other.
         Assert.All(mod.Downloads.Where(d => d.Source.Kind == ModSourceKind.GitHubRelease),
             d => Assert.Equal("TheSomewhatUnknownGuy/PokemonUSUMExpansion", d.Source.Repository));
@@ -145,7 +145,11 @@ public class ModCatalogTests
 
         var executables = mod.Downloads.Where(d => d.ServedPath == "exefs/code.bin").ToList();
         Assert.Equal(2, executables.Count);
-        Assert.All(executables, e => Assert.Equal("v1.41", e.Source.Tag));
+        // The newest executable and Battle.cro are fetched from the repository itself, pinned to a commit.
+        Assert.All(executables, e => Assert.Contains("/596e6b9a09ef74ded99452f1470a92cbc905d362/", e.Source.Url));
+        var battle = mod.Downloads.Where(d => d.ServedPath == "romfs/Battle.cro").ToList();
+        Assert.Equal(2, battle.Count);
+        Assert.All(battle, b => Assert.Equal("AF995142EAFDAF6BD19CDED91D5D5C7E8435840E8144DDFBAD71C7CA1F12C845", b.Sha256));
         Assert.All(executables, e => Assert.Equal(5_914_624L, e.Bytes!.Value));
         Assert.All(executables, e => Assert.Equal(64, e.Sha256!.Length));
         // The executable comes after the zip that also holds one, so the point release wins.

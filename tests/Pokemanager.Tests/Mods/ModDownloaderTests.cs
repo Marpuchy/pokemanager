@@ -198,8 +198,9 @@ public sealed class ModDownloaderTests : IDisposable
 
         Assert.Equal("UltraSunExpansion_NoModelFile.zip", sun[0].Source.AssetName);
         Assert.Equal("UltraMoonExpansion_NoModelFile.zip", moon[0].Source.AssetName);
-        Assert.Equal("UltraSuncode.bin", sun.Single(d => d.ServedPath == "exefs/code.bin").Source.AssetName);
-        Assert.Equal("UltraMooncode.bin", moon.Single(d => d.ServedPath == "exefs/code.bin").Source.AssetName);
+        Assert.Equal("UltraSun code.bin", sun.Single(d => d.ServedPath == "exefs/code.bin").Source.AssetName);
+        Assert.Equal("UltraMoon code.bin", moon.Single(d => d.ServedPath == "exefs/code.bin").Source.AssetName);
+        Assert.Contains("/UltraSun_Expansion", sun.Single(d => d.ServedPath == "romfs/Battle.cro").Source.Url);
 
         // Nothing of one game leaks into the other.
         Assert.DoesNotContain(sun, d => d.Source.AssetName?.Contains("Moon", StringComparison.Ordinal) == true);
