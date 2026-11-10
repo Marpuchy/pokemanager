@@ -833,9 +833,12 @@ public partial class EditorViewModel : ObservableObject
             // back and the rest of this method is what it always was.
             var (moddedBase, installedMods) = await upr.BaseRomAsync(project, baseRom, progress);
 
+            // While the seed is the installed one, the randomization the player's ROM came from is reused even when the
+            // randomizer changed since (2026-11-10, user: a run in progress must not be randomized again by an update);
+            // a new seed, or other options, randomizes with the current randomizer.
             UprResult? random = null;
             if (r.Enabled)
-                random = await upr.RandomizeAsync(tools, project, moddedBase, r.Preset!, progress);
+                random = upr.TryGetCached(project, r.Preset) ?? await upr.RandomizeAsync(tools, project, moddedBase, r.Preset!, progress);
 
             ReloadBaseIfNeeded(random is null ? null : Path.Combine(random.TitleDirectory, "romfs"), random?.Earlier == true);
 
@@ -896,6 +899,7 @@ public partial class EditorViewModel : ObservableObject
 
             r.InstalledSeed = random?.Seed;
             r.InstalledRandomization = random?.CacheKey;
+            r.InstalledRandomizationStamp = random is null ? null : upr.OptionsStamp(project, r.Preset!);
             Session.Project.Tweaks.InstalledLevelCap = Session.Project.Tweaks.LevelCap;
             await SaveAsync();
             Randomizer.OnBuilt(random, saveResult);

@@ -4980,7 +4980,7 @@ Proyecto: {2}</value>
     <value>Opciones de la ROM</value>
   </data>
   <data name="Editor_BaseInstalledRandom" xml:space="preserve">
-    <value>Base: la randomización de tu ROM instalada (semilla {0}); el randomizer se actualizó y la próxima creación de ROM randomiza de nuevo</value>
+    <value>Base: la randomización de tu ROM instalada (semilla {0}), hecha con una versión anterior del randomizer; se mantiene mientras no cambies la semilla ni las opciones</value>
   </data>
   <data name="Save_BaseMissingWarning" xml:space="preserve">
     <value>Tu ROM está randomizada pero su randomización no está disponible aquí: las habilidades y stats que ves son los del juego sin randomizar. Al editar se conservan las habilidades que tiene la partida.</value>

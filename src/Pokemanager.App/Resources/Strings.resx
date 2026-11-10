@@ -4980,7 +4980,7 @@ Project: {2}</value>
     <value>ROM options</value>
   </data>
   <data name="Editor_BaseInstalledRandom" xml:space="preserve">
-    <value>Base: the randomization of your installed ROM (seed {0}); the randomizer was updated, the next build randomizes again</value>
+    <value>Base: the randomization of your installed ROM (seed {0}), made by an earlier version of the randomizer; kept while the seed and the options stay the same</value>
   </data>
   <data name="Save_BaseMissingWarning" xml:space="preserve">
     <value>Your ROM is randomized but its randomization is not available here: abilities and stats shown are the game's without it. Editing keeps the abilities the save has.</value>

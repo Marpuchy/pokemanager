@@ -50,6 +50,9 @@ public sealed class RandomizationSettings
     /// </summary>
     public string? InstalledRandomization { get; set; }
 
+    /// <summary>What decided that randomization besides the randomizer (options, item options, mods), hashed.</summary>
+    public string? InstalledRandomizationStamp { get; set; }
+
     /// <summary>File name (without extension) of the randomized ROM, created next to the base ROM.</summary>
     public string? OutputName { get; set; }
 
@@ -77,6 +80,7 @@ public sealed class RandomizationSettings
         Seed = other.Seed;
         InstalledSeed = other.InstalledSeed;
         InstalledRandomization = other.InstalledRandomization;
+        InstalledRandomizationStamp = other.InstalledRandomizationStamp;
         OutputName = other.OutputName;
         LastBuiltRom = other.LastBuiltRom;
         ReplacePreviousRom = other.ReplacePreviousRom;

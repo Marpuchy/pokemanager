@@ -163,4 +163,20 @@ public sealed class UprCacheTests : IDisposable
         WriteEarlierEntry(Seed + 1, Preset);
         Assert.Null(NewService().TryGetCached(project, Preset)); // another seed
     }
+
+    [Fact]
+    public void TheRecordedRandomizationIsUsedOnlyWhileItsOptionsAreTheSame()
+    {
+        var project = NewProject(false, false);
+        var service = NewService();
+        project.Randomization.InstalledSeed = Seed;
+        project.Randomization.InstalledRandomization = "OLDKEY0000000000000000AA";
+        project.Randomization.InstalledRandomizationStamp = service.OptionsStamp(project, Preset);
+        WriteEarlierEntry(Seed, Preset);
+
+        Assert.True(service.TryGetCached(project, Preset)?.Earlier);
+
+        project.Randomization.AllowAllItems = true; // another option: randomize again
+        Assert.Null(service.TryGetCached(project, Preset));
+    }
 }

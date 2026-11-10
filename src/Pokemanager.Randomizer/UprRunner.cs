@@ -12,7 +12,7 @@ public sealed record UprResult(long Seed, string TitleDirectory, string LogPath,
 {
     /// <summary>
     /// Made by an earlier version of the randomizer (the patched classes changed since, so its key is another) and found
-    /// because it is the one the installed ROM was built from. A build randomizes again.
+    /// because it is the one the installed ROM was built from. A build reuses it while the seed and options are the same.
     /// </summary>
     public bool Earlier { get; init; }
 

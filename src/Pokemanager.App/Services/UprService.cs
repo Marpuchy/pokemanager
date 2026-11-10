@@ -109,9 +109,43 @@ public sealed class UprService
         var r = project.Randomization;
         if (r.InstalledSeed != r.Seed)
             return null;
-        var found = (r.InstalledRandomization is { } key ? Cache.TryGetFolder(key, r.Seed) : null)
-                    ?? Cache.FindEarlier(effectivePreset, r.Seed);
+        UprResult? found;
+        if (r.InstalledRandomization is { } key)
+            // Recorded by the build: only while nothing that decides the randomization changed since (options, item
+            // options, mods), so changing the options still randomizes again.
+            found = r.InstalledRandomizationStamp == OptionsStamp(project, effectivePreset) ? Cache.TryGetFolder(key, r.Seed) : null;
+        else
+            // A ROM built before the folder was recorded: the newest of the same preset and seed.
+            found = Cache.FindEarlier(effectivePreset, r.Seed);
         return found is null ? null : Repaired(project, found);
+    }
+
+    /// <summary>
+    /// What decides a randomization apart from the randomizer itself: the base ROM, the preset, the seed, the item
+    /// options and the mods' files. Recorded at build with <see cref="Project"/>'s installed randomization.
+    /// </summary>
+    public string OptionsStamp(Project project, byte[] effectivePreset)
+    {
+        var r = project.Randomization;
+        var (allItems, goodItems) = CacheOptions(project);
+        string rom = project.ResolveRomFile() is { } path && File.Exists(path)
+            ? $"{Path.GetFullPath(path).ToUpperInvariant()}|{new FileInfo(path).Length}|{File.GetLastWriteTimeUtc(path).Ticks}"
+            : "";
+        string mods = "";
+        if (!project.Mods.HasNoRomMods)
+        {
+            try
+            {
+                mods = string.Join(',', ModdedFiles(project).Files.Select(f => $"{f.TitlePath}:{f.Sha256}"));
+            }
+            catch (InvalidOperationException ex)
+            {
+                mods = ex.Message;
+            }
+        }
+        string material = string.Join('|', rom, Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(effectivePreset)),
+            r.Seed, allItems, string.Join('.', goodItems ?? []), mods);
+        return Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(material)))[..24];
     }
 
     private UprResult? Exact(Project project, byte[] effectivePreset, string rom, UprTools t)
