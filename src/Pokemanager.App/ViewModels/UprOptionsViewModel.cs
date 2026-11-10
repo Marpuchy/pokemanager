@@ -169,6 +169,12 @@ public partial class UprOptionsViewModel : ObservableObject
 
     private Dictionary<string, UprOptionGroupViewModel> groupsById = [];
 
+    /// <summary>The loaded options with these names that have a control (hidden ones are left out), in that order.</summary>
+    public IReadOnlyList<UprOptionViewModel> Shown(IEnumerable<string> names) => !IsLoaded
+        ? []
+        : [.. names.Select(n => byName.GetValueOrDefault(n))
+            .OfType<UprOptionViewModel>().Where(o => groupsById.Values.Any(g => g.Items.Contains(o)))];
+
     /// <summary>
     /// The groups with these ids, in that order, once the options are loaded (none before). With
     /// <paramref name="withOptions"/>, only the ones that have options of the randomizer's to show.

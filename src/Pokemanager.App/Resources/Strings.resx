@@ -4887,4 +4887,34 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Options_TrainerLevelRow" xml:space="preserve">
     <value>Trainer levels (%)</value>
   </data>
+  <data name="Encounter_Wild" xml:space="preserve">
+    <value>Wild</value>
+  </data>
+  <data name="Encounter_Totems" xml:space="preserve">
+    <value>Totems and allies</value>
+  </data>
+  <data name="Encounter_Starters" xml:space="preserve">
+    <value>Starters</value>
+  </data>
+  <data name="Encounter_Statics" xml:space="preserve">
+    <value>Statics and gifts</value>
+  </data>
+  <data name="Encounter_Trades" xml:space="preserve">
+    <value>Trades</value>
+  </data>
+  <data name="Encounter_RandomTitle" xml:space="preserve">
+    <value>Random (when randomizing)</value>
+  </data>
+  <data name="Encounter_LevelTitle" xml:space="preserve">
+    <value>Level (when building the ROM)</value>
+  </data>
+  <data name="Encounter_TotemsLevelNote" xml:space="preserve">
+    <value>The totems' and their allies' level is the one of Statics and gifts: the game keeps them in the same table.</value>
+  </data>
+  <data name="Options_LevelsWhere" xml:space="preserve">
+    <value>Each kind also has its own percentage: trainers in Trainers → Settings, wild, statics, totems and starters in Encounters.</value>
+  </data>
+  <data name="Encounter_LevelRow" xml:space="preserve">
+    <value>Level (%)</value>
+  </data>
 </root>

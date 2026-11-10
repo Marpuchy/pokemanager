@@ -647,11 +647,122 @@
           </TabItem>
         </TabControl>
       </TabItem>
-      <!-- ================= Encounters: wild, totems, starters, statics, trades ================= -->
+      <!-- ================= Encounters: one sub-tab per kind, the randomizer's options and the level beside them ================= -->
       <TabItem Header="{x:Static r:Strings.Tab_Encounters}">
         <TabControl Padding="0">
-          <TabItem Header="{x:Static r:Strings.Sub_Random}">
-            <ContentControl Content="{Binding Randomizer.EncountersSubject}" ContentTemplate="{StaticResource SubjectRandom}" />
+          <TabItem Header="{x:Static r:Strings.Encounter_Wild}">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+              <WrapPanel Margin="16,12,16,12">
+                <Border Classes="card" Width="380" Margin="0,0,12,12" VerticalAlignment="Top">
+                  <StackPanel Spacing="2">
+                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Encounter_RandomTitle}" Margin="0,0,0,4" />
+                    <TextBlock Margin="0,0,0,4" Text="{Binding Randomizer.Encounters.Options.LoadStatus}" TextWrapping="Wrap"
+                               IsVisible="{Binding !Randomizer.Encounters.Options.IsLoaded}" />
+                    <ItemsControl ItemsSource="{Binding Randomizer.Encounters.Wild}" ItemTemplate="{StaticResource UprOption}" />
+                  </StackPanel>
+                </Border>
+                <Border Classes="card" Width="380" Margin="0,0,12,12" VerticalAlignment="Top">
+                  <StackPanel Spacing="4">
+                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Encounter_LevelTitle}" />
+                    <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Options_OursHint}" />
+                    <Grid ColumnDefinitions="200,Auto" Margin="0,2" IsEnabled="{Binding GameTweaks.WildAndStaticSupported}">
+                      <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Encounter_LevelRow}" />
+                      <NumericUpDown Grid.Column="1" Width="110" Value="{Binding GameTweaks.WildLevelPercent}" Minimum="-90" Maximum="400"
+                                     Increment="5" FormatString="0.##" ToolTip.Tip="{Binding GameTweaks.WildStaticTip}" />
+                    </Grid>
+                    <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0" IsVisible="{Binding GameTweaks.HasPresetWildLevel}">
+                      <TextBlock Classes="hint" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="240" Text="{Binding GameTweaks.PresetWildLevelText}" />
+                      <Button Content="{x:Static r:Strings.Options_ClearPreset}" Command="{Binding GameTweaks.ClearPresetWildLevelCommand}" />
+                    </StackPanel>
+                  </StackPanel>
+                </Border>
+              </WrapPanel>
+            </ScrollViewer>
+          </TabItem>
+          <TabItem Header="{x:Static r:Strings.Encounter_Totems}" IsVisible="{Binding Randomizer.Encounters.HasTotems}">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+              <WrapPanel Margin="16,12,16,12">
+                <Border Classes="card" Width="380" Margin="0,0,12,12" VerticalAlignment="Top">
+                  <StackPanel Spacing="2">
+                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Encounter_RandomTitle}" Margin="0,0,0,4" />
+                    <TextBlock Margin="0,0,0,4" Text="{Binding Randomizer.Encounters.Options.LoadStatus}" TextWrapping="Wrap"
+                               IsVisible="{Binding !Randomizer.Encounters.Options.IsLoaded}" />
+                    <ItemsControl ItemsSource="{Binding Randomizer.Encounters.Totems}" ItemTemplate="{StaticResource UprOption}" />
+                  </StackPanel>
+                </Border>
+                <Border Classes="card" Width="380" Margin="0,0,12,12" VerticalAlignment="Top">
+                  <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Encounter_TotemsLevelNote}" />
+                </Border>
+              </WrapPanel>
+            </ScrollViewer>
+          </TabItem>
+          <TabItem Header="{x:Static r:Strings.Encounter_Starters}">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+              <WrapPanel Margin="16,12,16,12">
+                <Border Classes="card" Width="380" Margin="0,0,12,12" VerticalAlignment="Top">
+                  <StackPanel Spacing="2">
+                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Encounter_RandomTitle}" Margin="0,0,0,4" />
+                    <TextBlock Margin="0,0,0,4" Text="{Binding Randomizer.Encounters.Options.LoadStatus}" TextWrapping="Wrap"
+                               IsVisible="{Binding !Randomizer.Encounters.Options.IsLoaded}" />
+                    <ItemsControl ItemsSource="{Binding Randomizer.Encounters.Starters}" ItemTemplate="{StaticResource UprOption}" />
+                  </StackPanel>
+                </Border>
+                <Border Classes="card" Width="380" Margin="0,0,12,12" VerticalAlignment="Top">
+                  <StackPanel Spacing="4">
+                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Encounter_LevelTitle}" />
+                    <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Options_OursHint}" />
+                    <Grid ColumnDefinitions="200,Auto" Margin="0,2" IsEnabled="{Binding GameTweaks.WildAndStaticSupported}">
+                      <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Encounter_LevelRow}" />
+                      <NumericUpDown Grid.Column="1" Width="110" Value="{Binding GameTweaks.StarterLevelPercent}" Minimum="-90" Maximum="400"
+                                     Increment="5" FormatString="0.##" ToolTip.Tip="{x:Static r:Strings.Tip_GameLevelsStarters}" />
+                    </Grid>
+                  </StackPanel>
+                </Border>
+              </WrapPanel>
+            </ScrollViewer>
+          </TabItem>
+          <TabItem Header="{x:Static r:Strings.Encounter_Statics}">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+              <WrapPanel Margin="16,12,16,12">
+                <Border Classes="card" Width="380" Margin="0,0,12,12" VerticalAlignment="Top">
+                  <StackPanel Spacing="2">
+                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Encounter_RandomTitle}" Margin="0,0,0,4" />
+                    <TextBlock Margin="0,0,0,4" Text="{Binding Randomizer.Encounters.Options.LoadStatus}" TextWrapping="Wrap"
+                               IsVisible="{Binding !Randomizer.Encounters.Options.IsLoaded}" />
+                    <ItemsControl ItemsSource="{Binding Randomizer.Encounters.Statics}" ItemTemplate="{StaticResource UprOption}" />
+                  </StackPanel>
+                </Border>
+                <Border Classes="card" Width="380" Margin="0,0,12,12" VerticalAlignment="Top">
+                  <StackPanel Spacing="4">
+                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Encounter_LevelTitle}" />
+                    <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Options_OursHint}" />
+                    <Grid ColumnDefinitions="200,Auto" Margin="0,2" IsEnabled="{Binding GameTweaks.WildAndStaticSupported}">
+                      <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsStatic}" />
+                      <NumericUpDown Grid.Column="1" Width="110" Value="{Binding GameTweaks.StaticLevelPercent}" Minimum="-90" Maximum="400"
+                                     Increment="5" FormatString="0.##" ToolTip.Tip="{Binding GameTweaks.WildStaticTip}" />
+                    </Grid>
+                    <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0" IsVisible="{Binding GameTweaks.HasPresetStaticLevel}">
+                      <TextBlock Classes="hint" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="240" Text="{Binding GameTweaks.PresetStaticLevelText}" />
+                      <Button Content="{x:Static r:Strings.Options_ClearPreset}" Command="{Binding GameTweaks.ClearPresetStaticLevelCommand}" />
+                    </StackPanel>
+                  </StackPanel>
+                </Border>
+              </WrapPanel>
+            </ScrollViewer>
+          </TabItem>
+          <TabItem Header="{x:Static r:Strings.Encounter_Trades}">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+              <WrapPanel Margin="16,12,16,12">
+                <Border Classes="card" Width="380" Margin="0,0,12,12" VerticalAlignment="Top">
+                  <StackPanel Spacing="2">
+                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Encounter_RandomTitle}" Margin="0,0,0,4" />
+                    <TextBlock Margin="0,0,0,4" Text="{Binding Randomizer.Encounters.Options.LoadStatus}" TextWrapping="Wrap"
+                               IsVisible="{Binding !Randomizer.Encounters.Options.IsLoaded}" />
+                    <ItemsControl ItemsSource="{Binding Randomizer.Encounters.Trades}" ItemTemplate="{StaticResource UprOption}" />
+                  </StackPanel>
+                </Border>
+              </WrapPanel>
+            </ScrollViewer>
           </TabItem>
         </TabControl>
       </TabItem>

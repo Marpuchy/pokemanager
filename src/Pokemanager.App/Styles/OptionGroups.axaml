@@ -214,30 +214,7 @@
           </Grid>
           <TextBlock Classes="hint" TextWrapping="Wrap" IsVisible="{Binding Game.AllLevelsMixed}"
                      Text="{x:Static r:Strings.Options_LevelsMixed}" />
-          <Grid ColumnDefinitions="200,Auto" Margin="0,2" IsEnabled="{Binding Game.WildAndStaticSupported}">
-            <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsWild}" />
-            <NumericUpDown Grid.Column="1" Width="130" Value="{Binding Game.WildLevelPercent}" Minimum="-90" Maximum="400"
-                           Increment="5" FormatString="0.##" ToolTip.Tip="{Binding Game.WildStaticTip}" />
-          </Grid>
-          <Grid ColumnDefinitions="200,Auto" Margin="0,2" IsEnabled="{Binding Game.WildAndStaticSupported}">
-            <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsStatic}" />
-            <NumericUpDown Grid.Column="1" Width="130" Value="{Binding Game.StaticLevelPercent}" Minimum="-90" Maximum="400"
-                           Increment="5" FormatString="0.##" ToolTip.Tip="{Binding Game.WildStaticTip}" />
-          </Grid>
-          <Grid ColumnDefinitions="200,Auto" Margin="0,2" IsEnabled="{Binding Game.WildAndStaticSupported}">
-            <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_LevelsStarters}" />
-            <NumericUpDown Grid.Column="1" Width="130" Value="{Binding Game.StarterLevelPercent}" Minimum="-90" Maximum="400"
-                           Increment="5" FormatString="0.##" ToolTip.Tip="{x:Static r:Strings.Tip_GameLevelsStarters}" />
-          </Grid>
-          <!-- What the randomizer preset already carries, which would pile up with ours -->
-          <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0" IsVisible="{Binding Game.HasPresetWildLevel}">
-            <TextBlock Classes="hint" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="300" Text="{Binding Game.PresetWildLevelText}" />
-            <Button Content="{x:Static r:Strings.Options_ClearPreset}" Command="{Binding Game.ClearPresetWildLevelCommand}" />
-          </StackPanel>
-          <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0" IsVisible="{Binding Game.HasPresetStaticLevel}">
-            <TextBlock Classes="hint" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="300" Text="{Binding Game.PresetStaticLevelText}" />
-            <Button Content="{x:Static r:Strings.Options_ClearPreset}" Command="{Binding Game.ClearPresetStaticLevelCommand}" />
-          </StackPanel>
+          <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Options_LevelsWhere}" />
         </StackPanel>
       </Border>
 

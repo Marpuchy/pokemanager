@@ -4887,4 +4887,34 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Options_TrainerLevelRow" xml:space="preserve">
     <value>Nivel de los entrenadores (%)</value>
   </data>
+  <data name="Encounter_Wild" xml:space="preserve">
+    <value>Salvajes</value>
+  </data>
+  <data name="Encounter_Totems" xml:space="preserve">
+    <value>Dominantes y aliados</value>
+  </data>
+  <data name="Encounter_Starters" xml:space="preserve">
+    <value>Iniciales</value>
+  </data>
+  <data name="Encounter_Statics" xml:space="preserve">
+    <value>Estáticos y regalos</value>
+  </data>
+  <data name="Encounter_Trades" xml:space="preserve">
+    <value>Intercambios</value>
+  </data>
+  <data name="Encounter_RandomTitle" xml:space="preserve">
+    <value>Aleatorio (al randomizar)</value>
+  </data>
+  <data name="Encounter_LevelTitle" xml:space="preserve">
+    <value>Nivel (al crear la ROM)</value>
+  </data>
+  <data name="Encounter_TotemsLevelNote" xml:space="preserve">
+    <value>El nivel de los dominantes y sus aliados es el de Estáticos y regalos: el juego los guarda en la misma tabla.</value>
+  </data>
+  <data name="Options_LevelsWhere" xml:space="preserve">
+    <value>Cada tipo tiene además su propio %: entrenadores en Entrenadores → Ajustes; salvajes, estáticos, dominantes e iniciales en Encuentros.</value>
+  </data>
+  <data name="Encounter_LevelRow" xml:space="preserve">
+    <value>Nivel (%)</value>
+  </data>
 </root>

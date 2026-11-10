@@ -76,7 +76,7 @@ public partial class RandomizerViewModel : ObservableObject
 
     public UprSubjectViewModel PokemonSubject { get; }
     public UprSubjectViewModel MovesSubject { get; }
-    public UprSubjectViewModel EncountersSubject { get; }
+    public EncountersViewModel Encounters { get; }
     public UprSubjectViewModel TrainersSubject { get; }
     public UprSubjectViewModel ItemsSubject { get; }
     public UprSubjectViewModel RulesSubject { get; }
@@ -129,7 +129,7 @@ public partial class RandomizerViewModel : ObservableObject
         // One page per subject (2026-11-09, user): the randomizer's groups (Aleatorio) and our cards (Ajustes).
         PokemonSubject = new(Options, [UprOptionCatalog.Traits, UprOptionCatalog.Evolutions], [UprOptionCatalog.Traits]);
         MovesSubject = new(Options, [UprOptionCatalog.Moves, UprOptionCatalog.TmsTutors], []);
-        EncountersSubject = new(Options, [UprOptionCatalog.Wild, UprOptionCatalog.Totems, UprOptionCatalog.Starters], []);
+        Encounters = new(Options);
         TrainersSubject = new(Options, [UprOptionCatalog.Trainers], [UprOptionCatalog.Trainers]);
         ItemsSubject = new(Options, [UprOptionCatalog.Items], [UprOptionCatalog.Items]);
         RulesSubject = new(Options, [UprOptionCatalog.Misc], [UprOptionCatalog.Levels, UprOptionCatalog.Misc]);
