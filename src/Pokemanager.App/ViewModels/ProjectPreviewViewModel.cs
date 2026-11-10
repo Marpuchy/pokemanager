@@ -293,12 +293,27 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
         var layers = project.ReadLayers();
         var images = MilestoneIcons.Load(layers, project.Game);
         var crystals = ItemIcons.LoadTypeCrystals(layers, project.Game);
-        for (int i = 0; i < milestones.Count; i++)
-            Badges.Add(new BadgeItemViewModel(this, i, milestones[i].Name, milestones[i].Type, doc?.GetMilestone(i) ?? false, project.Locke.SpinOf(i), itemNames,
-                images?[i], project.Locke.HasRoulette(i), project.Game.HasBadges() ? null : milestones[i].Type,
-                crystals is not null && !project.Game.HasBadges() && (uint)PkhexImages.CrystalIcon(milestones[i].Type) < crystals.Length
-                    ? crystals[PkhexImages.CrystalIcon(milestones[i].Type)]
-                    : null));
+        var locke = LockeMilestones.Of(project.Game);
+        for (int i = 0; i < locke.Count; i++)
+        {
+            var m = locke[i];
+            string name = LockeRewards.MilestoneName(project.Game, i, itemNames);
+            bool earned = doc is not null && LockeRewards.Earned(doc, project.Game, i);
+            if (m.Kind == LockeMilestoneKind.Badge)
+            {
+                Badges.Add(new BadgeItemViewModel(this, i, name, milestones[m.Value].Type, earned, project.Locke.SpinOf(i), itemNames,
+                    images?[m.Value], project.Locke.HasRoulette(i)));
+                continue;
+            }
+            // A story crystal: the game's own icon (type crystals are items 776-793 in Pokédex order); the league
+            // takes the last island stamp (the island challenge).
+            int dex = m.Value - 776;
+            int type = m.Kind == LockeMilestoneKind.Crystal ? PkhexImages.TypeOfCrystalIcon(dex) : 0;
+            Badges.Add(new BadgeItemViewModel(this, i, name, type, earned, project.Locke.SpinOf(i), itemNames,
+                m.Kind == LockeMilestoneKind.League ? images?[^1] : null, project.Locke.HasRoulette(i),
+                m.Kind == LockeMilestoneKind.Crystal ? type : null,
+                m.Kind == LockeMilestoneKind.Crystal && crystals is not null && (uint)dex < crystals.Length ? crystals[dex] : null));
+        }
     }
 
     public PokemonSprites Sprites { get; } = PokemonSprites.Empty;

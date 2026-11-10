@@ -1,4 +1,4 @@
-using Pokemanager.App.Resources;
+﻿using Pokemanager.App.Resources;
 using Pokemanager.Bridge;
 using Pokemanager.Model.Dump;
 using Pokemanager.Model.Projects;
@@ -10,8 +10,24 @@ namespace Pokemanager.App.Services;
 public static class LockeRewards
 {
     /// <summary>Name of a milestone of the game (badge or trial), or its number when out of range.</summary>
-    public static string MilestoneName(GameTitle game, int index) =>
-        game.Milestones() is var m && index >= 0 && index < m.Count ? m[index].Name : $"#{index + 1}";
+    public static string MilestoneName(GameTitle game, int index, IReadOnlyList<string>? items = null) =>
+        LockeMilestones.Of(game) is var all && index >= 0 && index < all.Count
+            ? all[index].Kind switch
+            {
+                LockeMilestoneKind.Crystal => items is not null && all[index].Value < items.Count ? items[all[index].Value] : $"#{all[index].Value}",
+                LockeMilestoneKind.League => Strings.LevelCap_League,
+                _ => game.Milestones() is var m && all[index].Value < m.Count ? m[all[index].Value].Name : $"#{index + 1}",
+            }
+            : $"#{index + 1}";
+
+    /// <summary>Whether the save has milestone <paramref name="index"/> of <see cref="LockeMilestones.Of"/>.</summary>
+    public static bool Earned(SaveDocument doc, GameTitle game, int index) =>
+        LockeMilestones.Of(game) is var all && index >= 0 && index < all.Count && all[index].Kind switch
+        {
+            LockeMilestoneKind.Crystal => doc.HasItem(all[index].Value) || doc.HasItem(all[index].Value + 31),
+            LockeMilestoneKind.League => doc.HallOfFame is not null,
+            _ => doc.GetMilestone(all[index].Value),
+        };
 
     public static string Describe(LockePrize prize, IReadOnlyList<string> itemNames) => prize.Kind switch
     {

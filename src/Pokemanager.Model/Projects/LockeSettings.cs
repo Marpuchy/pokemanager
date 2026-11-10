@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace Pokemanager.Model.Projects;
 
@@ -68,6 +68,27 @@ public sealed class LockeSettings
     }
 
     public List<LockeSpin> Spins { get; set; } = [];
+
+    /// <summary>
+    /// Generation 7: the milestones are the story's Z-crystals and the league (<see cref="LockeMilestones"/>), not the
+    /// five island stamps. False in projects made before; <see cref="UseCrystalMilestones"/> moves them over.
+    /// </summary>
+    public bool CrystalMilestones { get; set; }
+
+    /// <summary>
+    /// Moves a Generation 7 project from the five island stamps to the crystals and the league: each spin keeps its
+    /// grand trial, and an interval that covered every stamp covers every milestone.
+    /// </summary>
+    public void UseCrystalMilestones(int count)
+    {
+        if (CrystalMilestones)
+            return;
+        Spins = [.. Spins.Select(s => s with { Badge = LockeMilestones.FromStamp(s.Badge) })];
+        int oldCount = 5;
+        RouletteFirst = RouletteFirst <= 1 ? 1 : LockeMilestones.FromStamp(RouletteFirst - 1) + 1;
+        RouletteLast = RouletteLast >= oldCount ? count : LockeMilestones.FromStamp(RouletteLast - 1) + 1;
+        CrystalMilestones = true;
+    }
 
     public LockeSpin? SpinOf(int badge) => Spins.LastOrDefault(s => s.Badge == badge);
 

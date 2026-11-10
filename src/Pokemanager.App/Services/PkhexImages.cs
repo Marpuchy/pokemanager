@@ -1,4 +1,4 @@
-using Avalonia.Media.Imaging;
+﻿using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Pokemanager.Model.Dump;
 
@@ -136,6 +136,15 @@ public static class PkhexImages
     /// wrong crystal (Melemele's Fighting trial showed the Firium Z).
     /// </summary>
     public static int CrystalIcon(int type) => CrystalIds[Math.Clamp(type, 0, CrystalIds.Length - 1)] - CrystalIds[0];
+
+    /// <summary>The game type of the type crystal at <paramref name="icon"/> (Pokédex order, 0 = Normalium); 0 when unknown.</summary>
+    public static int TypeOfCrystalIcon(int icon)
+    {
+        for (int type = 0; type < CrystalIds.Length; type++)
+            if (CrystalIcon(type) == icon)
+                return type;
+        return 0;
+    }
 
     /// <summary>Whether PKHeX has a real icon for the item (it has none for the Gen 6/7 key items).</summary>
     public static bool HasItemIcon(int item, bool isTm = false) => item > 0 && (isTm || Load($"items/bitem_{Piece(item)}.png") is not null);

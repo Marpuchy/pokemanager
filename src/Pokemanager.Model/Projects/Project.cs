@@ -242,6 +242,13 @@ public sealed class Project
     private sealed record ProjectState(List<EditEntry> Edits, RandomizationSettings Randomization, LockeSettings Locke,
         ShopSettings? Shops = null, GameSettings? Tweaks = null);
 
+    /// <summary>Generation 7 Locke milestones are the story's Z-crystals (<see cref="LockeSettings.UseCrystalMilestones"/>).</summary>
+    public void UpgradeLocke()
+    {
+        if (LockeMilestones.ByCrystals(Game))
+            Locke.UseCrystalMilestones(LockeMilestones.Of(Game).Count);
+    }
+
     public static Project Load(string path)
     {
         var file = JsonSerializer.Deserialize<ProjectFile>(File.ReadAllText(path), JsonOptions)
@@ -264,6 +271,7 @@ public sealed class Project
         };
         foreach (var e in file.Edits ?? [])
             project.Edits.Set(e.Table, e.Id, e.Field, e.Value);
+        project.UpgradeLocke();
         return project;
     }
 

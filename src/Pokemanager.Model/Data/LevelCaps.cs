@@ -1,4 +1,4 @@
-using pk3DS.Core.CTR;
+﻿using pk3DS.Core.CTR;
 using Pokemanager.Model.Dump;
 using Pokemanager.Model.Editing;
 using Pokemanager.Model.Edits;
@@ -57,6 +57,9 @@ public static class LevelCaps
         (784, new Boss(false, [497])),      // Groundium Z — Hapu's grand trial
         (793, new Boss(true, [162])),       // Fairium Z — Mina's trial
     ];
+
+    /// <summary>The twelve Z-crystals of the story, in the order Ultra Sun/Ultra Moon hands them out (held piece ids).</summary>
+    public static IReadOnlyList<int> StoryCrystals { get; } = [.. Usum.Select(u => u.Crystal)];
 
     /// <summary>The league: the first Elite Four and the Champion (in Ultra Sun/Ultra Moon, the title match).</summary>
     private static int[] League(GameFamily family) => family switch

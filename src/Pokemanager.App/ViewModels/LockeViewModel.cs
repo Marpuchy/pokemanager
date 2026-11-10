@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Pokemanager.App.Resources;
@@ -128,7 +128,7 @@ public sealed partial class LockeViewModel : ObservableObject
     {
         Spins.Clear();
         foreach (var spin in Locke.Spins.OrderBy(s => s.Badge))
-            Spins.Add(new SpinRowViewModel(this, spin, LockeRewards.MilestoneName(Game, spin.Badge),
+            Spins.Add(new SpinRowViewModel(this, spin, LockeRewards.MilestoneName(Game, spin.Badge, ItemNames),
                 LockeRewards.Describe(spin.Prize, ItemNames)));
         OnPropertyChanged(nameof(HasSpins));
     }
@@ -138,7 +138,7 @@ public sealed partial class LockeViewModel : ObservableObject
     private GameTitle Game => editor.Session.Project.Game;
 
     /// <summary>Badges (Gen 6) or trials (Gen 7) of the game: the roulette interval goes up to this.</summary>
-    public int MilestoneCount => Game.Milestones().Count;
+    public int MilestoneCount => LockeMilestones.Of(Game).Count;
 
     public string IntervalHint => Game.HasBadges() ? Strings.Locke_IntervalHint : Strings.Locke_IntervalHintTrials;
     public string IntervalFirstLabel => Game.HasBadges() ? Strings.Locke_IntervalFirst : Strings.Locke_IntervalFirstTrial;
@@ -207,8 +207,8 @@ public sealed partial class LockeViewModel : ObservableObject
     {
         get
         {
-            var milestones = Game.Milestones();
-            var names = Enumerable.Range(0, milestones.Count).Where(Locke.HasRoulette).Select(i => milestones[i].Name).ToList();
+            var names = Enumerable.Range(0, MilestoneCount).Where(Locke.HasRoulette)
+                .Select(i => LockeRewards.MilestoneName(Game, i, ItemNames)).ToList();
             return names.Count == 0 ? Strings.Locke_IntervalNone : string.Format(Strings.Locke_IntervalBadges, string.Join(", ", names));
         }
     }

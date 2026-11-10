@@ -21,6 +21,7 @@ public static class ProjectLoader
                 GameImporter.Complete(gameDirectory);
             var dump = GameDump.Open(project.RomFsPath, project.ExeFsPath, GameTextLanguage.Current);
             project.Game = dump.Title; // projects from before other games were supported did not store it
+            project.UpgradeLocke();
             var cached = upr.TryGetCached(project, project.Randomization.Preset);
             string? randomRomFs = cached is null ? null : System.IO.Path.Combine(cached.TitleDirectory, "romfs");
             // The session reads through the service's mod library, so what is read is what the build will pack.

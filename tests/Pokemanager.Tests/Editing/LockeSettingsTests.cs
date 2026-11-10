@@ -1,4 +1,4 @@
-using Pokemanager.Model.Projects;
+﻿using Pokemanager.Model.Projects;
 
 namespace Pokemanager.Tests.Editing;
 
@@ -88,5 +88,23 @@ public sealed class LockeSettingsTests : IDisposable
         locke.RouletteEvery = 2;
         locke.RouletteLast = 7;
         Assert.Equal([1, 3, 5], Enumerable.Range(0, 8).Where(locke.HasRoulette)); // badges 2, 4, 6
+    }
+
+    /// <summary>Sun/Moon and Ultra Sun/Ultra Moon: a roulette after every Z-crystal of the story (2026-11-10, user).</summary>
+    [Fact]
+    public void Generation7_SpinsMoveFromTheIslandStampsToTheCrystals()
+    {
+        var locke = new LockeSettings { RouletteFirst = 1, RouletteLast = 8, RouletteEvery = 1 };
+        locke.RecordWin(0, new LockePrize(LockePrizeKind.Nothing), DateTime.Now); // Melemele
+        locke.RecordWin(1, new LockePrize(LockePrizeKind.Nothing), DateTime.Now); // Akala
+        int count = Pokemanager.Model.Projects.LockeMilestones.Of(Pokemanager.Model.Dump.GameTitle.UltraMoon).Count;
+
+        locke.UseCrystalMilestones(count);
+        locke.UseCrystalMilestones(count); // once only
+
+        Assert.Equal(13, count);
+        Assert.Equal([1, 5], locke.Spins.Select(s => s.Badge).Order());   // Fightinium (Hala), Rockium (Olivia)
+        Assert.Equal(13, locke.RouletteLast);
+        Assert.True(Enumerable.Range(0, 13).All(locke.HasRoulette));
     }
 }
