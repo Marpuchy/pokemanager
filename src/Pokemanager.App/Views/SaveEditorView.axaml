@@ -170,8 +170,8 @@
                             </ItemsControl>
                           </Border>
 
-                          <!-- Two columns: data and legality on the left, moves and stats on the right -->
-                          <Grid ColumnDefinitions="*,8,*">
+                          <!-- Two columns: data and legality on the left, moves and stats on the right; one under the other when narrow (1024 px) -->
+                          <c:AdaptiveColumnsPanel MinColumnWidth="380" MaxColumns="2" Spacing="8">
                             <StackPanel>
                             <!-- Main data -->
                             <Border Classes="card detail" Margin="0,0,0,8">
@@ -250,7 +250,7 @@
                             </Border>
                             </StackPanel>
 
-                            <StackPanel Grid.Column="2">
+                            <StackPanel>
                             <!-- Moves: colored by their type in the ROM, with type and category icons -->
                             <Border Classes="card detail" Margin="0,0,0,8">
                             <StackPanel>
@@ -369,7 +369,7 @@
                               </TabControl>
                             </Border>
                             </StackPanel>
-                          </Grid>
+                          </c:AdaptiveColumnsPanel>
                         </StackPanel>
                       </ScrollViewer>
                     </DataTemplate>

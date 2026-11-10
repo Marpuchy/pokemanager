@@ -3946,7 +3946,7 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
     <value>Difficulty of the run</value>
   </data>
   <data name="Difficulty_Hint" xml:space="preserve">
-    <value>It is not the randomizer's: it writes over every trainer what you would otherwise set group by group in Advanced: Trainers, so it needs a ROM build and not a new seed. One step of Ctrl+Z takes it off.</value>
+    <value>Writes over every trainer what you would otherwise set group by group in the advanced editor. Ctrl+Z takes it back.</value>
   </data>
   <data name="Tip_Difficulty" xml:space="preserve">
     <value>The trainers are told apart by the part they play in the story — bosses (leaders, Elite Four, Champion), important ones (the rival, the friend, the team bosses and the captains) and the rest — using UPR ZX's own lists, so it works on a ROM with every trainer name randomized. A profile owns the AI, the IVs, the bag and the held item of the last team member: applying one always starts from the ROM's own values, so one profile over another is that profile and not the two piled up. Everything else of a trainer — its team, its moves, its money — is left exactly as it is.</value>

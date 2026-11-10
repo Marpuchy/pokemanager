@@ -34,7 +34,6 @@ public sealed class UprSubjectViewModel : ObservableObject
             OnPropertyChanged(nameof(ShowTitles));
             OnPropertyChanged(nameof(AllSections));
             OnPropertyChanged(nameof(HasAllSections));
-            OnPropertyChanged(nameof(HasRandomShops));
             OnPropertyChanged(nameof(HasSettings));
         }
     }
@@ -53,14 +52,17 @@ public sealed class UprSubjectViewModel : ObservableObject
     /// </summary>
     public ShopExtrasViewModel? RandomShops { get; init; }
 
-    public bool HasRandomShops => RandomShops is not null && Options.IsLoaded;
-
     /// <summary>A title over each group only where the subject has more than one (Encuentros, Pokémon, Movimientos).</summary>
     public bool ShowTitles => Groups.Count > 1 && Groups.Any(g => !g.HasSections);
 
     /// <summary>Every group of the subject has titled cards: they flow together in one set of columns.</summary>
     public bool HasAllSections => Groups.Count > 0 && Groups.All(g => g.HasSections);
 
-    public IReadOnlyList<UprOptionSectionViewModel> AllSections => HasAllSections ? [.. Groups.SelectMany(g => g.Sections)] : [];
+    /// <summary>
+    /// Every card of the subject in reading order, for one flow of columns: the item pool card first (Items only), then
+    /// the randomizer's titled cards.
+    /// </summary>
+    public IReadOnlyList<object> AllSections =>
+        !HasAllSections ? [] : [.. (RandomShops is null ? Array.Empty<object>() : [RandomShops]), .. Groups.SelectMany(g => g.Sections)];
     public bool HasSettings => settings.Length > 0;
 }

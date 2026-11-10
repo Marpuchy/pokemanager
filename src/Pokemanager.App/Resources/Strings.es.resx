@@ -3946,7 +3946,7 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>Dificultad de la partida</value>
   </data>
   <data name="Difficulty_Hint" xml:space="preserve">
-    <value>No es del randomizer: escribe sobre todos los entrenadores lo que si no tendrías que poner grupo a grupo en Avanzado: Entrenadores, así que pide construir la ROM y no una semilla nueva. Un Ctrl+Z lo quita.</value>
+    <value>Escribe sobre todos los entrenadores lo que si no tendrías que poner grupo a grupo en Editor avanzado. Un Ctrl+Z lo quita.</value>
   </data>
   <data name="Tip_Difficulty" xml:space="preserve">
     <value>Los entrenadores se distinguen por el papel que tienen en la historia — jefes (líderes, Alto Mando, Campeón), importantes (el rival, el amigo, los jefes de equipo y los capitanes) y el resto — con las listas del propio UPR ZX, así que funciona en una ROM con todos los nombres aleatorizados. Un perfil es dueño de la IA, los IVs, la mochila y el objeto del último miembro del equipo: aplicar uno siempre parte de los valores de la ROM, así que un perfil sobre otro es ese perfil y no los dos sumados. Todo lo demás del entrenador — su equipo, sus movimientos, su dinero — se queda como está.</value>

@@ -84,7 +84,6 @@
        <StackPanel DataContext="{Binding Shops}" x:DataType="vm:ShopExtrasViewModel">
         <StackPanel Spacing="4">
           <TextBlock Classes="card-title" Text="{x:Static r:Strings.Shops_BuildTitle}" />
-          <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Options_OursHint}" />
           <CheckBox Margin="0,3" IsChecked="{Binding FreeRareCandies}" IsEnabled="{Binding Supported}"
                     ToolTip.Tip="{Binding FreeRareCandiesTip}">
             <TextBlock Text="{x:Static r:Strings.Shops_FreeCandies}" TextWrapping="Wrap" />
@@ -176,7 +175,6 @@
       <Border Classes="card" Width="470" IsVisible="{Binding IsTrainers}">
         <StackPanel Spacing="4">
           <TextBlock Classes="card-title" Text="{x:Static r:Strings.Options_TrainerMoney}" />
-          <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Options_OursHint}" />
           <Grid ColumnDefinitions="200,Auto" Margin="0,2">
             <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Options_TrainerLevelRow}" />
             <NumericUpDown Grid.Column="1" Width="110" Value="{Binding Game.TrainerLevelPercent}" Minimum="-90" Maximum="400"
@@ -298,7 +296,6 @@
       <Border Classes="card" Width="470" IsVisible="{Binding IsMisc}">
         <StackPanel Spacing="4">
           <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_ShinyTitle}" />
-          <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Options_OursHint}" />
           <Grid ColumnDefinitions="200,Auto" Margin="0,2" IsEnabled="{Binding Game.ShinySupported}" ToolTip.Tip="{Binding Game.ShinyTip}">
             <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Game_ShinyOdds}" />
             <NumericUpDown Grid.Column="1" Width="130" Value="{Binding Game.ShinyOdds}" Minimum="1" Maximum="4096"
@@ -326,23 +323,29 @@
         <ScrollViewer HorizontalScrollBarVisibility="Disabled">
           <StackPanel Margin="0,4,0,14">
             <TextBlock Margin="16,12" Text="{Binding Options.LoadStatus}" TextWrapping="Wrap" IsVisible="{Binding !Options.IsLoaded}" />
-            <!-- Items: what can come up at all (this application's, acts when randomizing) -->
-            <Border Classes="card" Margin="16,10,16,0" MaxWidth="560" HorizontalAlignment="Left" IsVisible="{Binding HasRandomShops}">
-              <StackPanel Spacing="2" DataContext="{Binding RandomShops}" x:DataType="vm:ShopExtrasViewModel">
-                <TextBlock Classes="card-title" Text="{x:Static r:Strings.Section_ItemPool}" />
-                <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Section_ItemPoolHint}" />
-                <CheckBox Margin="0,3" IsChecked="{Binding AllowAllItems}" ToolTip.Tip="{x:Static r:Strings.Items_AllowAllTip}">
-                  <TextBlock Text="{x:Static r:Strings.Items_AllowAll}" TextWrapping="Wrap" />
-                </CheckBox>
-                <CheckBox Margin="0,3" IsChecked="{Binding MegaStonesInPool}" IsVisible="{Binding HasMegaStones}"
-                          ToolTip.Tip="{x:Static r:Strings.Items_MegaStonesTip}">
-                  <TextBlock Text="{Binding MegaStonesText}" TextWrapping="Wrap" />
-                </CheckBox>
-              </StackPanel>
-            </Border>
             <!-- Every group in cards: one set of columns for all of them -->
-            <ItemsControl Margin="16,10,16,0" ItemsSource="{Binding AllSections}" ItemTemplate="{StaticResource UprSectionCard}"
-                          IsVisible="{Binding HasAllSections}">
+            <ItemsControl Margin="16,10,16,0" ItemsSource="{Binding AllSections}" IsVisible="{Binding HasAllSections}">
+              <ItemsControl.DataTemplates>
+                <DataTemplate DataType="vm:UprOptionSectionViewModel">
+                  <ContentControl Content="{Binding}" ContentTemplate="{StaticResource UprSectionCard}" />
+                </DataTemplate>
+                <!-- Items: what can come up at all (this application's, acts when randomizing): the first card of the flow -->
+                <DataTemplate DataType="vm:ShopExtrasViewModel">
+                  <Border Classes="card" Margin="0,0,0,12" VerticalAlignment="Top">
+                    <StackPanel Spacing="2">
+                      <TextBlock Classes="card-title" Text="{x:Static r:Strings.Section_ItemPool}" Margin="0,0,0,4" />
+                      <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Section_ItemPoolHint}" />
+                      <CheckBox Margin="0,3" IsChecked="{Binding AllowAllItems}" ToolTip.Tip="{x:Static r:Strings.Items_AllowAllTip}">
+                        <TextBlock Text="{x:Static r:Strings.Items_AllowAll}" TextWrapping="Wrap" />
+                      </CheckBox>
+                      <CheckBox Margin="0,3" IsChecked="{Binding MegaStonesInPool}" IsVisible="{Binding HasMegaStones}"
+                                ToolTip.Tip="{x:Static r:Strings.Items_MegaStonesTip}">
+                        <TextBlock Text="{Binding MegaStonesText}" TextWrapping="Wrap" />
+                      </CheckBox>
+                    </StackPanel>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.DataTemplates>
               <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                   <c:ColumnFlowPanel MinColumnWidth="340" MaxColumns="3" ColumnSpacing="12" KeepColumnWidth="True" />
