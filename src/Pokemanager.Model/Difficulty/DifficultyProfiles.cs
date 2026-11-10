@@ -115,6 +115,14 @@ public static class DifficultyProfiles
 
     public static DifficultyProfile Of(DifficultyLevel level) => All.First(p => p.Level == level);
 
+    /// <summary>
+    /// The trainer level percentage after going from profile <paramref name="from"/> (null = Normal) to
+    /// <paramref name="to"/>: <paramref name="current"/> moved by the difference between the two profiles' own
+    /// percentages, so a value the player set survives a change and a round trip.
+    /// </summary>
+    public static double LevelPercentAfter(double current, DifficultyLevel? from, DifficultyLevel to) =>
+        current + Of(to).TrainerLevelPercent - Of(from ?? DifficultyLevel.Normal).TrainerLevelPercent;
+
     /// <summary>The level from which the profile gives megas (the lowest of its rules), or null when it gives none.</summary>
     public static int? MegaFromLevel(DifficultyProfile profile) =>
         new[] { profile.Regular, profile.Important, profile.Boss }.Select(r => r.MegaFromLevel).Where(l => l is not null).Min();

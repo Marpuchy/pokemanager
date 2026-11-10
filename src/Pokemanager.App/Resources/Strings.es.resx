@@ -4018,7 +4018,7 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>mochila vacía</value>
   </data>
   <data name="Difficulty_Levels" xml:space="preserve">
-    <value>Niveles de entrenador {0} %</value>
+    <value>Niveles de entrenador {0} % sobre el valor que tengas</value>
   </data>
   <data name="Game_ResetRunNote" xml:space="preserve">
     <value>El progreso de la run empieza de cero con ella: vuelven {0} vidas perdidas, se olvidan {1} tiradas de la ruleta y el tope de nivel vuelve al primer paso del plan. Las reglas se quedan como están: las vidas máximas, los premios, cada cuánto sale la ruleta y el plan en sí.</value>

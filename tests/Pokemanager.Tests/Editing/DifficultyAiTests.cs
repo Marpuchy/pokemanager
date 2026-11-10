@@ -37,4 +37,16 @@ public sealed class DifficultyAiTests
         Assert.Contains(Enumerable.Range(0, session.Current.Trainers.Length),
             id => session.Original.Trainers[id] is { } o && session.Current.Trainers[id] is { } n && (n.Ai & 0x07) < (o.Ai & 0x07));
     }
+
+    /// <summary>Trainers at +65 %: Challenge → Normal → Challenge left them at +5 % (2026-11-10, user).</summary>
+    [Fact]
+    public void ChangingProfile_MovesTheLevelPercentByTheDifference()
+    {
+        double percent = 65;                                                   // set by the player under Challenge
+        percent = DifficultyProfiles.LevelPercentAfter(percent, DifficultyLevel.Challenge, DifficultyLevel.Normal);
+        Assert.Equal(60, percent);
+        percent = DifficultyProfiles.LevelPercentAfter(percent, null, DifficultyLevel.Challenge);
+        Assert.Equal(65, percent);
+        Assert.Equal(15, DifficultyProfiles.LevelPercentAfter(0, null, DifficultyLevel.Nightmare));
+    }
 }

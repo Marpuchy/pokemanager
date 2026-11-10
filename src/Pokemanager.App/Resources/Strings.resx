@@ -4018,7 +4018,7 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
     <value>empty bag</value>
   </data>
   <data name="Difficulty_Levels" xml:space="preserve">
-    <value>Trainer levels {0} %</value>
+    <value>Trainer levels {0} % on top of your own value</value>
   </data>
   <data name="Game_ResetRunNote" xml:space="preserve">
     <value>The run's progress starts over with it: {0} lost lives come back, {1} roulette spins are forgotten and the level cap goes back to the first step of the plan. The rules stay as they are — the maximum lives, the prizes, how often the roulette comes up and the plan itself.</value>

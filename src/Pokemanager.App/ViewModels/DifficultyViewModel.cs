@@ -65,7 +65,10 @@ public sealed partial class DifficultyViewModel : ObservableObject
         {
             int? megas = HasMegas && MegaFromLevel is { } chosen ? (int)Math.Clamp(chosen, 1, 100) : null;
             result = DifficultyProfiles.Apply(session, level, megas);
-            session.Project.Tweaks.TrainerLevelPercent = DifficultyProfiles.Of(level).TrainerLevelPercent;
+            // The level percentage moves by the difference between the two profiles, so the player's own value stays
+            // (2026-11-10, user: trainers at +65 %, Desafío → Normal → Desafío left them at +5 %).
+            var tweaks = session.Project.Tweaks;
+            tweaks.TrainerLevelPercent = DifficultyProfiles.LevelPercentAfter(tweaks.TrainerLevelPercent, tweaks.Difficulty, level);
             // Only a choice that differs from the profile's own is kept, so changing the profile later follows it.
             session.Project.Tweaks.DifficultyMegaFromLevel = megas is { } m && m != Selected.MegaFromLevel ? m : null;
             session.Project.Tweaks.Difficulty = level == DifficultyLevel.Normal ? null : level;
