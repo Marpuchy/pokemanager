@@ -43,6 +43,19 @@ public sealed class EvolutionBranchViewModel(EvolutionNodeViewModel node, IReadO
     public bool IsWide => Children.Count > MostInAColumn;
     public bool IsNarrow => HasChildren && !IsWide;
     public int Columns => (Children.Count + MostInAColumn - 1) / MostInAColumn;
+
+    /// <summary>
+    /// What its branches all lead to, drawn once after them with an arrow from each (2026-11-10, user: Meowstic and
+    /// Meowstic ♀ both mega evolve into the one Mega Meowstic). Null for an ordinary tree.
+    /// </summary>
+    public EvolutionBranchViewModel? Converge { get; init; }
+
+    public bool HasConverge => Converge is not null;
+
+    /// <summary>For a branch whose parent converges: the angle of its arrow towards the shared Pokémon; null otherwise.</summary>
+    public double? ConvergeAngle { get; set; }
+
+    public bool IsConverging => ConvergeAngle is not null;
 }
 
 /// <summary>
@@ -94,7 +107,9 @@ public sealed class EvolutionChainViewModel
         // the ROM's own mega table, so a mod's megas (Mega Raichu, Mega Staraptor) are there too.
         foreach (var (key, stone) in data.MegaStoneByForm.OrderBy(p => p.Key.Species).ThenBy(p => p.Key.Form))
         {
-            var from = (key.Species, MegaParentForm(key.Species, key.Form));
+            if (data.IsDuplicateMega(key.Species, key.Form))
+                continue;
+            var from = (key.Species, 0);
             if (!children.TryGetValue(from, out var list))
                 children[from] = list = [];
             if (list.Any(c => c.To == key))
@@ -108,20 +123,22 @@ public sealed class EvolutionChainViewModel
 
         var self = (species, form);
 
-        // A female-only mega (Meowstic's, in the expansion mod) comes from the female form — form 1 when that is not a
-        // mega itself —; every other mega from form 0.
-        int MegaParentForm(int s, int megaForm)
+        // A species reached in several forms from one parent (Espurr → Meowstic and Meowstic ♀) with one mega: every one
+        // of those forms mega evolves into it, so the line converges there instead of hanging it from the male alone.
+        var converge = new Dictionary<(int, int), ((int Species, int Form) Mega, string How)>();
+        foreach (var (from, list) in children)
         {
-            int row = index.Row(s, megaForm);
-            return row > 0 && row < data.Personal.Length && data.Personal[row].Gender == 254 && FormCount(s) > 1
-                   && !data.MegaForms.Contains((s, 1)) && index.Row(s, 1) is var female && female > 0
-                   && data.Personal[female].Gender != 0
-                ? 1 : 0;
+            foreach (var group in list.GroupBy(c => c.To.Species).Where(g => g.Count() > 1))
+            {
+                var megas = children.GetValueOrDefault((group.Key, 0))?.Where(c => data.MegaForms.Contains(c.To)).ToList() ?? [];
+                if (megas.Count == 1 && group.All(c => (children.GetValueOrDefault(c.To) ?? []).All(n => n.To == megas[0].To)))
+                    converge[from] = (megas[0].To, megas[0].How);
+            }
         }
 
         // A form nothing evolves into and that evolves into nothing (Bloodmoon Ursaluna, Alcremie's flavours): shown in
         // its species' line, next to the form that line reaches, instead of on its own (issue #2).
-        if (form > 0 && !parent.ContainsKey(self) && !children.ContainsKey(self)
+        if (form > 0 && !parent.ContainsKey(self) && !children.ContainsKey(self) && !data.IsDuplicateMega(species, form)
             && parent.TryGetValue((species, 0), out var baseParent))
         {
             children[baseParent].Add((self, Strings.Evo_OtherForm));
@@ -145,14 +162,21 @@ public sealed class EvolutionChainViewModel
         }
 
         var visited = new HashSet<(int, int)> { root };
-        EvolutionBranchViewModel Branch((int Species, int Form) mon, string how, int depth)
+        EvolutionBranchViewModel Branch((int Species, int Form) mon, string how, int depth, (int, int)? skip = null)
         {
             var below = new List<EvolutionBranchViewModel>();
+            bool joins = converge.TryGetValue(mon, out var join);
             if (depth < MostDepth)
                 foreach (var (to, toHow) in children.GetValueOrDefault(mon) ?? [])
-                    if (visited.Add(to))
-                        below.Add(Branch(to, toHow, depth + 1));
-            return new EvolutionBranchViewModel(Node(mon, how), below);
+                    if (to != skip && visited.Add(to))
+                        below.Add(Branch(to, toHow, depth + 1, joins ? join.Mega : null));
+            if (!joins || depth + 1 >= MostDepth || !visited.Add(join.Mega))
+                return new EvolutionBranchViewModel(Node(mon, how), below);
+            // Fan the arrows towards the shared Pokémon: the top one points down, the bottom one up.
+            double middle = (below.Count - 1) / 2.0;
+            for (int i = 0; i < below.Count; i++)
+                below[i].ConvergeAngle = middle == 0 ? 0 : 32 * (middle - i) / middle;
+            return new EvolutionBranchViewModel(Node(mon, how), below) { Converge = Branch(join.Mega, join.How, depth + 2) };
         }
 
         return new EvolutionChainViewModel(Branch(root, "", 0));

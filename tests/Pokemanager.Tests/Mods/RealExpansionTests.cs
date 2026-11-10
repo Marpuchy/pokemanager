@@ -2,6 +2,8 @@
 using GameLanguage = Pokemanager.Model.Dump.GameLanguage;
 using Pokemanager.App.Services;
 using Pokemanager.Save;
+using Pokemanager.Model.Edits;
+using Pokemanager.Model.Build;
 using Pokemanager.Model.Data;
 using Pokemanager.Model.Dump;
 using Pokemanager.Model.Editing;
@@ -294,5 +296,34 @@ public sealed class RealExpansionTests
         Assert.Contains(last.Item, session.Current.MegaStoneByForm.Values);
         // The session itself is not touched.
         Assert.Equal(original.Member(0)!.Level, session.Current.Trainers[23].Member(0)!.Level);
+    }
+
+    /// <summary>
+    /// Meowstic's form 3 repeats its mega and nothing reaches it (2026-11-10, user): it is not listed, and the build gives
+    /// it Mega Meowstic's stats, types and abilities.
+    /// </summary>
+    [Fact]
+    public void MeowsticsDuplicateMega_IsHidden_AndBuiltAsTheMega()
+    {
+        Assert.SkipWhen(Paths() is null, "POKEMANAGER_USUM_DUMP / POKEMANAGER_MOD_LIBRARY are not set.");
+        var (_, session) = Open(withMod: true);
+        var data = session.Current;
+        Assert.True(data.IsDuplicateMega(678, 3));
+        Assert.False(data.IsDuplicateMega(678, 2));
+        var index = PersonalIndex.Of(data);
+        int mega = index.Row(678, 2), duplicate = index.Row(678, 3);
+        // The mod ships both as the same mega (74/48/76/143/101/124); a randomizer or an edit sets them apart.
+        session.SetInt(GameTables.Personal, mega, "spa", 150);
+        Assert.NotEqual(150, data.Personal[duplicate].SPA);
+
+        var outputs = ModBuilder.BuildEdits(session);
+        var garc = new pk3DS.Core.CTR.GARC.MemGARC(outputs["romfs/" + data.Layout.Personal]);
+        var built = new pk3DS.Core.Structures.PersonalInfo.PersonalInfoSM(garc.GetFile(duplicate));
+        var source = data.Personal[mega];
+        Assert.Equal([source.HP, source.ATK, source.DEF, source.SPA, source.SPD, source.SPE],
+            [built.HP, built.ATK, built.DEF, built.SPA, built.SPD, built.SPE]);
+        Assert.Equal(source.Types, built.Types);
+        Assert.Equal(254, built.Gender);   // the rest of the row is its own
+        Assert.Empty(ModBuilder.MirrorDuplicateMegas(data));   // a second build has nothing left to copy
     }
 }

@@ -92,7 +92,7 @@ public sealed class GameData
     private GameData(GameTitle title, PersonalInfoXY[] personal, Move[] moves, Learnset6[] learnsets, string[] moveDescriptions,
         Trainer[] trainers, Item[] items, (int[] Stones, Dictionary<int, int> BySpecies, Dictionary<(int, int), int> Forms) mega, EvolutionSlots[] evolutions)
     {
-        AddFemaleMegas(personal, mega.Forms);
+        DuplicateMegas = AddFemaleMegas(personal, mega.Forms);
         MegaForms = mega.Forms.Keys.ToHashSet();
         MegaStoneByForm = mega.Forms;
         Evolutions = evolutions;
@@ -109,20 +109,34 @@ public sealed class GameData
     }
 
     /// <summary>
-    /// A species whose mega differs by gender (the expansion mod's Meowstic: form 2 the male mega, form 3 the female one)
-    /// lists only the male mega in the table: the game picks the next form for a female. So a male-only mega form followed
-    /// by a female-only form the table does not list makes that form the female mega, needing the same stone.
+    /// Forms that repeat a mega and that the game does not reach, mapped to the mega they repeat (2026-11-10, user: "si
+    /// está duplicado elimínalo"). The Expansion's Meowstic has form 2, the male-only mega its mega table lists, and form
+    /// 3, a female-only 600 with other stats that **nothing in the data reaches** — the table has one entry. The
+    /// application hides such a form and the build gives it the mega's stats, types and abilities, so it is the same
+    /// Mega Meowstic should the game ever show it. It stays in <see cref="MegaForms"/>: still battle-only.
     /// </summary>
-    internal static void AddFemaleMegas(PersonalInfoXY[] personal, Dictionary<(int, int), int> forms)
+    public IReadOnlyDictionary<(int Species, int Form), int> DuplicateMegas { get; }
+
+    /// <summary>Whether (species, form) is a duplicate the application does not list (<see cref="DuplicateMegas"/>).</summary>
+    public bool IsDuplicateMega(int species, int form) => DuplicateMegas.ContainsKey((species, form));
+
+    /// <summary>
+    /// A male-only mega form followed by a female-only form the table does not list: that form is a duplicate of the
+    /// mega (value: the mega's form), and counts as battle-only with the same stone.
+    /// </summary>
+    internal static Dictionary<(int, int), int> AddFemaleMegas(PersonalInfoXY[] personal, Dictionary<(int, int), int> forms)
     {
+        var duplicates = new Dictionary<(int, int), int>();
         foreach (var ((species, form), stone) in forms.ToList())
         {
             if (species >= personal.Length || personal[species] is not { FormStatsIndex: > 0 } p || form + 1 >= p.FormeCount)
                 continue;
             int male = p.FormStatsIndex + form - 1, female = male + 1;
-            if (female < personal.Length && personal[male].Gender == 0 && personal[female].Gender == 254)
-                forms.TryAdd((species, form + 1), stone);
+            if (female < personal.Length && personal[male].Gender == 0 && personal[female].Gender == 254
+                && forms.TryAdd((species, form + 1), stone))
+                duplicates[(species, form + 1)] = form;
         }
+        return duplicates;
     }
 
     public static GameData Load(string romFsPath, GameTitle title = GameTitle.X) => Load(new RomFsLayers(romFsPath), title);

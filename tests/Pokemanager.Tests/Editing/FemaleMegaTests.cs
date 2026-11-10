@@ -29,8 +29,9 @@ public class FemaleMegaTests
     public void A_female_only_form_after_a_male_only_mega_is_the_female_mega()
     {
         var forms = new Dictionary<(int, int), int> { [(1, 2)] = 518 };
-        GameData.AddFemaleMegas(Table(), forms);
+        var duplicates = GameData.AddFemaleMegas(Table(), forms);
         Assert.Equal(518, forms[(1, 3)]);
+        Assert.Equal(2, duplicates[(1, 3)]);   // a duplicate of form 2, which the application hides
         Assert.False(forms.ContainsKey((1, 1)));
     }
 

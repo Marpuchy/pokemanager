@@ -411,10 +411,19 @@
                       <StackPanel Orientation="Horizontal">
                         <TextBlock Text="➜" FontSize="22" Foreground="#8A96A3" VerticalAlignment="Center" Margin="6,0" />
                         <ContentControl Content="{Binding}" VerticalAlignment="Center" />
+                        <!-- Converging line: an arrow tilted towards the Pokémon every branch leads to -->
+                        <TextBlock Text="➜" FontSize="22" Foreground="#8A96A3" VerticalAlignment="Center" Margin="10,0,4,0"
+                                   IsVisible="{Binding IsConverging}">
+                          <TextBlock.RenderTransform>
+                            <RotateTransform Angle="{Binding ConvergeAngle, FallbackValue=0}" />
+                          </TextBlock.RenderTransform>
+                        </TextBlock>
                       </StackPanel>
                     </DataTemplate>
                   </ItemsControl.ItemTemplate>
                 </ItemsControl>
+                <!-- What the branches converge on (Mega Meowstic), once, in the middle -->
+                <ContentControl Content="{Binding Converge}" IsVisible="{Binding HasConverge}" VerticalAlignment="Center" />
                 <!-- Many branches (Eevee): columns of four, behind one arrow -->
                 <StackPanel Orientation="Horizontal" IsVisible="{Binding IsWide}" VerticalAlignment="Center">
                   <TextBlock Text="➜" FontSize="22" Foreground="#8A96A3" VerticalAlignment="Center" Margin="6,0" />

@@ -28,8 +28,10 @@ public static class ModBuilder
         var layout = session.Current.Layout;
         var outputs = new Dictionary<string, byte[]>();
 
-        if (EditedIds(edits, GameTables.Personal) is { Count: > 0 } personalIds)
-            outputs["romfs/" + layout.Personal] = BuildPersonal(session, personalIds);
+        var personalRows = EditedIds(edits, GameTables.Personal);
+        personalRows.UnionWith(MirrorDuplicateMegas(session.Current));
+        if (personalRows.Count > 0)
+            outputs["romfs/" + layout.Personal] = BuildPersonal(session, personalRows);
         if (EditedIds(edits, GameTables.Moves) is { Count: > 0 } moveIds)
             outputs["romfs/" + layout.Moves] = BuildMoves(session, moveIds);
         if (EditedIds(edits, GameTables.Learnsets) is { Count: > 0 } learnsetIds)
@@ -460,6 +462,33 @@ public static class ModBuilder
         edits.All.Where(e => e.Table == table).Select(e => e.Id).ToHashSet();
 
     /// <summary>Personal: edited individual entries plus the concatenated table in the last file.</summary>
+    /// <summary>
+    /// Gives each duplicate mega (<see cref="GameData.DuplicateMegas"/>) the stats, types and abilities of the mega it
+    /// repeats, edits included; returns the rows that changed. Its gender, forms and the rest are left as they are.
+    /// </summary>
+    internal static IEnumerable<int> MirrorDuplicateMegas(GameData data)
+    {
+        var index = PersonalIndex.Of(data);
+        var changed = new List<int>();
+        foreach (var ((species, form), megaForm) in data.DuplicateMegas)
+        {
+            int row = index.Row(species, form), from = index.Row(species, megaForm);
+            if (row <= 0 || from <= 0)
+                continue;
+            var to = data.Personal[row];
+            var mega = data.Personal[from];
+            bool same = to.HP == mega.HP && to.ATK == mega.ATK && to.DEF == mega.DEF && to.SPA == mega.SPA && to.SPD == mega.SPD
+                        && to.SPE == mega.SPE && to.Types.SequenceEqual(mega.Types) && to.Abilities.SequenceEqual(mega.Abilities);
+            if (same)
+                continue;
+            (to.HP, to.ATK, to.DEF, to.SPA, to.SPD, to.SPE) = (mega.HP, mega.ATK, mega.DEF, mega.SPA, mega.SPD, mega.SPE);
+            to.Types = [.. mega.Types];
+            to.Abilities = [.. mega.Abilities];
+            changed.Add(row);
+        }
+        return changed;
+    }
+
     private static byte[] BuildPersonal(EditorSession session, HashSet<int> ids)
     {
         string path = session.Current.Layout.Personal;

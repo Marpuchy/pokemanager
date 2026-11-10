@@ -198,7 +198,7 @@ public sealed class GameNames
             var p = data.Personal[s];
             if (p.FormStatsIndex <= 0)
                 continue;
-            var megas = data.MegaForms.Where(m => m.Species == s).Select(m => m.Form).Order().ToList();
+            var megas = data.MegaForms.Where(m => m.Species == s && !data.IsDuplicateMega(m.Species, m.Form)).Select(m => m.Form).Order().ToList();
             string[] known = s <= vanillaLast
                 ? PKHeX.Core.FormConverter.GetFormList((ushort)s, pkhex.types, pkhex.forms, PKHeX.Core.GameInfo.GenderSymbolUnicode, context)
                 : [];
@@ -220,7 +220,7 @@ public sealed class GameNames
                 int index = p.FormStatsIndex + form - 1;
                 if (index >= names.Length)
                     continue;
-                int mega = megas.IndexOf(form);
+                int mega = data.DuplicateMegas.TryGetValue((s, form), out int repeats) ? megas.IndexOf(repeats) : megas.IndexOf(form);
                 names[index] = mega >= 0
                     ? string.Format(Strings.Species_Mega, SpeciesName(s)) + MegaSuffix(data, p, megas, mega)
                     : form < known.Length && known[form].Trim() is { Length: > 0 } formName && !known[form].StartsWith("Mega", StringComparison.Ordinal)
@@ -232,16 +232,7 @@ public sealed class GameNames
         return names;
     }
 
-    /// <summary>
-    /// What tells a species' megas apart: nothing for one, ♂/♀ when they split by gender (Meowstic in the expansion mod,
-    /// whose female mega is not a "Y"), otherwise X and Y.
-    /// </summary>
-    private static string MegaSuffix(GameData data, pk3DS.Core.Structures.PersonalInfo.PersonalInfoXY species, List<int> megas, int mega)
-    {
-        if (megas.Count < 2)
-            return "";
-        int gender = data.Personal[species.FormStatsIndex + megas[mega] - 1].Gender;
-        bool byGender = megas.All(f => data.Personal[species.FormStatsIndex + f - 1].Gender is 0 or 254);
-        return " " + (byGender ? (gender == 254 ? "♀" : "♂") : ((char)('X' + mega)).ToString());
-    }
+    /// <summary>What tells a species' megas apart: nothing for one, X and Y for two (Charizard, Mewtwo).</summary>
+    private static string MegaSuffix(GameData data, pk3DS.Core.Structures.PersonalInfo.PersonalInfoXY species, List<int> megas, int mega) =>
+        megas.Count > 1 ? " " + (char)('X' + mega) : "";
 }

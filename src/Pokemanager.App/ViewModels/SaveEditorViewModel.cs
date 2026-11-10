@@ -1098,7 +1098,7 @@ public partial class SaveDexViewModel : ObservableObject
         var game = owner.GameNames;
         all = [.. Enumerable.Range(1, doc.Rom.Personal.Length - 1)
             .Select(row => (Row: row, Mon: index.Pokemon(row)))
-            .Where(r => r.Mon is { Species: > 0 })
+            .Where(r => r.Mon is { Species: > 0 } m && !doc.Rom.IsDuplicateMega(m.Species, m.Form))   // the Expansion's form 3 Meowstic
             .OrderBy(r => r.Mon!.Value.Species).ThenBy(r => r.Mon!.Value.Form)
             .Select(r => new DexEntryViewModel(this, doc, (ushort)r.Mon!.Value.Species, (byte)r.Mon.Value.Form, r.Row,
                 r.Mon.Value.Form == 0 ? names.SpeciesName((ushort)r.Mon.Value.Species)

@@ -376,7 +376,10 @@ public partial class EditorViewModel : ObservableObject
     private void LoadLists()
     {
         string[] personalTables = [GameTables.Personal, GameTables.Learnsets, GameTables.Evolutions];
+        var personalIndex = PersonalIndex.Of(Session.Current);
         allSpecies = Enumerable.Range(1, Session.Current.Personal.Length - 1) // entry 0 is an empty placeholder
+            // A duplicate of a mega the game does not reach (the Expansion's form 3 Meowstic) is not listed.
+            .Where(i => personalIndex.Pokemon(i) is not { } mon || !Session.Current.IsDuplicateMega(mon.Species, mon.Form))
             .Select(i => new ListEntryViewModel(Session, personalTables, i, Names.PersonalEntries[i], () => Sprites.ForPersonalEntry(i),
                 () => (Session.Current.Personal[i].Types[0], Session.Current.Personal[i].Types[1])))
             .ToList();

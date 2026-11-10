@@ -63,7 +63,7 @@ public static class ModCatalog
     /// </para>
     /// </remarks>
     /// <summary>The commit of the Expansion's repository whose executable and Battle.cro the catalogue fetches.</summary>
-    private const string UsumExpansionCommit = "596e6b9a09ef74ded99452f1470a92cbc905d362";
+    private const string UsumExpansionCommit = "0b50f8436b743301f727018f5fd6612ee4c39781";
 
     /// <summary>A file of the Expansion's repository at <see cref="UsumExpansionCommit"/>, for one game's folder.</summary>
     private static ModSource RepositoryFile(string game, string path) => ModSource.Direct(
@@ -138,7 +138,9 @@ public static class ModCatalog
             // the executables, v1.42 has no assets at all, and the newest fixes (2026-10-22..26: two-byte abilities in
             // battle, Trace / Role Play / Entrain, a bigger heap for the personal data) are only in the repository's
             // main branch. They are fetched pinned to that commit, so the bytes cannot change under the hash. Measured
-            // on 2026-11-09: against v1.4 + v1.41 these two files are the only ones of the release that differ. One per
+            // on 2026-11-09: against v1.4 + v1.41 these two files are the only ones of the release that differ. Moved to
+            // 0b50f84 on 2026-11-10 ("more Ability fixes for two bytes (this was causing a battle AI issue)"): only
+            // Battle.cro changed, same size, hash measured. One per
             // game for the executable (an Ultra Moon one in an Ultra Sun library would not boot); Battle.cro is the
             // same file for both.
             .. new[] { (GameTitle.UltraSun, "UltraSun", 5_914_624L, "1249622FEC32B9209932965BB1B100636A76AF79E8ABDFD5EB5A5A12D039986E"),
@@ -153,7 +155,7 @@ public static class ModCatalog
                     ModDownload.File(RepositoryFile(g.Item2, "romfs/Battle.cro"), "romfs/Battle.cro", g.Item1) with
                     {
                         Bytes = 1_425_408,
-                        Sha256 = "AF995142EAFDAF6BD19CDED91D5D5C7E8435840E8144DDFBAD71C7CA1F12C845",
+                        Sha256 = "0E1D0BCC5E7D18E9AC3A0DA94D5775A18377229C27C0C0EABEFCD4449E729223",
                     },
                 }),
             // The model archive: 2.3 GB, far past what a repository takes, so the author keeps it in Drive and links
@@ -173,7 +175,7 @@ public static class ModCatalog
             Strings.Mods_UsumExpansion_Name,
             Strings.Mods_UsumExpansion_Author,
             Strings.Mods_UsumExpansion_Description,
-            "1.42 (596e6b9)",
+            "1.42 (0b50f84)",
             "https://github.com/TheSomewhatUnknownGuy/PokemonUSUMExpansion",
             // Two declarations that do not agree, both the author's own: CC0 waives everything, CC BY-NC-SA does not
             // (it forbids commercial use and requires share-alike). The application says both and where each one is
