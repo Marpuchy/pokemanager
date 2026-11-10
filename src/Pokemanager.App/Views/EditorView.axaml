@@ -347,6 +347,15 @@
                                             </DataTemplate>
                                           </ItemsControl.ItemTemplate>
                                         </ItemsControl>
+                                        <!-- Earlier stages follow this one (stats, catch rate, types, experience group) -->
+                                        <WrapPanel Margin="0,8,0,0" ItemSpacing="8" LineSpacing="4">
+                                          <CheckBox Content="{x:Static r:Strings.Detail_FollowPreevolutions}" IsChecked="{Binding FollowPreevolutions}"
+                                                    ToolTip.Tip="{x:Static r:Strings.Tip_DetailFollowPreevolutions}" />
+                                          <Button Content="{x:Static r:Strings.Detail_SyncAllPreevolutions}" Command="{Binding SyncAllPreevolutionsCommand}"
+                                                  ToolTip.Tip="{x:Static r:Strings.Tip_DetailSyncAllPreevolutions}" />
+                                        </WrapPanel>
+                                        <TextBlock Classes="hint" Text="{Binding PreevolutionNote}" TextWrapping="Wrap" MaxWidth="420"
+                                                   IsVisible="{Binding PreevolutionNote, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
                                       </StackPanel>
                                     </Border>
                                     <Border Classes="card detail">

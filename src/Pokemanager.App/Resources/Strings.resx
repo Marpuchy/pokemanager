@@ -5045,4 +5045,46 @@ Project: {2}</value>
   <data name="Dex_FilterLegendaries" xml:space="preserve">
     <value>Legendaries</value>
   </data>
+  <data name="Detail_FollowPreevolutions" xml:space="preserve">
+    <value>Earlier stages follow it</value>
+  </data>
+  <data name="Tip_DetailFollowPreevolutions" xml:space="preserve">
+    <value>When you change this Pokémon's stats, types or experience group, its earlier stages follow: their total grows or shrinks in the same proportion (mostly on their strongest stats), their catch rate moves the way the game's catch rates move with the total, middle stages take its new types and every stage takes its experience group. Worked out from the ROM's values, so an earlier stage you edited by hand is recomputed. Applies to the whole project.</value>
+  </data>
+  <data name="Detail_SyncAllPreevolutions" xml:space="preserve">
+    <value>Adjust earlier stages of everything edited</value>
+  </data>
+  <data name="Tip_DetailSyncAllPreevolutions" xml:space="preserve">
+    <value>Goes through every Pokémon of the project whose stats were edited and adjusts its earlier stages the same way, except those whose stats you edited yourself.</value>
+  </data>
+  <data name="Detail_PreevolutionsAdjusted" xml:space="preserve">
+    <value>{0} earlier stages adjusted.</value>
+  </data>
+  <data name="Detail_PreevolutionsNone" xml:space="preserve">
+    <value>Every earlier stage already follows its evolution.</value>
+  </data>
+  <data name="Locke_MajorRoulette" xml:space="preserve">
+    <value>Major roulette</value>
+  </data>
+  <data name="Locke_MinorRoulette" xml:space="preserve">
+    <value>Minor roulette</value>
+  </data>
+  <data name="Locke_MajorRouletteTag" xml:space="preserve">
+    <value>★ Major roulette</value>
+  </data>
+  <data name="Tip_LockeMajorRoulette" xml:space="preserve">
+    <value>The prizes spun after a grand trial (Hala, Olivia, Nanu, Hapu) and after the league.</value>
+  </data>
+  <data name="Tip_LockeMinorRoulette" xml:space="preserve">
+    <value>The prizes spun after a captain's trial (the other eight Z-crystals).</value>
+  </data>
+  <data name="Locke_PrizesHintMajor" xml:space="preserve">
+    <value>Major roulette: spun after each grand trial and the league (★). The weight sets how likely each prize is and the size of its slice on the wheel.</value>
+  </data>
+  <data name="Locke_PrizesHintMinor" xml:space="preserve">
+    <value>Minor roulette: spun after each captain's trial. The weight sets how likely each prize is and the size of its slice on the wheel.</value>
+  </data>
+  <data name="Undo_Preevolutions" xml:space="preserve">
+    <value>Earlier stages of {0}</value>
+  </data>
 </root>

@@ -135,7 +135,8 @@ public sealed partial class PartyMemberViewModel : ObservableObject, IMonCard
 /// <summary>A gym badge in the preview: earned or not (from the save), and its roulette.</summary>
 /// <param name="crystal">Generation 7: the trial's Z-crystal, used instead of the game's seal (the fifth trial has none).</param>
 public sealed partial class BadgeItemViewModel(ProjectPreviewViewModel owner, int index, string name, int type, bool earned, LockeSpin? spin,
-    IReadOnlyList<string> itemNames, IconImage? image, bool hasRoulette, int? crystalType = null, IconImage? crystalImage = null) : ObservableObject
+    IReadOnlyList<string> itemNames, IconImage? image, bool hasRoulette, int? crystalType = null, IconImage? crystalImage = null,
+    bool league = false, bool major = false) : ObservableObject
 {
     /// <summary>
     /// The badge or seal — or the trial's Z-crystal, the game's own icon when the ROM has it —, greyed out while it is not
@@ -143,7 +144,8 @@ public sealed partial class BadgeItemViewModel(ProjectPreviewViewModel owner, in
     /// Avalonia image belongs to the thread that creates it.
     /// </summary>
     public Avalonia.Media.IImage? Icon =>
-        field ??= crystalImage is { } crystal ? PokemonSprites.ToBitmap(crystal)
+        field ??= league ? PkhexImages.Trophy(Earned)
+            : crystalImage is { } crystal ? PokemonSprites.ToBitmap(crystal)
             : crystalType is { } type ? PkhexImages.TrialCrystalArt(type)
             : image is null ? null : PokemonSprites.ToBitmap(Earned ? image : MilestoneIcons.Faded(image));
 
@@ -172,13 +174,16 @@ public sealed partial class BadgeItemViewModel(ProjectPreviewViewModel owner, in
     /// </summary>
     public bool CanSpin => Earned;
 
-    public string Tooltip => !Earned
+    /// <summary>Sun/Moon: a grand trial or the league, whose roulette is the major one (2026-11-10, user).</summary>
+    public bool IsMajor { get; } = major;
+
+    public string Tooltip => (major ? Strings.Locke_MajorRouletteTag + "\n" : "") + (!Earned
         ? string.Format(Strings.Locke_BadgeNotEarned, Name)
         : spin is null
             ? string.Format(hasRoulette ? Strings.Locke_BadgeSpin : Strings.Locke_BadgeSpinAnyway, Name)
             : spin.Claimed
                 ? string.Format(Strings.Locke_BadgeDone, Name, LockeRewards.Describe(spin.Prize, itemNames))
-                : string.Format(Strings.Locke_BadgePending, Name, LockeRewards.Describe(spin.Prize, itemNames));
+                : string.Format(Strings.Locke_BadgePending, Name, LockeRewards.Describe(spin.Prize, itemNames)));
 
     [RelayCommand]
     private Task Spin() => owner.SpinBadgeAsync(this);
@@ -305,14 +310,14 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
                     images?[m.Value], project.Locke.HasRoulette(i)));
                 continue;
             }
-            // A story crystal: the game's own icon (type crystals are items 776-793 in Pokédex order); the league
-            // takes the last island stamp (the island challenge).
+            // A story crystal: the game's own icon (type crystals are items 776-793 in Pokédex order); the league a cup.
             int dex = m.Value - 776;
             int type = m.Kind == LockeMilestoneKind.Crystal ? PkhexImages.TypeOfCrystalIcon(dex) : 0;
             Badges.Add(new BadgeItemViewModel(this, i, name, type, earned, project.Locke.SpinOf(i), itemNames,
-                m.Kind == LockeMilestoneKind.League ? images?[^1] : null, project.Locke.HasRoulette(i),
+                null, project.Locke.HasRoulette(i),
                 m.Kind == LockeMilestoneKind.Crystal ? type : null,
-                m.Kind == LockeMilestoneKind.Crystal && crystals is not null && (uint)dex < crystals.Length ? crystals[dex] : null));
+                m.Kind == LockeMilestoneKind.Crystal && crystals is not null && (uint)dex < crystals.Length ? crystals[dex] : null,
+                league: m.Kind == LockeMilestoneKind.League, major: project.Locke.IsMajor(i)));
         }
     }
 
@@ -361,7 +366,7 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
     {
         if (!badge.CanSpin)
             return;
-        var roulette = new RouletteViewModel(badge.Name, Loaded.Project.Locke, itemNames, badge.PendingPrize,
+        var roulette = new RouletteViewModel(badge.Name, Loaded.Project.Locke, badge.Index, itemNames, badge.PendingPrize,
             prize => LockeRewards.RecordWin(Loaded, badge.Index, prize),
             prize => LockeRewards.Claim(Loaded, main.Settings, badge.Index, prize, itemNames),
             () => LockeRewards.MarkAddedByHand(Loaded, badge.Index),

@@ -644,7 +644,7 @@ public partial class EditorViewModel : ObservableObject
             foreach (var entry in allSpecies.Concat(allMoves).Concat(allTrainers))
                 entry.Refresh();
             if (SpeciesDetail is { } species)
-                SpeciesDetail = new SpeciesDetailViewModel(Session, Names, species.Id, Sprites.ForPersonalEntry(species.Id), Sprites, OpenSpeciesRow);
+                SpeciesDetail = new SpeciesDetailViewModel(Session, Names, species.Id, Sprites.ForPersonalEntry(species.Id), Sprites, OpenSpeciesRow, BeginBatch);
             if (MoveDetail is { } move)
                 MoveDetail = new MoveDetailViewModel(Session, Names, move.Id);
             if (TrainerDetail is { } trainer)
@@ -768,7 +768,7 @@ public partial class EditorViewModel : ObservableObject
     partial void OnSelectedSpeciesChanged(ListEntryViewModel? value)
     {
         if (value is not null && value.Id != SpeciesDetail?.Id)
-            SpeciesDetail = new SpeciesDetailViewModel(Session, Names, value.Id, Sprites.ForPersonalEntry(value.Id), Sprites, OpenSpeciesRow);
+            SpeciesDetail = new SpeciesDetailViewModel(Session, Names, value.Id, Sprites.ForPersonalEntry(value.Id), Sprites, OpenSpeciesRow, BeginBatch);
     }
 
     partial void OnSelectedMoveChanged(ListEntryViewModel? value)

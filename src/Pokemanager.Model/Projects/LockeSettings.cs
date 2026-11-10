@@ -49,7 +49,20 @@ public sealed class LockeSettings
     [JsonIgnore]
     public int LivesLeft => Math.Max(0, MaxLives - LivesLost);
 
+    /// <summary>The roulette's prizes — in Sun/Moon, those of the major roulette (grand trials and league).</summary>
     public List<LockePrize> Prizes { get; set; } = DefaultPrizes();
+
+    /// <summary>
+    /// Sun/Moon: the prizes of the minor roulette, after a captain's trial (2026-11-10, user). Projects made before get
+    /// <see cref="DefaultMinorPrizes"/>.
+    /// </summary>
+    public List<LockePrize> MinorPrizes { get; set; } = DefaultMinorPrizes();
+
+    /// <summary>Whether milestone <paramref name="milestone"/> spins the major roulette: every badge, or a grand trial and the league.</summary>
+    public bool IsMajor(int milestone) => !CrystalMilestones || LockeMilestones.IsMajor(milestone);
+
+    /// <summary>The prizes milestone <paramref name="milestone"/> spins for.</summary>
+    public List<LockePrize> PrizesFor(int milestone) => IsMajor(milestone) ? Prizes : MinorPrizes;
 
     /// <summary>First badge (1-based) that has a roulette.</summary>
     public int RouletteFirst { get; set; } = 1;
@@ -107,20 +120,38 @@ public sealed class LockeSettings
         new(LockePrizeKind.Nothing, Weight: 1),
     ];
 
-    /// <summary>Picks a prize index with probability proportional to its weight (non-positive weights never win).</summary>
-    public int Roll(Random random)
+    /// <summary>Small prizes for a captain's trial: healing, a couple of candies, some money.</summary>
+    public static List<LockePrize> DefaultMinorPrizes() =>
+    [
+        new(LockePrizeKind.Item, ItemId: 50, Amount: 1, Weight: 3),   // Rare Candy
+        new(LockePrizeKind.Item, ItemId: 25, Amount: 3, Weight: 3),   // Hyper Potion
+        new(LockePrizeKind.Item, ItemId: 28, Amount: 2, Weight: 2),   // Revive
+        new(LockePrizeKind.Item, ItemId: 27, Amount: 3, Weight: 2),   // Full Heal
+        new(LockePrizeKind.Money, Amount: 3000, Weight: 2),
+        new(LockePrizeKind.Item, ItemId: 51, Amount: 1, Weight: 1),   // PP Up
+        new(LockePrizeKind.Nothing, Weight: 1),
+    ];
+
+    /// <summary>Picks a prize index of the major roulette (non-positive weights never win).</summary>
+    public int Roll(Random random) => Roll(Prizes, random);
+
+    /// <summary>Picks a prize index of milestone <paramref name="milestone"/>'s roulette.</summary>
+    public int Roll(Random random, int milestone) => Roll(PrizesFor(milestone), random);
+
+    /// <summary>Picks an index of <paramref name="prizes"/> with probability proportional to its weight.</summary>
+    public static int Roll(IReadOnlyList<LockePrize> prizes, Random random)
     {
-        int total = Prizes.Sum(p => Math.Max(0, p.Weight));
+        int total = prizes.Sum(p => Math.Max(0, p.Weight));
         if (total == 0)
             return -1;
         int ticket = random.Next(total);
-        for (int i = 0; i < Prizes.Count; i++)
+        for (int i = 0; i < prizes.Count; i++)
         {
-            ticket -= Math.Max(0, Prizes[i].Weight);
+            ticket -= Math.Max(0, prizes[i].Weight);
             if (ticket < 0)
                 return i;
         }
-        return Prizes.Count - 1;
+        return prizes.Count - 1;
     }
 
     /// <summary>

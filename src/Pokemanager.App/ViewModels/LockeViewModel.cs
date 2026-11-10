@@ -117,11 +117,61 @@ public sealed partial class LockeViewModel : ObservableObject
 
     public void Refresh()
     {
-        Prizes.Clear();
-        foreach (var prize in Locke.Prizes)
-            Prizes.Add(new PrizeRowViewModel(this, prize));
+        LoadPrizes();
         RefreshSpins();
         OnPropertyChanged(string.Empty);
+    }
+
+    private void LoadPrizes()
+    {
+        Prizes.Clear();
+        foreach (var prize in EditedList)
+            Prizes.Add(new PrizeRowViewModel(this, prize));
+    }
+
+    // ------------------------------------------------------------------ major and minor roulettes
+
+    /// <summary>
+    /// Sun/Moon have two roulettes (2026-11-10, user): the major one after a grand trial or the league, the minor one after
+    /// a captain's trial, each with its own prizes. Games with badges have one.
+    /// </summary>
+    public bool HasTwoRoulettes => Locke.CrystalMilestones;
+
+    /// <summary>The prize list shown below is the minor roulette's.</summary>
+    public bool EditingMinor
+    {
+        get => HasTwoRoulettes && field;
+        set
+        {
+            if (value == field)
+                return;
+            field = value;
+            LoadPrizes();
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(EditingMajor));
+            OnPropertyChanged(nameof(PrizesHint));
+        }
+    }
+
+    public bool EditingMajor
+    {
+        get => !EditingMinor;
+        set => EditingMinor = !value;
+    }
+
+    public string PrizesHint => !HasTwoRoulettes ? Strings.Locke_PrizesHint
+        : EditingMinor ? Strings.Locke_PrizesHintMinor : Strings.Locke_PrizesHintMajor;
+
+    private List<LockePrize> EditedList
+    {
+        get => EditingMinor ? Locke.MinorPrizes : Locke.Prizes;
+        set
+        {
+            if (EditingMinor)
+                Locke.MinorPrizes = value;
+            else
+                Locke.Prizes = value;
+        }
     }
 
     private void RefreshSpins()
@@ -208,7 +258,7 @@ public sealed partial class LockeViewModel : ObservableObject
         get
         {
             var names = Enumerable.Range(0, MilestoneCount).Where(Locke.HasRoulette)
-                .Select(i => LockeRewards.MilestoneName(Game, i, ItemNames)).ToList();
+                .Select(i => LockeRewards.MilestoneName(Game, i, ItemNames) + (HasTwoRoulettes && Locke.IsMajor(i) ? " ★" : "")).ToList();
             return names.Count == 0 ? Strings.Locke_IntervalNone : string.Format(Strings.Locke_IntervalBadges, string.Join(", ", names));
         }
     }
@@ -231,7 +281,7 @@ public sealed partial class LockeViewModel : ObservableObject
     /// <summary>Writes the rows back to the project.</summary>
     public void Commit()
     {
-        Locke.Prizes = Prizes.Select(p => p.Prize).ToList();
+        EditedList = Prizes.Select(p => p.Prize).ToList();
         foreach (var row in Prizes)
             row.RefreshChance();
         editor.MarkDirty(Strings.Undo_ProjectChange, affectsRom: false);
@@ -253,10 +303,8 @@ public sealed partial class LockeViewModel : ObservableObject
     [RelayCommand]
     private void ResetPrizes()
     {
-        Locke.Prizes = LockeSettings.DefaultPrizes();
-        Prizes.Clear();
-        foreach (var prize in Locke.Prizes)
-            Prizes.Add(new PrizeRowViewModel(this, prize));
+        EditedList = EditingMinor ? LockeSettings.DefaultMinorPrizes() : LockeSettings.DefaultPrizes();
+        LoadPrizes();
         editor.MarkDirty(Strings.Undo_ProjectChange, affectsRom: false);
     }
 

@@ -65,6 +65,12 @@ public sealed class GameSettings
     /// </summary>
     public bool OriginalStarters { get; set; }
 
+    /// <summary>
+    /// Editing a Pokémon's stats, types or experience group in the editor leaves its earlier stages alone. Off by default:
+    /// they follow it (<see cref="Editing.PreevolutionSync"/>, 2026-11-10, user).
+    /// </summary>
+    public bool KeepPreevolutions { get; set; }
+
     public bool HasLevelChanges => TrainerLevelPercent != 0 || WildLevelPercent != 0 || StaticLevelPercent != 0
                                    || StarterLevelPercent != 0;
 
@@ -119,6 +125,7 @@ public sealed class GameSettings
         StaticLevelPercent = StaticLevelPercent,
         StarterLevelPercent = StarterLevelPercent,
         OriginalStarters = OriginalStarters,
+        KeepPreevolutions = KeepPreevolutions,
         ShinyOdds = ShinyOdds,
         TrainerItems = (TrainerItems ?? new()).Clone(),
     };

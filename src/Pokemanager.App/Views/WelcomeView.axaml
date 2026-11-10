@@ -150,6 +150,9 @@
                           <TextBlock Text="{Binding Number}" FontSize="15" FontWeight="Bold" Foreground="{Binding Foreground}" IsVisible="{Binding !HasIcon}" />
                         </Panel>
                       </Button>
+                      <!-- A grand trial or the league: the major roulette -->
+                      <TextBlock IsVisible="{Binding IsMajor}" Text="★" FontSize="13" Foreground="#D4A017" HorizontalAlignment="Right" VerticalAlignment="Top"
+                                 Margin="0,-3,-2,0" IsHitTestVisible="False" />
                       <Border IsVisible="{Binding HasMark}" Width="17" Height="17" CornerRadius="2" Background="White"
                               BorderBrush="#9A9A9A" BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" IsHitTestVisible="False">
                         <TextBlock Text="{Binding Mark}" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{Binding MarkBrush}" />

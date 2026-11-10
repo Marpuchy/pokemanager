@@ -144,9 +144,11 @@ public partial class SpeciesDetailViewModel : ObservableObject
     private readonly PokemonSprites? sprites;
     private readonly Action<int>? openRow;
 
+    /// <param name="batch">Groups the earlier stages' changes into one undo step (the editor's <c>BeginBatch</c>).</param>
     public SpeciesDetailViewModel(EditorSession session, GameNames names, int id, Avalonia.Media.Imaging.Bitmap? icon = null,
-        PokemonSprites? sprites = null, Action<int>? openRow = null)
+        PokemonSprites? sprites = null, Action<int>? openRow = null, Func<string, IDisposable>? batch = null)
     {
+        this.batch = batch;
         this.session = session;
         this.names = names;
         this.sprites = sprites;
@@ -212,15 +214,88 @@ public partial class SpeciesDetailViewModel : ObservableObject
             {
                 OnPropertyChanged(nameof(BaseStatTotal));
                 OnPropertyChanged(nameof(OriginalStats));
+                FollowUp();
             };
         // The colored header follows the types as they are edited.
         foreach (var type in Types)
-            type.PropertyChanged += (_, _) => NotifyHeader();
+            type.PropertyChanged += (_, _) =>
+            {
+                NotifyHeader();
+                FollowUp();
+            };
+        Breeding[2].PropertyChanged += (_, _) => FollowUp();
+        followed = Signature();
         foreach (var field in Abilities)
             field.PropertyChanged += (_, _) => OnPropertyChanged(nameof(AbilitiesText));
 
         LoadLearnset();
         LoadEvolutions();
+    }
+
+    // ------------------------------------------------------------------ earlier stages
+
+    /// <summary>What the earlier stages follow, as it was when they last followed it.</summary>
+    private string followed = "";
+    private readonly Func<string, IDisposable>? batch;
+    private bool following;
+
+    private string Signature() => string.Join(",", new[] { "hp", "atk", "def", "spa", "spd", "spe", "type1", "type2", "expGrowth" }
+        .Select(f => session.GetInt(P, Id, f)));
+
+    /// <summary>
+    /// The earlier stages follow this Pokémon's stats, types and experience group as they are edited (2026-11-10, user),
+    /// unless the project turned it off.
+    /// </summary>
+    public bool FollowPreevolutions
+    {
+        get => !session.Project.Tweaks.KeepPreevolutions;
+        set
+        {
+            if (value == FollowPreevolutions)
+                return;
+            session.Project.Tweaks.KeepPreevolutions = !value;
+            OnPropertyChanged();
+            if (value)
+            {
+                followed = "";
+                FollowUp();
+            }
+        }
+    }
+
+    [ObservableProperty]
+    private string preevolutionNote = "";
+
+    private void FollowUp()
+    {
+        if (following || !FollowPreevolutions)
+            return;
+        string now = Signature();
+        if (now == followed)
+            return;
+        following = true;
+        try
+        {
+            followed = now;
+            using var step = batch?.Invoke(string.Format(Strings.Undo_Preevolutions, names.PersonalEntries[Id]));
+            int changed = new PreevolutionSync(session).SyncFrom(Id);
+            if (changed > 0)
+                PreevolutionNote = string.Format(Strings.Detail_PreevolutionsAdjusted, changed);
+        }
+        finally
+        {
+            following = false;
+        }
+    }
+
+    /// <summary>Every earlier stage of every edited Pokémon whose stats were not edited itself.</summary>
+    [RelayCommand]
+    private void SyncAllPreevolutions()
+    {
+        int changed;
+        using (batch?.Invoke(Strings.Detail_SyncAllPreevolutions))
+            changed = new PreevolutionSync(session).SyncAll();
+        PreevolutionNote = changed > 0 ? string.Format(Strings.Detail_PreevolutionsAdjusted, changed) : Strings.Detail_PreevolutionsNone;
     }
 
     // ------------------------------------------------------------------ header

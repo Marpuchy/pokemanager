@@ -71,7 +71,14 @@
       <Border Classes="card">
         <StackPanel Spacing="6">
           <TextBlock Classes="card-title" Text="{x:Static r:Strings.Locke_PrizesTitle}" />
-          <TextBlock Classes="hint" Text="{x:Static r:Strings.Locke_PrizesHint}" />
+          <!-- Sun/Moon: which roulette's prizes are shown -->
+          <StackPanel Orientation="Horizontal" Spacing="16" IsVisible="{Binding HasTwoRoulettes}">
+            <RadioButton GroupName="roulette" Content="{x:Static r:Strings.Locke_MajorRouletteTag}" IsChecked="{Binding EditingMajor}"
+                         ToolTip.Tip="{x:Static r:Strings.Tip_LockeMajorRoulette}" />
+            <RadioButton GroupName="roulette" Content="{x:Static r:Strings.Locke_MinorRoulette}" IsChecked="{Binding EditingMinor}"
+                         ToolTip.Tip="{x:Static r:Strings.Tip_LockeMinorRoulette}" />
+          </StackPanel>
+          <TextBlock Classes="hint" Text="{Binding PrizesHint}" TextWrapping="Wrap" />
           <Grid ColumnDefinitions="36,110,*,120,100,56,Auto" Margin="0,4,0,0">
             <TextBlock Grid.Column="1" Classes="hint" Text="{x:Static r:Strings.Locke_ColKind}" />
             <TextBlock Grid.Column="2" Classes="hint" Text="{x:Static r:Strings.Locke_ColPrize}" />

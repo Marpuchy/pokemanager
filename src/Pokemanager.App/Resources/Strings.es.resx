@@ -5045,4 +5045,46 @@ Proyecto: {2}</value>
   <data name="Dex_FilterLegendaries" xml:space="preserve">
     <value>Legendarios</value>
   </data>
+  <data name="Detail_FollowPreevolutions" xml:space="preserve">
+    <value>Sus preevoluciones le siguen</value>
+  </data>
+  <data name="Tip_DetailFollowPreevolutions" xml:space="preserve">
+    <value>Al cambiar los stats, los tipos o el grupo de experiencia de este Pokémon, sus preevoluciones le siguen: su total sube o baja en la misma proporción (sobre todo en sus stats más altas), su ratio de captura se mueve como se mueven los del juego con el total, las fases intermedias toman sus tipos nuevos y todas su grupo de experiencia. Se calcula desde los valores de la ROM, así que una preevolución editada a mano se recalcula. Vale para todo el proyecto.</value>
+  </data>
+  <data name="Detail_SyncAllPreevolutions" xml:space="preserve">
+    <value>Ajustar preevoluciones de todo lo editado</value>
+  </data>
+  <data name="Tip_DetailSyncAllPreevolutions" xml:space="preserve">
+    <value>Recorre todos los Pokémon del proyecto con stats editadas y ajusta sus preevoluciones de la misma forma, salvo las que tengan stats editadas por ti.</value>
+  </data>
+  <data name="Detail_PreevolutionsAdjusted" xml:space="preserve">
+    <value>{0} preevoluciones ajustadas.</value>
+  </data>
+  <data name="Detail_PreevolutionsNone" xml:space="preserve">
+    <value>Todas las preevoluciones ya siguen a su evolución.</value>
+  </data>
+  <data name="Locke_MajorRoulette" xml:space="preserve">
+    <value>Ruleta mayor</value>
+  </data>
+  <data name="Locke_MinorRoulette" xml:space="preserve">
+    <value>Ruleta menor</value>
+  </data>
+  <data name="Locke_MajorRouletteTag" xml:space="preserve">
+    <value>★ Ruleta mayor</value>
+  </data>
+  <data name="Tip_LockeMajorRoulette" xml:space="preserve">
+    <value>Los premios que se sortean tras una gran prueba (Kaudan, Mayla, Denio, Hela) y tras la Liga.</value>
+  </data>
+  <data name="Tip_LockeMinorRoulette" xml:space="preserve">
+    <value>Los premios que se sortean tras una prueba de capitán (los otros ocho cristales Z).</value>
+  </data>
+  <data name="Locke_PrizesHintMajor" xml:space="preserve">
+    <value>Ruleta mayor: se gira tras cada gran prueba y la Liga (★). El peso decide la probabilidad de cada premio y el tamaño de su porción en la ruleta.</value>
+  </data>
+  <data name="Locke_PrizesHintMinor" xml:space="preserve">
+    <value>Ruleta menor: se gira tras cada prueba de capitán. El peso decide la probabilidad de cada premio y el tamaño de su porción en la ruleta.</value>
+  </data>
+  <data name="Undo_Preevolutions" xml:space="preserve">
+    <value>Preevoluciones de {0}</value>
+  </data>
 </root>

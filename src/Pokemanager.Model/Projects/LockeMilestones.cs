@@ -30,6 +30,12 @@ public static class LockeMilestones
         ? [.. LevelCaps.StoryCrystals.Select(c => new LockeMilestone(LockeMilestoneKind.Crystal, c)), new(LockeMilestoneKind.League, 0)]
         : [.. Enumerable.Range(0, title.Milestones().Count).Select(i => new LockeMilestone(LockeMilestoneKind.Badge, i))];
 
+    /// <summary>
+    /// The milestones whose roulette is the major one (2026-11-10, user: "ruletas mayores, las pruebas finales de la isla,
+    /// y menores, las pruebas normales"): the four grand trials and the league. The other eight crystals are captains' trials.
+    /// </summary>
+    public static bool IsMajor(int index) => index is 1 or 5 or 8 or 10 or 12;
+
     /// <summary>Where an island stamp (0-4: four grand trials, then the challenge) falls among the crystals and the league.</summary>
     public static int FromStamp(int stamp) => stamp switch
     {

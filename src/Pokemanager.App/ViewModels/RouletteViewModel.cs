@@ -22,6 +22,7 @@ public sealed partial class RouletteViewModel : ObservableObject
     ];
 
     private readonly LockeSettings locke;
+    private readonly List<LockePrize> prizes;
     private readonly IReadOnlyList<string> itemNames;
     private readonly Action<LockePrize> onWin;
     private readonly Func<LockePrize, (bool Ok, string Message)> claim;
@@ -31,6 +32,11 @@ public sealed partial class RouletteViewModel : ObservableObject
 
     public string BadgeName { get; }
     public string Title => string.Format(Strings.Locke_RouletteTitle, BadgeName);
+
+    /// <summary>Sun/Moon: "Major roulette" or "Minor roulette"; empty in games with badges.</summary>
+    public string Kind { get; }
+
+    public bool HasKind => Kind.Length > 0;
     public IReadOnlyList<WheelSegment> Segments { get; }
 
     /// <summary>Winning segment, chosen when spinning starts; -1 before (or for a pending prize no longer on the wheel).</summary>
@@ -54,17 +60,19 @@ public sealed partial class RouletteViewModel : ObservableObject
 
     /// <param name="pending">A prize already won for this badge but not yet put into the save.</param>
     /// <param name="markAdded">The player gave the prize by hand: it counts as given without writing to the save.</param>
-    public RouletteViewModel(string badgeName, LockeSettings locke, IReadOnlyList<string> itemNames, LockePrize? pending,
+    public RouletteViewModel(string badgeName, LockeSettings locke, int milestone, IReadOnlyList<string> itemNames, LockePrize? pending,
         Action<LockePrize> onWin, Func<LockePrize, (bool Ok, string Message)> claim, Action markAdded, Action forget)
     {
         BadgeName = badgeName;
         this.locke = locke;
+        prizes = locke.PrizesFor(milestone);
+        Kind = locke.CrystalMilestones ? locke.IsMajor(milestone) ? Strings.Locke_MajorRoulette : Strings.Locke_MinorRoulette : "";
         this.itemNames = itemNames;
         this.onWin = onWin;
         this.claim = claim;
         this.markAdded = markAdded;
         this.forget = forget;
-        Segments = locke.Prizes
+        Segments = prizes
             .Select((p, i) => new WheelSegment(LockeRewards.Describe(p, itemNames), Math.Max(0, p.Weight), Palette[i % Palette.Length],
                 LockeRewards.Icon(p), LockeRewards.Glyph(p)))
             .ToList();
@@ -72,7 +80,7 @@ public sealed partial class RouletteViewModel : ObservableObject
         if (pending is not null)
         {
             won = pending;
-            WinnerIndex = locke.Prizes.IndexOf(pending);
+            WinnerIndex = prizes.IndexOf(pending);
             ResultText = string.Format(Strings.Locke_Pending, LockeRewards.Describe(pending, itemNames));
             State = RouletteState.Won;
         }
@@ -104,7 +112,7 @@ public sealed partial class RouletteViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanSpin))]
     private void Spin()
     {
-        WinnerIndex = locke.Roll(Random.Shared);
+        WinnerIndex = LockeSettings.Roll(prizes, Random.Shared);
         if (WinnerIndex < 0)
             return;
         State = RouletteState.Spinning;
@@ -116,7 +124,7 @@ public sealed partial class RouletteViewModel : ObservableObject
     {
         if (State != RouletteState.Spinning)
             return;
-        won = locke.Prizes[WinnerIndex];
+        won = prizes[WinnerIndex];
         onWin(won);
         Changed = true;
         string label = LockeRewards.Describe(won, itemNames);

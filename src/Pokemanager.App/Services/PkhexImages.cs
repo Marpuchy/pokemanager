@@ -192,6 +192,32 @@ public static class PkhexImages
         return new Avalonia.Media.DrawingImage(group);
     }
 
+    /// <summary>
+    /// The league's milestone, drawn (2026-11-10, user: "la liga no tiene icono"): a gold cup, grey while it is not won.
+    /// Made on each call, on the thread that shows it — an Avalonia image belongs to the thread that creates it.
+    /// </summary>
+    public static Avalonia.Media.IImage Trophy(bool earned)
+    {
+        var group = new Avalonia.Media.DrawingGroup();
+        group.Children.Add(new Avalonia.Media.GeometryDrawing
+        {
+            Brush = Avalonia.Media.Brushes.Transparent,
+            Geometry = Avalonia.Media.Geometry.Parse("M0,0 H24 V24 H0 Z"),
+        });
+        var fill = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse(earned ? "#E6B422" : "#B8B8B8"));
+        var edge = new Avalonia.Media.Pen(new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse(earned ? "#9A7410" : "#808080")), 0.8);
+        foreach (string figure in new[]
+        {
+            "M6,4 H2.5 V7.5 A4,4 0 0 0 6.5,11.5 L6.5,10 A2.5,2.5 0 0 1 4,7.5 V5.5 H6 Z",          // left handle
+            "M18,4 H21.5 V7.5 A4,4 0 0 1 17.5,11.5 L17.5,10 A2.5,2.5 0 0 0 20,7.5 V5.5 H18 Z",    // right handle
+            "M10.5,14 H13.5 V18 H10.5 Z",                                                           // stem
+            "M7,18 H17 V21 H7 Z",                                                                   // base
+            "M5.5,3 H18.5 V8.5 A6.5,6.5 0 0 1 5.5,8.5 Z",                                          // cup
+        })
+            group.Children.Add(new Avalonia.Media.GeometryDrawing { Brush = fill, Pen = edge, Geometry = Avalonia.Media.Geometry.Parse(figure) });
+        return new Avalonia.Media.DrawingImage(group);
+    }
+
     /// <summary>A Poké Ball's icon (PKHeX's ball numbers are the game's); a Poké Ball when unknown.</summary>
     public static Bitmap? Ball(int ball) => ball <= 0 ? null : Load($"balls/_ball{ball}.png") ?? Load("balls/_ball4.png");
 

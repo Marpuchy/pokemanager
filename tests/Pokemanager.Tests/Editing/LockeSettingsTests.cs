@@ -107,4 +107,30 @@ public sealed class LockeSettingsTests : IDisposable
         Assert.Equal(13, locke.RouletteLast);
         Assert.True(Enumerable.Range(0, 13).All(locke.HasRoulette));
     }
+
+    /// <summary>Sun/Moon: the grand trials and the league spin the major roulette, captains' trials the minor (2026-11-10, user).</summary>
+    [Fact]
+    public void Generation7_GrandTrialsAndLeagueAreMajor_TheRestMinor()
+    {
+        var locke = new LockeSettings();
+        Assert.True(locke.IsMajor(3));   // with badges every roulette is the one list
+        Assert.Same(locke.Prizes, locke.PrizesFor(3));
+
+        locke.UseCrystalMilestones(13);
+        var major = Enumerable.Range(0, 13).Where(locke.IsMajor).ToList();
+        Assert.Equal([1, 5, 8, 10, 12], major);   // Hala, Olivia, Nanu, Hapu, league
+        Assert.Same(locke.MinorPrizes, locke.PrizesFor(0));
+        Assert.Same(locke.Prizes, locke.PrizesFor(12));
+
+        locke.MinorPrizes = [new LockePrize(LockePrizeKind.Money, Amount: 500)];
+        Assert.Equal(0, locke.Roll(new Random(1), 0));
+        Assert.Equal(-1, LockeSettings.Roll([], new Random(1)));
+    }
+
+    [Fact]
+    public void AProjectWithoutMinorPrizes_GetsTheDefaultOnes()
+    {
+        var locke = System.Text.Json.JsonSerializer.Deserialize<LockeSettings>("{\"CrystalMilestones\":true}")!;
+        Assert.Equal(LockeSettings.DefaultMinorPrizes().Count, locke.MinorPrizes.Count);
+    }
 }
