@@ -92,6 +92,7 @@ public sealed class GameData
     private GameData(GameTitle title, PersonalInfoXY[] personal, Move[] moves, Learnset6[] learnsets, string[] moveDescriptions,
         Trainer[] trainers, Item[] items, (int[] Stones, Dictionary<int, int> BySpecies, Dictionary<(int, int), int> Forms) mega, EvolutionSlots[] evolutions)
     {
+        AddFemaleMegas(personal, mega.Forms);
         MegaForms = mega.Forms.Keys.ToHashSet();
         MegaStoneByForm = mega.Forms;
         Evolutions = evolutions;
@@ -105,6 +106,23 @@ public sealed class GameData
         Items = items;
         MegaStones = mega.Stones;
         MegaStoneBySpecies = mega.BySpecies;
+    }
+
+    /// <summary>
+    /// A species whose mega differs by gender (the expansion mod's Meowstic: form 2 the male mega, form 3 the female one)
+    /// lists only the male mega in the table: the game picks the next form for a female. So a male-only mega form followed
+    /// by a female-only form the table does not list makes that form the female mega, needing the same stone.
+    /// </summary>
+    internal static void AddFemaleMegas(PersonalInfoXY[] personal, Dictionary<(int, int), int> forms)
+    {
+        foreach (var ((species, form), stone) in forms.ToList())
+        {
+            if (species >= personal.Length || personal[species] is not { FormStatsIndex: > 0 } p || form + 1 >= p.FormeCount)
+                continue;
+            int male = p.FormStatsIndex + form - 1, female = male + 1;
+            if (female < personal.Length && personal[male].Gender == 0 && personal[female].Gender == 254)
+                forms.TryAdd((species, form + 1), stone);
+        }
     }
 
     public static GameData Load(string romFsPath, GameTitle title = GameTitle.X) => Load(new RomFsLayers(romFsPath), title);

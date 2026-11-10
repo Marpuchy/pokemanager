@@ -222,7 +222,7 @@ public sealed class GameNames
                     continue;
                 int mega = megas.IndexOf(form);
                 names[index] = mega >= 0
-                    ? string.Format(Strings.Species_Mega, SpeciesName(s)) + (megas.Count > 1 ? " " + (char)('X' + mega) : "")
+                    ? string.Format(Strings.Species_Mega, SpeciesName(s)) + MegaSuffix(data, p, megas, mega)
                     : form < known.Length && known[form].Trim() is { Length: > 0 } formName && !known[form].StartsWith("Mega", StringComparison.Ordinal)
                         ? string.Format(Strings.Species_FormNamed, SpeciesName(s), formName)
                         : string.Format(Strings.Species_Form, SpeciesName(s), form);
@@ -230,5 +230,18 @@ public sealed class GameNames
         }
 
         return names;
+    }
+
+    /// <summary>
+    /// What tells a species' megas apart: nothing for one, ♂/♀ when they split by gender (Meowstic in the expansion mod,
+    /// whose female mega is not a "Y"), otherwise X and Y.
+    /// </summary>
+    private static string MegaSuffix(GameData data, pk3DS.Core.Structures.PersonalInfo.PersonalInfoXY species, List<int> megas, int mega)
+    {
+        if (megas.Count < 2)
+            return "";
+        int gender = data.Personal[species.FormStatsIndex + megas[mega] - 1].Gender;
+        bool byGender = megas.All(f => data.Personal[species.FormStatsIndex + f - 1].Gender is 0 or 254);
+        return " " + (byGender ? (gender == 254 ? "♀" : "♂") : ((char)('X' + mega)).ToString());
     }
 }
