@@ -191,7 +191,8 @@ public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
     public string ShowProblemsText => string.Format(Strings.Save_ShowProblems, Problems.Count);
 
     /// <summary>The project changed since the ROM was built: what is shown follows the project, not the ROM being played.</summary>
-    public string? RomWarning => editor.ProjectDiffersFromBuiltRom ? Strings.Save_RomWarning : null;
+    public string? RomWarning => editor.Session.RandomizedBaseMissing ? Strings.Save_BaseMissingWarning
+        : editor.ProjectDiffersFromBuiltRom ? Strings.Save_RomWarning : null;
 
     /// <summary>The editor rebuilt or something changed: the warning about the ROM may have appeared or gone.</summary>
     public void RefreshRomWarning()
@@ -296,6 +297,7 @@ public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
         string path = doc.SavePath;
         {
             names = new SaveNames(editor.Names, GameTextLanguage.Current, doc.MaxSpecies);
+            doc.KeepStoredAbilities = editor.Session.RandomizedBaseMissing;
             Document = doc;
             IsDirty = doc.IsDirty;
             HeaderText = string.Format(Strings.Save_Header, settings.EffectiveEmulatorName, doc.TrainerName, File.GetLastWriteTime(path));
@@ -336,6 +338,7 @@ public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
         if (IsDirty)
         {
             Document.UseRom(editor.Session.Current);
+            Document.KeepStoredAbilities = editor.Session.RandomizedBaseMissing;
             RefreshAll();
         }
         else

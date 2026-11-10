@@ -98,6 +98,60 @@ public sealed class RandomizationCache(string root)
         return result;
     }
 
+    /// <summary>The complete output in the cache folder <paramref name="key"/>, if it is there and of that seed.</summary>
+    public UprResult? TryGetFolder(string key, long seed)
+    {
+        if (key.Length == 0 || key.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+            return null;
+        string dir = Path.Combine(Root, key);
+        return File.Exists(Path.Combine(dir, CompleteMarker)) && LogSeed(Path.Combine(dir, OutputFolder, "upr.log")) == seed
+            ? FindResult(Path.Combine(dir, OutputFolder), seed) is { } found ? found with { Earlier = true } : null
+            : null;
+    }
+
+    /// <summary>
+    /// A complete output of the same preset and seed whose key is no longer the one asked for — made before the patched
+    /// classes changed (their hash is in the key) — the one last used by a build first. It is how the randomization the
+    /// player's ROM was built from is still found after an update of the randomizer (2026-11-10: the editor showed the
+    /// game without it, and an edit of the save wrote the original abilities back).
+    /// </summary>
+    public UprResult? FindEarlier(byte[] preset, long seed)
+    {
+        if (!Directory.Exists(Root))
+            return null;
+        foreach (string dir in Directory.GetDirectories(Root)
+                     .Where(d => File.Exists(Path.Combine(d, CompleteMarker)))
+                     .OrderByDescending(d => File.GetLastWriteTimeUtc(Path.Combine(d, CompleteMarker))))
+        {
+            string stored = Path.Combine(dir, "preset.rnqs");
+            if (!File.Exists(stored) || !File.ReadAllBytes(stored).AsSpan().SequenceEqual(preset))
+                continue;
+            if (LogSeed(Path.Combine(dir, OutputFolder, "upr.log")) != seed)
+                continue;
+            if (FindResult(Path.Combine(dir, OutputFolder), seed) is { } found)
+                return found with { Earlier = true };
+        }
+        return null;
+    }
+
+    /// <summary>The "Random Seed:" line near the top of UPR ZX's log.</summary>
+    private static long? LogSeed(string log)
+    {
+        if (!File.Exists(log))
+            return null;
+        try
+        {
+            using var reader = new StreamReader(log);
+            for (int i = 0; i < 40 && reader.ReadLine() is { } line; i++)
+                if (line.StartsWith("Random Seed:", StringComparison.Ordinal) && long.TryParse(line["Random Seed:".Length..].Trim(), out long seed))
+                    return seed;
+        }
+        catch (IOException)
+        {
+        }
+        return null;
+    }
+
     /// <summary>Deletes cached randomizations except the <paramref name="keep"/> most recent and the given one.</summary>
     public void Prune(int keep, string? keepTitleDirectory = null)
     {

@@ -95,6 +95,28 @@ public sealed class UprService
         var r = project.Randomization;
         if (!r.IsReady || effectivePreset is null || project.ResolveRomFile() is not { } rom || Tools is not { } t)
             return null;
+        return Exact(project, effectivePreset, rom, t) ?? Installed(project, effectivePreset);
+    }
+
+    /// <summary>
+    /// The randomization the installed ROM was built from, when the exact key misses: an update of the patched
+    /// randomizer changes every key, and until the next build the player's ROM is still that one. Reading the plain
+    /// game instead showed the original abilities and teams, and an edit of the save wrote the original ability over the
+    /// one the game uses (2026-11-10, user). Only for the seed that is installed.
+    /// </summary>
+    private UprResult? Installed(Project project, byte[] effectivePreset)
+    {
+        var r = project.Randomization;
+        if (r.InstalledSeed != r.Seed)
+            return null;
+        var found = (r.InstalledRandomization is { } key ? Cache.TryGetFolder(key, r.Seed) : null)
+                    ?? Cache.FindEarlier(effectivePreset, r.Seed);
+        return found is null ? null : Repaired(project, found);
+    }
+
+    private UprResult? Exact(Project project, byte[] effectivePreset, string rom, UprTools t)
+    {
+        var r = project.Randomization;
         // A project with mods is randomized over the base ROM with the mods packed in, so that is the ROM the key was
         // made with: looking it up under the plain ROM missed every time, and the editor then showed the game without
         // its randomization.

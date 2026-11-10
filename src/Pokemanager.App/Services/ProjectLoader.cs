@@ -1,4 +1,4 @@
-using Pokemanager.App.Resources;
+﻿using Pokemanager.App.Resources;
 using Pokemanager.Model.Dump;
 using Pokemanager.Model.Editing;
 using Pokemanager.Model.Projects;
@@ -21,11 +21,11 @@ public static class ProjectLoader
                 GameImporter.Complete(gameDirectory);
             var dump = GameDump.Open(project.RomFsPath, project.ExeFsPath, GameTextLanguage.Current);
             project.Game = dump.Title; // projects from before other games were supported did not store it
-            string? randomRomFs = upr.TryGetCached(project, project.Randomization.Preset) is { } cached
-                ? System.IO.Path.Combine(cached.TitleDirectory, "romfs")
-                : null;
+            var cached = upr.TryGetCached(project, project.Randomization.Preset);
+            string? randomRomFs = cached is null ? null : System.IO.Path.Combine(cached.TitleDirectory, "romfs");
             // The session reads through the service's mod library, so what is read is what the build will pack.
             var session = EditorSession.Open(project, randomRomFs, upr.Mods);
+            session.FromEarlierRandomization = cached?.Earlier == true;
             PkhexImages.RomMegaStones = session.Original.MegaStones.ToHashSet();
             return new LoadedProject(path, project, dump, session);
         }

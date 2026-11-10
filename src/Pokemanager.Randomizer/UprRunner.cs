@@ -8,7 +8,17 @@ namespace Pokemanager.Randomizer;
 /// <summary>Result of a randomization: the game's LayeredFS folder and the UPR log.</summary>
 /// <param name="TitleDirectory">Folder <c>&lt;output&gt;/&lt;TitleID&gt;</c> with <c>romfs/</c> and <c>code.bin</c>.</param>
 /// <param name="Warnings">Localized warnings reported by UPR.</param>
-public sealed record UprResult(long Seed, string TitleDirectory, string LogPath, IReadOnlyList<string> Warnings);
+public sealed record UprResult(long Seed, string TitleDirectory, string LogPath, IReadOnlyList<string> Warnings)
+{
+    /// <summary>
+    /// Made by an earlier version of the randomizer (the patched classes changed since, so its key is another) and found
+    /// because it is the one the installed ROM was built from. A build randomizes again.
+    /// </summary>
+    public bool Earlier { get; init; }
+
+    /// <summary>The cache folder (the key) this output lives in.</summary>
+    public string CacheKey => Path.GetFileName(Path.GetDirectoryName(Path.GetDirectoryName(TitleDirectory))) ?? "";
+}
 
 public sealed class UprException(string message, string output) : Exception(message)
 {

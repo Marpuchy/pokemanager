@@ -1,4 +1,4 @@
-using Pokemanager.App.Services;
+﻿using Pokemanager.App.Services;
 using Pokemanager.Model.Data;
 using Pokemanager.Model.Editing;
 using Pokemanager.Model.Projects;
@@ -122,5 +122,45 @@ public sealed class UprCacheTests : IDisposable
 
         Assert.True(options.AllItems);
         Assert.Null(options.GoodItems);
+    }
+
+    /// <summary>A randomization under a key that is no longer the current one (the patched randomizer changed).</summary>
+    private string WriteEarlierEntry(long seed, byte[] preset)
+    {
+        string dir = Path.Combine(CacheRoot, "OLDKEY0000000000000000AA");
+        Directory.CreateDirectory(Path.Combine(dir, "output", new string('0', 16)));
+        File.WriteAllText(Path.Combine(dir, "output", "upr.log"), $"Randomizer Version: 4.6.1\nRandom Seed: {seed}\nSettings String: x\n");
+        File.WriteAllBytes(Path.Combine(dir, "preset.rnqs"), preset);
+        File.WriteAllText(Path.Combine(dir, ".complete"), DateTime.UtcNow.ToString("O"));
+        return dir;
+    }
+
+    [Fact]
+    public void TheInstalledRandomizationIsStillReadAfterTheRandomizerChanged()
+    {
+        var project = NewProject(false, false);
+        project.Randomization.InstalledSeed = Seed;
+        WriteEarlierEntry(Seed, Preset);
+
+        var cached = NewService().TryGetCached(project, Preset);
+
+        Assert.NotNull(cached);
+        Assert.True(cached!.Earlier);
+        Assert.Equal("OLDKEY0000000000000000AA", cached.CacheKey);
+    }
+
+    [Fact]
+    public void AnEarlierRandomizationIsNotUsedForAnotherSeedPresetOrWhenNothingIsInstalled()
+    {
+        var project = NewProject(false, false);
+        WriteEarlierEntry(Seed, Preset);
+        Assert.Null(NewService().TryGetCached(project, Preset)); // never built: nothing is installed
+
+        project.Randomization.InstalledSeed = Seed;
+        Assert.Null(NewService().TryGetCached(project, [9, 9])); // another preset
+
+        Directory.Delete(CacheRoot, recursive: true);
+        WriteEarlierEntry(Seed + 1, Preset);
+        Assert.Null(NewService().TryGetCached(project, Preset)); // another seed
     }
 }

@@ -44,6 +44,12 @@ public sealed class RandomizationSettings
     /// <summary>Seed of the last built ROM, to warn when it changes with a game in progress.</summary>
     public long? InstalledSeed { get; set; }
 
+    /// <summary>
+    /// The cache folder of the randomization the installed ROM was built from, so the editor can still read it after the
+    /// randomizer is updated (which changes every cache key) and before the next build.
+    /// </summary>
+    public string? InstalledRandomization { get; set; }
+
     /// <summary>File name (without extension) of the randomized ROM, created next to the base ROM.</summary>
     public string? OutputName { get; set; }
 
@@ -70,6 +76,7 @@ public sealed class RandomizationSettings
         PresetModified = other.PresetModified;
         Seed = other.Seed;
         InstalledSeed = other.InstalledSeed;
+        InstalledRandomization = other.InstalledRandomization;
         OutputName = other.OutputName;
         LastBuiltRom = other.LastBuiltRom;
         ReplacePreviousRom = other.ReplacePreviousRom;

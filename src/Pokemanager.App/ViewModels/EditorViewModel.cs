@@ -189,7 +189,8 @@ public partial class EditorViewModel : ObservableObject
         get
         {
             string text = Session.RandomizedRomFs is not null
-                ? string.Format(Strings.Editor_BaseRandom, Session.Project.Randomization.Seed)
+                ? string.Format(Session.FromEarlierRandomization ? Strings.Editor_BaseInstalledRandom : Strings.Editor_BaseRandom,
+                    Session.Project.Randomization.Seed)
                 : Strings.Editor_BaseOriginal;
             // The mods are part of what is being read, so the line says so ("Base: original game + Expansion").
             var mods = Session.Project.Mods.EnabledRomMods
@@ -836,7 +837,7 @@ public partial class EditorViewModel : ObservableObject
             if (r.Enabled)
                 random = await upr.RandomizeAsync(tools, project, moddedBase, r.Preset!, progress);
 
-            ReloadBaseIfNeeded(random is null ? null : Path.Combine(random.TitleDirectory, "romfs"));
+            ReloadBaseIfNeeded(random is null ? null : Path.Combine(random.TitleDirectory, "romfs"), random?.Earlier == true);
 
             // The modded base has the species the mod added, and the packer opens it through UPR ZX's handler, which
             // fails past the game's own count unless it is told the real one.
@@ -894,6 +895,7 @@ public partial class EditorViewModel : ObservableObject
             }
 
             r.InstalledSeed = random?.Seed;
+            r.InstalledRandomization = random?.CacheKey;
             Session.Project.Tweaks.InstalledLevelCap = Session.Project.Tweaks.LevelCap;
             await SaveAsync();
             Randomizer.OnBuilt(random, saveResult);
@@ -1041,11 +1043,11 @@ public partial class EditorViewModel : ObservableObject
     private void ReopenSession()
     {
         var project = Session.Project;
-        string? randomRomFs = project.Randomization.Enabled && upr.TryGetCached(project, project.Randomization.Preset) is { } cached
-            ? Path.Combine(cached.TitleDirectory, "romfs")
-            : null;
+        var cached = project.Randomization.Enabled ? upr.TryGetCached(project, project.Randomization.Preset) : null;
+        string? randomRomFs = cached is null ? null : Path.Combine(cached.TitleDirectory, "romfs");
         Session.Changed -= OnSessionChanged;
         Session = EditorSession.Open(project, randomRomFs, upr.Mods);
+        Session.FromEarlierRandomization = cached?.Earlier == true;
         Names = new GameNames(Dump, Session.Original, Session.Layers);
         PkhexImages.RomMegaStones = Session.Original.MegaStones.ToHashSet();
         // Restoring a version brings its mods back too (ProjectHistory.RestoreInto), and a mod ships the icon archive.
@@ -1311,7 +1313,7 @@ public partial class EditorViewModel : ObservableObject
         IsBusy = true;
         try
         {
-            ReloadBaseIfNeeded(random is null ? null : Path.Combine(random.TitleDirectory, "romfs"));
+            ReloadBaseIfNeeded(random is null ? null : Path.Combine(random.TitleDirectory, "romfs"), random?.Earlier == true);
             var result = await ApplySaveUpdateAsync(savePath);
             Randomizer.OnBuilt(null, result);
             SaveEditor.OnRomChanged();
@@ -1336,7 +1338,7 @@ public partial class EditorViewModel : ObservableObject
     /// a randomization. Comparing the stack also catches a mod turned on or off, which moves the base just as a new
     /// seed does.
     /// </remarks>
-    private void ReloadBaseIfNeeded(string? randomizedRomFs)
+    private void ReloadBaseIfNeeded(string? randomizedRomFs, bool earlier = false)
     {
         string? wanted = randomizedRomFs is null ? null : Path.GetFullPath(randomizedRomFs);
         var expected = Session.Project.ReadLayers(wanted, upr.Mods);
@@ -1344,7 +1346,10 @@ public partial class EditorViewModel : ObservableObject
             return;
 
         Session.Changed -= OnSessionChanged;
+        bool wasEarlier = Session.FromEarlierRandomization && wanted is not null
+                          && string.Equals(wanted, Session.RandomizedRomFs, StringComparison.OrdinalIgnoreCase);
         Session = EditorSession.Open(Session.Project, wanted, upr.Mods);
+        Session.FromEarlierRandomization = earlier || wasEarlier;
         Names = new GameNames(Dump, Session.Original, Session.Layers);
         PkhexImages.RomMegaStones = Session.Original.MegaStones.ToHashSet();
         // The icons come from the new stack too: a species-expansion mod ships the icon archive and the executable

@@ -679,6 +679,13 @@ public sealed class SaveDocument
     /// Makes the Pokémon consistent with the ROM after an edit: ability from its ability number, gender allowed by the
     /// species, current PP within the maximum, and party stats and level.
     /// </summary>
+    /// <summary>
+    /// Leave the stored ability alone instead of taking it from <see cref="Rom"/>: set when the data read is not the
+    /// ROM being played (a randomized project whose randomization is not available), where the personal table would
+    /// write the original game's ability over the one the game uses (2026-11-10, user: their Klefki).
+    /// </summary>
+    public bool KeepStoredAbilities { get; set; }
+
     public void Normalize(PKM pk, bool isParty)
     {
         if (pk.Species == 0)
@@ -690,7 +697,7 @@ public sealed class SaveDocument
         var abilities = AbilityOptions(pk.Species, pk.Form);
         int number = pk.AbilityNumber is 1 or 2 or 4 ? pk.AbilityNumber : 1;
         pk.AbilityNumber = number;
-        if (abilities[SaveUpdater.AbilityIndex(number)] is var ability and not 0)
+        if (!KeepStoredAbilities && abilities[SaveUpdater.AbilityIndex(number)] is var ability and not 0)
             ExpandedAbility.Set(pk, ability);
 
         var genders = GenderOptions(pk.Species, pk.Form);

@@ -4920,12 +4920,6 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Section_Stats" xml:space="preserve">
     <value>Estadísticas</value>
   </data>
-  <data name="Section_Types" xml:space="preserve">
-    <value>Tipos</value>
-  </data>
-  <data name="Section_Abilities" xml:space="preserve">
-    <value>Habilidades</value>
-  </data>
   <data name="Section_Experience" xml:space="preserve">
     <value>Experiencia</value>
   </data>
@@ -4984,5 +4978,11 @@ Proyecto: {2}</value>
   </data>
   <data name="Tab_RomOptions" xml:space="preserve">
     <value>Opciones de la ROM</value>
+  </data>
+  <data name="Editor_BaseInstalledRandom" xml:space="preserve">
+    <value>Base: la randomización de tu ROM instalada (semilla {0}); el randomizer se actualizó y la próxima creación de ROM randomiza de nuevo</value>
+  </data>
+  <data name="Save_BaseMissingWarning" xml:space="preserve">
+    <value>Tu ROM está randomizada pero su randomización no está disponible aquí: las habilidades y stats que ves son los del juego sin randomizar. Al editar se conservan las habilidades que tiene la partida.</value>
   </data>
 </root>

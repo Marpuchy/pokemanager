@@ -32,6 +32,12 @@ public sealed class EditorSession
     public string? RandomizedRomFs { get; }
 
     /// <summary>
+    /// The randomization read is the one the installed ROM was built from, found after the randomizer changed (its
+    /// key is no longer the current one): what the player has, until the next build randomizes again.
+    /// </summary>
+    public bool FromEarlierRandomization { get; set; }
+
+    /// <summary>
     /// The mod library this session reads from. Kept so everything downstream of the session — the build above all,
     /// which has to pick up a mod's own <c>code.bin</c> — looks in the same place the data was read from, instead of
     /// each caller reaching for the default library on its own.
