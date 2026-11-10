@@ -80,7 +80,7 @@ public sealed class EvolutionChainViewModel
                     continue;
                 // "Same form" (-1) only when the target has that form: Galarian Meowth becomes Perrserker, which has
                 // one form, so the line pointed at a Perrserker that does not exist and Perrserker stood alone.
-                int targetForm = gen7 ? e.Form < 0 ? (from.Form < FormCount(e.Species) ? from.Form : 0) : e.Form : 0;
+                int targetForm = EvolutionSlots.TargetForm(e, from.Form, FormCount(e.Species), gen7);
                 var to = (e.Species, targetForm);
                 if (!children.TryGetValue(from, out var list))
                     children[from] = list = [];
@@ -94,7 +94,7 @@ public sealed class EvolutionChainViewModel
         // the ROM's own mega table, so a mod's megas (Mega Raichu, Mega Staraptor) are there too.
         foreach (var (key, stone) in data.MegaStoneByForm.OrderBy(p => p.Key.Species).ThenBy(p => p.Key.Form))
         {
-            var from = (key.Species, 0);
+            var from = (key.Species, MegaParentForm(key.Species, key.Form));
             if (!children.TryGetValue(from, out var list))
                 children[from] = list = [];
             if (list.Any(c => c.To == key))
@@ -107,6 +107,17 @@ public sealed class EvolutionChainViewModel
         }
 
         var self = (species, form);
+
+        // A female-only mega (Meowstic's, in the expansion mod) comes from the female form — form 1 when that is not a
+        // mega itself —; every other mega from form 0.
+        int MegaParentForm(int s, int megaForm)
+        {
+            int row = index.Row(s, megaForm);
+            return row > 0 && row < data.Personal.Length && data.Personal[row].Gender == 254 && FormCount(s) > 1
+                   && !data.MegaForms.Contains((s, 1)) && index.Row(s, 1) is var female && female > 0
+                   && data.Personal[female].Gender != 0
+                ? 1 : 0;
+        }
 
         // A form nothing evolves into and that evolves into nothing (Bloodmoon Ursaluna, Alcremie's flavours): shown in
         // its species' line, next to the form that line reaches, instead of on its own (issue #2).

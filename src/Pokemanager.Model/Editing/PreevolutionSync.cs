@@ -35,7 +35,9 @@ public sealed class PreevolutionSync
         for (int row = 0; row < data.Evolutions.Length && row < data.Personal.Length; row++)
             foreach (var (_, evolution) in data.Evolutions[row].InUse())
             {
-                int form = evolution.Form >= 0 ? evolution.Form : index.Pokemon(row)?.Form ?? 0;
+                int species = evolution.Species;
+                int count = species > 0 && species < data.Personal.Length && data.Personal[species].FormeCount is > 0 and var n ? n : 1;
+                int form = EvolutionSlots.TargetForm(evolution, index.Pokemon(row)?.Form ?? 0, count, data.Title.Generation() == 7);
                 int target = index.Row(evolution.Species, form);
                 if (target < 0)
                     target = index.Row(evolution.Species, 0);

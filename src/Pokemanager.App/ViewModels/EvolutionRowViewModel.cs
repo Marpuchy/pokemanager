@@ -90,14 +90,27 @@ public sealed partial class EvolutionRowViewModel : ObservableObject
     }
 
     /// <summary>The Pokémon it becomes, as the line shows it: picture and its type colours.</summary>
-    public Avalonia.Media.Imaging.Bitmap? TargetIcon => sprites?.For(Into, Generation7 ? Math.Max(0, Get("form")) : 0);
+    public Avalonia.Media.Imaging.Bitmap? TargetIcon => sprites?.For(Into, TargetForm);
+
+    /// <summary>The form it becomes, read the way the game does (Espurr's female branch is form 1 although it says -1).</summary>
+    private int TargetForm
+    {
+        get
+        {
+            var data = session.Current;
+            var index = PersonalIndex.Of(data);
+            int count = Into > 0 && Into < data.Personal.Length && data.Personal[Into].FormeCount is > 0 and var n ? n : 1;
+            var slot = data.Evolutions[id].Slot(this.slot)!;
+            return EvolutionSlots.TargetForm(slot, index.Pokemon(id)?.Form ?? 0, count, Generation7);
+        }
+    }
 
     public Avalonia.Media.IBrush TargetBrush
     {
         get
         {
             var data = session.Current;
-            int row = PersonalIndex.Of(data).Row(Into, Generation7 ? Math.Max(0, Get("form")) : 0);
+            int row = PersonalIndex.Of(data).Row(Into, TargetForm);
             if (row < 0)
                 row = Into;
             return row > 0 && row < data.Personal.Length

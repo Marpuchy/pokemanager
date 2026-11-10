@@ -58,6 +58,22 @@ public sealed class EvolutionSlots
     public static bool UsesLevel(int method) => method is 4 or (>= 9 and <= 15) or 23 or 24 or 30 or 31 or 32 or 33 or 34
         or 36 or 37 or 38 or 40 or 41;
 
+    /// <summary>
+    /// The form an evolution gives. A slot's form -1 means "the same form", which only counts when the target has it
+    /// (Galarian Meowth becomes the one Perrserker). Method 34 (PKHeX's <c>LevelUpFormFemale1</c>) is Espurr's female
+    /// branch: its form is -1 too, but the game makes it form 1 — read as "the same", female Meowstic was lost.
+    /// </summary>
+    public static int TargetForm(EvolutionMethod e, int fromForm, int targetFormCount, bool generation7)
+    {
+        if (!generation7)
+            return e.Method == 34 && targetFormCount > 1 ? 1 : 0;
+        if (e.Form >= 0)
+            return e.Form;
+        if (e.Method == 34 && targetFormCount > 1)
+            return 1;
+        return fromForm < targetFormCount ? fromForm : 0;
+    }
+
     /// <summary>The level an evolution happens at, in whichever place the generation keeps it.</summary>
     public static int LevelOf(EvolutionMethod e, bool generation7) =>
         UsesLevel(e.Method) ? generation7 ? e.Level : e.Argument : 0;

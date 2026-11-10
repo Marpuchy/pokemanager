@@ -99,4 +99,17 @@ public sealed class EvolutionTableTests
         Assert.Equal([1], changed);
         Assert.Equal(10, after.GetFile(1)[7]);
     }
+
+    /// <summary>Espurr: method 23 (male) and 34 (female, into form 1) both say form -1; only the second is form 1.</summary>
+    [Fact]
+    public void TheFemaleBranch_IsForm1_AlthoughItSaysTheSameForm()
+    {
+        var male = new pk3DS.Core.Structures.EvolutionMethod { Method = 23, Species = 678, Form = -1, Level = 25 };
+        var female = new pk3DS.Core.Structures.EvolutionMethod { Method = 34, Species = 678, Form = -1, Level = 25 };
+        Assert.Equal(0, EvolutionSlots.TargetForm(male, 0, 4, generation7: true));
+        Assert.Equal(1, EvolutionSlots.TargetForm(female, 0, 4, generation7: true));
+        Assert.Equal(0, EvolutionSlots.TargetForm(female, 0, 1, generation7: true));   // a target with one form
+        var galar = new pk3DS.Core.Structures.EvolutionMethod { Method = 4, Species = 863, Form = -1 };
+        Assert.Equal(0, EvolutionSlots.TargetForm(galar, 2, 1, generation7: true));    // Galarian Meowth → the one Perrserker
+    }
 }
