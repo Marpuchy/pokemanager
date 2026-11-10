@@ -244,7 +244,10 @@ public sealed class TrainerMemberViewModel : ObservableObject
     public bool IsGen6 => Generation == 6;
     public bool IsGen7 => Generation == 7;
 
-    public string Header => string.Format(Strings.Trainer_Slot, Slot + 1);
+    /// <summary>"Pokémon 1", and the held item the ROM gives it when it has one (a Mega Stone, a Z-crystal…).</summary>
+    public string Header => BuiltMember is { Item: > 0 } m && m.Item < names.Items.Count
+        ? string.Format(Strings.Trainer_Slot, Slot + 1) + " · " + names.Items[m.Item]
+        : string.Format(Strings.Trainer_Slot, Slot + 1);
 
     /// <summary>
     /// Generation 6 trainers whose entries do not carry their own moves: what is written here is stored but the game
@@ -324,9 +327,14 @@ public sealed class TrainerMemberViewModel : ObservableObject
 
     private int SpeciesId => session.GetInt(T, trainer, prefix + "species");
 
-    public string SpeciesName => SpeciesId >= 0 && SpeciesId < names.Species.Count ? names.Species[SpeciesId] : "—";
-    public string LevelText => string.Format(Strings.Trainer_LevelShort, session.GetInt(T, trainer, prefix + "level"));
-    public Bitmap? Icon => sprites.For(SpeciesId, session.GetInt(T, trainer, prefix + "form"));
+    // The card's header is the Pokémon as the ROM will have it (2026-11-10, user: a Mega Venusaur at level 6 in the
+    // editor that the build turns into a plain Venusaur at 10); the fields below are what the project stores.
+    private int ShownSpecies => BuiltMember?.Species ?? SpeciesId;
+    private int ShownForm => BuiltMember?.Form ?? session.GetInt(T, trainer, prefix + "form");
+
+    public string SpeciesName => ShownSpecies >= 0 ? EntryName(ShownSpecies, ShownForm) : "—";
+    public string LevelText => string.Format(Strings.Trainer_LevelShort, BuiltMember?.Level ?? session.GetInt(T, trainer, prefix + "level"));
+    public Bitmap? Icon => sprites.For(ShownSpecies, ShownForm);
 
     public IBrush TypeBackground => Types is var (t1, t2) ? TypeColors.Background(t1, t2) : Brushes.Transparent;
     public IBrush TypeForeground => Types is var (t, _) ? TypeColors.Foreground(t) : Brushes.Black;
@@ -337,7 +345,8 @@ public sealed class TrainerMemberViewModel : ObservableObject
         get
         {
             var personal = session.Current.Personal;
-            int index = SpeciesId >= 0 && SpeciesId < personal.Length ? SpeciesId : 0;
+            int row = ShownForm == 0 ? ShownSpecies : PersonalIndex.Of(session.Current).Row(ShownSpecies, ShownForm);
+            int index = row >= 0 && row < personal.Length ? row : ShownSpecies >= 0 && ShownSpecies < personal.Length ? ShownSpecies : 0;
             var entry = personal[index];
             return (entry.Types[0], entry.Types[1]);
         }
@@ -406,7 +415,8 @@ public sealed class TrainerMemberViewModel : ObservableObject
     public void RefreshBuilt()
     {
         foreach (string property in new[] { nameof(BuiltLevelHint), nameof(BuiltItemHint), nameof(BuiltSpeciesHint),
-                     nameof(HasBuiltLevel), nameof(HasBuiltItem), nameof(HasBuiltSpecies) })
+                     nameof(HasBuiltLevel), nameof(HasBuiltItem), nameof(HasBuiltSpecies), nameof(Header), nameof(SpeciesName),
+                     nameof(LevelText), nameof(Icon), nameof(TypeBackground), nameof(TypeForeground) })
             OnPropertyChanged(property);
     }
 
