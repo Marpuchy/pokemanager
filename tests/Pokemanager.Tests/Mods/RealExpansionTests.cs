@@ -275,4 +275,24 @@ public sealed class RealExpansionTests
             }
         }
     }
+
+    /// <summary>Issue #2: the advanced editor shows the teams as the build writes them.</summary>
+    [Fact]
+    public void TrainersAsBuilt_HaveTheLevelPercentageAndTheBossMegas()
+    {
+        Assert.SkipWhen(Paths() is null, "POKEMANAGER_USUM_DUMP / POKEMANAGER_MOD_LIBRARY are not set.");
+        var (_, session) = Open(withMod: true);
+        session.Project.Tweaks.TrainerLevelPercent = 50;
+        var built = Pokemanager.Model.Build.TrainersAsBuilt.Build(session);
+        var before = session.Current.Trainers;
+        Assert.Equal(before.Length, built.Count);
+
+        var hala = built[23];
+        var original = before[23];
+        Assert.Equal(GameLevels.Scale(original.Member(0)!.Level, 50), hala.Member(0)!.Level);
+        var last = hala.Member(hala.Count - 1)!;
+        Assert.Contains(last.Item, session.Current.MegaStoneByForm.Values);
+        // The session itself is not touched.
+        Assert.Equal(original.Member(0)!.Level, session.Current.Trainers[23].Member(0)!.Level);
+    }
 }

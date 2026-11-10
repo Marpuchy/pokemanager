@@ -455,12 +455,37 @@ public partial class EditorViewModel : ObservableObject
     /// <summary>The project changed: unsaved, and a step for undo (the label says what, for the Undo button).</summary>
     public void MarkDirty() => MarkDirty(Strings.Undo_ProjectChange);
 
+    private IReadOnlyList<Trainer>? builtTrainers;
+    private EditorSession? builtFrom;
+
+    /// <summary>
+    /// The trainer as the build writes it (level percentage, megas and Z-crystals included), for the "→ in the ROM"
+    /// hints of the advanced editor (issue #2). Worked out again after any change, on the first question.
+    /// </summary>
+    public Trainer? BuiltTrainer(int id)
+    {
+        try
+        {
+            if (builtTrainers is null || !ReferenceEquals(builtFrom, Session))
+            {
+                builtTrainers = TrainersAsBuilt.Build(Session);
+                builtFrom = Session;
+            }
+        }
+        catch (Exception ex) when (ex is InvalidDataException or ArgumentException or IndexOutOfRangeException or InvalidOperationException)
+        {
+            return null;
+        }
+        return id >= 0 && id < builtTrainers.Count && !builtTrainers[id].Unreadable ? builtTrainers[id] : null;
+    }
+
     /// <param name="affectsRom">
     /// False for what the game never sees (the Locke rules: lives, roulette prizes and spins). Those are saved with the
     /// project but do not ask for a new ROM.
     /// </param>
     public void MarkDirty(string label, bool affectsRom = true)
     {
+        builtTrainers = null;
         IsDirty = true;
         romDirty |= affectsRom;
         // A batch does the undo step, the notice and the counts **once, when it ends**. Doing them per edit hung the

@@ -162,7 +162,7 @@ public sealed partial class TrainerDetailViewModel : ObservableObject
             Members.RemoveAt(Members.Count - 1);
         while (Members.Count < count)
         {
-            var member = new TrainerMemberViewModel(session, names, sprites, Id, Members.Count, Generation);
+            var member = new TrainerMemberViewModel(session, names, sprites, Id, Members.Count, Generation, editor.BuiltTrainer);
             member.Changed += NotifyHeader;
             Members.Add(member);
         }
@@ -271,8 +271,12 @@ public sealed class TrainerMemberViewModel : ObservableObject
     public IReadOnlyList<IntFieldViewModel> Evs { get; }
     public ChoiceFieldViewModel Nature { get; }
 
-    public TrainerMemberViewModel(EditorSession session, GameNames names, PokemonSprites sprites, int trainer, int slot, int generation)
+    private readonly Func<int, Trainer?>? built;
+
+    public TrainerMemberViewModel(EditorSession session, GameNames names, PokemonSprites sprites, int trainer, int slot, int generation,
+        Func<int, Trainer?>? built = null)
     {
+        this.built = built;
         this.session = session;
         this.names = names;
         this.sprites = sprites;
@@ -297,6 +301,7 @@ public sealed class TrainerMemberViewModel : ObservableObject
         Species.PropertyChanged += (_, _) => Refresh();
         Form.PropertyChanged += (_, _) => Refresh();
         Level.PropertyChanged += (_, _) => Refresh();
+        Item.PropertyChanged += (_, _) => RefreshBuilt();
         IvByte.PropertyChanged += (_, _) => OnPropertyChanged(nameof(IvByteText));
     }
 
@@ -365,7 +370,44 @@ public sealed class TrainerMemberViewModel : ObservableObject
     {
         foreach (string property in new[] { nameof(SpeciesName), nameof(LevelText), nameof(Icon), nameof(TypeBackground), nameof(TypeForeground), nameof(AbilityHint) })
             OnPropertyChanged(property);
+        RefreshBuilt();
         Changed?.Invoke();
+    }
+
+    // ------------------------------------------------------------------ as the build writes it (issue #2)
+
+    /// <summary>This member as the ROM will have it, or null when the build changes nothing the card shows.</summary>
+    private TrainerMon? BuiltMember => built?.Invoke(trainer) is { } t && Slot < t.Count ? t.Team.ElementAt(Slot) : null;
+
+    /// <summary>"→ 50 en la ROM" when the trainer level percentage moves it; empty otherwise.</summary>
+    public string BuiltLevelHint => BuiltMember is { } m && m.Level != session.GetInt(T, trainer, prefix + "level")
+        ? string.Format(Strings.Trainer_InRom, m.Level) : "";
+
+    /// <summary>The Mega Stone or Z-crystal the build gives it, or takes away.</summary>
+    public string BuiltItemHint => BuiltMember is { } m && m.Item != session.GetInt(T, trainer, prefix + "item")
+        ? string.Format(Strings.Trainer_InRom, m.Item > 0 && m.Item < names.Items.Count ? names.Items[m.Item] : Strings.Trainer_NoItem) : "";
+
+    /// <summary>Another Pokémon or form: a boss's last one that becomes one that can mega evolve, a battle-only form put back.</summary>
+    public string BuiltSpeciesHint => BuiltMember is { } m
+        && (m.Species != SpeciesId || m.Form != session.GetInt(T, trainer, prefix + "form"))
+        ? string.Format(Strings.Trainer_InRom, EntryName(m.Species, m.Form)) : "";
+
+    public bool HasBuiltLevel => BuiltLevelHint.Length > 0;
+    public bool HasBuiltItem => BuiltItemHint.Length > 0;
+    public bool HasBuiltSpecies => BuiltSpeciesHint.Length > 0;
+
+    private string EntryName(int species, int form)
+    {
+        int row = form == 0 ? species : PersonalIndex.Of(session.Current).Row(species, form);
+        return row >= 0 && row < names.PersonalEntries.Count ? names.PersonalEntries[row]
+            : species >= 0 && species < names.Species.Count ? names.Species[species] : $"#{species}";
+    }
+
+    public void RefreshBuilt()
+    {
+        foreach (string property in new[] { nameof(BuiltLevelHint), nameof(BuiltItemHint), nameof(BuiltSpeciesHint),
+                     nameof(HasBuiltLevel), nameof(HasBuiltItem), nameof(HasBuiltSpecies) })
+            OnPropertyChanged(property);
     }
 
     /// <summary>

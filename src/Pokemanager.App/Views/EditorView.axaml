@@ -1031,12 +1031,16 @@
                                             </Grid>
                                           </Border>
                                           <ContentControl Content="{Binding Species}" />
+                                          <!-- What the build writes over it (issue #2): level percentage, megas, Z-crystals -->
+                                          <TextBlock Classes="hint built" Text="{Binding BuiltSpeciesHint}" IsVisible="{Binding HasBuiltSpecies}" Margin="190,0,0,0" />
                                           <ContentControl Content="{Binding Form}" />
                                           <ContentControl Content="{Binding Level}" />
+                                          <TextBlock Classes="hint built" Text="{Binding BuiltLevelHint}" IsVisible="{Binding HasBuiltLevel}" Margin="190,0,0,0" />
                                           <ContentControl Content="{Binding Ability}" />
                                           <TextBlock Classes="hint" Text="{Binding AbilityHint}" Margin="190,0,0,0" />
                                           <ContentControl Content="{Binding Gender}" />
                                           <ContentControl Content="{Binding Item}" />
+                                          <TextBlock Classes="hint built" Text="{Binding BuiltItemHint}" IsVisible="{Binding HasBuiltItem}" Margin="190,0,0,0" />
                                           <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="240" Margin="190,0,0,0"
                                                      Text="{x:Static r:Strings.Trainer_ItemIgnored}" IsVisible="{Binding ItemIgnored}" />
                                           <ItemsControl ItemsSource="{Binding Moves}" />

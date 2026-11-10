@@ -276,6 +276,43 @@ public static class ModBuilder
     /// edited by hand is not scaled. Trainers in every generation; wild and fixed Pokémon in Generation 7, where the
     /// tables are known (the wild archive is read from the ROM, it is too big to import).
     /// </summary>
+    /// <summary>
+    /// The trainer level percentage over the teams, leaving alone a level edited by hand. Shared with
+    /// <see cref="TrainersAsBuilt"/>, so the editor shows what the build writes.
+    /// </summary>
+    internal static int ScaleTrainerLevels(EditorSession session, GameTitle title, byte[][] dataFiles, byte[][] teamFiles)
+    {
+        double percent = session.Project.Tweaks.TrainerLevelPercent;
+        if (percent == 0)
+            return 0;
+        var editedLevels = session.Project.Edits.All
+            .Where(e => e.Table == GameTables.Trainers && e.Field.EndsWith(".level", StringComparison.Ordinal))
+            .Select(e => (e.Id, e.Field)).ToHashSet();
+        int changed = 0;
+        for (int id = 0; id < Math.Min(dataFiles.Length, teamFiles.Length); id++)
+        {
+            var trainer = Trainer.Read(title, dataFiles[id], teamFiles[id]);
+            if (trainer.Unreadable)
+                continue;
+            var members = trainer.Team.ToList();
+            bool touched = false;
+            for (int slot = 0; slot < members.Count; slot++)
+            {
+                if (editedLevels.Contains((id, $"p{slot + 1}.level")))
+                    continue;
+                int scaled = GameLevels.Scale(members[slot].Level, percent);
+                if (scaled == members[slot].Level)
+                    continue;
+                members[slot].Level = scaled;
+                touched = true;
+                changed++;
+            }
+            if (touched)
+                teamFiles[id] = trainer.WriteTeam().ToArray();
+        }
+        return changed;
+    }
+
     private static void BuildLevels(EditorSession session, Dictionary<string, byte[]> outputs)
     {
         var game = session.Project.Tweaks;
@@ -296,31 +333,7 @@ public static class ModBuilder
             var data = BuiltOrRead(session, outputs, layout.TrainerData);
             var team = BuiltOrRead(session, outputs, layout.TrainerPokemon);
             byte[][] dataFiles = data.Files, teamFiles = team.Files;
-            var editedLevels = session.Project.Edits.All
-                .Where(e => e.Table == GameTables.Trainers && e.Field.EndsWith(".level", StringComparison.Ordinal))
-                .Select(e => (e.Id, e.Field)).ToHashSet();
-            int changed = 0;
-            for (int id = 0; id < Math.Min(dataFiles.Length, teamFiles.Length); id++)
-            {
-                var trainer = Trainer.Read(title, dataFiles[id], teamFiles[id]);
-                if (trainer.Unreadable)
-                    continue;
-                var members = trainer.Team.ToList();
-                bool touched = false;
-                for (int slot = 0; slot < members.Count; slot++)
-                {
-                    if (editedLevels.Contains((id, $"p{slot + 1}.level")))
-                        continue;
-                    int scaled = GameLevels.Scale(members[slot].Level, game.TrainerLevelPercent);
-                    if (scaled == members[slot].Level)
-                        continue;
-                    members[slot].Level = scaled;
-                    touched = true;
-                    changed++;
-                }
-                if (touched)
-                    teamFiles[id] = trainer.WriteTeam().ToArray();
-            }
+            int changed = ScaleTrainerLevels(session, title, dataFiles, teamFiles);
             if (changed > 0)
             {
                 outputs["romfs/" + layout.TrainerData] = GARC.PackGARC(dataFiles, data.Version, data.ContentPadding).Data;

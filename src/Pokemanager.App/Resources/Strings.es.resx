@@ -4988,4 +4988,10 @@ Proyecto: {2}</value>
   <data name="Evo_OtherForm" xml:space="preserve">
     <value>Otra forma</value>
   </data>
+  <data name="Trainer_InRom" xml:space="preserve">
+    <value>→ {0} en la ROM</value>
+  </data>
+  <data name="Trainer_NoItem" xml:space="preserve">
+    <value>sin objeto</value>
+  </data>
 </root>
