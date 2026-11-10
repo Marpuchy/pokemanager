@@ -57,6 +57,7 @@ public static class ModBuilder
         BuildShops(session, randomizedTitleDirectory, outputs);
         BuildGameSettings(session, randomizedTitleDirectory, outputs);
         BuildStarterText(session, outputs);
+        BuildMachineDescriptions(session, randomizedTitleDirectory, outputs);
         BuildBattleSafety(session, outputs);
         return outputs;
     }
@@ -148,6 +149,48 @@ public static class ModBuilder
     /// Litten and hands them something else. Every language's scene is rewritten here with the species the ROM gives:
     /// each name the game ships with is swapped for the one in the same slot, which leaves the sentence alone.
     /// </summary>
+    /// <summary>
+    /// A TM's description in the bag is its item's text, and the game ships it with the original move's. UPR ZX copies
+    /// the new move's description over it **only in the ROM's main language** (its <c>setTMMoves</c> reads one text file),
+    /// so a Spanish game kept describing the moves the TMs no longer teach (2026-11-10, user). Here every language's
+    /// TM items get the description of the move the built executable gives them, edited descriptions included.
+    /// Generation 7 only (<see cref="GameMachines"/>).
+    /// </summary>
+    private static void BuildMachineDescriptions(EditorSession session, string? randomizedTitleDirectory, Dictionary<string, byte[]> outputs)
+    {
+        var title = session.Current.Title;
+        byte[]? code = outputs.TryGetValue(CodeFile, out var built) ? built : ReadCode(session, randomizedTitleDirectory);
+        if (code is null || GameMachines.Read(code, title) is not { } machines)
+            return;
+        int moveFile = GameText.MoveDescriptionFile(title);
+        int itemFile = GameText.FileIndex(title, pk3DS.Core.TextName.ItemFlavor);
+        for (int language = 0; language < title.Layout().LanguageCount; language++)
+        {
+            string path = GameText.Archive(title, language);
+            var garc = outputs.TryGetValue("romfs/" + path, out var written) ? new GARC.MemGARC(written) : ReadAnywhere(session, path);
+            if (garc is null)
+                continue;
+            byte[][] files = garc.Files;
+            if (Math.Max(moveFile, itemFile) >= files.Length)
+                continue;
+            string[] moves = GameText.Read(title, files[moveFile]);
+            string[] items = GameText.Read(title, files[itemFile]);
+            bool changed = false;
+            for (int tm = 0; tm < machines.Length; tm++)
+            {
+                int item = GameMachines.Item(tm), move = machines[tm];
+                if (item >= items.Length || move <= 0 || move >= moves.Length || items[item] == moves[move])
+                    continue;
+                items[item] = moves[move];
+                changed = true;
+            }
+            if (!changed)
+                continue;
+            files[itemFile] = GameText.Write(title, items);
+            outputs["romfs/" + path] = GARC.PackGARC(files, garc.Version, garc.ContentPadding).Data;
+        }
+    }
+
     private static void BuildStarterText(EditorSession session, Dictionary<string, byte[]> outputs)
     {
         var title = session.Current.Title;
@@ -461,7 +504,6 @@ public static class ModBuilder
     private static HashSet<int> EditedIds(EditSet edits, string table) =>
         edits.All.Where(e => e.Table == table).Select(e => e.Id).ToHashSet();
 
-    /// <summary>Personal: edited individual entries plus the concatenated table in the last file.</summary>
     /// <summary>
     /// Gives each duplicate mega (<see cref="GameData.DuplicateMegas"/>) the stats, types and abilities of the mega it
     /// repeats, edits included; returns the rows that changed. Its gender, forms and the rest are left as they are.
@@ -489,6 +531,7 @@ public static class ModBuilder
         return changed;
     }
 
+    /// <summary>Personal: edited individual entries plus the concatenated table in the last file.</summary>
     private static byte[] BuildPersonal(EditorSession session, HashSet<int> ids)
     {
         string path = session.Current.Layout.Personal;
