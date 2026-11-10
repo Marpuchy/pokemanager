@@ -1,4 +1,4 @@
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Pokemanager.App.ViewModels;
 
 namespace Pokemanager.App.Views;
@@ -13,16 +13,16 @@ public partial class EditorView : UserControl
         {
             if (e.Source != MainTabs || DataContext is not EditorViewModel vm)
                 return;
-            if (MainTabs.SelectedItem == SaveTab || MainTabs.SelectedItem == DexTab)
+            if (MainTabs.SelectedItem == SaveTab)
                 vm.SaveEditor.EnsureOpen();
         };
 
-        // The randomizer's options are read from UPR ZX (a few seconds) the first time a subject tab is shown.
+        // The randomizer's options are read from UPR ZX (a few seconds) the first time the ROM options are shown.
         MainTabs.SelectionChanged += async (_, e) =>
         {
             if (e.Source != MainTabs || DataContext is not EditorViewModel vm)
                 return;
-            if (MainTabs.SelectedIndex is >= 1 and <= 6)
+            if (MainTabs.SelectedItem == OptionsTab)
                 await vm.Randomizer.LoadOptionsAsync();
         };
 

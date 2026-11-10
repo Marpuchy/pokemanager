@@ -72,8 +72,8 @@
           <Border Classes="card">
           <StackPanel Spacing="6">
             <TextBlock Classes="card-title" Text="{x:Static r:Strings.Rnd_YourSave}" />
-            <TextBlock Text="{Binding SaveText}" TextWrapping="Wrap" />
-            <TextBlock Classes="hint" Text="{Binding SaveTargetText}" TextWrapping="Wrap" />
+            <!-- The save's full path in the tooltip, as in Partida (2026-11-09, user) -->
+            <TextBlock Text="{Binding SaveText}" TextWrapping="Wrap" ToolTip.Tip="{Binding SaveTargetText}" />
             <CheckBox ToolTip.Tip="{x:Static r:Strings.Tip_RandomizerUpdateSave}" IsChecked="{Binding UpdateSave}" IsEnabled="{Binding HasSave}" Content="{x:Static r:Strings.Rnd_UpdateSave}" />
             <Button Content="{x:Static r:Strings.Rnd_AdaptNow}" Command="{Binding AdaptSaveNowCommand}"
                     IsVisible="{Binding HasPreviousRom}" IsEnabled="{Binding HasSave}"

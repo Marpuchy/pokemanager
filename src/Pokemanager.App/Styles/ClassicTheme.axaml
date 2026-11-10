@@ -340,12 +340,12 @@
       </ItemsPanelTemplate>
     </Setter>
   </Style>
-  <Style Selector="TabControl.wide-side[TabStripPlacement=Left] TabItem">
+  <Style Selector="TabControl.wide-side[TabStripPlacement=Left] > TabItem">
     <Setter Property="Width" Value="260" />
   </Style>
 
   <!-- Side tabs (tab strip on the left): same size selected or not, flush with the page, no jump when selecting -->
-  <Style Selector="TabControl[TabStripPlacement=Left] TabItem, TabControl[TabStripPlacement=Left] TabItem:selected">
+  <Style Selector="TabControl[TabStripPlacement=Left] > TabItem, TabControl[TabStripPlacement=Left] > TabItem:selected">
     <Setter Property="Margin" Value="0,0,-1,2" />
     <Setter Property="Padding" Value="12,7" />
     <Setter Property="MinWidth" Value="150" />
@@ -355,8 +355,12 @@
     <Setter Property="HorizontalContentAlignment" Value="Left" />
     <Setter Property="BorderThickness" Value="1,1,0,1" />
   </Style>
-  <Style Selector="TabControl[TabStripPlacement=Left] TabItem:selected">
+  <Style Selector="TabControl[TabStripPlacement=Left] > TabItem:selected">
     <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <!-- The ROM options' subject list: just wide enough for its names, so the page keeps its width at 1024 px (after the side-tab style, so it wins) -->
+  <Style Selector="TabControl.narrow-side[TabStripPlacement=Left] > TabItem">
+    <Setter Property="MinWidth" Value="120" />
   </Style>
   <Style Selector="TabControl[TabStripPlacement=Left] /template/ ItemsPresenter#PART_ItemsPresenter">
     <Setter Property="Margin" Value="6,6,0,0" />

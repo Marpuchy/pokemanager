@@ -250,9 +250,12 @@ public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
     // ------------------------------------------------------------------ open / reload
 
     /// <summary>Opens the save the first time the tab is shown.</summary>
-    /// <summary>The save editor's own tab: Pokémon, Bag, Trainer, Pokédex, Locke.</summary>
+    /// <summary>The save editor's own tab: Pokémon, Bag, Trainer, Locke, Pokédex.</summary>
     [ObservableProperty]
     public partial int SelectedTab { get; set; }
+
+    /// <summary>The Pokédex's index among the run's sub-tabs (the start screen's shortcut opens it).</summary>
+    public const int DexTabIndex = 4;
 
 
     public void EnsureOpen()

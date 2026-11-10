@@ -487,7 +487,7 @@
     <value>Export…</value>
   </data>
   <data name="Rnd_EditOptionsHint" xml:space="preserve">
-    <value>Each subject's options are in its Random tab (Pokémon, Moves, Encounters, Trainers, Items, Rules).</value>
+    <value>Each subject's options are in ROM options: pick the subject on the left, then its Random tab.</value>
   </data>
   <data name="Rnd_SeedWatermark" xml:space="preserve">
     <value>Seed</value>
@@ -769,7 +769,7 @@
     <value>Pokémon data (base stats, types, abilities, learnsets):</value>
   </data>
   <data name="Data_Hint" xml:space="preserve">
-    <value>A .pkdata file keeps base stats, types, abilities and learnsets, like a .rnqs keeps the randomizer options. Moves go in a .mvdata file, from their tab.</value>
+    <value>.pkdata files are exported and imported in Project → Files.</value>
   </data>
   <data name="Data_ExportTitle" xml:space="preserve">
     <value>Export Pokémon data</value>
@@ -2263,7 +2263,7 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
     <value>By default only your changes to moves are exported: applied to another project, every other move keeps that project&apos;s randomization. Include every value to pin all moves exactly as they are now.</value>
   </data>
   <data name="Data_MovesHint" xml:space="preserve">
-    <value>A .mvdata file keeps the moves&apos; type, category, power, accuracy, PP and the rest of their data.</value>
+    <value>.mvdata files are exported and imported in Project → Files.</value>
   </data>
   <data name="Data_KindPokemon" xml:space="preserve">
     <value>Pokémon</value>
@@ -3364,7 +3364,7 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
     <value>The whole game at once</value>
   </data>
   <data name="Game_SweepsHint" xml:space="preserve">
-    <value>These write ordinary edits over every entry of a table: they show up in the advanced tabs, undo in one step and can be put back.</value>
+    <value>These write ordinary edits over every entry of a table: they show up in the advanced editor, undo in one step and can be put back.</value>
   </data>
   <data name="Game_Experience" xml:space="preserve">
     <value>Experience from battles (%)</value>
@@ -4561,7 +4561,7 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
     <value>{0} (form {1})</value>
   </data>
   <data name="Evo_FriendshipNote" xml:space="preserve">
-    <value>The friendship it needs (220) is fixed in the game's code, not in this data. To make it easier, raise the base friendship in Data → Breeding.</value>
+    <value>The friendship it needs (220) is fixed in the game's code, not in this data. To make it easier, raise the base friendship in ROM options → Pokémon → Advanced editor → Data → Breeding and experience.</value>
   </data>
   <data name="Tip_EvoAdd" xml:space="preserve">
     <value>Adds an evolution by level 16 into the next Pokémon; change the method, the level and the target after.</value>
@@ -4981,5 +4981,8 @@ Project: {2}</value>
   </data>
   <data name="Save_ShowProblems" xml:space="preserve">
     <value>See the {0} problem(s)</value>
+  </data>
+  <data name="Tab_RomOptions" xml:space="preserve">
+    <value>ROM options</value>
   </data>
 </root>

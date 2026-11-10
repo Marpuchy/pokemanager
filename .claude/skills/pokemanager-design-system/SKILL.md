@@ -125,12 +125,32 @@ items without art is a known exception.
 
 ## 7. Layout
 
-Test widths: **1600**, **1280** and **1024** px wide windows (the harness renders 1600×1000). Pages use
+Test widths: **1600**, **1280** and **1024** px wide windows (the harness renders 1600×1000; resize the window for the others). Pages use
 `AdaptiveColumnsPanel` (1–3 columns of `Border.card`); side lists have fixed widths (360 px trainers, 404 px save,
 440 px Pokédex) and the detail takes the rest. Tab strips never wrap. Nothing may overflow horizontally at 1024 px:
 wrap, or put the extra controls on their own row.
 
-## 8. Checklist
+## 8. Structure (reorganized 2026-11-09 with the user — ask before moving anything)
+
+Where a new page or option goes:
+
+| Place | Holds |
+|---|---|
+| **Proyecto** → Generar · Archivos · Mods · Historial | what is built (base ROM, seed, output, save adaptation), the export/import files, mods, versions |
+| **Opciones de la ROM** → side list Pokémon · Movimientos · Encuentros · Entrenadores · Objetos · Reglas | everything that changes the game; each subject has **Aleatorio** (the randomizer's options: need a new seed), **Ajustes** (this application's, written when the ROM is built) and **Editor avanzado** (per-entry editors) — only the ones it has |
+| **Partida** → Pokémon · Mochila · Entrenador · Locke · Pokédex | everything in the save; undo there is the save's |
+
+Rules agreed with the user:
+- **Nothing appears twice.** One way to reach a thing; one copy of a hint (the Ajustes sub-tab line says "written at build" once, cards do not repeat it); a shortcut on the start screen opens the editor's page, it is not a second page.
+- **Never three rows of tabs**: a third level becomes a side list (`TabStripPlacement="Left"`, class `narrow-side`).
+- An option acts where it is shown: something that acts when randomizing sits in Aleatorio even if it is ours (e.g. *Qué objetos pueden salir*), something written at build sits in Ajustes.
+- Randomizer options are grouped in **titled cards** (`UprOptionsViewModel.SectionsByGroup`; leftovers land in *Otras*) that flow in balanced columns (`c:ColumnFlowPanel MinColumnWidth=340 MaxColumns=3 ColumnSpacing=12 KeepColumnWidth`); our cards sit in a `WrapPanel` with a 12 px gap, top-aligned. Templates live in `Styles/OptionGroups.axaml`.
+- Options that come once per kind of trainer are **one table** (rows = options, columns = Normales · Importantes · Jefes).
+- Long paths and ids go in a **tooltip**, not in a header line (save header, editor top bar, *Tu partida*).
+- Lists that can be long and are secondary (the save's problems) are **folded** (`Expander`) so the main content keeps its height.
+- Side-by-side detail columns use `AdaptiveColumnsPanel`, so they stack at 1024 px instead of squeezing controls to nothing.
+
+## 9. Checklist
 
 - [ ] Colours only from the table above; type backgrounds with `TypeColors.Foreground` text.
 - [ ] Text ≥ 4.5:1 on its background (compute it, do not guess); no `modified`/`success` as small text.
@@ -140,4 +160,5 @@ wrap, or put the extra controls on their own row.
 - [ ] Game art or the glyph table for icons; sprites centred and pixel-sharp; no new emoji.
 - [ ] Tooltip on every option and icon-only button; strings in both resx files.
 - [ ] Spoiler content hidden by default; destructive actions separated and confirmed.
-- [ ] Checked at 1024 px without horizontal overflow.
+- [ ] Checked at 1600, 1280 and 1024 px without horizontal overflow, controls not squeezed.
+- [ ] In the right place of the structure (§8); nothing shown twice; no third row of tabs.

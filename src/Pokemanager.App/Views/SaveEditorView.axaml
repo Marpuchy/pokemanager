@@ -910,6 +910,11 @@
         <TabItem Header="{x:Static r:Strings.Tab_Locke}">
           <ContentControl Content="{Binding Editor.Locke}" />
         </TabItem>
+
+        <!-- ================= Pokédex: seen and caught live in the save (2026-11-09, user: inside Partida) ================= -->
+        <TabItem Header="{x:Static r:Strings.Save_TabDex}">
+          <ContentControl Content="{Binding Dex}" />
+        </TabItem>
       </TabControl>
     </DockPanel>
   </Grid>

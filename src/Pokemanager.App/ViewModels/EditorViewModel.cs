@@ -52,8 +52,9 @@ public partial class EditorViewModel : ObservableObject
     /// <summary>Opens on the save's Pokédex (the shortcut of the project preview).</summary>
     public void ShowSaveDex()
     {
-        SelectedTab = DexTabIndex;
+        SelectedTab = SaveTabIndex;
         SaveEditor.EnsureOpen();
+        SaveEditor.SelectedTab = SaveEditorViewModel.DexTabIndex;
     }
 
     [ObservableProperty]
@@ -541,18 +542,15 @@ public partial class EditorViewModel : ObservableObject
     /// <summary>Undo of the project: advanced edits, imports, randomizer settings and Locke rules.</summary>
     public SnapshotHistory ProjectUndo { get; private set; } = null!;
 
-    /// <summary>Index of the main tab shown: the Save tab (1) undoes save edits, the others the project.</summary>
+    /// <summary>Index of the main tab shown: Partida (2, its Pokédex included) undoes save edits, the others the project.</summary>
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(UndoText), nameof(RedoText), nameof(UndoTip), nameof(RedoTip))]
     [NotifyCanExecuteChangedFor(nameof(UndoCommand), nameof(RedoCommand))]
     public partial int SelectedTab { get; set; }
 
-    private const int SaveTabIndex = 7;
+    private const int SaveTabIndex = 2;
 
-    /// <summary>The Pokédex, a top-level tab since issue #2; its flags are the save's, so it shares the save's undo.</summary>
-    private const int DexTabIndex = 8;
-
-    private SnapshotHistory ActiveUndo => SelectedTab is SaveTabIndex or DexTabIndex ? SaveEditor.Undo : ProjectUndo;
+    private SnapshotHistory ActiveUndo => SelectedTab == SaveTabIndex ? SaveEditor.Undo : ProjectUndo;
 
     public string UndoText => ActiveUndo.UndoCount > 0 ? string.Format(Strings.Undo_Button, ActiveUndo.UndoCount) : Strings.Undo_ButtonNone;
     public string RedoText => ActiveUndo.RedoCount > 0 ? string.Format(Strings.Redo_Button, ActiveUndo.RedoCount) : Strings.Redo_ButtonNone;

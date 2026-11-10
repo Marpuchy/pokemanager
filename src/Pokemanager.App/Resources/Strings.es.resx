@@ -487,7 +487,7 @@
     <value>Exportar…</value>
   </data>
   <data name="Rnd_EditOptionsHint" xml:space="preserve">
-    <value>Las opciones de cada tema están en su pestaña Aleatorio (Pokémon, Movimientos, Encuentros, Entrenadores, Objetos, Reglas).</value>
+    <value>Las opciones de cada tema están en Opciones de la ROM: elige el tema a la izquierda y su pestaña Aleatorio.</value>
   </data>
   <data name="Rnd_SeedWatermark" xml:space="preserve">
     <value>Semilla</value>
@@ -769,7 +769,7 @@
     <value>Datos de Pokémon (stats base, tipos, habilidades, movimientos que aprenden):</value>
   </data>
   <data name="Data_Hint" xml:space="preserve">
-    <value>Un archivo .pkdata guarda stats base, tipos, habilidades y movimientos que aprenden, como un .rnqs guarda las opciones del randomizer. Los movimientos van en un archivo .mvdata, desde su pestaña.</value>
+    <value>Los archivos .pkdata se exportan e importan en Proyecto → Archivos.</value>
   </data>
   <data name="Data_ExportTitle" xml:space="preserve">
     <value>Exportar datos de Pokémon</value>
@@ -2263,7 +2263,7 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>Por defecto solo se exportan tus cambios en los movimientos: al aplicarlos en otro proyecto, el resto de movimientos conserva la randomización de ese proyecto. Incluye todos los valores para fijar todos los movimientos tal y como están ahora.</value>
   </data>
   <data name="Data_MovesHint" xml:space="preserve">
-    <value>Un archivo .mvdata guarda el tipo, la categoría, la potencia, la precisión, los PP y el resto de datos de los movimientos.</value>
+    <value>Los archivos .mvdata se exportan e importan en Proyecto → Archivos.</value>
   </data>
   <data name="Data_KindPokemon" xml:space="preserve">
     <value>Pokémon</value>
@@ -3364,7 +3364,7 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>Todo el juego de una vez</value>
   </data>
   <data name="Game_SweepsHint" xml:space="preserve">
-    <value>Esto escribe cambios normales en todas las entradas de una tabla: salen en las pestañas avanzadas, se deshacen de una vez y se pueden devolver a su sitio.</value>
+    <value>Esto escribe cambios normales en todas las entradas de una tabla: salen en Editor avanzado, se deshacen de una vez y se pueden devolver a su sitio.</value>
   </data>
   <data name="Game_Experience" xml:space="preserve">
     <value>Experiencia de los combates (%)</value>
@@ -4561,7 +4561,7 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>{0} (forma {1})</value>
   </data>
   <data name="Evo_FriendshipNote" xml:space="preserve">
-    <value>La amistad que hace falta (220) está fijada en el código del juego, no en estos datos. Para facilitarlo, sube la amistad base en Datos → Crianza.</value>
+    <value>La amistad que hace falta (220) está fijada en el código del juego, no en estos datos. Para facilitarlo, sube la amistad base en Opciones de la ROM → Pokémon → Editor avanzado → Datos → Crianza y experiencia.</value>
   </data>
   <data name="Tip_EvoAdd" xml:space="preserve">
     <value>Añade una evolución por nivel 16 al Pokémon siguiente; cambia después el método, el nivel y a qué evoluciona.</value>
@@ -4981,5 +4981,8 @@ Proyecto: {2}</value>
   </data>
   <data name="Save_ShowProblems" xml:space="preserve">
     <value>Ver los {0} problema(s)</value>
+  </data>
+  <data name="Tab_RomOptions" xml:space="preserve">
+    <value>Opciones de la ROM</value>
   </data>
 </root>
