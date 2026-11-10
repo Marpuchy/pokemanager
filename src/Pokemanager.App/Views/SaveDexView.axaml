@@ -55,7 +55,7 @@
         <!-- Filters (issue #2), folded away until wanted; the header says how many are on -->
         <Expander Header="{Binding FiltersHeader}" HorizontalAlignment="Stretch" IsExpanded="False">
           <StackPanel Spacing="6">
-            <Grid ColumnDefinitions="Auto,*,6,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
+            <Grid ColumnDefinitions="Auto,*,6,*" RowDefinitions="Auto,Auto" RowSpacing="4">
               <TextBlock VerticalAlignment="Center" Margin="0,0,8,0" Text="{x:Static r:Strings.Dex_FilterType}" />
               <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{Binding TypeChoices}" SelectedIndex="{Binding TypeFilter1}"
                         ToolTip.Tip="{x:Static r:Strings.Dex_FilterTypeTip}" />
@@ -66,16 +66,43 @@
                              ParsingNumberStyle="Integer" ToolTip.Tip="{x:Static r:Strings.Dex_FilterBstTip}" />
               <NumericUpDown Grid.Row="1" Grid.Column="3" Value="{Binding BstMax}" Minimum="0" Maximum="1200" Increment="10" FormatString="0"
                              ParsingNumberStyle="Integer" ToolTip.Tip="{x:Static r:Strings.Dex_FilterBstTip}" />
-              <ComboBox Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{Binding MegaChoices}" SelectedIndex="{Binding MegaFilter}"
-                        ToolTip.Tip="{x:Static r:Strings.Dex_FilterMegaTip}" />
-              <ComboBox Grid.Row="2" Grid.Column="3" HorizontalAlignment="Stretch" ItemsSource="{Binding LegendaryChoices}" SelectedIndex="{Binding LegendaryFilter}"
-                        ToolTip.Tip="{x:Static r:Strings.Dex_FilterLegendaryTip}" />
             </Grid>
-            <Grid ColumnDefinitions="Auto,*,Auto">
-              <CheckBox Margin="0,0,12,0" IsChecked="{Binding HideForms}" Content="{x:Static r:Strings.Dex_FilterNoForms}" ToolTip.Tip="{x:Static r:Strings.Dex_FilterNoFormsTip}" />
-              <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{Binding StatusChoices}" SelectedIndex="{Binding StatusFilter}"
+            <!-- Three-way: blank indifferent, blue tick only those, red cross none of them (click cycles) -->
+            <WrapPanel>
+              <Button Classes="plain tri" Margin="0,0,14,0" Command="{Binding CycleMegaCommand}" ToolTip.Tip="{x:Static r:Strings.Dex_FilterMegaTip}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <Panel Width="18" Height="18" VerticalAlignment="Center">
+                    <Border Background="White" BorderBrush="#7A7A7A" BorderThickness="1" CornerRadius="2" />
+                    <Border Background="#0078D7" CornerRadius="2" IsVisible="{Binding MegaOnly}">
+                      <TextBlock Text="✓" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Background="#D13438" CornerRadius="2" IsVisible="{Binding MegaExcluded}">
+                      <TextBlock Text="✕" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                  </Panel>
+                  <TextBlock VerticalAlignment="Center" Text="{x:Static r:Strings.Dex_FilterMegas}" />
+                </StackPanel>
+              </Button>
+              <Button Classes="plain tri" Margin="0,0,14,0" Command="{Binding CycleLegendaryCommand}" ToolTip.Tip="{x:Static r:Strings.Dex_FilterLegendaryTip}">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <Panel Width="18" Height="18" VerticalAlignment="Center">
+                    <Border Background="White" BorderBrush="#7A7A7A" BorderThickness="1" CornerRadius="2" />
+                    <Border Background="#0078D7" CornerRadius="2" IsVisible="{Binding LegendaryOnly}">
+                      <TextBlock Text="✓" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Background="#D13438" CornerRadius="2" IsVisible="{Binding LegendaryExcluded}">
+                      <TextBlock Text="✕" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                  </Panel>
+                  <TextBlock VerticalAlignment="Center" Text="{x:Static r:Strings.Dex_FilterLegendaries}" />
+                </StackPanel>
+              </Button>
+              <CheckBox IsChecked="{Binding HideForms}" Content="{x:Static r:Strings.Dex_FilterNoForms}" ToolTip.Tip="{x:Static r:Strings.Dex_FilterNoFormsTip}" />
+            </WrapPanel>
+            <Grid ColumnDefinitions="*,Auto">
+              <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding StatusChoices}" SelectedIndex="{Binding StatusFilter}"
                         ToolTip.Tip="{x:Static r:Strings.Dex_FilterStatusTip}" />
-              <Button Grid.Column="2" Margin="6,0,0,0" Content="{x:Static r:Strings.Dex_ClearFilters}" Command="{Binding ClearFiltersCommand}"
+              <Button Grid.Column="1" Margin="6,0,0,0" Content="{x:Static r:Strings.Dex_ClearFilters}" Command="{Binding ClearFiltersCommand}"
                       IsEnabled="{Binding HasFilters}" />
             </Grid>
           </StackPanel>

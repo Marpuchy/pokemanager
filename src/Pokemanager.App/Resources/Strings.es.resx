@@ -5016,10 +5016,10 @@ Proyecto: {2}</value>
     <value>Total de stats base de la ROM, desde … hasta.</value>
   </data>
   <data name="Dex_FilterMegaTip" xml:space="preserve">
-    <value>Solo megas: solo las megaformas de esta ROM (su propia tabla de megas, así que cuentan las del mod). Sin megas: las oculta.</value>
+    <value>Haz clic para cambiar. En blanco: todos. Tick azul: solo las megaformas de esta ROM (su propia tabla de megas, así que cuentan las del mod). X roja: sin megaformas.</value>
   </data>
   <data name="Dex_FilterLegendaryTip" xml:space="preserve">
-    <value>Legendarios, singulares, Ultraentes y Pokémon paradoja: solo ellos, o ninguno.</value>
+    <value>Haz clic para cambiar. En blanco: todos. Tick azul: solo legendarios, singulares, Ultraentes y Pokémon paradoja. X roja: ninguno de ellos.</value>
   </data>
   <data name="Dex_FilterNoForms" xml:space="preserve">
     <value>Sin formas</value>
@@ -5039,22 +5039,10 @@ Proyecto: {2}</value>
   <data name="Dex_FiltersOn" xml:space="preserve">
     <value>Filtros ({0} activos)</value>
   </data>
-  <data name="Dex_FilterOnlyMega" xml:space="preserve">
-    <value>Solo megas</value>
+  <data name="Dex_FilterMegas" xml:space="preserve">
+    <value>Megas</value>
   </data>
-  <data name="Dex_FilterNoMega" xml:space="preserve">
-    <value>Sin megas</value>
-  </data>
-  <data name="Dex_FilterOnlyLegendary" xml:space="preserve">
-    <value>Solo legendarios</value>
-  </data>
-  <data name="Dex_FilterNoLegendary" xml:space="preserve">
-    <value>Sin legendarios</value>
-  </data>
-  <data name="Dex_FilterMegaAny" xml:space="preserve">
-    <value>Megas: indiferente</value>
-  </data>
-  <data name="Dex_FilterLegendaryAny" xml:space="preserve">
-    <value>Legendarios: indiferente</value>
+  <data name="Dex_FilterLegendaries" xml:space="preserve">
+    <value>Legendarios</value>
   </data>
 </root>

@@ -960,9 +960,17 @@ public partial class SaveDexViewModel : ObservableObject
     [ObservableProperty]
     public partial decimal? BstMax { get; set; }
 
-    /// <summary>Indifferent, only, without (2026-11-10, user: "inclusive, neutral or exclusive"). Built once.</summary>
-    public IReadOnlyList<string> MegaChoices { get; } = [Strings.Dex_FilterMegaAny, Strings.Dex_FilterOnlyMega, Strings.Dex_FilterNoMega];
-    public IReadOnlyList<string> LegendaryChoices { get; } = [Strings.Dex_FilterLegendaryAny, Strings.Dex_FilterOnlyLegendary, Strings.Dex_FilterNoLegendary];
+    // Three-way check boxes (2026-11-10, user): blank = indifferent, blue tick = only those, red cross = none of them.
+    public bool MegaOnly => MegaFilter == 1;
+    public bool MegaExcluded => MegaFilter == 2;
+    public bool LegendaryOnly => LegendaryFilter == 1;
+    public bool LegendaryExcluded => LegendaryFilter == 2;
+
+    [RelayCommand]
+    private void CycleMega() => MegaFilter = (MegaFilter + 1) % 3;
+
+    [RelayCommand]
+    private void CycleLegendary() => LegendaryFilter = (LegendaryFilter + 1) % 3;
 
     /// <summary>0 indifferent, 1 only the mega forms (the ROM's own mega table, so a mod's megas count), 2 none of them.</summary>
     [ObservableProperty]
@@ -996,8 +1004,19 @@ public partial class SaveDexViewModel : ObservableObject
     partial void OnTypeFilter2Changed(int value) => Refilter();
     partial void OnBstMinChanged(decimal? value) => Refilter();
     partial void OnBstMaxChanged(decimal? value) => Refilter();
-    partial void OnMegaFilterChanged(int value) => Refilter();
-    partial void OnLegendaryFilterChanged(int value) => Refilter();
+    partial void OnMegaFilterChanged(int value)
+    {
+        OnPropertyChanged(nameof(MegaOnly));
+        OnPropertyChanged(nameof(MegaExcluded));
+        Refilter();
+    }
+
+    partial void OnLegendaryFilterChanged(int value)
+    {
+        OnPropertyChanged(nameof(LegendaryOnly));
+        OnPropertyChanged(nameof(LegendaryExcluded));
+        Refilter();
+    }
     partial void OnHideFormsChanged(bool value) => Refilter();
     partial void OnStatusFilterChanged(int value) => Refilter();
 

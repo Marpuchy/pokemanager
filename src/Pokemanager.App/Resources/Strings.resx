@@ -5016,10 +5016,10 @@ Project: {2}</value>
     <value>Base stat total as the ROM has it, from … to.</value>
   </data>
   <data name="Dex_FilterMegaTip" xml:space="preserve">
-    <value>Only megas: just the mega forms of this ROM (its own mega table, so a mod's megas count). No megas: hides them.</value>
+    <value>Click to change. Blank: all. Blue tick: only the mega forms of this ROM (its own mega table, so a mod's megas count). Red cross: no mega forms.</value>
   </data>
   <data name="Dex_FilterLegendaryTip" xml:space="preserve">
-    <value>Legendaries, mythicals, Ultra Beasts and Paradox Pokémon: only them, or none of them.</value>
+    <value>Click to change. Blank: all. Blue tick: only legendaries, mythicals, Ultra Beasts and Paradox Pokémon. Red cross: none of them.</value>
   </data>
   <data name="Dex_FilterNoForms" xml:space="preserve">
     <value>No forms</value>
@@ -5039,22 +5039,10 @@ Project: {2}</value>
   <data name="Dex_FiltersOn" xml:space="preserve">
     <value>Filters ({0} on)</value>
   </data>
-  <data name="Dex_FilterOnlyMega" xml:space="preserve">
-    <value>Only megas</value>
+  <data name="Dex_FilterMegas" xml:space="preserve">
+    <value>Megas</value>
   </data>
-  <data name="Dex_FilterNoMega" xml:space="preserve">
-    <value>No megas</value>
-  </data>
-  <data name="Dex_FilterOnlyLegendary" xml:space="preserve">
-    <value>Only legendaries</value>
-  </data>
-  <data name="Dex_FilterNoLegendary" xml:space="preserve">
-    <value>No legendaries</value>
-  </data>
-  <data name="Dex_FilterMegaAny" xml:space="preserve">
-    <value>Megas: any</value>
-  </data>
-  <data name="Dex_FilterLegendaryAny" xml:space="preserve">
-    <value>Legendaries: any</value>
+  <data name="Dex_FilterLegendaries" xml:space="preserve">
+    <value>Legendaries</value>
   </data>
 </root>
