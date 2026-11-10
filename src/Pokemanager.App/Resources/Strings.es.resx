@@ -5087,4 +5087,7 @@ Proyecto: {2}</value>
   <data name="Undo_Preevolutions" xml:space="preserve">
     <value>Preevoluciones de {0}</value>
   </data>
+  <data name="Difficulty_AiBit7" xml:space="preserve">
+    <value> + bit 0x80, como los jefes más duros del juego (nunca por debajo de lo que trae la ROM)</value>
+  </data>
 </root>

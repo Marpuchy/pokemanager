@@ -135,7 +135,8 @@ public sealed class DifficultyOptionViewModel
     {
         var parts = new List<string>();
         if (rule.Ai is { } ai)
-            parts.Add(AiLevelFieldViewModel.Labels[Array.IndexOf(AiLevelFieldViewModel.Values, ai)]);
+            parts.Add(AiLevelFieldViewModel.Labels[Math.Max(0, Array.IndexOf(AiLevelFieldViewModel.Values, ai & 0x07))]
+                + ((ai & 0x80) != 0 ? Strings.Difficulty_AiBit7 : ""));
         if (rule.Ivs is { } ivs)
             parts.Add(string.Format(Strings.Difficulty_Ivs, ivs));
         if (rule.BagItems is { } bag)

@@ -5087,4 +5087,7 @@ Project: {2}</value>
   <data name="Undo_Preevolutions" xml:space="preserve">
     <value>Earlier stages of {0}</value>
   </data>
+  <data name="Difficulty_AiBit7" xml:space="preserve">
+    <value> + bit 0x80, like the game's toughest bosses (never below what the ROM has)</value>
+  </data>
 </root>

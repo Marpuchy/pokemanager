@@ -83,6 +83,14 @@ public static class DifficultyProfiles
     /// </summary>
     public const int AiNone = 0x00, AiBasic = 0x01, AiStrong = 0x03, AiExpert = 0x07;
 
+    /// <summary>
+    /// Expert plus bit 7, what the games give their hardest trainers (Ultra Moon: 18 of 32 bosses and 17 important
+    /// trainers ship with 0x87). What bit 7 does is not documented; the user chose it for Challenge and Nightmare
+    /// (2026-11-10). The harder profiles **only add** bits: Challenge set ordinary trainers to 0x03 and so took the
+    /// Expert bit from the 150 the game ships at 0x05/0x07 — they attacked at random (user: "hacen ataques aleatorios").
+    /// </summary>
+    public const int AiTop = 0x87;
+
     public static readonly IReadOnlyList<DifficultyProfile> All =
     [
         // The bosses keep a little of their bite: with AI 0x00 and no IVs a gym leader stops being a fight at all.
@@ -94,15 +102,15 @@ public static class DifficultyProfiles
         new(DifficultyLevel.Normal, TrainerLevelPercent: 0, new(), new(), new()),
 
         new(DifficultyLevel.Challenge, TrainerLevelPercent: 5,
-            Regular: new(Ai: AiStrong, Ivs: 12),
-            Important: new(Ai: AiExpert, Ivs: 18),
-            Boss: new(Ai: AiExpert, Ivs: 25, BagItems: 2, MegaFromLevel: 30)),
+            Regular: new(Ai: AiTop, Ivs: 12),
+            Important: new(Ai: AiTop, Ivs: 18),
+            Boss: new(Ai: AiTop, Ivs: 25, BagItems: 2, MegaFromLevel: 30)),
 
-        // 0x07 is the game's own ceiling, so above Challenge the only levers left are the team and the bag.
+        // The AI is already at the game's top in Challenge, so above it the levers left are the team and the bag.
         new(DifficultyLevel.Nightmare, TrainerLevelPercent: 15,
-            Regular: new(Ai: AiExpert, Ivs: 18),
-            Important: new(Ai: AiExpert, Ivs: 31, BagItems: 1),
-            Boss: new(Ai: AiExpert, Ivs: 31, BagItems: 4, MegaFromLevel: 1)),
+            Regular: new(Ai: AiTop, Ivs: 18),
+            Important: new(Ai: AiTop, Ivs: 31, BagItems: 1),
+            Boss: new(Ai: AiTop, Ivs: 31, BagItems: 4, MegaFromLevel: 1)),
     ];
 
     public static DifficultyProfile Of(DifficultyLevel level) => All.First(p => p.Level == level);
@@ -170,7 +178,8 @@ public static class DifficultyProfiles
             if (rule.Ai is { } ai)
             {
                 int current = session.GetInt(T, id, "ai");
-                changed += Set(session, id, "ai", (current & ~0x07) | ai);
+                // Easier profiles replace bits 0-2 and keep the rest; harder ones only add (never below the ROM's).
+                changed += Set(session, id, "ai", level > DifficultyLevel.Normal ? current | ai : (current & ~0x07) | ai);
             }
             if (rule.Ivs is { } ivs)
                 changed += SetTeamIvs(session, id, generation, ivs);
