@@ -4944,4 +4944,25 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Section_Tutors" xml:space="preserve">
     <value>Tutores</value>
   </data>
+  <data name="Section_FieldItems" xml:space="preserve">
+    <value>Objetos del suelo</value>
+  </data>
+  <data name="Section_Shops" xml:space="preserve">
+    <value>Tiendas</value>
+  </data>
+  <data name="Section_Pickup" xml:space="preserve">
+    <value>Recogida</value>
+  </data>
+  <data name="Section_General" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="Section_ItemPool" xml:space="preserve">
+    <value>Qué objetos pueden salir</value>
+  </data>
+  <data name="Section_ItemPoolHint" xml:space="preserve">
+    <value>Son de esta aplicación, pero actúan al randomizar: cambiarlas necesita randomizar de nuevo.</value>
+  </data>
+  <data name="Shops_BuildTitle" xml:space="preserve">
+    <value>Tiendas (al crear la ROM)</value>
+  </data>
 </root>

@@ -216,7 +216,7 @@ public static class UprOptionCatalog
         ["BanIrregularAltFormes"] = new(Misc),
         ["RaceMode"] = new(Misc),
         ["BlockBrokenMoves"] = new(Misc),
-        ["ShinyChance"] = new(Misc),
+        ["ShinyChance"] = new(Trainers), // a trainer's Pokémon being shiny: with the trainer options (2026-11-09, user)
     };
 
     /// <summary>Info of an option; uncatalogued ones go to the general group.</summary>

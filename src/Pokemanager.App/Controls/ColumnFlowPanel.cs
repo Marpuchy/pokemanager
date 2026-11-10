@@ -1,4 +1,4 @@
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 
 namespace Pokemanager.App.Controls;
@@ -20,7 +20,7 @@ public sealed class ColumnFlowPanel : Panel
         AvaloniaProperty.Register<ColumnFlowPanel, double>(nameof(ColumnSpacing), 24);
 
     static ColumnFlowPanel() =>
-        AffectsMeasure<ColumnFlowPanel>(MinColumnWidthProperty, MaxColumnsProperty, ColumnSpacingProperty);
+        AffectsMeasure<ColumnFlowPanel>(MinColumnWidthProperty, MaxColumnsProperty, ColumnSpacingProperty, KeepColumnWidthProperty);
 
     public double MinColumnWidth
     {
@@ -40,6 +40,19 @@ public sealed class ColumnFlowPanel : Panel
         set => SetValue(ColumnSpacingProperty, value);
     }
 
+    /// <summary>
+    /// Columns as wide as with every column in use, even with fewer children than columns: a lone card keeps the width
+    /// of a card among others instead of stretching across the page (2026-11-09).
+    /// </summary>
+    public static readonly StyledProperty<bool> KeepColumnWidthProperty =
+        AvaloniaProperty.Register<ColumnFlowPanel, bool>(nameof(KeepColumnWidth));
+
+    public bool KeepColumnWidth
+    {
+        get => GetValue(KeepColumnWidthProperty);
+        set => SetValue(KeepColumnWidthProperty, value);
+    }
+
     private List<Control> Visible => Children.Where(c => c.IsVisible).ToList();
 
     private int Columns(double width, int count)
@@ -47,7 +60,7 @@ public sealed class ColumnFlowPanel : Panel
         if (count == 0)
             return 1;
         int fit = double.IsInfinity(width) ? MaxColumns : (int)Math.Floor((width + ColumnSpacing) / (MinColumnWidth + ColumnSpacing));
-        return Math.Clamp(fit, 1, Math.Max(1, Math.Min(MaxColumns, count)));
+        return Math.Clamp(fit, 1, Math.Max(1, KeepColumnWidth ? MaxColumns : Math.Min(MaxColumns, count)));
     }
 
     private double ColumnWidth(double width, int columns) =>

@@ -114,7 +114,18 @@ public partial class UprOptionsViewModel : ObservableObject
                 "TrainersEnforceDistribution", "TrainersEnforceMainPlaythrough", "TrainersForceFullyEvolved",
                 "TrainersForceFullyEvolvedLevel", "EliteFourUniquePokemonNumber", "AllowTrainerAlternateFormes", "SwapTrainerMegaEvos"]),
             (Strings.Section_TrainerItems, ["ConsumableItemsOnlyForTrainers", "SensibleItemsOnlyForTrainers", "HighestLevelGetsItemsForTrainers"]),
-            (Strings.Section_TrainerBattle, ["DoubleBattleMode", "BetterTrainerMovesets", "RandomizeTrainerNames", "RandomizeTrainerClassNames"]),
+            (Strings.Section_TrainerBattle, ["DoubleBattleMode", "BetterTrainerMovesets", "ShinyChance", "RandomizeTrainerNames", "RandomizeTrainerClassNames"]),
+        ],
+        [UprOptionCatalog.Items] =
+        [
+            (Strings.Section_FieldItems, ["FieldItemsMod", "BanBadRandomFieldItems"]),
+            (Strings.Section_Shops, ["ShopItemsMod", "BanBadRandomShopItems", "BanRegularShopItems", "BanOPShopItems", "BalanceShopPrices",
+                "GuaranteeEvolutionItems", "GuaranteeXItems"]),
+            (Strings.Section_Pickup, ["PickupItemsMod", "BanBadRandomPickupItems"]),
+        ],
+        [UprOptionCatalog.Misc] =
+        [
+            (Strings.Section_General, ["BanIrregularAltFormes", "RaceMode", "BlockBrokenMoves"]),
         ],
         [UprOptionCatalog.Traits] =
         [

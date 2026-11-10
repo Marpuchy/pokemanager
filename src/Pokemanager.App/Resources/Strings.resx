@@ -4944,4 +4944,25 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Section_Tutors" xml:space="preserve">
     <value>Tutors</value>
   </data>
+  <data name="Section_FieldItems" xml:space="preserve">
+    <value>Field items</value>
+  </data>
+  <data name="Section_Shops" xml:space="preserve">
+    <value>Shops</value>
+  </data>
+  <data name="Section_Pickup" xml:space="preserve">
+    <value>Pickup</value>
+  </data>
+  <data name="Section_General" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="Section_ItemPool" xml:space="preserve">
+    <value>Which items can come up</value>
+  </data>
+  <data name="Section_ItemPoolHint" xml:space="preserve">
+    <value>This application's, but they act when randomizing: changing them needs a new randomization.</value>
+  </data>
+  <data name="Shops_BuildTitle" xml:space="preserve">
+    <value>Shops (when building the ROM)</value>
+  </data>
 </root>

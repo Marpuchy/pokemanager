@@ -34,6 +34,7 @@ public sealed class UprSubjectViewModel : ObservableObject
             OnPropertyChanged(nameof(ShowTitles));
             OnPropertyChanged(nameof(AllSections));
             OnPropertyChanged(nameof(HasAllSections));
+            OnPropertyChanged(nameof(HasRandomShops));
             OnPropertyChanged(nameof(HasSettings));
         }
     }
@@ -45,6 +46,14 @@ public sealed class UprSubjectViewModel : ObservableObject
     public IReadOnlyList<UprOptionGroupViewModel> SettingsGroups => Options.GroupsFor(settings, withOptions: false);
 
     public bool HasRandom => random.Length > 0;
+
+    /// <summary>
+    /// Ours that act when randomizing (the item pool: every item, Mega Stones), shown with the randomizer's options of
+    /// the Items subject rather than with what is written at build (2026-11-09, user).
+    /// </summary>
+    public ShopExtrasViewModel? RandomShops { get; init; }
+
+    public bool HasRandomShops => RandomShops is not null && Options.IsLoaded;
 
     /// <summary>A title over each group only where the subject has more than one (Encuentros, Pokémon, Movimientos).</summary>
     public bool ShowTitles => Groups.Count > 1 && Groups.Any(g => !g.HasSections);

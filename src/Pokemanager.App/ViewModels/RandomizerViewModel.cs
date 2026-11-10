@@ -131,7 +131,7 @@ public partial class RandomizerViewModel : ObservableObject
         MovesSubject = new(Options, [UprOptionCatalog.Moves, UprOptionCatalog.TmsTutors], []);
         Encounters = new(Options);
         TrainersSubject = new(Options, [UprOptionCatalog.Trainers], [UprOptionCatalog.Trainers]);
-        ItemsSubject = new(Options, [UprOptionCatalog.Items], [UprOptionCatalog.Items]);
+        ItemsSubject = new(Options, [UprOptionCatalog.Items], [UprOptionCatalog.Items]) { RandomShops = Shops };
         RulesSubject = new(Options, [UprOptionCatalog.Misc], [UprOptionCatalog.Levels, UprOptionCatalog.Misc]);
 
         SeedText = Settings.Seed > 0 ? Settings.Seed.ToString() : UprRunner.NewSeed().ToString();
