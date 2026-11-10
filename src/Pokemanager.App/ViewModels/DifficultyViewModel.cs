@@ -80,9 +80,12 @@ public sealed partial class DifficultyViewModel : ObservableObject
                 ? string.Format(Strings.Difficulty_PutBack, result.PutBack, result.Trainers)
                 : string.Format(Strings.Difficulty_Result, result.Values, result.Trainers);
         OnPropertyChanged(nameof(Applied));
-        editor.RefreshTrainerLists();
-        editor.GameTweaks.Refresh(); // the trainer level percentage is one of its fields
+        editor.RefreshTrainerLists();   // the edits it wrote (AI, IVs, bag)
+        editor.SettingsChanged();       // the level percentage it moved: Levels page, level cap plan, trainers as built
     }
+
+    /// <summary>Another view changed the project: say what is applied, keep what the player is browsing.</summary>
+    public void RefreshApplied() => OnPropertyChanged(nameof(Applied));
 
     /// <summary>The project changed under us (a profile undone with Ctrl+Z, another project opened).</summary>
     public void Refresh()

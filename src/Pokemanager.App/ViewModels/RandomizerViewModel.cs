@@ -500,11 +500,9 @@ public partial class RandomizerViewModel : ObservableObject
             extras.ApplyTo(Project);
         }
 
-        editor.GameTweaks.Refresh();
-        Shops.Refresh();
-        editor.LevelCap.Refresh();
-        Difficulty.Refresh();
+        Difficulty.Refresh();            // the preset's profile is the one selected now
         editor.RefreshTrainerLists();
+        editor.SettingsChanged();
         ReloadFromProject();
         return leftOff.Count == 0 ? "" : string.Format(Strings.Rnd_PresetModsLeftOff, string.Join(", ", leftOff));
     }

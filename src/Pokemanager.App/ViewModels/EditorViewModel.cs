@@ -640,9 +640,7 @@ public partial class EditorViewModel : ObservableObject
             int? installedCap = Session.Project.Tweaks.InstalledLevelCap;
             Session.Project.Tweaks = tweaks;
             Session.Project.Tweaks.InstalledLevelCap = installedCap;
-            Randomizer?.Shops.Refresh();
-            GameTweaks?.Refresh();
-            LevelCap?.Refresh();
+            SettingsChanged();
 
             foreach (var entry in allSpecies.Concat(allMoves).Concat(allTrainers))
                 entry.Refresh();
@@ -738,6 +736,34 @@ public partial class EditorViewModel : ObservableObject
         return id >= 0 && id < Names.TrainerClasses.Count && !string.IsNullOrWhiteSpace(Names.TrainerClasses[id])
             ? Names.TrainerClasses[id]
             : $"#{id}";
+    }
+
+    /// <summary>
+    /// One of the project's options changed (levels, difficulty, trainer items, shops, rules imported, an undo…): every
+    /// view that shows it **or depends on it** re-reads the project, so a change made in one place is seen in all
+    /// (2026-11-10, user: "cuando cambias en un sitio y cambia de otro, como los niveles, que se sincronicen"). The
+    /// dependencies: the level percentages are on the Levels page and in the "all levels" field; the trainers' levels,
+    /// megas and Z-crystals as built (the trainer list, the open trainer) follow the percentages, the difficulty and the
+    /// trainer item rules; the level cap plan is the bosses' levels as built; the difficulty card says what is applied.
+    /// A selection the player is browsing (a profile not applied yet) is left alone.
+    /// </summary>
+    public void SettingsChanged()
+    {
+        if (!ready)
+            return;
+        GameTweaks?.Refresh();
+        Randomizer?.Shops.Refresh();
+        Randomizer?.Difficulty.RefreshApplied();
+        LevelCap?.Refresh();
+        builtTrainers = null;
+        foreach (var entry in allTrainers)
+            entry.Refresh();
+        foreach (var category in allCategories)
+            category.Refresh();
+        if (TrainerDetail is { } detail)
+            foreach (var member in detail.Members)
+                member.RefreshBuilt();
+        RefreshRomNotice();
     }
 
     public void RefreshTrainerLists()
@@ -1158,9 +1184,7 @@ public partial class EditorViewModel : ObservableObject
 
         file.ApplyTo(Session.Project);
         MarkDirty(Strings.Data_RulesUndo);
-        GameTweaks.Refresh();
-        Randomizer.Shops.Refresh();
-        LevelCap.Refresh();
+        SettingsChanged();
         SetStatus(string.Format(Strings.Data_RulesImported, file.ValueCount, Path.GetFileName(path)));
     }
 

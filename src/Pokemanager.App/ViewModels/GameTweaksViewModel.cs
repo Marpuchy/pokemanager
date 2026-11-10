@@ -247,7 +247,7 @@ public sealed partial class GameTweaksViewModel : ObservableObject
             OnPropertyChanged(nameof(AllLevelsMixed));
         }
         editor.MarkDirty(Strings.Game_LevelsUndo);
-        editor.LevelCap.Refresh(); // the caps are the bosses' levels, which just moved
+        editor.SettingsChanged(); // the caps, the trainers as built and every other view of the levels follow
     }
 
     // ------------------------------------------------------------------ sweeps over a whole table
@@ -510,6 +510,7 @@ public sealed class TrainerItemRowViewModel(EditorViewModel editor, EditorSessio
     {
         OnPropertyChanged(property);
         editor.MarkDirty(string.Format(Strings.TrainerItems_Undo, Name));
+        editor.SettingsChanged(); // the open trainer and the lists show the megas and Z-crystals as built
     }
 
     public bool Mega
