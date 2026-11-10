@@ -25,24 +25,24 @@
         </StackPanel>
       </DataTemplate>
 
+      <!-- Titled cards of randomizer options, in balanced columns -->
+      <DataTemplate x:Key="UprSectionCard" x:DataType="vm:UprOptionSectionViewModel">
+        <Border Classes="card" Margin="0,0,0,12" VerticalAlignment="Top">
+          <StackPanel Spacing="2">
+            <TextBlock Classes="card-title" Text="{Binding Title}" Margin="0,0,0,4" />
+            <ItemsControl ItemsSource="{Binding Items}" ItemTemplate="{StaticResource UprOption}" />
+          </StackPanel>
+        </Border>
+      </DataTemplate>
+
       <!-- A group's options grouped in titled cards (groups that have sections) -->
       <DataTemplate x:Key="UprGroupSections" x:DataType="vm:UprOptionGroupViewModel">
-        <ItemsControl Margin="16,10,16,10" ItemsSource="{Binding Sections}">
+        <ItemsControl Margin="16,10,16,0" ItemsSource="{Binding Sections}" ItemTemplate="{StaticResource UprSectionCard}">
           <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
-              <WrapPanel />
+              <c:ColumnFlowPanel MinColumnWidth="340" MaxColumns="3" ColumnSpacing="12" />
             </ItemsPanelTemplate>
           </ItemsControl.ItemsPanel>
-          <ItemsControl.ItemTemplate>
-            <DataTemplate x:DataType="vm:UprOptionSectionViewModel">
-              <Border Classes="card" Width="380" Margin="0,0,12,12" VerticalAlignment="Top">
-                <StackPanel Spacing="2">
-                  <TextBlock Classes="card-title" Text="{Binding Title}" Margin="0,0,0,4" />
-                  <ItemsControl ItemsSource="{Binding Items}" ItemTemplate="{StaticResource UprOption}" />
-                </StackPanel>
-              </Border>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
         </ItemsControl>
       </DataTemplate>
 
@@ -326,7 +326,16 @@
         <ScrollViewer HorizontalScrollBarVisibility="Disabled">
           <StackPanel Margin="0,4,0,14">
             <TextBlock Margin="16,12" Text="{Binding Options.LoadStatus}" TextWrapping="Wrap" IsVisible="{Binding !Options.IsLoaded}" />
-            <ItemsControl ItemsSource="{Binding Groups}">
+            <!-- Every group in cards: one set of columns for all of them -->
+            <ItemsControl Margin="16,10,16,0" ItemsSource="{Binding AllSections}" ItemTemplate="{StaticResource UprSectionCard}"
+                          IsVisible="{Binding HasAllSections}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <c:ColumnFlowPanel MinColumnWidth="340" MaxColumns="3" ColumnSpacing="12" />
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+            </ItemsControl>
+            <ItemsControl ItemsSource="{Binding Groups}" IsVisible="{Binding !HasAllSections}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="vm:UprOptionGroupViewModel">
                   <StackPanel>

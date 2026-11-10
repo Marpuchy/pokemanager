@@ -4917,4 +4917,31 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   <data name="Encounter_LevelRow" xml:space="preserve">
     <value>Nivel (%)</value>
   </data>
+  <data name="Section_Stats" xml:space="preserve">
+    <value>Estadísticas</value>
+  </data>
+  <data name="Section_Types" xml:space="preserve">
+    <value>Tipos</value>
+  </data>
+  <data name="Section_Abilities" xml:space="preserve">
+    <value>Habilidades</value>
+  </data>
+  <data name="Section_Experience" xml:space="preserve">
+    <value>Experiencia</value>
+  </data>
+  <data name="Section_Evolutions" xml:space="preserve">
+    <value>Evoluciones</value>
+  </data>
+  <data name="Section_MoveData" xml:space="preserve">
+    <value>Datos de los movimientos</value>
+  </data>
+  <data name="Section_Movesets" xml:space="preserve">
+    <value>Qué aprenden</value>
+  </data>
+  <data name="Section_Tms" xml:space="preserve">
+    <value>MT</value>
+  </data>
+  <data name="Section_Tutors" xml:space="preserve">
+    <value>Tutores</value>
+  </data>
 </root>

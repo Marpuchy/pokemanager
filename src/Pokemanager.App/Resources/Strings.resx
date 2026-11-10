@@ -4917,4 +4917,31 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   <data name="Encounter_LevelRow" xml:space="preserve">
     <value>Level (%)</value>
   </data>
+  <data name="Section_Stats" xml:space="preserve">
+    <value>Base stats</value>
+  </data>
+  <data name="Section_Types" xml:space="preserve">
+    <value>Types</value>
+  </data>
+  <data name="Section_Abilities" xml:space="preserve">
+    <value>Abilities</value>
+  </data>
+  <data name="Section_Experience" xml:space="preserve">
+    <value>Experience</value>
+  </data>
+  <data name="Section_Evolutions" xml:space="preserve">
+    <value>Evolutions</value>
+  </data>
+  <data name="Section_MoveData" xml:space="preserve">
+    <value>Move data</value>
+  </data>
+  <data name="Section_Movesets" xml:space="preserve">
+    <value>What they learn</value>
+  </data>
+  <data name="Section_Tms" xml:space="preserve">
+    <value>TMs</value>
+  </data>
+  <data name="Section_Tutors" xml:space="preserve">
+    <value>Tutors</value>
+  </data>
 </root>

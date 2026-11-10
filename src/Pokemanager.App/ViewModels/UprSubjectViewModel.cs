@@ -32,6 +32,8 @@ public sealed class UprSubjectViewModel : ObservableObject
             OnPropertyChanged(nameof(SettingsGroups));
             OnPropertyChanged(nameof(HasRandom));
             OnPropertyChanged(nameof(ShowTitles));
+            OnPropertyChanged(nameof(AllSections));
+            OnPropertyChanged(nameof(HasAllSections));
             OnPropertyChanged(nameof(HasSettings));
         }
     }
@@ -45,6 +47,11 @@ public sealed class UprSubjectViewModel : ObservableObject
     public bool HasRandom => random.Length > 0;
 
     /// <summary>A title over each group only where the subject has more than one (Encuentros, Pokémon, Movimientos).</summary>
-    public bool ShowTitles => Groups.Count > 1;
+    public bool ShowTitles => Groups.Count > 1 && Groups.Any(g => !g.HasSections);
+
+    /// <summary>Every group of the subject has titled cards: they flow together in one set of columns.</summary>
+    public bool HasAllSections => Groups.Count > 0 && Groups.All(g => g.HasSections);
+
+    public IReadOnlyList<UprOptionSectionViewModel> AllSections => HasAllSections ? [.. Groups.SelectMany(g => g.Sections)] : [];
     public bool HasSettings => settings.Length > 0;
 }

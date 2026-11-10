@@ -116,6 +116,34 @@ public partial class UprOptionsViewModel : ObservableObject
             (Strings.Section_TrainerItems, ["ConsumableItemsOnlyForTrainers", "SensibleItemsOnlyForTrainers", "HighestLevelGetsItemsForTrainers"]),
             (Strings.Section_TrainerBattle, ["DoubleBattleMode", "BetterTrainerMovesets", "RandomizeTrainerNames", "RandomizeTrainerClassNames"]),
         ],
+        [UprOptionCatalog.Traits] =
+        [
+            (Strings.Section_Stats, ["BaseStatisticsMod", "BaseStatsFollowEvolutions", "BaseStatsFollowMegaEvolutions",
+                "AssignEvoStatsRandomly", "UpdateBaseStats", "UpdateBaseStatsToGeneration"]),
+            (Strings.Section_Types, ["TypesMod", "TypesFollowMegaEvolutions", "DualTypeOnly"]),
+            (Strings.Section_Abilities, ["AbilitiesMod", "AbilitiesFollowEvolutions", "AbilitiesFollowMegaEvolutions", "AllowWonderGuard",
+                "BanTrappingAbilities", "BanNegativeAbilities", "BanBadAbilities", "WeighDuplicateAbilitiesTogether", "EnsureTwoAbilities"]),
+            (Strings.Section_Experience, ["StandardizeEXPCurves", "ExpCurveMod"]),
+        ],
+        [UprOptionCatalog.Evolutions] =
+        [
+            (Strings.Section_Evolutions, ["EvolutionsMod", "EvosSimilarStrength", "EvosSameTyping", "EvosMaxThreeStages", "EvosForceChange",
+                "EvosAllowAltFormes", "ChangeImpossibleEvolutions", "MakeEvolutionsEasier", "RemoveTimeBasedEvolutions"]),
+        ],
+        [UprOptionCatalog.Moves] =
+        [
+            (Strings.Section_MoveData, ["RandomizeMovePowers", "RandomizeMoveAccuracies", "RandomizeMovePPs", "RandomizeMoveTypes",
+                "RandomizeMoveCategory", "UpdateMoves", "UpdateMovesToGeneration"]),
+            (Strings.Section_Movesets, ["MovesetsMod", "StartWithGuaranteedMoves", "GuaranteedMoveCount", "ReorderDamagingMoves",
+                "MovesetsForceGoodDamaging", "MovesetsGoodDamagingPercent", "BlockBrokenMovesetMoves", "EvolutionMovesForAll"]),
+        ],
+        [UprOptionCatalog.TmsTutors] =
+        [
+            (Strings.Section_Tms, ["TmsMod", "KeepFieldMoveTMs", "TmsForceGoodDamaging", "TmsGoodDamagingPercent", "BlockBrokenTMMoves",
+                "TmsHmsCompatibilityMod", "TmLevelUpMoveSanity", "TmsFollowEvolutions", "FullHMCompat"]),
+            (Strings.Section_Tutors, ["MoveTutorMovesMod", "KeepFieldMoveTutors", "TutorsForceGoodDamaging", "TutorsGoodDamagingPercent",
+                "BlockBrokenTutorMoves", "MoveTutorsCompatibilityMod", "TutorLevelUpMoveSanity", "TutorFollowEvolutions"]),
+        ],
     };
 
     private static IReadOnlyList<UprOptionSectionViewModel> Sectioned(UprOptionGroupViewModel group)
