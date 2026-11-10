@@ -932,13 +932,23 @@ public sealed class SaveDocument
     public bool GetSeen(ushort species) => species <= DexMaxSpecies && sav.GetSeen(species);
     public bool GetCaught(ushort species) => species <= DexMaxSpecies && sav.GetCaught(species);
 
+    /// <summary>
+    /// The save's Pokédex block. Its own single-species setters are what write the flags: <c>SaveFile.SetSeen</c> wrote
+    /// nothing in Generation 7 (measured on the user's Ultra Moon save: "mark all seen" left 174 of 807), because the
+    /// game keeps a seen flag per gender and form and the plain setter does not choose one.
+    /// </summary>
+    private Zukan7? Dex => (sav as SAV7)?.Zukan;
+
     public void SetSeen(ushort species, bool value)
     {
         if (species > DexMaxSpecies || GetSeen(species) == value)
             return;
         if (!value)
-            sav.SetCaught(species, false);
-        sav.SetSeen(species, value);
+            SetCaughtFlag(species, false);
+        if (Dex is { } dex)
+            dex.SetSeenSingle(species, value, false);
+        else
+            sav.SetSeen(species, value);
         MarkDirty();
     }
 
@@ -946,10 +956,23 @@ public sealed class SaveDocument
     {
         if (species > DexMaxSpecies || GetCaught(species) == value)
             return;
-        if (value)
-            sav.SetSeen(species, true);
-        sav.SetCaught(species, value);
+        if (value && !GetSeen(species))
+        {
+            if (Dex is { } dex)
+                dex.SetSeenSingle(species, true, false);
+            else
+                sav.SetSeen(species, true);
+        }
+        SetCaughtFlag(species, value);
         MarkDirty();
+    }
+
+    private void SetCaughtFlag(ushort species, bool value)
+    {
+        if (Dex is { } dex)
+            dex.SetCaughtSingle(species, value);
+        else
+            sav.SetCaught(species, value);
     }
 
     // ------------------------------------------------------------------ write

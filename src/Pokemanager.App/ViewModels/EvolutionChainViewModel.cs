@@ -67,6 +67,7 @@ public sealed class EvolutionChainViewModel
     {
         bool gen7 = data.Title.Generation() == 7;
         var index = PersonalIndex.Of(data);
+        int FormCount(int s) => s > 0 && s < data.Personal.Length && data.Personal[s].FormeCount is > 0 and var n ? n : 1;
         var children = new Dictionary<(int, int), List<((int Species, int Form) To, string How)>>();
         var parent = new Dictionary<(int, int), (int, int)>();
         for (int row = 0; row < data.Evolutions.Length; row++)
@@ -77,7 +78,9 @@ public sealed class EvolutionChainViewModel
             {
                 if (e.Species <= 0 || e.Species > data.LastSpecies)
                     continue;
-                int targetForm = gen7 ? e.Form < 0 ? from.Form : e.Form : 0;
+                // "Same form" (-1) only when the target has that form: Galarian Meowth becomes Perrserker, which has
+                // one form, so the line pointed at a Perrserker that does not exist and Perrserker stood alone.
+                int targetForm = gen7 ? e.Form < 0 ? (from.Form < FormCount(e.Species) ? from.Form : 0) : e.Form : 0;
                 var to = (e.Species, targetForm);
                 if (!children.TryGetValue(from, out var list))
                     children[from] = list = [];
@@ -104,6 +107,16 @@ public sealed class EvolutionChainViewModel
         }
 
         var self = (species, form);
+
+        // A form nothing evolves into and that evolves into nothing (Bloodmoon Ursaluna, Alcremie's flavours): shown in
+        // its species' line, next to the form that line reaches, instead of on its own (issue #2).
+        if (form > 0 && !parent.ContainsKey(self) && !children.ContainsKey(self)
+            && parent.TryGetValue((species, 0), out var baseParent))
+        {
+            children[baseParent].Add((self, Strings.Evo_OtherForm));
+            parent[self] = baseParent;
+        }
+
         var root = self;
         var seen = new HashSet<(int, int)> { root };
         while (parent.TryGetValue(root, out var up) && seen.Add(up))

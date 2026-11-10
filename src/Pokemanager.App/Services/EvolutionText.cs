@@ -1,4 +1,4 @@
-using pk3DS.Core.Structures;
+﻿using pk3DS.Core.Structures;
 using Pokemanager.App.Resources;
 using Pokemanager.Model.Data;
 
@@ -31,6 +31,16 @@ public static class EvolutionText
             EvolutionArgument.Type => Name(names.Types, e.Argument),
             _ => null,
         };
+        // "Use an item" says nothing the item's name does not (issue #2): just "Water Stone", and what the method adds
+        // after those words stays ("Dawn Stone, male", "Thunder Stone in Ultra Space").
+        string useItem = MethodName(8);
+        if (need is not null && EvolutionSlots.ArgumentOf(e.Method) == EvolutionArgument.Item
+            && MethodName(e.Method).StartsWith(useItem, StringComparison.Ordinal))
+        {
+            string rest = MethodName(e.Method)[useItem.Length..];
+            string item = need + rest;
+            return level > 0 ? item + " " + string.Format(Strings.Evo_LevelSuffix, level) : item;
+        }
         return need is null ? text : $"{text}: {need}";
     }
 

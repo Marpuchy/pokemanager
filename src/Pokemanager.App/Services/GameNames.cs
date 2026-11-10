@@ -202,6 +202,19 @@ public sealed class GameNames
             string[] known = s <= vanillaLast
                 ? PKHeX.Core.FormConverter.GetFormList((ushort)s, pkhex.types, pkhex.forms, PKHeX.Core.GameInfo.GenderSymbolUnicode, context)
                 : [];
+            // A species-expansion mod adds the later generations' forms in their own order (Galarian Meowth is form 2,
+            // Bloodmoon Ursaluna form 1, Alcremie's nine flavours): those are named from the newest list that has as many
+            // forms as the ROM (issue #2: they read "forma 2").
+            if (data.IsExpanded && known.Length < p.FormeCount)
+                foreach (var later in new[] { PKHeX.Core.EntityContext.Gen9, PKHeX.Core.EntityContext.Gen8 })
+                {
+                    string[] list = PKHeX.Core.FormConverter.GetFormList((ushort)s, pkhex.types, pkhex.forms, PKHeX.Core.GameInfo.GenderSymbolUnicode, later);
+                    if (list.Length >= p.FormeCount)
+                    {
+                        known = list;
+                        break;
+                    }
+                }
             for (int form = 1; form < p.FormeCount; form++)
             {
                 int index = p.FormStatsIndex + form - 1;

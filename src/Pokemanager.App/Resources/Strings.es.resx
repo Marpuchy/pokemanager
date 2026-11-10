@@ -4985,4 +4985,7 @@ Proyecto: {2}</value>
   <data name="Save_BaseMissingWarning" xml:space="preserve">
     <value>Tu ROM está randomizada pero su randomización no está disponible aquí: las habilidades y stats que ves son los del juego sin randomizar. Al editar se conservan las habilidades que tiene la partida.</value>
   </data>
+  <data name="Evo_OtherForm" xml:space="preserve">
+    <value>Otra forma</value>
+  </data>
 </root>

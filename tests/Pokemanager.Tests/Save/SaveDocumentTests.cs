@@ -1,4 +1,4 @@
-using PKHeX.Core;
+﻿using PKHeX.Core;
 using Pokemanager.Save;
 using Pokemanager.Tests.Editing;
 using GameData = Pokemanager.Model.Data.GameData;
@@ -272,5 +272,24 @@ public sealed class SaveDocumentTests : IDisposable
         Assert.Equal((potion, 5), ((ushort)item.Index, item.Count));
         Assert.True(reread.GetCaught(4) && reread.GetSeen(4));
         Assert.Equal(1, reread.PartyCount);
+    }
+
+    /// <summary>Issue #2: "mark all seen / caught" did nothing on an Ultra Moon save.</summary>
+    [Fact]
+    public void Generation7_Pokedex_FlagsAreWritten()
+    {
+        var sav = new SAV7USUM { OT = "Test", Language = (int)LanguageID.English };
+        string path = Path.Combine(dir, "main7");
+        File.WriteAllBytes(path, sav.Write().ToArray());
+        var doc = SaveDocument.Open(path, GameData.Load(romfs.RomFs));
+        ushort species = (ushort)Math.Min(25, doc.DexMaxSpecies);
+
+        doc.SetSeen(species, true);
+        Assert.True(doc.GetSeen(species));
+        doc.SetCaught((ushort)(species - 1), true);
+        Assert.True(doc.GetCaught((ushort)(species - 1)));
+        Assert.True(doc.GetSeen((ushort)(species - 1)));
+        doc.SetSeen((ushort)(species - 1), false);
+        Assert.False(doc.GetCaught((ushort)(species - 1)));
     }
 }

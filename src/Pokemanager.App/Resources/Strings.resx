@@ -4985,4 +4985,7 @@ Project: {2}</value>
   <data name="Save_BaseMissingWarning" xml:space="preserve">
     <value>Your ROM is randomized but its randomization is not available here: abilities and stats shown are the game's without it. Editing keeps the abilities the save has.</value>
   </data>
+  <data name="Evo_OtherForm" xml:space="preserve">
+    <value>Another form</value>
+  </data>
 </root>
