@@ -77,6 +77,8 @@
         <!-- Cards side by side: the same 12 px gap as the randomizer's columns -->
         <Style Selector="WrapPanel > Border.card">
           <Setter Property="Margin" Value="0,0,12,12" />
+          <!-- Each card as tall as its content, not as its tallest neighbour -->
+          <Setter Property="VerticalAlignment" Value="Top" />
         </Style>
       </WrapPanel.Styles>
       <!-- Items and shops -->

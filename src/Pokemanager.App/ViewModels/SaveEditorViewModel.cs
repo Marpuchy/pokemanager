@@ -187,6 +187,9 @@ public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
     public string ProblemsText => Problems.Count == 0 ? Strings.Save_NoProblems : string.Format(Strings.Save_ProblemsLine, Problems.Count);
     public bool HasProblems => Problems.Count > 0;
 
+    /// <summary>The header of the folded list of problems (2026-11-09, user: folded, so the box keeps its height).</summary>
+    public string ShowProblemsText => string.Format(Strings.Save_ShowProblems, Problems.Count);
+
     /// <summary>The project changed since the ROM was built: what is shown follows the project, not the ROM being played.</summary>
     public string? RomWarning => editor.ProjectDiffersFromBuiltRom ? Strings.Save_RomWarning : null;
 
@@ -502,6 +505,7 @@ public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
                 Problems.Add(new ProblemViewModel(this, p));
         OnPropertyChanged(nameof(ProblemsText));
         OnPropertyChanged(nameof(HasProblems));
+        OnPropertyChanged(nameof(ShowProblemsText));
     }
 
     [RelayCommand]

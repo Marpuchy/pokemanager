@@ -161,7 +161,10 @@ public partial class EditorViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(BuildRomCommand), nameof(AdaptSaveCommand), nameof(PlayCommand))]
     public partial bool IsBusy { get; set; }
 
-    public string GameText => string.Format(Strings.Editor_GameText, Dump.Title.DisplayName(), Dump.Title.TitleIdHex(), Session.Project.DumpDirectory);
+    public string GameText => string.Format(Strings.Editor_GameText, Dump.Title.DisplayName(), Path.GetFileNameWithoutExtension(ProjectPath));
+
+    /// <summary>The title id and the paths: in the top bar's tooltip, not in its text (2026-11-09, user).</summary>
+    public string GameTip => string.Format(Strings.Editor_GameTip, Dump.Title.TitleIdHex(), Session.Project.DumpDirectory, ProjectPath);
     public string EditCountText => Session.Project.Edits.Count == 1 ? Strings.Editor_EditCountOne : string.Format(Strings.Editor_EditCount, Session.Project.Edits.Count);
     public string DirtyText => IsDirty ? Strings.Editor_Unsaved : Strings.Editor_Saved;
     /// <summary>The application settings, for the pages that need the emulator folder or the backups.</summary>

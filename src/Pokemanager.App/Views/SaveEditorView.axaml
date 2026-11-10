@@ -64,10 +64,11 @@
               </StackPanel>
 
               <!-- Problems of the whole save: click one to go to its Pokémon -->
-              <Border DockPanel.Dock="Bottom" Classes="card" Margin="0,8,0,0" MaxHeight="150" IsVisible="{Binding HasProblems}">
+              <Expander DockPanel.Dock="Bottom" Margin="0,8,0,0" HorizontalAlignment="Stretch" IsExpanded="False"
+                        Header="{Binding ShowProblemsText}" IsVisible="{Binding HasProblems}">
                 <DockPanel>
-                  <TextBlock DockPanel.Dock="Top" Classes="card-title" Margin="0,0,0,4" Text="{x:Static r:Strings.Save_ProblemsTitle}" />
-                  <ScrollViewer>
+                  <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="0,0,0,4" Text="{x:Static r:Strings.Save_ProblemsTitle}" />
+                  <ScrollViewer MaxHeight="150">
                     <ItemsControl ItemsSource="{Binding Problems}">
                       <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:ProblemViewModel">
@@ -79,7 +80,7 @@
                     </ItemsControl>
                   </ScrollViewer>
                 </DockPanel>
-              </Border>
+              </Expander>
 
               <!-- Boxes: the shared box browser (as in multiplayer rooms), scaled down to the height left -->
               <c:BoxBrowser />

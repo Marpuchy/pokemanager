@@ -94,7 +94,7 @@
     <value>Back to the project list</value>
   </data>
   <data name="Editor_GameText" xml:space="preserve">
-    <value>{0} · {1} · {2}</value>
+    <value>{0} · {1}</value>
   </data>
   <data name="Editor_EditCountOne" xml:space="preserve">
     <value>1 advanced edit</value>
@@ -4966,12 +4966,20 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
     <value>Shops (when building the ROM)</value>
   </data>
   <data name="Save_ProblemsLine" xml:space="preserve">
-    <value>{0} problem(s) keep the save from being written (list below, in Pokémon)</value>
+    <value>{0} problem(s) keep the save from being written (list at the bottom of Pokémon)</value>
   </data>
   <data name="Save_ProblemsTitle" xml:space="preserve">
-    <value>Problems (click one to go to its Pokémon)</value>
+    <value>Click one to go to its Pokémon.</value>
   </data>
   <data name="Preview_Open" xml:space="preserve">
     <value>Open</value>
+  </data>
+  <data name="Editor_GameTip" xml:space="preserve">
+    <value>Title {0}
+Game files: {1}
+Project: {2}</value>
+  </data>
+  <data name="Save_ShowProblems" xml:space="preserve">
+    <value>See the {0} problem(s)</value>
   </data>
 </root>

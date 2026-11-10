@@ -111,7 +111,7 @@
     <!-- Top bar -->
     <Border DockPanel.Dock="Top" Padding="12,8" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
       <Grid ColumnDefinitions="*,Auto">
-        <StackPanel Spacing="2">
+        <StackPanel Spacing="2" ToolTip.Tip="{Binding GameTip}">
           <TextBlock Text="{Binding GameText}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
           <TextBlock Classes="hint">
             <Run Text="{Binding BaseText}" />
