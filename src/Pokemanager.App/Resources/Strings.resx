@@ -4994,4 +4994,55 @@ Project: {2}</value>
   <data name="Trainer_NoItem" xml:space="preserve">
     <value>no item</value>
   </data>
+  <data name="Dex_AnyType" xml:space="preserve">
+    <value>Any type</value>
+  </data>
+  <data name="Dex_StatusAll" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Dex_StatusSeen" xml:space="preserve">
+    <value>Seen</value>
+  </data>
+  <data name="Dex_StatusCaught" xml:space="preserve">
+    <value>Caught</value>
+  </data>
+  <data name="Dex_StatusMissing" xml:space="preserve">
+    <value>Not caught yet</value>
+  </data>
+  <data name="Dex_FilterType" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Dex_FilterTypeTip" xml:space="preserve">
+    <value>One type: Pokémon that have it. Two: only that pair, in either order. Types come from the ROM.</value>
+  </data>
+  <data name="Dex_FilterBst" xml:space="preserve">
+    <value>BST</value>
+  </data>
+  <data name="Dex_FilterBstTip" xml:space="preserve">
+    <value>Base stat total as the ROM has it, from … to.</value>
+  </data>
+  <data name="Dex_FilterMega" xml:space="preserve">
+    <value>With a mega</value>
+  </data>
+  <data name="Dex_FilterMegaTip" xml:space="preserve">
+    <value>Pokémon that can mega evolve in this ROM, and their mega forms.</value>
+  </data>
+  <data name="Dex_FilterLegendary" xml:space="preserve">
+    <value>Legendary</value>
+  </data>
+  <data name="Dex_FilterLegendaryTip" xml:space="preserve">
+    <value>Legendaries, mythicals, Ultra Beasts and Paradox Pokémon.</value>
+  </data>
+  <data name="Dex_FilterNoForms" xml:space="preserve">
+    <value>No forms</value>
+  </data>
+  <data name="Dex_FilterNoFormsTip" xml:space="preserve">
+    <value>Only one row per species: hides megas, regional and other forms.</value>
+  </data>
+  <data name="Dex_FilterStatusTip" xml:space="preserve">
+    <value>Which ones by the flags of your save.</value>
+  </data>
+  <data name="Dex_ClearFilters" xml:space="preserve">
+    <value>Clear filters</value>
+  </data>
 </root>

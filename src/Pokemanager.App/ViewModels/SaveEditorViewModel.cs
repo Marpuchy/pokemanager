@@ -903,6 +903,14 @@ public sealed class DexEntryViewModel(SaveDexViewModel owner, SaveDocument doc, 
     /// <summary>The save's Pokédex has a flag for it: a species (not a form) within the save's own Pokédex.</summary>
     public bool InDex => Form == 0 && Species <= doc.DexMaxSpecies;
 
+    // What the filters ask (issue #2), from the ROM played.
+    public int Type1 => doc.Personal(Species, Form)?.Types is { Length: > 0 } t ? t[0] : -1;
+    public int Type2 => doc.Personal(Species, Form)?.Types is { Length: > 1 } t ? t[1] : -1;
+    public int Bst => doc.Personal(Species, Form)?.BST ?? 0;
+    public bool IsMegaForm => doc.Rom.MegaForms.Contains((Species, Form));
+    public bool HasMega => IsMegaForm || doc.Rom.MegaForms.Any(m => m.Species == Species);
+    public bool IsLegendary => Pokemanager.Model.Data.Legendaries.Contains(Species);
+
     public Avalonia.Media.IBrush TypeBrush => doc.Personal(Species, Form)?.Types is { Length: > 0 } t
         ? TypeColors.Background(t[0], t[^1])
         : Avalonia.Media.Brushes.Transparent;
@@ -936,8 +944,98 @@ public partial class SaveDexViewModel : ObservableObject
     [ObservableProperty]
     public partial string Filter { get; set; } = "";
 
+    // ------------------------------------------------------------------ filters (issue #2)
+
+    /// <summary>"Any type" then the game's types, in game order. Built once (the ComboBox trap).</summary>
+    public IReadOnlyList<string> TypeChoices { get; }
+
+    [ObservableProperty]
+    public partial int TypeFilter1 { get; set; }
+
+    [ObservableProperty]
+    public partial int TypeFilter2 { get; set; }
+
+    [ObservableProperty]
+    public partial decimal? BstMin { get; set; }
+
+    [ObservableProperty]
+    public partial decimal? BstMax { get; set; }
+
+    [ObservableProperty]
+    public partial bool OnlyMega { get; set; }
+
+    [ObservableProperty]
+    public partial bool OnlyLegendary { get; set; }
+
+    [ObservableProperty]
+    public partial bool HideForms { get; set; }
+
+    /// <summary>All, seen, caught, missing (not caught). Built once.</summary>
+    public IReadOnlyList<string> StatusChoices { get; } =
+        [Strings.Dex_StatusAll, Strings.Dex_StatusSeen, Strings.Dex_StatusCaught, Strings.Dex_StatusMissing];
+
+    [ObservableProperty]
+    public partial int StatusFilter { get; set; }
+
+    public bool HasFilters => TypeFilter1 > 0 || TypeFilter2 > 0 || BstMin is > 0 || BstMax is { } max && max < BstCeiling
+                              || OnlyMega || OnlyLegendary || HideForms || StatusFilter > 0;
+
+    private const int BstCeiling = 1200;
+
+    partial void OnTypeFilter1Changed(int value) => Refilter();
+    partial void OnTypeFilter2Changed(int value) => Refilter();
+    partial void OnBstMinChanged(decimal? value) => Refilter();
+    partial void OnBstMaxChanged(decimal? value) => Refilter();
+    partial void OnOnlyMegaChanged(bool value) => Refilter();
+    partial void OnOnlyLegendaryChanged(bool value) => Refilter();
+    partial void OnHideFormsChanged(bool value) => Refilter();
+    partial void OnStatusFilterChanged(int value) => Refilter();
+
+    [RelayCommand]
+    private void ClearFilters()
+    {
+        TypeFilter1 = TypeFilter2 = 0;
+        BstMin = 0;
+        BstMax = BstCeiling;
+        OnlyMega = OnlyLegendary = HideForms = false;
+        StatusFilter = 0;
+    }
+
+    private void Refilter()
+    {
+        if (all is null)
+            return;
+        var keep = SelectedEntry;
+        ApplyFilter();
+        SelectedEntry = keep is not null && Entries.Contains(keep) ? keep : Entries.FirstOrDefault();
+        OnPropertyChanged(nameof(HasFilters));
+    }
+
+    private bool Passes(DexEntryViewModel e)
+    {
+        int t1 = TypeFilter1 - 1, t2 = TypeFilter2 - 1;
+        if (t1 >= 0 && t2 >= 0)
+        {
+            if (!((e.Type1 == t1 && e.Type2 == t2) || (e.Type1 == t2 && e.Type2 == t1)))
+                return false;
+        }
+        else if (Math.Max(t1, t2) is var t and >= 0 && e.Type1 != t && e.Type2 != t)
+            return false;
+        if (BstMin is { } min && e.Bst < min || BstMax is { } max && e.Bst > max)
+            return false;
+        if (OnlyMega && !e.HasMega || OnlyLegendary && !e.IsLegendary || HideForms && e.Form > 0)
+            return false;
+        return StatusFilter switch
+        {
+            1 => e.Seen,
+            2 => e.Caught,
+            3 => e.InDex && !e.Caught,
+            _ => true,
+        };
+    }
+
     public string CountText => string.Format(Strings.Dex_Count, all.Count(e => e.Seen), all.Count(e => e.Caught), all.Count(e => e.InDex))
-        + " · " + string.Format(Strings.Dex_InList, all.Count);
+        + " · " + string.Format(Strings.Dex_InList, Entries.Count);
 
     [ObservableProperty]
     public partial DexEntryViewModel? SelectedEntry { get; set; }
@@ -962,6 +1060,7 @@ public partial class SaveDexViewModel : ObservableObject
         this.owner = owner;
         this.doc = doc;
         this.names = names;
+        TypeChoices = [Strings.Dex_AnyType, .. owner.GameNames.Types];
         // Every Pokémon of the ROM: its species first, then each form (Megas, regional forms…), by personal row.
         var index = Pokemanager.Model.Data.PersonalIndex.Of(doc.Rom);
         var game = owner.GameNames;
@@ -973,6 +1072,8 @@ public partial class SaveDexViewModel : ObservableObject
                 r.Mon.Value.Form == 0 ? names.SpeciesName((ushort)r.Mon.Value.Species)
                     : r.Row < game.PersonalEntries.Count ? game.PersonalEntries[r.Row] : names.SpeciesName((ushort)r.Mon.Value.Species),
                 owner.Sprites))];
+        BstMin = 0;
+        BstMax = BstCeiling;
         ApplyFilter();
         SelectedEntry = Entries.FirstOrDefault();
     }
@@ -1005,9 +1106,11 @@ public partial class SaveDexViewModel : ObservableObject
     {
         string filter = Filter.Trim();
         Entries.Clear();
-        foreach (var e in all.Where(e => filter.Length == 0
-                                         || (int.TryParse(filter.TrimStart('#'), out int n) ? e.Species == n : e.Name.Contains(filter, StringComparison.CurrentCultureIgnoreCase))))
+        foreach (var e in all.Where(e => (filter.Length == 0
+                                          || (int.TryParse(filter.TrimStart('#'), out int n) ? e.Species == n : e.Name.Contains(filter, StringComparison.CurrentCultureIgnoreCase)))
+                                         && Passes(e)))
             Entries.Add(e);
+        OnPropertyChanged(nameof(CountText));
     }
 
     public void Changed(DexEntryViewModel entry)

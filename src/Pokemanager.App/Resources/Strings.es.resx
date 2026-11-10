@@ -4994,4 +4994,55 @@ Proyecto: {2}</value>
   <data name="Trainer_NoItem" xml:space="preserve">
     <value>sin objeto</value>
   </data>
+  <data name="Dex_AnyType" xml:space="preserve">
+    <value>Cualquier tipo</value>
+  </data>
+  <data name="Dex_StatusAll" xml:space="preserve">
+    <value>Todos</value>
+  </data>
+  <data name="Dex_StatusSeen" xml:space="preserve">
+    <value>Vistos</value>
+  </data>
+  <data name="Dex_StatusCaught" xml:space="preserve">
+    <value>Capturados</value>
+  </data>
+  <data name="Dex_StatusMissing" xml:space="preserve">
+    <value>Por capturar</value>
+  </data>
+  <data name="Dex_FilterType" xml:space="preserve">
+    <value>Tipo</value>
+  </data>
+  <data name="Dex_FilterTypeTip" xml:space="preserve">
+    <value>Un tipo: los que lo tienen. Dos: solo esa pareja, en cualquier orden. Son los tipos de la ROM.</value>
+  </data>
+  <data name="Dex_FilterBst" xml:space="preserve">
+    <value>BST</value>
+  </data>
+  <data name="Dex_FilterBstTip" xml:space="preserve">
+    <value>Total de stats base de la ROM, desde … hasta.</value>
+  </data>
+  <data name="Dex_FilterMega" xml:space="preserve">
+    <value>Con mega</value>
+  </data>
+  <data name="Dex_FilterMegaTip" xml:space="preserve">
+    <value>Los que pueden megaevolucionar en esta ROM y sus megaformas.</value>
+  </data>
+  <data name="Dex_FilterLegendary" xml:space="preserve">
+    <value>Legendarios</value>
+  </data>
+  <data name="Dex_FilterLegendaryTip" xml:space="preserve">
+    <value>Legendarios, singulares, Ultraentes y Pokémon paradoja.</value>
+  </data>
+  <data name="Dex_FilterNoForms" xml:space="preserve">
+    <value>Sin formas</value>
+  </data>
+  <data name="Dex_FilterNoFormsTip" xml:space="preserve">
+    <value>Solo una fila por especie: oculta megas, formas regionales y demás.</value>
+  </data>
+  <data name="Dex_FilterStatusTip" xml:space="preserve">
+    <value>Cuáles, según las marcas de tu partida.</value>
+  </data>
+  <data name="Dex_ClearFilters" xml:space="preserve">
+    <value>Quitar filtros</value>
+  </data>
 </root>
