@@ -27,7 +27,7 @@
       <Border DockPanel.Dock="Top" Padding="12,8" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
         <Grid ColumnDefinitions="*,Auto">
           <StackPanel Spacing="2">
-            <TextBlock Text="{Binding HeaderText}" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding HeaderText}" TextWrapping="Wrap" ToolTip.Tip="{Binding SavePath}" />
             <TextBlock Classes="error" Text="{Binding ProblemsText}" IsVisible="{Binding HasProblems}" />
             <TextBlock Classes="hint" Text="{Binding ProblemsText}" IsVisible="{Binding !HasProblems}" />
             <TextBlock Classes="hint" Foreground="#E07B00" Text="{Binding RomWarning}" IsVisible="{Binding HasRomWarning}" TextWrapping="Wrap" />
@@ -66,7 +66,7 @@
               <!-- Problems of the whole save: click one to go to its Pokémon -->
               <Border DockPanel.Dock="Bottom" Classes="card" Margin="0,8,0,0" MaxHeight="150" IsVisible="{Binding HasProblems}">
                 <DockPanel>
-                  <TextBlock DockPanel.Dock="Top" Classes="error" Margin="0,0,0,4" Text="{Binding ProblemsText}" />
+                  <TextBlock DockPanel.Dock="Top" Classes="card-title" Margin="0,0,0,4" Text="{x:Static r:Strings.Save_ProblemsTitle}" />
                   <ScrollViewer>
                     <ItemsControl ItemsSource="{Binding Problems}">
                       <ItemsControl.ItemTemplate>

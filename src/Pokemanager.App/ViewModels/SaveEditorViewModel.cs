@@ -123,6 +123,10 @@ public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
     [ObservableProperty]
     public partial string HeaderText { get; set; } = "";
 
+    /// <summary>The save's full path: in the header's tooltip, not in its text (2026-11-09, user).</summary>
+    [ObservableProperty]
+    public partial string? SavePath { get; set; }
+
     [ObservableProperty]
     public partial bool IsDirty { get; set; }
 
@@ -180,7 +184,7 @@ public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
     [ObservableProperty]
     public partial SaveDexViewModel? Dex { get; set; }
 
-    public string ProblemsText => Problems.Count == 0 ? Strings.Save_NoProblems : string.Format(Strings.Save_ProblemsBlock, Problems.Count);
+    public string ProblemsText => Problems.Count == 0 ? Strings.Save_NoProblems : string.Format(Strings.Save_ProblemsLine, Problems.Count);
     public bool HasProblems => Problems.Count > 0;
 
     /// <summary>The project changed since the ROM was built: what is shown follows the project, not the ROM being played.</summary>
@@ -288,7 +292,8 @@ public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
             names = new SaveNames(editor.Names, GameTextLanguage.Current, doc.MaxSpecies);
             Document = doc;
             IsDirty = doc.IsDirty;
-            HeaderText = string.Format(Strings.Save_Header, settings.EffectiveEmulatorName, doc.TrainerName, path, File.GetLastWriteTime(path));
+            HeaderText = string.Format(Strings.Save_Header, settings.EffectiveEmulatorName, doc.TrainerName, File.GetLastWriteTime(path));
+            SavePath = path;
             OnPropertyChanged(nameof(SpeciesChoices));
 
             // Clearing the names makes the combo box push -1 back into SelectedBox: remember the box, fill the names, then
@@ -573,7 +578,8 @@ public partial class SaveEditorViewModel : ObservableObject, IBoxBrowser
             var result = Document.Write(backups);
             SaveUpdater.PruneBackups(backups, keep: 10);
             IsDirty = false;
-            HeaderText = string.Format(Strings.Save_Header, settings.EffectiveEmulatorName, Document.TrainerName, Document.SavePath, File.GetLastWriteTime(Document.SavePath));
+            HeaderText = string.Format(Strings.Save_Header, settings.EffectiveEmulatorName, Document.TrainerName, File.GetLastWriteTime(Document.SavePath));
+            SavePath = Document.SavePath;
             editor.History.Refresh();
             editor.Randomizer.RefreshSave();
             editor.SetStatus(string.Format(Strings.Save_Written, result.SavePath, result.BackupPath));

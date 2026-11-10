@@ -264,7 +264,7 @@
                             <TextBlock Classes="hint" Text="{Binding Details}" FontSize="11" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
                           </StackPanel>
                           <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" Margin="6,0,0,0" VerticalAlignment="Center">
-                            <Button Content="{x:Static r:Strings.Preview_Manage}" Command="{Binding ManageCommand}" ToolTip.Tip="{x:Static r:Strings.Preview_ManageTip}" />
+                            <Button Content="{x:Static r:Strings.Preview_Open}" Command="{Binding ManageCommand}" ToolTip.Tip="{x:Static r:Strings.Preview_ManageTip}" />
                             <Button Content="✕" Padding="6,2" Command="{Binding ForgetCommand}" ToolTip.Tip="{x:Static r:Strings.Welcome_RemoveTip}" />
                           </StackPanel>
                         </Grid>

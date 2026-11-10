@@ -1138,7 +1138,7 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
     <value>The save has not been read yet.</value>
   </data>
   <data name="Save_Header" xml:space="preserve">
-    <value>{0} save · trainer {1} · {2} · saved {3}</value>
+    <value>{0} save · trainer {1} · saved {2}</value>
   </data>
   <data name="Save_Unwritten" xml:space="preserve">
     <value>unwritten changes</value>
@@ -1465,10 +1465,10 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
     <value>Opens the Pokédex of the save: every Pokémon and form of the game, with stats, abilities, evolutions and moves.</value>
   </data>
   <data name="Preview_Manage" xml:space="preserve">
-    <value>Manage</value>
+    <value>Open project</value>
   </data>
   <data name="Preview_ManageTip" xml:space="preserve">
-    <value>Open the full editor: randomizer, save file, history and advanced data</value>
+    <value>Open the editor: project, Pokémon, moves, encounters, trainers, items, rules, save and Pokédex</value>
   </data>
   <data name="Preview_ManagePokemon" xml:space="preserve">
     <value>Manage this Pokémon</value>
@@ -4964,5 +4964,14 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
   </data>
   <data name="Shops_BuildTitle" xml:space="preserve">
     <value>Shops (when building the ROM)</value>
+  </data>
+  <data name="Save_ProblemsLine" xml:space="preserve">
+    <value>{0} problem(s) keep the save from being written (list below, in Pokémon)</value>
+  </data>
+  <data name="Save_ProblemsTitle" xml:space="preserve">
+    <value>Problems (click one to go to its Pokémon)</value>
+  </data>
+  <data name="Preview_Open" xml:space="preserve">
+    <value>Open</value>
   </data>
 </root>

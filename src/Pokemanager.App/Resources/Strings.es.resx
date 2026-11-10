@@ -1138,7 +1138,7 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>Aún no se ha leído la partida.</value>
   </data>
   <data name="Save_Header" xml:space="preserve">
-    <value>Partida de {0} · entrenador {1} · {2} · guardada {3}</value>
+    <value>Partida de {0} · entrenador {1} · guardada {2}</value>
   </data>
   <data name="Save_Unwritten" xml:space="preserve">
     <value>cambios sin escribir</value>
@@ -1465,10 +1465,10 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>Abre la Pokédex de la partida: todos los Pokémon y formas del juego, con stats, habilidades, evoluciones y movimientos.</value>
   </data>
   <data name="Preview_Manage" xml:space="preserve">
-    <value>Gestionar</value>
+    <value>Abrir proyecto</value>
   </data>
   <data name="Preview_ManageTip" xml:space="preserve">
-    <value>Abrir el editor completo: randomizer, partida, historial y datos avanzados</value>
+    <value>Abrir el editor: proyecto, Pokémon, movimientos, encuentros, entrenadores, objetos, reglas, partida y Pokédex</value>
   </data>
   <data name="Preview_ManagePokemon" xml:space="preserve">
     <value>Gestionar este Pokémon</value>
@@ -4964,5 +4964,14 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
   </data>
   <data name="Shops_BuildTitle" xml:space="preserve">
     <value>Tiendas (al crear la ROM)</value>
+  </data>
+  <data name="Save_ProblemsLine" xml:space="preserve">
+    <value>{0} problema(s) impiden escribir la partida (lista abajo, en Pokémon)</value>
+  </data>
+  <data name="Save_ProblemsTitle" xml:space="preserve">
+    <value>Problemas (haz clic en uno para ir a su Pokémon)</value>
+  </data>
+  <data name="Preview_Open" xml:space="preserve">
+    <value>Abrir</value>
   </data>
 </root>
