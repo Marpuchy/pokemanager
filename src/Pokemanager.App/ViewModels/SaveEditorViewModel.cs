@@ -908,7 +908,6 @@ public sealed class DexEntryViewModel(SaveDexViewModel owner, SaveDocument doc, 
     public int Type2 => doc.Personal(Species, Form)?.Types is { Length: > 1 } t ? t[1] : -1;
     public int Bst => doc.Personal(Species, Form)?.BST ?? 0;
     public bool IsMegaForm => doc.Rom.MegaForms.Contains((Species, Form));
-    public bool HasMega => IsMegaForm || doc.Rom.MegaForms.Any(m => m.Species == Species);
     public bool IsLegendary => Pokemanager.Model.Data.Legendaries.Contains(Species);
 
     public Avalonia.Media.IBrush TypeBrush => doc.Personal(Species, Form)?.Types is { Length: > 0 } t
@@ -961,11 +960,23 @@ public partial class SaveDexViewModel : ObservableObject
     [ObservableProperty]
     public partial decimal? BstMax { get; set; }
 
-    [ObservableProperty]
-    public partial bool OnlyMega { get; set; }
+    /// <summary>Indifferent, only, without (2026-11-10, user: "inclusive, neutral or exclusive"). Built once.</summary>
+    public IReadOnlyList<string> MegaChoices { get; } = [Strings.Dex_FilterMegaAny, Strings.Dex_FilterOnlyMega, Strings.Dex_FilterNoMega];
+    public IReadOnlyList<string> LegendaryChoices { get; } = [Strings.Dex_FilterLegendaryAny, Strings.Dex_FilterOnlyLegendary, Strings.Dex_FilterNoLegendary];
 
+    /// <summary>0 indifferent, 1 only the mega forms (the ROM's own mega table, so a mod's megas count), 2 none of them.</summary>
     [ObservableProperty]
-    public partial bool OnlyLegendary { get; set; }
+    public partial int MegaFilter { get; set; }
+
+    /// <summary>0 indifferent, 1 only legendaries, 2 no legendaries.</summary>
+    [ObservableProperty]
+    public partial int LegendaryFilter { get; set; }
+
+    /// <summary>How many filters are on, for the header of the folded filters.</summary>
+    public string FiltersHeader => ActiveFilters == 0 ? Strings.Dex_Filters : string.Format(Strings.Dex_FiltersOn, ActiveFilters);
+
+    private int ActiveFilters => (TypeFilter1 > 0 ? 1 : 0) + (TypeFilter2 > 0 ? 1 : 0) + (BstMin is > 0 || BstMax is { } m && m < BstCeiling ? 1 : 0)
+                                 + (MegaFilter > 0 ? 1 : 0) + (LegendaryFilter > 0 ? 1 : 0) + (HideForms ? 1 : 0) + (StatusFilter > 0 ? 1 : 0);
 
     [ObservableProperty]
     public partial bool HideForms { get; set; }
@@ -977,8 +988,7 @@ public partial class SaveDexViewModel : ObservableObject
     [ObservableProperty]
     public partial int StatusFilter { get; set; }
 
-    public bool HasFilters => TypeFilter1 > 0 || TypeFilter2 > 0 || BstMin is > 0 || BstMax is { } max && max < BstCeiling
-                              || OnlyMega || OnlyLegendary || HideForms || StatusFilter > 0;
+    public bool HasFilters => ActiveFilters > 0;
 
     private const int BstCeiling = 1200;
 
@@ -986,8 +996,8 @@ public partial class SaveDexViewModel : ObservableObject
     partial void OnTypeFilter2Changed(int value) => Refilter();
     partial void OnBstMinChanged(decimal? value) => Refilter();
     partial void OnBstMaxChanged(decimal? value) => Refilter();
-    partial void OnOnlyMegaChanged(bool value) => Refilter();
-    partial void OnOnlyLegendaryChanged(bool value) => Refilter();
+    partial void OnMegaFilterChanged(int value) => Refilter();
+    partial void OnLegendaryFilterChanged(int value) => Refilter();
     partial void OnHideFormsChanged(bool value) => Refilter();
     partial void OnStatusFilterChanged(int value) => Refilter();
 
@@ -997,7 +1007,8 @@ public partial class SaveDexViewModel : ObservableObject
         TypeFilter1 = TypeFilter2 = 0;
         BstMin = 0;
         BstMax = BstCeiling;
-        OnlyMega = OnlyLegendary = HideForms = false;
+        MegaFilter = LegendaryFilter = 0;
+        HideForms = false;
         StatusFilter = 0;
     }
 
@@ -1009,6 +1020,7 @@ public partial class SaveDexViewModel : ObservableObject
         ApplyFilter();
         SelectedEntry = keep is not null && Entries.Contains(keep) ? keep : Entries.FirstOrDefault();
         OnPropertyChanged(nameof(HasFilters));
+        OnPropertyChanged(nameof(FiltersHeader));
     }
 
     private bool Passes(DexEntryViewModel e)
@@ -1023,7 +1035,8 @@ public partial class SaveDexViewModel : ObservableObject
             return false;
         if (BstMin is { } min && e.Bst < min || BstMax is { } max && e.Bst > max)
             return false;
-        if (OnlyMega && !e.HasMega || OnlyLegendary && !e.IsLegendary || HideForms && e.Form > 0)
+        if (MegaFilter == 1 && !e.IsMegaForm || MegaFilter == 2 && e.IsMegaForm
+            || LegendaryFilter == 1 && !e.IsLegendary || LegendaryFilter == 2 && e.IsLegendary || HideForms && e.Form > 0)
             return false;
         return StatusFilter switch
         {

@@ -4988,12 +4988,6 @@ Proyecto: {2}</value>
   <data name="Evo_OtherForm" xml:space="preserve">
     <value>Otra forma</value>
   </data>
-  <data name="Trainer_InRom" xml:space="preserve">
-    <value>→ {0} en la ROM</value>
-  </data>
-  <data name="Trainer_NoItem" xml:space="preserve">
-    <value>sin objeto</value>
-  </data>
   <data name="Dex_AnyType" xml:space="preserve">
     <value>Cualquier tipo</value>
   </data>
@@ -5021,17 +5015,11 @@ Proyecto: {2}</value>
   <data name="Dex_FilterBstTip" xml:space="preserve">
     <value>Total de stats base de la ROM, desde … hasta.</value>
   </data>
-  <data name="Dex_FilterMega" xml:space="preserve">
-    <value>Con mega</value>
-  </data>
   <data name="Dex_FilterMegaTip" xml:space="preserve">
-    <value>Los que pueden megaevolucionar en esta ROM y sus megaformas.</value>
-  </data>
-  <data name="Dex_FilterLegendary" xml:space="preserve">
-    <value>Legendarios</value>
+    <value>Solo megas: solo las megaformas de esta ROM (su propia tabla de megas, así que cuentan las del mod). Sin megas: las oculta.</value>
   </data>
   <data name="Dex_FilterLegendaryTip" xml:space="preserve">
-    <value>Legendarios, singulares, Ultraentes y Pokémon paradoja.</value>
+    <value>Legendarios, singulares, Ultraentes y Pokémon paradoja: solo ellos, o ninguno.</value>
   </data>
   <data name="Dex_FilterNoForms" xml:space="preserve">
     <value>Sin formas</value>
@@ -5044,5 +5032,29 @@ Proyecto: {2}</value>
   </data>
   <data name="Dex_ClearFilters" xml:space="preserve">
     <value>Quitar filtros</value>
+  </data>
+  <data name="Dex_Filters" xml:space="preserve">
+    <value>Filtros</value>
+  </data>
+  <data name="Dex_FiltersOn" xml:space="preserve">
+    <value>Filtros ({0} activos)</value>
+  </data>
+  <data name="Dex_FilterOnlyMega" xml:space="preserve">
+    <value>Solo megas</value>
+  </data>
+  <data name="Dex_FilterNoMega" xml:space="preserve">
+    <value>Sin megas</value>
+  </data>
+  <data name="Dex_FilterOnlyLegendary" xml:space="preserve">
+    <value>Solo legendarios</value>
+  </data>
+  <data name="Dex_FilterNoLegendary" xml:space="preserve">
+    <value>Sin legendarios</value>
+  </data>
+  <data name="Dex_FilterMegaAny" xml:space="preserve">
+    <value>Megas: indiferente</value>
+  </data>
+  <data name="Dex_FilterLegendaryAny" xml:space="preserve">
+    <value>Legendarios: indiferente</value>
   </data>
 </root>

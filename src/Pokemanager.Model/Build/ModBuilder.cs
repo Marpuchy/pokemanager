@@ -73,7 +73,8 @@ public static class ModBuilder
             var records = BuiltOrRead(session, outputs, layout.TrainerData);
             var teams = BuiltOrRead(session, outputs, layout.TrainerPokemon);
             byte[][] recordFiles = records.Files, teamFiles = teams.Files;
-            if (BattleSafety.FixTrainers(data, data.Title, recordFiles, teamFiles, session.Project.Tweaks.TrainerItems) > 0)
+            if (BattleSafety.FixTrainers(data, data.Title, recordFiles, teamFiles, session.Project.Tweaks.TrainerItems,
+                    TrainersAsBuilt.HandEdited(session)) > 0)
             {
                 outputs["romfs/" + layout.TrainerData] = GARC.PackGARC(recordFiles, records.Version, records.ContentPadding).Data;
                 outputs["romfs/" + layout.TrainerPokemon] = GARC.PackGARC(teamFiles, teams.Version, teams.ContentPadding).Data;

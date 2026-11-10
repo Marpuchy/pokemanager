@@ -89,8 +89,12 @@ public static class BattleSafety
     /// </list>
     /// </summary>
     /// <returns>How many things changed.</returns>
+    /// <param name="handEdited">
+    /// Trainers whose team the player changed by hand (species, form or held item): they keep their items as set — only
+    /// the battle-only forms are put back (2026-11-10, user: "a hand edit wins").
+    /// </param>
     public static int FixTrainers(GameData data, GameTitle title, byte[][] dataFiles, byte[][] teamFiles,
-        Projects.TrainerBattleItems? rules = null)
+        Projects.TrainerBattleItems? rules = null, Func<int, bool>? handEdited = null)
     {
         rules ??= new Projects.TrainerBattleItems();
         var stones = data.MegaStones.ToHashSet();
@@ -102,7 +106,8 @@ public static class BattleSafety
             var trainer = Trainer.Read(title, dataFiles[id], teamFiles[id]);
             if (trainer.Unreadable || trainer.Count == 0)
                 continue;
-            int touched = FixTeam(data, trainer, stones, ownStones, rules.For(TrainerRoles.DifficultyOf(title, id)), id);
+            int touched = FixTeam(data, trainer, stones, ownStones, rules.For(TrainerRoles.DifficultyOf(title, id)), id,
+                handEdited?.Invoke(id) == true);
             if (touched == 0)
                 continue;
             changed += touched;
@@ -113,7 +118,7 @@ public static class BattleSafety
     }
 
     private static int FixTeam(GameData data, Trainer trainer, HashSet<int> stones, Dictionary<int, HashSet<int>> ownStones,
-        Projects.TrainerItemRule rule, int id)
+        Projects.TrainerItemRule rule, int id, bool byHand = false)
     {
         int touched = 0;
         List<TrainerMon> Team() => trainer.Team.ToList();
@@ -128,11 +133,13 @@ public static class BattleSafety
         {
             if (!IsBattleOnly(data, mon.Species, mon.Form) && !IsTotem(mon.Species, mon.Form))
                 continue;
-            if (mega && data.MegaStoneByForm.TryGetValue((mon.Species, mon.Form), out int stone) && stone != 0)
+            if (!byHand && mega && data.MegaStoneByForm.TryGetValue((mon.Species, mon.Form), out int stone) && stone != 0)
                 mon.Item = stone;
             mon.Form = 0;
             touched++;
         }
+        if (byHand)
+            return touched;
 
         // 2. One mega, the last Pokémon, always there when the rule says so: one of the team that can mega evolve gets
         // its stone, or else the last Pokémon becomes one that can. Otherwise no Mega Stone at all.

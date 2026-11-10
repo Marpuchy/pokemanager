@@ -162,12 +162,38 @@ public sealed partial class TrainerDetailViewModel : ObservableObject
             Members.RemoveAt(Members.Count - 1);
         while (Members.Count < count)
         {
-            var member = new TrainerMemberViewModel(session, names, sprites, Id, Members.Count, Generation, editor.BuiltTrainer);
+            var member = new TrainerMemberViewModel(session, names, sprites, Id, Members.Count, Generation, editor.BuiltTrainer)
+            {
+                Select = Pick,
+                IsPicked = m => ReferenceEquals(m, SelectedMember),
+            };
             member.Changed += NotifyHeader;
             Members.Add(member);
         }
+        if (SelectedMember is null || !Members.Contains(SelectedMember))
+            Pick(Members.FirstOrDefault());
         NotifyHeader();
     }
+
+    /// <summary>
+    /// The team member whose data the right side shows (2026-11-10, user: the team as a party of two columns of three,
+    /// the data of the one picked next to it, so there is less to scroll).
+    /// </summary>
+    public TrainerMemberViewModel? SelectedMember
+    {
+        get;
+        private set
+        {
+            var old = field;
+            if (SetProperty(ref field, value))
+            {
+                old?.NotifySelection();
+                value?.NotifySelection();
+            }
+        }
+    }
+
+    private void Pick(TrainerMemberViewModel? member) => SelectedMember = member;
 
     // ------------------------------------------------------------------ presets and revert
 
@@ -227,8 +253,41 @@ public sealed partial class TrainerDetailViewModel : ObservableObject
 }
 
 /// <summary>One Pokémon of a trainer's team, addressed as <c>p1.</c> … <c>p6.</c> in the trainer table.</summary>
-public sealed class TrainerMemberViewModel : ObservableObject
+public sealed class TrainerMemberViewModel : ObservableObject, IMonCard
 {
+    // ------------------------------------------------------------------ as a party card (IMonCard)
+
+    internal Action<TrainerMemberViewModel>? Select { get; init; }
+    internal Func<TrainerMemberViewModel, bool>? IsPicked { get; init; }
+
+    string IMonCard.Name => SpeciesName;
+    public string GenderText => "";
+    public bool IsShiny => false;
+    public bool IsEgg => false;
+    public bool IsEmpty => false;
+    public bool HasProblem => false;
+    public string Tooltip => $"{SpeciesName} · {LevelText}";
+    public bool IsSelected => IsPicked?.Invoke(this) == true;
+
+    private int ShownItem => BuiltMember?.Item ?? session.GetInt(T, trainer, prefix + "item");
+    public Bitmap? ItemIcon => PkhexImages.Item(ShownItem);
+    public bool HasItem => ShownItem > 0;
+
+    public IReadOnlyList<TypeChip> TypeChips
+    {
+        get
+        {
+            var (t1, t2) = Types;
+            TypeChip Chip(int t) => new(t >= 0 && t < names.Types.Count ? names.Types[t] : "?", TypeColors.Background(t), TypeColors.Foreground(t));
+            return t1 == t2 ? [Chip(t1)] : [Chip(t1), Chip(t2)];
+        }
+    }
+
+    private IRelayCommand? selectCommand;
+    public IRelayCommand SelectCommand => selectCommand ??= new RelayCommand(() => Select?.Invoke(this));
+
+    internal void NotifySelection() => OnPropertyChanged(nameof(IsSelected));
+
     private const string T = GameTables.Trainers;
     private readonly EditorSession session;
     private readonly GameNames names;
@@ -288,12 +347,14 @@ public sealed class TrainerMemberViewModel : ObservableObject
         Generation = generation;
         prefix = $"p{slot + 1}.";
 
-        Species = Choice("species", Strings.Trainer_Species, names.Species);
-        Form = Int("form", Strings.Trainer_Form, 0, 30);
-        Level = Int("level", Strings.Trainer_Level, 1, 100);
+        // Species, form, level and held item show what the ROM will have (2026-11-10, user: "Audinita en la ROM" → put
+        // the item itself in the field); a hand edit is shown, and kept by the build, instead.
+        Species = new ChoiceFieldViewModel(session, T, trainer, prefix + "species", Strings.Trainer_Species, names.Species) { Shown = () => BuiltMember?.Species };
+        Form = new IntFieldViewModel(session, T, trainer, prefix + "form", Strings.Trainer_Form, 0, 30) { Shown = () => BuiltMember?.Form };
+        Level = new IntFieldViewModel(session, T, trainer, prefix + "level", Strings.Trainer_Level, 1, 100) { Shown = () => BuiltMember?.Level };
         Ability = Choice("ability", Strings.Trainer_Ability, AbilitySlots);
         Gender = Choice("gender", Strings.Trainer_Gender, Genders);
-        Item = Choice("item", Strings.Trainer_Item, names.ItemChoices);
+        Item = new ChoiceFieldViewModel(session, T, trainer, prefix + "item", Strings.Trainer_Item, names.ItemChoices) { Shown = () => BuiltMember?.Item };
         Moves = [.. Enumerable.Range(1, 4).Select(n => Choice($"move{n}", string.Format(Strings.Trainer_Move, n), names.MoveChoices))];
         IvByte = Int("ivs", Strings.Trainer_IvByte, 0, 255);
         string[] stats = ["Hp", "Atk", "Def", "Spa", "Spd", "Spe"];
@@ -388,23 +449,6 @@ public sealed class TrainerMemberViewModel : ObservableObject
     /// <summary>This member as the ROM will have it, or null when the build changes nothing the card shows.</summary>
     private TrainerMon? BuiltMember => built?.Invoke(trainer) is { } t && Slot < t.Count ? t.Team.ElementAt(Slot) : null;
 
-    /// <summary>"→ 50 en la ROM" when the trainer level percentage moves it; empty otherwise.</summary>
-    public string BuiltLevelHint => BuiltMember is { } m && m.Level != session.GetInt(T, trainer, prefix + "level")
-        ? string.Format(Strings.Trainer_InRom, m.Level) : "";
-
-    /// <summary>The Mega Stone or Z-crystal the build gives it, or takes away.</summary>
-    public string BuiltItemHint => BuiltMember is { } m && m.Item != session.GetInt(T, trainer, prefix + "item")
-        ? string.Format(Strings.Trainer_InRom, m.Item > 0 && m.Item < names.Items.Count ? names.Items[m.Item] : Strings.Trainer_NoItem) : "";
-
-    /// <summary>Another Pokémon or form: a boss's last one that becomes one that can mega evolve, a battle-only form put back.</summary>
-    public string BuiltSpeciesHint => BuiltMember is { } m
-        && (m.Species != SpeciesId || m.Form != session.GetInt(T, trainer, prefix + "form"))
-        ? string.Format(Strings.Trainer_InRom, EntryName(m.Species, m.Form)) : "";
-
-    public bool HasBuiltLevel => BuiltLevelHint.Length > 0;
-    public bool HasBuiltItem => BuiltItemHint.Length > 0;
-    public bool HasBuiltSpecies => BuiltSpeciesHint.Length > 0;
-
     private string EntryName(int species, int form)
     {
         int row = form == 0 ? species : PersonalIndex.Of(session.Current).Row(species, form);
@@ -412,12 +456,26 @@ public sealed class TrainerMemberViewModel : ObservableObject
             : species >= 0 && species < names.Species.Count ? names.Species[species] : $"#{species}";
     }
 
+    private bool refreshingBuilt;
+
     public void RefreshBuilt()
     {
-        foreach (string property in new[] { nameof(BuiltLevelHint), nameof(BuiltItemHint), nameof(BuiltSpeciesHint),
-                     nameof(HasBuiltLevel), nameof(HasBuiltItem), nameof(HasBuiltSpecies), nameof(Header), nameof(SpeciesName),
-                     nameof(LevelText), nameof(Icon), nameof(TypeBackground), nameof(TypeForeground) })
-            OnPropertyChanged(property);
+        if (refreshingBuilt)
+            return;
+        refreshingBuilt = true;
+        try
+        {
+            foreach (var field in new FieldViewModel[] { Species, Form, Level, Item })
+                field.Refresh();
+            foreach (string property in new[] { nameof(Header), nameof(SpeciesName), nameof(LevelText), nameof(Icon),
+                         nameof(TypeBackground), nameof(TypeForeground), nameof(AbilityHint), nameof(ItemIcon), nameof(HasItem),
+                         nameof(TypeChips), nameof(Tooltip) })
+                OnPropertyChanged(property);
+        }
+        finally
+        {
+            refreshingBuilt = false;
+        }
     }
 
     /// <summary>

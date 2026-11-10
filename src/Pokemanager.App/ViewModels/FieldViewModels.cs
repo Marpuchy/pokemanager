@@ -48,6 +48,15 @@ public abstract class FieldViewModel(EditorSession session, string table, int id
     {
         OnPropertyChanged(string.Empty);
     }
+
+    /// <summary>
+    /// What the build will write in this field, shown instead of the stored value while the field has no hand edit
+    /// (the trainer teams: level percentage, megas and Z-crystals; 2026-11-10, user). Null: show what is stored.
+    /// </summary>
+    public Func<int?>? Shown { get; init; }
+
+    /// <summary>The value the field shows: a hand edit, else what the build writes, else what is stored.</summary>
+    protected int Displayed => !IsModified && Shown?.Invoke() is { } built ? built : Session.GetInt(Table, Id, Field);
 }
 
 public class IntFieldViewModel(EditorSession session, string table, int id, string field, string label, int min, int max)
@@ -58,10 +67,11 @@ public class IntFieldViewModel(EditorSession session, string table, int id, stri
 
     public decimal? Value
     {
-        get => Session.GetInt(Table, Id, Field);
+        get => Displayed;
         set
         {
-            if (value is null)
+            // What the control pushes back when it shows the built value is not a change.
+            if (value is null || (int)value.Value == Displayed)
                 return;
             Write((int)Math.Clamp(value.Value, Min, Max));
         }
@@ -169,10 +179,10 @@ public sealed class ChoiceFieldViewModel(EditorSession session, string table, in
 
     public int SelectedIndex
     {
-        get => Session.GetInt(Table, Id, Field);
+        get => Displayed;
         set
         {
-            if (value < 0 || value >= Options.Count)
+            if (value < 0 || value >= Options.Count || value == Displayed)
                 return;
             Write(value);
         }

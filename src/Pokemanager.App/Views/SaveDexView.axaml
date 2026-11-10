@@ -52,30 +52,34 @@
     <DockPanel Margin="8,8,4,8">
       <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="0,0,0,6">
         <TextBox Text="{Binding Filter}" PlaceholderText="{x:Static r:Strings.Search_Watermark}" />
-        <!-- Filters (issue #2): type, BST, megas / legendaries / forms, seen-caught -->
-        <Grid ColumnDefinitions="Auto,*,6,*" RowDefinitions="Auto,Auto" RowSpacing="4">
-          <TextBlock VerticalAlignment="Center" Margin="0,0,8,0" Text="{x:Static r:Strings.Dex_FilterType}" />
-          <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{Binding TypeChoices}" SelectedIndex="{Binding TypeFilter1}"
-                    ToolTip.Tip="{x:Static r:Strings.Dex_FilterTypeTip}" />
-          <ComboBox Grid.Column="3" HorizontalAlignment="Stretch" ItemsSource="{Binding TypeChoices}" SelectedIndex="{Binding TypeFilter2}"
-                    ToolTip.Tip="{x:Static r:Strings.Dex_FilterTypeTip}" />
-          <TextBlock Grid.Row="1" VerticalAlignment="Center" Margin="0,0,8,0" Text="{x:Static r:Strings.Dex_FilterBst}" />
-          <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding BstMin}" Minimum="0" Maximum="1200" Increment="10" FormatString="0"
-                         ParsingNumberStyle="Integer" ToolTip.Tip="{x:Static r:Strings.Dex_FilterBstTip}" />
-          <NumericUpDown Grid.Row="1" Grid.Column="3" Value="{Binding BstMax}" Minimum="0" Maximum="1200" Increment="10" FormatString="0"
-                         ParsingNumberStyle="Integer" ToolTip.Tip="{x:Static r:Strings.Dex_FilterBstTip}" />
-        </Grid>
-        <WrapPanel>
-          <CheckBox Margin="0,0,12,0" IsChecked="{Binding OnlyMega}" Content="{x:Static r:Strings.Dex_FilterMega}" ToolTip.Tip="{x:Static r:Strings.Dex_FilterMegaTip}" />
-          <CheckBox Margin="0,0,12,0" IsChecked="{Binding OnlyLegendary}" Content="{x:Static r:Strings.Dex_FilterLegendary}" ToolTip.Tip="{x:Static r:Strings.Dex_FilterLegendaryTip}" />
-          <CheckBox Margin="0,0,12,0" IsChecked="{Binding HideForms}" Content="{x:Static r:Strings.Dex_FilterNoForms}" ToolTip.Tip="{x:Static r:Strings.Dex_FilterNoFormsTip}" />
-        </WrapPanel>
-        <Grid ColumnDefinitions="*,Auto">
-          <ComboBox HorizontalAlignment="Stretch" ItemsSource="{Binding StatusChoices}" SelectedIndex="{Binding StatusFilter}"
-                    ToolTip.Tip="{x:Static r:Strings.Dex_FilterStatusTip}" />
-          <Button Grid.Column="1" Margin="6,0,0,0" Content="{x:Static r:Strings.Dex_ClearFilters}" Command="{Binding ClearFiltersCommand}"
-                  IsEnabled="{Binding HasFilters}" />
-        </Grid>
+        <!-- Filters (issue #2), folded away until wanted; the header says how many are on -->
+        <Expander Header="{Binding FiltersHeader}" HorizontalAlignment="Stretch" IsExpanded="False">
+          <StackPanel Spacing="6">
+            <Grid ColumnDefinitions="Auto,*,6,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
+              <TextBlock VerticalAlignment="Center" Margin="0,0,8,0" Text="{x:Static r:Strings.Dex_FilterType}" />
+              <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{Binding TypeChoices}" SelectedIndex="{Binding TypeFilter1}"
+                        ToolTip.Tip="{x:Static r:Strings.Dex_FilterTypeTip}" />
+              <ComboBox Grid.Column="3" HorizontalAlignment="Stretch" ItemsSource="{Binding TypeChoices}" SelectedIndex="{Binding TypeFilter2}"
+                        ToolTip.Tip="{x:Static r:Strings.Dex_FilterTypeTip}" />
+              <TextBlock Grid.Row="1" VerticalAlignment="Center" Margin="0,0,8,0" Text="{x:Static r:Strings.Dex_FilterBst}" />
+              <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding BstMin}" Minimum="0" Maximum="1200" Increment="10" FormatString="0"
+                             ParsingNumberStyle="Integer" ToolTip.Tip="{x:Static r:Strings.Dex_FilterBstTip}" />
+              <NumericUpDown Grid.Row="1" Grid.Column="3" Value="{Binding BstMax}" Minimum="0" Maximum="1200" Increment="10" FormatString="0"
+                             ParsingNumberStyle="Integer" ToolTip.Tip="{x:Static r:Strings.Dex_FilterBstTip}" />
+              <ComboBox Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{Binding MegaChoices}" SelectedIndex="{Binding MegaFilter}"
+                        ToolTip.Tip="{x:Static r:Strings.Dex_FilterMegaTip}" />
+              <ComboBox Grid.Row="2" Grid.Column="3" HorizontalAlignment="Stretch" ItemsSource="{Binding LegendaryChoices}" SelectedIndex="{Binding LegendaryFilter}"
+                        ToolTip.Tip="{x:Static r:Strings.Dex_FilterLegendaryTip}" />
+            </Grid>
+            <Grid ColumnDefinitions="Auto,*,Auto">
+              <CheckBox Margin="0,0,12,0" IsChecked="{Binding HideForms}" Content="{x:Static r:Strings.Dex_FilterNoForms}" ToolTip.Tip="{x:Static r:Strings.Dex_FilterNoFormsTip}" />
+              <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{Binding StatusChoices}" SelectedIndex="{Binding StatusFilter}"
+                        ToolTip.Tip="{x:Static r:Strings.Dex_FilterStatusTip}" />
+              <Button Grid.Column="2" Margin="6,0,0,0" Content="{x:Static r:Strings.Dex_ClearFilters}" Command="{Binding ClearFiltersCommand}"
+                      IsEnabled="{Binding HasFilters}" />
+            </Grid>
+          </StackPanel>
+        </Expander>
         <StackPanel Orientation="Horizontal" Spacing="6">
           <Button Content="{x:Static r:Strings.Dex_AllSeen}" Command="{Binding AllSeenCommand}" />
           <Button Content="{x:Static r:Strings.Dex_AllCaught}" Command="{Binding AllCaughtCommand}" />

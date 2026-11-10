@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Pokemanager.App.ViewModels"
              xmlns:r="using:Pokemanager.App.Resources"
+             xmlns:c="using:Pokemanager.App.Controls"
              x:Class="Pokemanager.App.Views.EditorView"
              x:DataType="vm:EditorViewModel">
 
@@ -948,6 +949,114 @@
 
                                 <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Trainer_Unreadable}" IsVisible="{Binding IsUnreadable}" />
 
+                                <!-- The team starts hidden: no spoilers unless asked -->
+                                <Border Classes="card" IsVisible="{Binding !$parent[UserControl].((vm:EditorViewModel)DataContext).ShowTrainerTeam}"
+                                        HorizontalAlignment="Left">
+                                  <StackPanel Orientation="Horizontal" Spacing="10">
+                                    <TextBlock Text="{Binding TeamText}" VerticalAlignment="Center" FontWeight="SemiBold" />
+                                    <TextBlock Classes="hint" Text="{x:Static r:Strings.Trainer_TeamHidden}" VerticalAlignment="Center" />
+                                    <Button Content="{x:Static r:Strings.Trainer_ShowTeam}"
+                                            Command="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).RevealTrainerTeamCommand}" />
+                                  </StackPanel>
+                                </Border>
+
+                                <!-- The team: one card per Pokémon, headed in the species' types as the ROM has them now -->
+                                <Border Classes="card" HorizontalAlignment="Left"
+                                        IsVisible="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).ShowTrainerTeam}">
+                                  <WrapPanel ItemSpacing="6" LineSpacing="4">
+                                    <TextBlock Text="{x:Static r:Strings.Trainer_TeamIvs}" VerticalAlignment="Center" />
+                                    <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerTeamIvsValue}" Width="110" Value="{Binding TeamIvs}" Minimum="0" Maximum="31" Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
+                                    <TextBlock Classes="hint" Text="{Binding TeamIvsHint}" VerticalAlignment="Center" />
+                                    <Button Content="{x:Static r:Strings.Trainer_ApplyToTeam}" Command="{Binding ApplyIvsCommand}" />
+                                    <Button Content="{x:Static r:Strings.Trainer_MaxIvs}" Command="{Binding MaxIvsCommand}" />
+                                    <Button Content="{x:Static r:Strings.Trainer_ClearIvs}" Command="{Binding ClearIvsCommand}" />
+                                    <TextBlock Classes="hint" Text="{x:Static r:Strings.Trainer_MaxIvsHint}" VerticalAlignment="Center" />
+                                  </WrapPanel>
+                                </Border>
+                                <!-- The team as a party, two columns of three, and the picked one's data next to it (2026-11-10, user:
+                                     less scrolling). Every card shows the Pokémon as the ROM will have it. -->
+                                <c:AdaptiveColumnsPanel MinColumnWidth="420" MaxColumns="2" Spacing="8"
+                                                        IsVisible="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).ShowTrainerTeam}">
+                                  <ItemsControl ItemsSource="{Binding Members}" Width="420" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,0,0,8"
+                                                ItemTemplate="{StaticResource PartyCard}">
+                                    <ItemsControl.ItemsPanel>
+                                      <ItemsPanelTemplate>
+                                        <UniformGrid Columns="2" />
+                                      </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                  </ItemsControl>
+                                  <ContentControl Content="{Binding SelectedMember}" HorizontalAlignment="Left">
+                                    <ContentControl.ContentTemplate>
+                                      <DataTemplate x:DataType="vm:TrainerMemberViewModel">
+                                        <Border Classes="card detail">
+                                          <StackPanel Spacing="4">
+                                            <Border Classes="detail-header" Background="{Binding TypeBackground}" Padding="6,4" Margin="0,0,0,4">
+                                              <Grid ColumnDefinitions="Auto,*,Auto">
+                                                <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="40" Height="30" Margin="0,0,8,0" />
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                  <TextBlock Text="{Binding SpeciesName}" FontWeight="Bold" Foreground="{Binding TypeForeground}" TextTrimming="CharacterEllipsis" />
+                                                  <TextBlock Text="{Binding Header}" Foreground="{Binding TypeForeground}" Opacity="0.85" FontSize="11" />
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="2" Text="{Binding LevelText}" Foreground="{Binding TypeForeground}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                              </Grid>
+                                            </Border>
+                                            <ContentControl Content="{Binding Species}" />
+                                            <ContentControl Content="{Binding Form}" />
+                                            <ContentControl Content="{Binding Level}" />
+                                            <ContentControl Content="{Binding Ability}" />
+                                            <TextBlock Classes="hint" Text="{Binding AbilityHint}" Margin="190,0,0,0" />
+                                            <ContentControl Content="{Binding Gender}" />
+                                            <ContentControl Content="{Binding Item}" />
+                                            <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="240" Margin="190,0,0,0"
+                                                       Text="{x:Static r:Strings.Trainer_ItemIgnored}" IsVisible="{Binding ItemIgnored}" />
+                                            <ItemsControl ItemsSource="{Binding Moves}" />
+                                            <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="240" Margin="190,0,0,0"
+                                                       Text="{x:Static r:Strings.Trainer_MovesIgnored}" IsVisible="{Binding MovesIgnored}" />
+                                            <!-- Generation 6: one byte for every IV -->
+                                            <StackPanel IsVisible="{Binding IsGen6}" ToolTip.Tip="{x:Static r:Strings.Trainer_IvByteTip}">
+                                              <ContentControl Content="{Binding IvByte}" />
+                                              <TextBlock Classes="hint" Text="{Binding IvByteText}" Margin="190,0,0,0" />
+                                            </StackPanel>
+                                            <!-- Generation 7: the nature, then the six IVs and six EVs as one compact table -->
+                                            <StackPanel IsVisible="{Binding IsGen7}" Spacing="4">
+                                              <ContentControl Content="{Binding Nature}" />
+                                              <Grid ColumnDefinitions="40,*" RowDefinitions="Auto,Auto" RowSpacing="2">
+                                                <TextBlock Classes="field-label" VerticalAlignment="Bottom" Margin="0,0,0,4" Text="{x:Static r:Strings.Trainer_Ivs}" />
+                                                <ItemsControl Grid.Column="1" ItemsSource="{Binding Ivs}">
+                                                  <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="4" /></ItemsPanelTemplate>
+                                                  </ItemsControl.ItemsPanel>
+                                                  <ItemsControl.ItemTemplate>
+                                                    <DataTemplate x:DataType="vm:IntFieldViewModel">
+                                                      <StackPanel ToolTip.Tip="{Binding OriginalTip}">
+                                                        <TextBlock Classes="hint" HorizontalAlignment="Center" Classes.modified="{Binding IsModified}" Text="{Binding Label}" />
+                                                        <NumericUpDown Width="62" ShowButtonSpinner="False" Value="{Binding Value}" Minimum="{Binding Min}" Maximum="{Binding Max}"
+                                                                       FormatString="0" ParsingNumberStyle="Integer" HorizontalContentAlignment="Center" />
+                                                      </StackPanel>
+                                                    </DataTemplate>
+                                                  </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                                <TextBlock Grid.Row="1" Classes="field-label" VerticalAlignment="Center" Text="{x:Static r:Strings.Trainer_Evs}" />
+                                                <ItemsControl Grid.Row="1" Grid.Column="1" ItemsSource="{Binding Evs}">
+                                                  <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="4" /></ItemsPanelTemplate>
+                                                  </ItemsControl.ItemsPanel>
+                                                  <ItemsControl.ItemTemplate>
+                                                    <DataTemplate x:DataType="vm:IntFieldViewModel">
+                                                      <NumericUpDown Width="62" ShowButtonSpinner="False" Value="{Binding Value}" Minimum="{Binding Min}" Maximum="{Binding Max}"
+                                                                     FormatString="0" ParsingNumberStyle="Integer" HorizontalContentAlignment="Center" ToolTip.Tip="{Binding OriginalTip}" />
+                                                    </DataTemplate>
+                                                  </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                              </Grid>
+                                            </StackPanel>
+                                          </StackPanel>
+                                        </Border>
+                                      </DataTemplate>
+                                    </ContentControl.ContentTemplate>
+                                  </ContentControl>
+                                </c:AdaptiveColumnsPanel>
+
                                 <WrapPanel IsVisible="{Binding !IsUnreadable}">
                                   <!-- Artificial intelligence: the level as one list, the remaining bits as check boxes -->
                                   <Border Classes="card detail" Width="470">
@@ -985,85 +1094,6 @@
                                   </Border>
                                 </WrapPanel>
 
-                                <!-- The team starts hidden: no spoilers unless asked -->
-                                <Border Classes="card" IsVisible="{Binding !$parent[UserControl].((vm:EditorViewModel)DataContext).ShowTrainerTeam}"
-                                        HorizontalAlignment="Left">
-                                  <StackPanel Orientation="Horizontal" Spacing="10">
-                                    <TextBlock Text="{Binding TeamText}" VerticalAlignment="Center" FontWeight="SemiBold" />
-                                    <TextBlock Classes="hint" Text="{x:Static r:Strings.Trainer_TeamHidden}" VerticalAlignment="Center" />
-                                    <Button Content="{x:Static r:Strings.Trainer_ShowTeam}"
-                                            Command="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).RevealTrainerTeamCommand}" />
-                                  </StackPanel>
-                                </Border>
-
-                                <!-- The team: one card per Pokémon, headed in the species' types as the ROM has them now -->
-                                <Border Classes="card" HorizontalAlignment="Left"
-                                        IsVisible="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).ShowTrainerTeam}">
-                                  <StackPanel Orientation="Horizontal" Spacing="6">
-                                    <TextBlock Text="{x:Static r:Strings.Trainer_TeamIvs}" VerticalAlignment="Center" />
-                                    <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_TrainerTeamIvsValue}" Width="110" Value="{Binding TeamIvs}" Minimum="0" Maximum="31" Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
-                                    <TextBlock Classes="hint" Text="{Binding TeamIvsHint}" VerticalAlignment="Center" />
-                                    <Button Content="{x:Static r:Strings.Trainer_ApplyToTeam}" Command="{Binding ApplyIvsCommand}" />
-                                    <Button Content="{x:Static r:Strings.Trainer_MaxIvs}" Command="{Binding MaxIvsCommand}" />
-                                    <Button Content="{x:Static r:Strings.Trainer_ClearIvs}" Command="{Binding ClearIvsCommand}" />
-                                    <TextBlock Classes="hint" Text="{x:Static r:Strings.Trainer_MaxIvsHint}" VerticalAlignment="Center" />
-                                  </StackPanel>
-                                </Border>
-                                <ItemsControl ItemsSource="{Binding Members}"
-                                              IsVisible="{Binding $parent[UserControl].((vm:EditorViewModel)DataContext).ShowTrainerTeam}">
-                                  <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                      <WrapPanel />
-                                    </ItemsPanelTemplate>
-                                  </ItemsControl.ItemsPanel>
-                                  <ItemsControl.ItemTemplate>
-                                    <DataTemplate x:DataType="vm:TrainerMemberViewModel">
-                                      <Border Classes="card detail">
-                                        <StackPanel Spacing="4">
-                                          <Border Classes="detail-header" Background="{Binding TypeBackground}" Padding="6,4" Margin="0,0,0,4">
-                                            <Grid ColumnDefinitions="Auto,*,Auto">
-                                              <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding Icon}" Width="40" Height="30" Margin="0,0,8,0" />
-                                              <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding SpeciesName}" FontWeight="Bold" Foreground="{Binding TypeForeground}" TextTrimming="CharacterEllipsis" />
-                                                <TextBlock Text="{Binding Header}" Foreground="{Binding TypeForeground}" Opacity="0.85" FontSize="10" />
-                                              </StackPanel>
-                                              <TextBlock Grid.Column="2" Text="{Binding LevelText}" Foreground="{Binding TypeForeground}" FontWeight="SemiBold" VerticalAlignment="Center" />
-                                            </Grid>
-                                          </Border>
-                                          <ContentControl Content="{Binding Species}" />
-                                          <!-- What the build writes over it (issue #2): level percentage, megas, Z-crystals -->
-                                          <TextBlock Classes="hint built" Text="{Binding BuiltSpeciesHint}" IsVisible="{Binding HasBuiltSpecies}" Margin="190,0,0,0" />
-                                          <ContentControl Content="{Binding Form}" />
-                                          <ContentControl Content="{Binding Level}" />
-                                          <TextBlock Classes="hint built" Text="{Binding BuiltLevelHint}" IsVisible="{Binding HasBuiltLevel}" Margin="190,0,0,0" />
-                                          <ContentControl Content="{Binding Ability}" />
-                                          <TextBlock Classes="hint" Text="{Binding AbilityHint}" Margin="190,0,0,0" />
-                                          <ContentControl Content="{Binding Gender}" />
-                                          <ContentControl Content="{Binding Item}" />
-                                          <TextBlock Classes="hint built" Text="{Binding BuiltItemHint}" IsVisible="{Binding HasBuiltItem}" Margin="190,0,0,0" />
-                                          <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="240" Margin="190,0,0,0"
-                                                     Text="{x:Static r:Strings.Trainer_ItemIgnored}" IsVisible="{Binding ItemIgnored}" />
-                                          <ItemsControl ItemsSource="{Binding Moves}" />
-                                          <TextBlock Classes="hint" TextWrapping="Wrap" MaxWidth="240" Margin="190,0,0,0"
-                                                     Text="{x:Static r:Strings.Trainer_MovesIgnored}" IsVisible="{Binding MovesIgnored}" />
-                                          <!-- Generation 6: one byte for every IV -->
-                                          <StackPanel IsVisible="{Binding IsGen6}" ToolTip.Tip="{x:Static r:Strings.Trainer_IvByteTip}">
-                                            <ContentControl Content="{Binding IvByte}" />
-                                            <TextBlock Classes="hint" Text="{Binding IvByteText}" Margin="190,0,0,0" />
-                                          </StackPanel>
-                                          <!-- Generation 7: the six IVs, the six EVs and the nature -->
-                                          <StackPanel IsVisible="{Binding IsGen7}" Spacing="2">
-                                            <ContentControl Content="{Binding Nature}" />
-                                            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_Ivs}" />
-                                            <ItemsControl ItemsSource="{Binding Ivs}" />
-                                            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trainer_Evs}" />
-                                            <ItemsControl ItemsSource="{Binding Evs}" />
-                                          </StackPanel>
-                                        </StackPanel>
-                                      </Border>
-                                    </DataTemplate>
-                                  </ItemsControl.ItemTemplate>
-                                </ItemsControl>
                               </StackPanel>
                             </ScrollViewer>
                           </DataTemplate>
