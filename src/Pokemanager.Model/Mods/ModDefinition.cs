@@ -164,6 +164,15 @@ public sealed record ModDefinition(
     /// </summary>
     public string? Summary { get; init; }
 
+    /// <summary>
+    /// One of the user's own mods (<see cref="UserMods"/>): its name and description are theirs to edit, and it has no
+    /// catalogue behind it — no download, no hashes, no licence the application can state.
+    /// </summary>
+    public bool IsUserMod { get; init; }
+
+    /// <summary>A user's mod that does not say which game it is for: listed in every project, and the card says so.</summary>
+    public bool GamesUnknown { get; init; }
+
     /// <summary>It is a plugin the emulator loads, not files for the ROM.</summary>
     public bool IsPlugin => Kind == ModKind.EmulatorPlugin;
 

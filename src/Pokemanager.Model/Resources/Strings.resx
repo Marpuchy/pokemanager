@@ -354,4 +354,16 @@
   <data name="Preset_OptionsBroken" xml:space="preserve">
     <value>The Pokemanager options at the end of this preset cannot be read.</value>
   </data>
+  <data name="UserMods_CannotUnpack" xml:space="preserve">
+    <value>{0} could not be unpacked here: nothing on this computer opens it (a .7z needs 7-Zip or a recent Windows). Unpack it into a folder of the Mods folder by hand.</value>
+  </data>
+  <data name="UserMods_NoDescription" xml:space="preserve">
+    <value>Your mod: no description yet.</value>
+  </data>
+  <data name="UserMods_NoDescriptionNoGame" xml:space="preserve">
+    <value>Your mod: no description, and it does not say which game it is for.</value>
+  </data>
+  <data name="UserMods_PluginNote" xml:space="preserve">
+    <value>A 3GX plugin: the emulator loads it once its plugin loader is switched on (Citra/Azahar: Emulation → Configure → System → enable 3GX plugin loader).</value>
+  </data>
 </root>

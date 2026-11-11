@@ -52,5 +52,21 @@ public sealed class ModSettings
             Enabled.Insert(0, modId);
     }
 
+    /// <summary>
+    /// Moves an enabled mod up (<paramref name="delta"/> &lt; 0, more priority) or down among the enabled ones; returns
+    /// whether it moved. The first one's files win.
+    /// </summary>
+    public bool Move(string modId, int delta)
+    {
+        int at = Enabled.FindIndex(id => string.Equals(id, modId, StringComparison.OrdinalIgnoreCase));
+        int to = at + delta;
+        if (at < 0 || to < 0 || to >= Enabled.Count || to == at)
+            return false;
+        string id = Enabled[at];
+        Enabled.RemoveAt(at);
+        Enabled.Insert(to, id);
+        return true;
+    }
+
     public ModSettings Clone() => new() { Enabled = [.. Enabled] };
 }

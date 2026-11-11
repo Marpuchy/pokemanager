@@ -5096,4 +5096,148 @@ Project: {2}</value>
   <data name="Tip_DexMatchups" xml:space="preserve">
     <value>What a move of each type does to this Pokémon, by its types as your ROM has them. Abilities (Levitate, Thick Fat…) are not counted.</value>
   </data>
+  <data name="UserMods_Title" xml:space="preserve">
+    <value>Your own mods</value>
+  </data>
+  <data name="UserMods_Hint" xml:space="preserve">
+    <value>Drop a mod in this folder — a LayeredFS folder (romfs/exefs), a .zip or .7z, or a .3gx plugin — and press "Look for new mods". Each one gets a card below: tick it to use it in this project, and edit its name, description, games and picture.</value>
+  </data>
+  <data name="UserMods_FolderIs" xml:space="preserve">
+    <value>Folder: {0}</value>
+  </data>
+  <data name="UserMods_OpenFolder" xml:space="preserve">
+    <value>Open the mods folder</value>
+  </data>
+  <data name="Tip_UserModsOpenFolder" xml:space="preserve">
+    <value>Opens Documents\Pokemanager\Mods in the file explorer, to drop mods in by hand.</value>
+  </data>
+  <data name="UserMods_Rescan" xml:space="preserve">
+    <value>Look for new mods</value>
+  </data>
+  <data name="Tip_UserModsRescan" xml:space="preserve">
+    <value>Reads the folder again: unpacks the .zip/.7z dropped in (the archive is kept in _archivos), gives a loose .3gx its own folder, adds a card for each new mod and removes the ones no longer there.</value>
+  </data>
+  <data name="UserMods_AddFolder" xml:space="preserve">
+    <value>Add a folder…</value>
+  </data>
+  <data name="Tip_UserModsAddFolder" xml:space="preserve">
+    <value>Copies a mod folder (with romfs/ and/or exefs/, at its top or deeper) into the mods folder.</value>
+  </data>
+  <data name="UserMods_AddFile" xml:space="preserve">
+    <value>Add a .zip, .7z or .3gx…</value>
+  </data>
+  <data name="Tip_UserModsAddFile" xml:space="preserve">
+    <value>Copies an archive (unpacked into a folder of its own) or a 3GX plugin into the mods folder.</value>
+  </data>
+  <data name="UserMods_Found" xml:space="preserve">
+    <value>{0} mods of yours in the folder.</value>
+  </data>
+  <data name="UserMods_Added" xml:space="preserve">
+    <value>New: {0}.</value>
+  </data>
+  <data name="UserMods_AddFolderTitle" xml:space="preserve">
+    <value>The mod's folder</value>
+  </data>
+  <data name="UserMods_AddFileTitle" xml:space="preserve">
+    <value>The mod's archive or plugin</value>
+  </data>
+  <data name="UserMods_OrderTitle" xml:space="preserve">
+    <value>Order of the enabled mods</value>
+  </data>
+  <data name="UserMods_OrderHint" xml:space="preserve">
+    <value>When two enabled mods bring the same file, the one higher up wins. Move them with the arrows; the ROM has to be built again.</value>
+  </data>
+  <data name="Tip_UserModsUp" xml:space="preserve">
+    <value>More priority: its files win over the ones below.</value>
+  </data>
+  <data name="Tip_UserModsDown" xml:space="preserve">
+    <value>Less priority: the ones above win the files it shares with them.</value>
+  </data>
+  <data name="UserMods_OrderUndo" xml:space="preserve">
+    <value>Mod order</value>
+  </data>
+  <data name="UserMods_ConflictLoses" xml:space="preserve">
+    <value>Shares {0} files with {1}, which is above it: {1}'s are the ones used.</value>
+  </data>
+  <data name="UserMods_ConflictWins" xml:space="preserve">
+    <value>Shares {0} files with {1}, which is below it: this mod's are the ones used.</value>
+  </data>
+  <data name="UserMods_Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Tip_UserModsEdit" xml:space="preserve">
+    <value>Name, description, author, link, the games it is for and a picture — saved in pokemanager-mod.json inside its folder.</value>
+  </data>
+  <data name="UserMods_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Tip_UserModsName" xml:space="preserve">
+    <value>What the list calls it. Empty: the folder's name.</value>
+  </data>
+  <data name="UserMods_Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Tip_UserModsDescription" xml:space="preserve">
+    <value>What it does. The first line is the one the list shows.</value>
+  </data>
+  <data name="UserMods_Author" xml:space="preserve">
+    <value>Author</value>
+  </data>
+  <data name="Tip_UserModsAuthor" xml:space="preserve">
+    <value>Who made it, to keep it noted.</value>
+  </data>
+  <data name="UserMods_Url" xml:space="preserve">
+    <value>Link</value>
+  </data>
+  <data name="Tip_UserModsUrl" xml:space="preserve">
+    <value>Where it was downloaded from; "Open the mod's page" opens it.</value>
+  </data>
+  <data name="UserMods_Games" xml:space="preserve">
+    <value>Games</value>
+  </data>
+  <data name="Tip_UserModsGames" xml:space="preserve">
+    <value>The games it is for: it is only listed in projects of those games. None ticked: it is listed in every project and says that it does not know.</value>
+  </data>
+  <data name="UserMods_Image" xml:space="preserve">
+    <value>Picture</value>
+  </data>
+  <data name="UserMods_PickImage" xml:space="preserve">
+    <value>Choose a picture…</value>
+  </data>
+  <data name="Tip_UserModsImage" xml:space="preserve">
+    <value>A picture for the list; it is copied into the mod's folder when you save.</value>
+  </data>
+  <data name="UserMods_ImageTitle" xml:space="preserve">
+    <value>The mod's picture</value>
+  </data>
+  <data name="UserMods_ImagePicked" xml:space="preserve">
+    <value>{0} will be its picture once you save.</value>
+  </data>
+  <data name="UserMods_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Tip_UserModsSave" xml:space="preserve">
+    <value>Writes it into the mod's pokemanager-mod.json.</value>
+  </data>
+  <data name="UserMods_Saved" xml:space="preserve">
+    <value>{0} saved.</value>
+  </data>
+  <data name="UserMods_Identity" xml:space="preserve">
+    <value>Your mod · author {0} · {1}</value>
+  </data>
+  <data name="UserMods_GamesUnknown" xml:space="preserve">
+    <value>It does not say which game it is for: edit it and tick its games, or it is listed in every project.</value>
+  </data>
+  <data name="UserMods_StatusOn" xml:space="preserve">
+    <value>On: {0} files go into the ROM when it is built.</value>
+  </data>
+  <data name="UserMods_StatusReady" xml:space="preserve">
+    <value>Ready: tick the box to use it in this project.</value>
+  </data>
+  <data name="UserMods_StatusEmpty" xml:space="preserve">
+    <value>Its folder holds nothing for the game yet.</value>
+  </data>
+  <data name="UserMods_EnabledStatus" xml:space="preserve">
+    <value>{0} on and project saved. Build the ROM to play with it.</value>
+  </data>
 </root>

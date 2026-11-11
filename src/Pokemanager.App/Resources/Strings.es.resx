@@ -5096,4 +5096,148 @@ Proyecto: {2}</value>
   <data name="Tip_DexMatchups" xml:space="preserve">
     <value>Lo que hace a este Pokémon un movimiento de cada tipo, según sus tipos tal como los tiene tu ROM. No cuenta las habilidades (Levitación, Sebo…).</value>
   </data>
+  <data name="UserMods_Title" xml:space="preserve">
+    <value>Tus mods</value>
+  </data>
+  <data name="UserMods_Hint" xml:space="preserve">
+    <value>Pon un mod en esta carpeta —una carpeta LayeredFS (romfs/exefs), un .zip o .7z, o un plugin .3gx— y pulsa «Buscar mods nuevos». Cada uno tiene su tarjeta abajo: márcala para usarlo en este proyecto y edita su nombre, descripción, juegos e imagen.</value>
+  </data>
+  <data name="UserMods_FolderIs" xml:space="preserve">
+    <value>Carpeta: {0}</value>
+  </data>
+  <data name="UserMods_OpenFolder" xml:space="preserve">
+    <value>Abrir la carpeta de mods</value>
+  </data>
+  <data name="Tip_UserModsOpenFolder" xml:space="preserve">
+    <value>Abre Documentos\Pokemanager\Mods en el explorador, para poner mods a mano.</value>
+  </data>
+  <data name="UserMods_Rescan" xml:space="preserve">
+    <value>Buscar mods nuevos</value>
+  </data>
+  <data name="Tip_UserModsRescan" xml:space="preserve">
+    <value>Vuelve a leer la carpeta: descomprime los .zip/.7z que hayas puesto (el comprimido se guarda en _archivos), da carpeta propia a un .3gx suelto, añade una tarjeta por cada mod nuevo y quita los que ya no están.</value>
+  </data>
+  <data name="UserMods_AddFolder" xml:space="preserve">
+    <value>Añadir una carpeta…</value>
+  </data>
+  <data name="Tip_UserModsAddFolder" xml:space="preserve">
+    <value>Copia la carpeta de un mod (con romfs/ y/o exefs/, arriba o más adentro) a la carpeta de mods.</value>
+  </data>
+  <data name="UserMods_AddFile" xml:space="preserve">
+    <value>Añadir un .zip, .7z o .3gx…</value>
+  </data>
+  <data name="Tip_UserModsAddFile" xml:space="preserve">
+    <value>Copia un comprimido (se descomprime en su propia carpeta) o un plugin 3GX a la carpeta de mods.</value>
+  </data>
+  <data name="UserMods_Found" xml:space="preserve">
+    <value>{0} mods tuyos en la carpeta.</value>
+  </data>
+  <data name="UserMods_Added" xml:space="preserve">
+    <value>Nuevos: {0}.</value>
+  </data>
+  <data name="UserMods_AddFolderTitle" xml:space="preserve">
+    <value>La carpeta del mod</value>
+  </data>
+  <data name="UserMods_AddFileTitle" xml:space="preserve">
+    <value>El comprimido o plugin del mod</value>
+  </data>
+  <data name="UserMods_OrderTitle" xml:space="preserve">
+    <value>Orden de los mods activos</value>
+  </data>
+  <data name="UserMods_OrderHint" xml:space="preserve">
+    <value>Si dos mods activos traen el mismo archivo, gana el de más arriba. Muévelos con las flechas; hay que crear la ROM otra vez.</value>
+  </data>
+  <data name="Tip_UserModsUp" xml:space="preserve">
+    <value>Más prioridad: sus archivos ganan a los de abajo.</value>
+  </data>
+  <data name="Tip_UserModsDown" xml:space="preserve">
+    <value>Menos prioridad: los de arriba ganan los archivos que comparte con ellos.</value>
+  </data>
+  <data name="UserMods_OrderUndo" xml:space="preserve">
+    <value>Orden de los mods</value>
+  </data>
+  <data name="UserMods_ConflictLoses" xml:space="preserve">
+    <value>Comparte {0} archivos con {1}, que está por encima: se usan los de {1}.</value>
+  </data>
+  <data name="UserMods_ConflictWins" xml:space="preserve">
+    <value>Comparte {0} archivos con {1}, que está por debajo: se usan los de este mod.</value>
+  </data>
+  <data name="UserMods_Edit" xml:space="preserve">
+    <value>Editar</value>
+  </data>
+  <data name="Tip_UserModsEdit" xml:space="preserve">
+    <value>Nombre, descripción, autor, enlace, los juegos para los que es y una imagen; se guarda en pokemanager-mod.json dentro de su carpeta.</value>
+  </data>
+  <data name="UserMods_Name" xml:space="preserve">
+    <value>Nombre</value>
+  </data>
+  <data name="Tip_UserModsName" xml:space="preserve">
+    <value>Cómo se llama en la lista. Vacío: el nombre de la carpeta.</value>
+  </data>
+  <data name="UserMods_Description" xml:space="preserve">
+    <value>Descripción</value>
+  </data>
+  <data name="Tip_UserModsDescription" xml:space="preserve">
+    <value>Qué hace. La primera línea es la que sale en la lista.</value>
+  </data>
+  <data name="UserMods_Author" xml:space="preserve">
+    <value>Autor</value>
+  </data>
+  <data name="Tip_UserModsAuthor" xml:space="preserve">
+    <value>Quién lo hizo, para tenerlo apuntado.</value>
+  </data>
+  <data name="UserMods_Url" xml:space="preserve">
+    <value>Enlace</value>
+  </data>
+  <data name="Tip_UserModsUrl" xml:space="preserve">
+    <value>De dónde lo bajaste; «Abrir la página del mod» lo abre.</value>
+  </data>
+  <data name="UserMods_Games" xml:space="preserve">
+    <value>Juegos</value>
+  </data>
+  <data name="Tip_UserModsGames" xml:space="preserve">
+    <value>Los juegos para los que es: solo sale en proyectos de esos juegos. Sin marcar ninguno: sale en todos los proyectos y avisa de que no lo sabe.</value>
+  </data>
+  <data name="UserMods_Image" xml:space="preserve">
+    <value>Imagen</value>
+  </data>
+  <data name="UserMods_PickImage" xml:space="preserve">
+    <value>Elegir una imagen…</value>
+  </data>
+  <data name="Tip_UserModsImage" xml:space="preserve">
+    <value>Una imagen para la lista; se copia a la carpeta del mod al guardar.</value>
+  </data>
+  <data name="UserMods_ImageTitle" xml:space="preserve">
+    <value>La imagen del mod</value>
+  </data>
+  <data name="UserMods_ImagePicked" xml:space="preserve">
+    <value>{0} será su imagen cuando guardes.</value>
+  </data>
+  <data name="UserMods_Save" xml:space="preserve">
+    <value>Guardar</value>
+  </data>
+  <data name="Tip_UserModsSave" xml:space="preserve">
+    <value>Lo escribe en el pokemanager-mod.json del mod.</value>
+  </data>
+  <data name="UserMods_Saved" xml:space="preserve">
+    <value>{0} guardado.</value>
+  </data>
+  <data name="UserMods_Identity" xml:space="preserve">
+    <value>Mod tuyo · autor {0} · {1}</value>
+  </data>
+  <data name="UserMods_GamesUnknown" xml:space="preserve">
+    <value>No dice para qué juego es: edítalo y marca sus juegos, o saldrá en todos los proyectos.</value>
+  </data>
+  <data name="UserMods_StatusOn" xml:space="preserve">
+    <value>Activado: {0} archivos entran en la ROM al crearla.</value>
+  </data>
+  <data name="UserMods_StatusReady" xml:space="preserve">
+    <value>Listo: marca la casilla para usarlo en este proyecto.</value>
+  </data>
+  <data name="UserMods_StatusEmpty" xml:space="preserve">
+    <value>Su carpeta todavía no tiene nada para el juego.</value>
+  </data>
+  <data name="UserMods_EnabledStatus" xml:space="preserve">
+    <value>{0} activado y proyecto guardado. Crea la ROM para jugar con él.</value>
+  </data>
 </root>

@@ -193,7 +193,12 @@ public sealed class ModLibrary(string root)
 
     public string Root { get; } = Path.GetFullPath(root);
 
-    public string DirectoryFor(string modId) => Path.Combine(Root, modId);
+    /// <summary>
+    /// A catalogue mod's folder in the library, or a user's mod where it is in <c>Documents\Pokemanager\Mods</c> (the
+    /// folder inside it that holds its romfs/exefs/plugin).
+    /// </summary>
+    public string DirectoryFor(string modId) =>
+        UserMods.IsUser(modId) ? UserMods.ContentDirectory(modId) : Path.Combine(Root, modId);
 
     public string RomFsRoot(string modId) => Path.Combine(DirectoryFor(modId), "romfs");
 

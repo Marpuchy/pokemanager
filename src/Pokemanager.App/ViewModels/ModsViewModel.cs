@@ -47,13 +47,177 @@ public sealed partial class ModsViewModel : ObservableObject
         // Built once, in the constructor, and never replaced. This project's rule: a list bound to an ItemsSource is
         // built once — a property that hands back a new collection on every read made a ComboBox drop its selection
         // and write the old value back, three times over in this application's history.
-        Mods = [.. ModCatalog.For(editor.Session.Project.Game).Select(m => new ModCardViewModel(editor, m))];
+        // The collection is built once and updated in place when the user's folder changes (Rescan).
+        foreach (var mod in ModCatalog.For(editor.Session.Project.Game))
+            Mods.Add(new ModCardViewModel(editor, mod, this));
+        RebuildOrder();
     }
 
-    /// <summary>One card per catalogued mod that applies to this game. Built once.</summary>
-    public IReadOnlyList<ModCardViewModel> Mods { get; }
+    /// <summary>One card per mod that applies to this game: the catalogue's, then the user's own. Updated in place.</summary>
+    public ObservableCollection<ModCardViewModel> Mods { get; } = [];
 
     public bool HasMods => Mods.Count > 0;
+
+    // ------------------------------------------------------------------ the user's own mods
+
+    /// <summary><c>Documents\Pokemanager\Mods</c>: where the user drops their own mods.</summary>
+    public string UserFolder => UserMods.Root;
+
+    public string UserFolderText => string.Format(Strings.UserMods_FolderIs, UserMods.Root);
+
+    [ObservableProperty]
+    public partial string UserStatus { get; private set; } = "";
+
+    public bool HasUserStatus => UserStatus.Length > 0;
+
+    partial void OnUserStatusChanged(string value) => OnPropertyChanged(nameof(HasUserStatus));
+
+    [RelayCommand]
+    private void OpenUserFolder()
+    {
+        try
+        {
+            Directory.CreateDirectory(UserMods.Root);
+            Process.Start(new ProcessStartInfo(UserMods.Root) { UseShellExecute = true });
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException
+                                       or System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            editor.SetStatus(string.Format(Strings.Mods_OpenFailed, UserMods.Root, ex.Message), error: true);
+        }
+    }
+
+    /// <summary>Reads the folder again: archives dropped in are unpacked, new mods get a card, removed ones lose it.</summary>
+    [RelayCommand]
+    private async Task Rescan()
+    {
+        UserMods.ScanReport report;
+        try
+        {
+            report = await Task.Run(UserMods.Scan);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            UserStatus = string.Format(Strings.Mods_ReadFailed, ex.Message);
+            return;
+        }
+        var game = editor.Session.Project.Game;
+        var now = ModCatalog.For(game).ToList();
+        foreach (var gone in Mods.Where(c => c.Mod.IsUserMod && now.All(m => m.Id != c.Mod.Id)).ToList())
+            Mods.Remove(gone);
+        foreach (var mod in now.Where(m => m.IsUserMod))
+        {
+            var card = Mods.FirstOrDefault(c => c.Mod.Id == mod.Id);
+            if (card is null)
+            {
+                card = new ModCardViewModel(editor, mod, this);
+                Mods.Add(card);
+            }
+            else
+                card.Redescribe(mod);
+            _ = card.RefreshAsync();
+        }
+        OnPropertyChanged(nameof(HasMods));
+        int count = now.Count(m => m.IsUserMod);
+        UserStatus = string.Join("  ", new[]
+        {
+            string.Format(Strings.UserMods_Found, count),
+            report.Added.Count > 0 ? string.Format(Strings.UserMods_Added, string.Join(", ", report.Added)) : "",
+            string.Join("  ", report.Problems),
+        }.Where(t => t.Length > 0));
+        RebuildOrder();
+    }
+
+    /// <summary>Brings a mod the user picks (a folder) into the folder and reads it.</summary>
+    [RelayCommand]
+    private async Task AddFolder()
+    {
+        if (await editor.Dialogs.PickFolderAsync(Strings.UserMods_AddFolderTitle) is not { } folder)
+            return;
+        await AddAsync(folder);
+    }
+
+    /// <summary>Brings a .zip, .7z or .3gx the user picks into the folder and reads it.</summary>
+    [RelayCommand]
+    private async Task AddFile()
+    {
+        if (await editor.Dialogs.PickOpenFileAsync(Strings.UserMods_AddFileTitle, ["*.zip", "*.7z", "*.3gx"]) is not { } file)
+            return;
+        await AddAsync(file);
+    }
+
+    private async Task AddAsync(string source)
+    {
+        try
+        {
+            await Task.Run(() => UserMods.Add(source));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            UserStatus = string.Format(Strings.Mods_ReadFailed, ex.Message);
+            return;
+        }
+        await Rescan();
+    }
+
+    // ------------------------------------------------------------------ order of the enabled mods
+
+    /// <summary>The enabled mods that go into the ROM, highest priority first: the first one's files win.</summary>
+    public ObservableCollection<ModOrderRowViewModel> Order { get; } = [];
+
+    public bool HasOrder => Order.Count > 1;
+
+    /// <summary>Rebuilds the order list and every card's conflict line from the project.</summary>
+    public void RebuildOrder()
+    {
+        Order.Clear();
+        var enabled = editor.Session.Project.Mods.EnabledRomMods.ToList();
+        for (int i = 0; i < enabled.Count; i++)
+        {
+            var card = Mods.FirstOrDefault(c => string.Equals(c.Mod.Id, enabled[i], StringComparison.OrdinalIgnoreCase));
+            Order.Add(new ModOrderRowViewModel(this, enabled[i], card?.Name ?? enabled[i], i + 1, i > 0, i < enabled.Count - 1));
+        }
+        OnPropertyChanged(nameof(HasOrder));
+        foreach (var card in Mods)
+            card.RefreshConflicts();
+    }
+
+    /// <summary>The files of the enabled mods above <paramref name="modId"/> that it also brings: they win over its own.</summary>
+    internal IReadOnlyList<(string Other, int Files, bool OtherWins)> ConflictsOf(string modId)
+    {
+        var enabled = editor.Session.Project.Mods.EnabledRomMods.ToList();
+        int at = enabled.FindIndex(id => string.Equals(id, modId, StringComparison.OrdinalIgnoreCase));
+        var mine = Mods.FirstOrDefault(c => c.Mod.Id == modId)?.RomPaths;
+        if (at < 0 || mine is null || mine.Count == 0)
+            return [];
+        var result = new List<(string, int, bool)>();
+        for (int i = 0; i < enabled.Count; i++)
+        {
+            if (i == at || Mods.FirstOrDefault(c => string.Equals(c.Mod.Id, enabled[i], StringComparison.OrdinalIgnoreCase)) is not { } other)
+                continue;
+            int shared = other.RomPaths.Count(mine.Contains);
+            if (shared > 0)
+                result.Add((other.Name, shared, i < at));
+        }
+        return result;
+    }
+
+    internal void Move(string modId, int delta)
+    {
+        var mods = editor.Session.Project.Mods;
+        if (!mods.Move(modId, delta))
+            return;
+        if (!editor.ReopenOverMods())
+        {
+            mods.Move(modId, -delta);
+            editor.ReopenOverMods();
+            return;
+        }
+        editor.MarkDirty(Strings.UserMods_OrderUndo);
+        _ = editor.SaveNowAsync();
+        RebuildOrder();
+        RefreshMeasured();
+    }
 
     /// <summary>What a game with no catalogued mod says, instead of an empty page.</summary>
     public string NoneText => string.Format(Strings.Mods_NoneForGame, editor.Session.Project.Game.DisplayName());
@@ -92,7 +256,24 @@ public sealed partial class ModsViewModel : ObservableObject
     {
         foreach (var card in Mods)
             card.RefreshEnabled();
+        RebuildOrder();
     }
+}
+
+/// <summary>One enabled mod in the priority list: its place and the arrows that move it.</summary>
+public sealed partial class ModOrderRowViewModel(ModsViewModel owner, string id, string name, int place, bool canUp, bool canDown)
+{
+    public string Id { get; } = id;
+    public string Name { get; } = name;
+    public string Place { get; } = place.ToString();
+    public bool CanUp { get; } = canUp;
+    public bool CanDown { get; } = canDown;
+
+    [RelayCommand]
+    private void Up() => owner.Move(Id, -1);
+
+    [RelayCommand]
+    private void Down() => owner.Move(Id, +1);
 }
 
 /// <summary>One mod: who it is, what the library holds for it, and what it does to this project.</summary>
@@ -101,9 +282,12 @@ public sealed partial class ModCardViewModel : ObservableObject
     private readonly EditorViewModel editor;
     private bool busy;
 
-    public ModCardViewModel(EditorViewModel editor, ModDefinition mod)
+    private readonly ModsViewModel? owner;
+
+    public ModCardViewModel(EditorViewModel editor, ModDefinition mod, ModsViewModel? owner = null)
     {
         this.editor = editor;
+        this.owner = owner;
         Mod = mod;
         // Built once, like every list bound to an ItemsSource here (see the ComboBox rule in ModsViewModel).
         KnownIssues = [.. mod.KnownIssues];
@@ -112,7 +296,139 @@ public sealed partial class ModCardViewModel : ObservableObject
         PluginStateText = Strings.Mods_Checking;
     }
 
-    public ModDefinition Mod { get; }
+    public ModDefinition Mod { get; private set; }
+
+    /// <summary>The user's own mod was described again (edited, or its folder changed): show what it says now.</summary>
+    public void Redescribe(ModDefinition mod)
+    {
+        Mod = mod;
+        OnPropertyChanged(string.Empty);
+    }
+
+    // ------------------------------------------------------------------ the user's own mod: edited here
+
+    public bool IsUserMod => Mod.IsUserMod;
+
+    /// <summary>A user's mod that does not say which game it is for (listed in every project).</summary>
+    public bool GamesUnknown => Mod.GamesUnknown;
+
+    /// <summary>The folder of the user's mod in <c>Documents\Pokemanager\Mods</c>.</summary>
+    public string UserFolderText => IsUserMod ? string.Format(Strings.Mods_FolderIs, UserMods.FolderOf(Mod.Id)) : "";
+
+    /// <summary>The picture the user gave it, or null.</summary>
+    public Avalonia.Media.Imaging.Bitmap? Image
+    {
+        get
+        {
+            if (!IsUserMod || UserMods.ImagePath(Mod.Id, UserMods.ReadInfo(Mod.Id)) is not { } path)
+                return null;
+            try
+            {
+                using var stream = File.OpenRead(path);
+                return Avalonia.Media.Imaging.Bitmap.DecodeToWidth(stream, 96);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or InvalidOperationException)
+            {
+                return null;
+            }
+        }
+    }
+
+    public bool HasImage => Image is not null;
+
+    /// <summary>The edit panel is open.</summary>
+    [ObservableProperty]
+    public partial bool Editing { get; set; }
+
+    [ObservableProperty]
+    public partial string EditName { get; set; } = "";
+
+    [ObservableProperty]
+    public partial string EditDescription { get; set; } = "";
+
+    [ObservableProperty]
+    public partial string EditAuthor { get; set; } = "";
+
+    [ObservableProperty]
+    public partial string EditUrl { get; set; } = "";
+
+    /// <summary>One check box per game, built when the panel opens.</summary>
+    public ObservableCollection<ModGameChoiceViewModel> EditGames { get; } = [];
+
+    private string? pendingImage;
+
+    [RelayCommand]
+    private void Edit()
+    {
+        var info = UserMods.ReadInfo(Mod.Id);
+        EditName = info.Name ?? Mod.Name;
+        EditDescription = info.Description ?? "";
+        EditAuthor = info.Author ?? "";
+        EditUrl = info.Url ?? "";
+        pendingImage = null;
+        EditGames.Clear();
+        foreach (var game in Enum.GetValues<Pokemanager.Model.Dump.GameTitle>())
+            EditGames.Add(new ModGameChoiceViewModel(game, Mod.GamesUnknown ? info.Games.Contains(game) : Mod.Games.Contains(game)));
+        Editing = true;
+    }
+
+    [RelayCommand]
+    private async Task PickImage()
+    {
+        if (await editor.Dialogs.PickOpenFileAsync(Strings.UserMods_ImageTitle, ["*.png", "*.jpg", "*.jpeg", "*.bmp"]) is { } file)
+        {
+            pendingImage = file;
+            editor.SetStatus(string.Format(Strings.UserMods_ImagePicked, Path.GetFileName(file)));
+        }
+    }
+
+    [RelayCommand]
+    private void CancelEdit() => Editing = false;
+
+    [RelayCommand]
+    private void SaveEdit()
+    {
+        try
+        {
+            var info = UserMods.ReadInfo(Mod.Id);
+            info.Name = string.IsNullOrWhiteSpace(EditName) ? null : EditName.Trim();
+            info.Description = string.IsNullOrWhiteSpace(EditDescription) ? null : EditDescription.Trim();
+            info.Author = string.IsNullOrWhiteSpace(EditAuthor) ? null : EditAuthor.Trim();
+            info.Url = string.IsNullOrWhiteSpace(EditUrl) ? null : EditUrl.Trim();
+            info.Games = [.. EditGames.Where(g => g.IsChecked).Select(g => g.Game)];
+            if (pendingImage is not null)
+                info.Image = UserMods.CopyImage(Mod.Id, pendingImage);
+            UserMods.SaveInfo(Mod.Id, info);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            editor.SetStatus(string.Format(Strings.Mods_ReadFailed, ex.Message), error: true);
+            return;
+        }
+        if (ModCatalog.Find(Mod.Id) is { } described)
+            Redescribe(described);
+        Editing = false;
+        owner?.RebuildOrder();
+        editor.SetStatus(string.Format(Strings.UserMods_Saved, Mod.Name));
+    }
+
+    // ------------------------------------------------------------------ files it shares with other enabled mods
+
+    /// <summary>The files this mod puts in the ROM (served paths), as the last read of its folder found them.</summary>
+    public HashSet<string> RomPaths { get; private set; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>"Shares 3 files with X: X wins (it is above)." for each other enabled mod; empty when none.</summary>
+    public string ConflictText { get; private set; } = "";
+
+    public bool HasConflict => ConflictText.Length > 0;
+
+    public void RefreshConflicts()
+    {
+        ConflictText = owner is null || !IsEnabled ? "" : string.Join("\n", owner.ConflictsOf(Mod.Id).Select(c =>
+            string.Format(c.OtherWins ? Strings.UserMods_ConflictLoses : Strings.UserMods_ConflictWins, c.Files, c.Other)));
+        OnPropertyChanged(nameof(ConflictText));
+        OnPropertyChanged(nameof(HasConflict));
+    }
 
     // ------------------------------------------------------------------ who it is and what it does
 
@@ -123,7 +439,9 @@ public sealed partial class ModCardViewModel : ObservableObject
     /// describes, and <b>every licence the author declares with the place that declares it</b> — never one name on
     /// its own when there are two of them.
     /// </summary>
-    public string Identity => string.Format(Strings.Mods_Identity, Mod.Author, Mod.Version, Mod.LicenseText);
+    public string Identity => Mod.IsUserMod
+        ? string.Format(Strings.UserMods_Identity, Mod.Author.Length > 0 ? Mod.Author : "—", Mod.SourceUrl.Length > 0 ? Mod.SourceUrl : "—")
+        : string.Format(Strings.Mods_Identity, Mod.Author, Mod.Version, Mod.LicenseText);
 
     /// <summary>
     /// Said out loud when the author's own declarations disagree (the Expansion Mod's repository says CC0 and its
@@ -171,6 +489,9 @@ public sealed partial class ModCardViewModel : ObservableObject
         ? Strings.Mods_Checking
         : IsPlugin
         ? PluginStateText
+        : Mod.IsUserMod
+            ? IsEnabled ? string.Format(Strings.UserMods_StatusOn, RomPaths.Count)
+              : CanBuild ? Strings.UserMods_StatusReady : Problem ?? Strings.UserMods_StatusEmpty
         : IsEnabled
             ? MeasuredText
             : Problem is not null && NeedsDownload
@@ -186,7 +507,9 @@ public sealed partial class ModCardViewModel : ObservableObject
     partial void OnIsDownloadingChanged(bool value) => NotifyStatus();
 
     /// <summary>Which games it is for, so a card is never read as applying to another one by accident.</summary>
-    public string GamesText => string.Format(Strings.Mods_Games, string.Join(", ", Mod.Games.Select(g => g.DisplayName())));
+    public string GamesText => Mod.GamesUnknown
+        ? Strings.UserMods_GamesUnknown
+        : string.Format(Strings.Mods_Games, string.Join(", ", Mod.Games.Select(g => g.DisplayName())));
 
     /// <summary>
     /// What the mod is known to get wrong, in its own words. Shown without being asked for: the point is deciding
@@ -221,6 +544,8 @@ public sealed partial class ModCardViewModel : ObservableObject
     public bool HasSetupNote => SetupNote is not null;
 
     public string SourceUrl => Mod.SourceUrl;
+
+    public bool HasSource => Mod.SourceUrl.Length > 0;
 
     public string OpenSourceTip => string.Format(Strings.Mods_OpenSourceTip, Mod.SourceUrl);
 
@@ -313,6 +638,7 @@ public sealed partial class ModCardViewModel : ObservableObject
             }
             OnPropertyChanged();
             RefreshMeasured();
+            owner?.RebuildOrder();
         }
     }
 
@@ -329,7 +655,9 @@ public sealed partial class ModCardViewModel : ObservableObject
         if (!await editor.SaveNowAsync())
             return;
         var data = editor.Session.Current;
-        editor.SetStatus(enabled
+        editor.SetStatus(enabled && Mod.IsUserMod
+            ? string.Format(Strings.UserMods_EnabledStatus, Mod.Name)
+            : enabled
             ? string.Format(Strings.Mods_EnabledStatus, Mod.Name, data.ExtraSpecies, data.Moves.Length - 1, data.Items.Length - 1)
             : string.Format(Strings.Mods_DisabledStatus, Mod.Name));
     }
@@ -396,6 +724,9 @@ public sealed partial class ModCardViewModel : ObservableObject
         Files.Clear();
         foreach (var file in found.Files)
             Files.Add(new ModFileRowViewModel(file, Folder));
+        RomPaths = found.Files.Where(f => f.Present && f.IntoRom).Select(f => f.ServedPath).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        NotifyStatus();
+        owner?.RebuildOrder();
 
         FilesSummary = string.Format(Strings.Mods_FilesSummary,
             found.Present.Count(), found.Files.Count(f => !f.Present), found.Wrong.Count());
@@ -1002,4 +1333,14 @@ public sealed class ModFileRowViewModel
 
     /// <summary>A required file that is not there, or a file that is not what it claims to be: the two red states.</summary>
     public bool IsBlocking => (Required && !Present) || IsWrong;
+}
+
+/// <summary>A game the user's mod is for, in its edit panel.</summary>
+public sealed partial class ModGameChoiceViewModel(Pokemanager.Model.Dump.GameTitle game, bool isChecked) : ObservableObject
+{
+    public Pokemanager.Model.Dump.GameTitle Game { get; } = game;
+    public string Name { get; } = Pokemanager.Model.Dump.GameTitleExtensions.DisplayName(game);
+
+    [ObservableProperty]
+    public partial bool IsChecked { get; set; } = isChecked;
 }

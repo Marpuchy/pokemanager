@@ -23,11 +23,19 @@ public static class ModCatalog
     /// <summary>Aqua_'s follower mod: a 3GX plugin, not files for the ROM. Sun, Moon, Ultra Sun and Ultra Moon.</summary>
     public const string FollowerId = "gen7-follower";
 
-    public static IReadOnlyList<ModDefinition> All { get; } = [UsumExpansion(), Follower()];
+    /// <summary>The mods this application knows by itself.</summary>
+    public static IReadOnlyList<ModDefinition> Builtin { get; } = [UsumExpansion(), Follower()];
+
+    /// <summary>
+    /// The catalogue's mods followed by the user's own (<see cref="UserMods"/>, as the last scan found them): one list,
+    /// so the project, the layers, the build, the cache key and the history treat a user's mod like any other.
+    /// </summary>
+    public static IReadOnlyList<ModDefinition> All => [.. Builtin, .. UserMods.Current];
 
     /// <summary>The definition with that id, or null when this version does not know it.</summary>
     public static ModDefinition? Find(string id) =>
-        All.FirstOrDefault(m => string.Equals(m.Id, id, StringComparison.OrdinalIgnoreCase));
+        Builtin.FirstOrDefault(m => string.Equals(m.Id, id, StringComparison.OrdinalIgnoreCase))
+        ?? UserMods.Current.FirstOrDefault(m => string.Equals(m.Id, id, StringComparison.OrdinalIgnoreCase));
 
     /// <summary>The mods that apply to a game.</summary>
     public static IEnumerable<ModDefinition> For(GameTitle game) => All.Where(m => m.Supports(game));

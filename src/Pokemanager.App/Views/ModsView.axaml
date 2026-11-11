@@ -12,6 +12,52 @@
                  Text="{x:Static r:Strings.Mods_TabHint}" />
       <TextBlock Classes="hint" TextWrapping="Wrap" Text="{Binding LibraryText}"
                  ToolTip.Tip="{x:Static r:Strings.Mods_LibraryTip}" />
+      <!-- ============ the user's own mods: a folder of Documents, filled by hand or with the two Add buttons ============ -->
+      <Border Classes="card" MaxWidth="980" HorizontalAlignment="Left">
+        <StackPanel Spacing="6">
+          <TextBlock Classes="card-title" Text="{x:Static r:Strings.UserMods_Title}" />
+          <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.UserMods_Hint}" />
+          <TextBlock Classes="hint" TextWrapping="Wrap" Text="{Binding UserFolderText}" />
+          <WrapPanel>
+            <Button Margin="0,0,6,6" Content="{x:Static r:Strings.UserMods_OpenFolder}" Command="{Binding OpenUserFolderCommand}"
+                    ToolTip.Tip="{x:Static r:Strings.Tip_UserModsOpenFolder}" />
+            <Button Margin="0,0,6,6" Content="{x:Static r:Strings.UserMods_Rescan}" Command="{Binding RescanCommand}"
+                    ToolTip.Tip="{x:Static r:Strings.Tip_UserModsRescan}" />
+            <Button Margin="0,0,6,6" Content="{x:Static r:Strings.UserMods_AddFolder}" Command="{Binding AddFolderCommand}"
+                    ToolTip.Tip="{x:Static r:Strings.Tip_UserModsAddFolder}" />
+            <Button Margin="0,0,6,6" Content="{x:Static r:Strings.UserMods_AddFile}" Command="{Binding AddFileCommand}"
+                    ToolTip.Tip="{x:Static r:Strings.Tip_UserModsAddFile}" />
+          </WrapPanel>
+          <TextBlock TextWrapping="Wrap" Text="{Binding UserStatus}" IsVisible="{Binding HasUserStatus}" />
+        </StackPanel>
+      </Border>
+
+      <!-- ============ the enabled mods in priority order: the one above wins a file both bring ============ -->
+      <Border Classes="card" MaxWidth="980" HorizontalAlignment="Left" IsVisible="{Binding HasOrder}">
+        <StackPanel Spacing="4">
+          <TextBlock Classes="card-title" Text="{x:Static r:Strings.UserMods_OrderTitle}" />
+          <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.UserMods_OrderHint}" />
+          <ItemsControl ItemsSource="{Binding Order}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:ModOrderRowViewModel">
+                <Border Classes="info-row">
+                  <Grid ColumnDefinitions="28,*,Auto">
+                    <TextBlock Classes="hint" FontWeight="Bold" Text="{Binding Place}" VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{Binding Name}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
+                      <Button Content="▲" Padding="8,1" Command="{Binding UpCommand}" IsEnabled="{Binding CanUp}"
+                              ToolTip.Tip="{x:Static r:Strings.Tip_UserModsUp}" />
+                      <Button Content="▼" Padding="8,1" Command="{Binding DownCommand}" IsEnabled="{Binding CanDown}"
+                              ToolTip.Tip="{x:Static r:Strings.Tip_UserModsDown}" />
+                    </StackPanel>
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+
       <TextBlock TextWrapping="Wrap" IsVisible="{Binding !HasMods}" Text="{Binding NoneText}" />
 
       <ItemsControl ItemsSource="{Binding Mods}" IsVisible="{Binding HasMods}">
@@ -26,17 +72,24 @@
               <StackPanel Spacing="6">
 
                 <!-- ============ the row: on/off, name, one sentence, where it stands, the two buttons ============ -->
-                <Grid ColumnDefinitions="Auto,*,Auto">
+                <Grid ColumnDefinitions="Auto,Auto,*,Auto">
                   <!-- Only a mod built into the ROM has a box to tick; a plugin is installed instead -->
                   <CheckBox VerticalAlignment="Top" Margin="0,1,8,0" IsChecked="{Binding IsEnabled}"
                             IsVisible="{Binding IsRomMod}" ToolTip.Tip="{Binding EnableTip}" />
-                  <StackPanel Grid.Column="1" Spacing="2">
+                  <!-- The picture the user gave their own mod -->
+                  <Border Grid.Column="1" Width="64" Height="64" Margin="0,0,10,0" VerticalAlignment="Top"
+                          Background="#F2F4F6" BorderBrush="#30000000" BorderThickness="1" IsVisible="{Binding HasImage}">
+                    <Image Source="{Binding Image}" Stretch="Uniform" />
+                  </Border>
+                  <StackPanel Grid.Column="2" Spacing="2">
                     <TextBlock Classes="card-title" FontSize="13" Text="{Binding Name}" TextWrapping="Wrap" />
                     <TextBlock Text="{Binding Summary}" TextWrapping="Wrap" />
                     <TextBlock Classes="hint" Text="{Binding StatusText}" TextWrapping="Wrap"
                                ToolTip.Tip="{x:Static r:Strings.Mods_MeasuredTip}" />
                   </StackPanel>
-                  <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Top" Margin="10,0,0,0">
+                  <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="6" VerticalAlignment="Top" Margin="10,0,0,0">
+                    <Button Content="{x:Static r:Strings.UserMods_Edit}" Command="{Binding EditCommand}"
+                            IsVisible="{Binding IsUserMod}" ToolTip.Tip="{x:Static r:Strings.Tip_UserModsEdit}" />
                     <Button Content="{x:Static r:Strings.Mods_Download}" Command="{Binding DownloadCommand}"
                             IsVisible="{Binding ShowDownload}" ToolTip.Tip="{Binding DownloadTip}" />
                     <Button Content="{x:Static r:Strings.Mods_PluginInstall}" Command="{Binding InstallPluginCommand}"
@@ -45,6 +98,50 @@
                                   ToolTip.Tip="{x:Static r:Strings.Mods_DetailsTip}" />
                   </StackPanel>
                 </Grid>
+
+                <!-- ============ files another enabled mod also brings: which one wins ============ -->
+                <Border Padding="10" CornerRadius="2" Background="#26E07B00" BorderBrush="#E07B00" BorderThickness="1"
+                        IsVisible="{Binding HasConflict}" ToolTip.Tip="{x:Static r:Strings.UserMods_OrderHint}">
+                  <TextBlock Text="{Binding ConflictText}" TextWrapping="Wrap" />
+                </Border>
+
+                <!-- ============ the user's own mod: name, description, author, link, games and picture ============ -->
+                <Border Padding="10" CornerRadius="2" Background="#0C000000" BorderBrush="#30000000" BorderThickness="1"
+                        IsVisible="{Binding Editing}">
+                  <Grid ColumnDefinitions="120,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                    <TextBlock Classes="field-label" Text="{x:Static r:Strings.UserMods_Name}" VerticalAlignment="Center" />
+                    <TextBox Grid.Column="1" Margin="0,2" Text="{Binding EditName}" MaxLength="80" ToolTip.Tip="{x:Static r:Strings.Tip_UserModsName}" />
+                    <TextBlock Grid.Row="1" Classes="field-label" Text="{x:Static r:Strings.UserMods_Description}" VerticalAlignment="Top" Margin="0,6,0,0" />
+                    <TextBox Grid.Row="1" Grid.Column="1" Margin="0,2" Text="{Binding EditDescription}" AcceptsReturn="True" TextWrapping="Wrap"
+                             MinHeight="56" MaxLength="1000" ToolTip.Tip="{x:Static r:Strings.Tip_UserModsDescription}" />
+                    <TextBlock Grid.Row="2" Classes="field-label" Text="{x:Static r:Strings.UserMods_Author}" VerticalAlignment="Center" />
+                    <TextBox Grid.Row="2" Grid.Column="1" Margin="0,2" Text="{Binding EditAuthor}" MaxLength="80" ToolTip.Tip="{x:Static r:Strings.Tip_UserModsAuthor}" />
+                    <TextBlock Grid.Row="3" Classes="field-label" Text="{x:Static r:Strings.UserMods_Url}" VerticalAlignment="Center" />
+                    <TextBox Grid.Row="3" Grid.Column="1" Margin="0,2" Text="{Binding EditUrl}" MaxLength="300" ToolTip.Tip="{x:Static r:Strings.Tip_UserModsUrl}" />
+                    <TextBlock Grid.Row="4" Classes="field-label" Text="{x:Static r:Strings.UserMods_Games}" VerticalAlignment="Top" Margin="0,6,0,0" />
+                    <ItemsControl Grid.Row="4" Grid.Column="1" ItemsSource="{Binding EditGames}" Margin="0,2"
+                                  ToolTip.Tip="{x:Static r:Strings.Tip_UserModsGames}">
+                      <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                          <WrapPanel />
+                        </ItemsPanelTemplate>
+                      </ItemsControl.ItemsPanel>
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ModGameChoiceViewModel">
+                          <CheckBox Margin="0,0,14,2" Content="{Binding Name}" IsChecked="{Binding IsChecked}" />
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Grid.Row="5" Classes="field-label" Text="{x:Static r:Strings.UserMods_Image}" VerticalAlignment="Center" />
+                    <Button Grid.Row="5" Grid.Column="1" Margin="0,2" HorizontalAlignment="Left" Content="{x:Static r:Strings.UserMods_PickImage}"
+                            Command="{Binding PickImageCommand}" ToolTip.Tip="{x:Static r:Strings.Tip_UserModsImage}" />
+                    <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="0,8,0,0">
+                      <Button Classes="accent" Content="{x:Static r:Strings.UserMods_Save}" Command="{Binding SaveEditCommand}"
+                              ToolTip.Tip="{x:Static r:Strings.Tip_UserModsSave}" />
+                      <Button Content="{x:Static r:Strings.Common_Cancel}" Command="{Binding CancelEditCommand}" />
+                    </StackPanel>
+                  </Grid>
+                </Border>
 
                 <!-- ============ while it is downloading: what, how much, and a way out ============ -->
                 <Border Padding="10" CornerRadius="2" Background="#14305FA8" BorderBrush="#AFC4DE" BorderThickness="1"
@@ -67,6 +164,7 @@
                 <TextBlock Classes="hint" Text="{Binding Identity}" TextWrapping="Wrap"
                            ToolTip.Tip="{x:Static r:Strings.Mods_IdentityTip}" />
                 <TextBlock Classes="hint" Text="{Binding GamesText}" TextWrapping="Wrap" />
+                <TextBlock Classes="hint" Text="{Binding UserFolderText}" TextWrapping="Wrap" IsVisible="{Binding IsUserMod}" />
                 <TextBlock Text="{Binding Description}" TextWrapping="Wrap" />
 
                 <!-- The author declares two licences that do not agree: both are shown and neither is chosen -->
@@ -223,7 +321,7 @@
                 <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Mods_ActionsHint}" />
                 <WrapPanel>
                   <Button Margin="0,0,6,6" Content="{x:Static r:Strings.Mods_OpenSource}" Command="{Binding OpenSourceCommand}"
-                          ToolTip.Tip="{Binding OpenSourceTip}" />
+                          ToolTip.Tip="{Binding OpenSourceTip}" IsVisible="{Binding HasSource}" />
                   <Button Margin="0,0,6,6" Content="{x:Static r:Strings.Mods_ImportRelease}" Command="{Binding ImportReleaseCommand}"
                           ToolTip.Tip="{x:Static r:Strings.Mods_ImportTip}" />
                   <Button Margin="0,0,6,6" Content="{Binding ImportApartText}" Command="{Binding ImportApartFileCommand}"
