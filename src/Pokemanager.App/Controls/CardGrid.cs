@@ -85,6 +85,10 @@ public sealed class CardGrid : Panel
         bool fill = FillLastRow;
         if (fill)
             columns = Math.Min(columns, cards.Count);
+        else
+            // Even rows of the full set: a team of six as 6, 3+3 or 2+2+2, never 4+2 (2026-11-11, user).
+            while (columns > 1 && MaxColumns % columns != 0)
+                columns--;
         double columnWidth = (width - (columns - 1) * gap) / columns;
 
         // Each card's height in one column, to pick the tallest for a short last row.
