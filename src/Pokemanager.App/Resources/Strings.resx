@@ -5090,4 +5090,10 @@ Project: {2}</value>
   <data name="Difficulty_AiBit7" xml:space="preserve">
     <value> + bit 0x80, like the game's toughest bosses (never below what the ROM has)</value>
   </data>
+  <data name="Dex_MatchupsTitle" xml:space="preserve">
+    <value>Damage taken by type</value>
+  </data>
+  <data name="Tip_DexMatchups" xml:space="preserve">
+    <value>What a move of each type does to this Pokémon, by its types as your ROM has them. Abilities (Levitate, Thick Fat…) are not counted.</value>
+  </data>
 </root>

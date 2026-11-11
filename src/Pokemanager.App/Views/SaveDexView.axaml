@@ -262,6 +262,33 @@
                 </Border>
               </Grid>
 
+              <!-- What each attacking type does to it, by its types (abilities are not counted) -->
+              <Border Classes="card" ToolTip.Tip="{x:Static r:Strings.Tip_DexMatchups}">
+                <StackPanel Spacing="4">
+                  <TextBlock Classes="card-title" Margin="0,0,0,2" Text="{x:Static r:Strings.Dex_MatchupsTitle}" />
+                  <ItemsControl ItemsSource="{Binding Matchups}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vm:DexMatchupRow">
+                        <Border Classes="info-row">
+                          <Grid ColumnDefinitions="44,*">
+                            <Border Background="{Binding LabelBackground}" CornerRadius="2" Width="36" Height="20" HorizontalAlignment="Left" VerticalAlignment="Center">
+                              <TextBlock Text="{Binding Label}" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <ItemsControl Grid.Column="1" ItemsSource="{Binding Types}" VerticalAlignment="Center">
+                              <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                  <WrapPanel ItemSpacing="4" LineSpacing="4" />
+                                </ItemsPanelTemplate>
+                              </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                          </Grid>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+              </Border>
+
               <StackPanel Spacing="8">
                 <!-- How it evolves, as the ROM played has it (randomization, mods and edits included) -->
                 <Border Classes="card">

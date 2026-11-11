@@ -48,6 +48,9 @@ public sealed class DexDetailViewModel : ObservableObject
         TypeBackground = TypeColors.Background(types[0], types[^1]);
         TypeForeground = TypeColors.Foreground(types);
         TypeChips = [.. types.Select(owner.TypeChipOf)];
+        // What each attacking type does to it, by its types as the ROM has them (randomization and edits included).
+        Matchups = [.. Pokemanager.Model.Data.TypeMatchups.Groups(types)
+            .Select(g => new DexMatchupRow(MatchupLabel(g.Multiplier), MatchupBrush(g.Multiplier), [.. g.Types.Select(owner.TypeChipOf)]))];
         GameName = Pokemanager.Model.Dump.GameTitleExtensions.DisplayName(owner.Game);
 
         if (p is null)
@@ -130,6 +133,31 @@ public sealed class DexDetailViewModel : ObservableObject
     public IBrush TypeBackground { get; }
     public IBrush TypeForeground { get; }
     public IReadOnlyList<TypeChip> TypeChips { get; }
+
+    /// <summary>Attacking types by what they do to this Pokémon: ×4, ×2, ×1, ×½, ×¼, ×0 (only the ones that occur).</summary>
+    public IReadOnlyList<DexMatchupRow> Matchups { get; }
+
+    private static string MatchupLabel(double multiplier) => multiplier switch
+    {
+        4 => "×4",
+        2 => "×2",
+        1 => "×1",
+        0.5 => "×½",
+        0.25 => "×¼",
+        _ => "×0",
+    };
+
+    /// <summary>Red for what hurts, green for what it resists, grey for neutral, dark for immune.</summary>
+    private static Avalonia.Media.IBrush MatchupBrush(double multiplier) => new Avalonia.Media.SolidColorBrush(
+        Avalonia.Media.Color.Parse(multiplier switch
+        {
+            4 => "#A4161A",
+            2 => "#E5383B",
+            1 => "#8A96A3",
+            0.5 => "#2E9E5B",
+            0.25 => "#1B6E3E",
+            _ => "#3A3F45",
+        }));
     public IReadOnlyList<DexInfoLine> Info { get; } = [];
 
     /// <summary>
@@ -160,3 +188,6 @@ public sealed class DexDetailViewModel : ObservableObject
 
     public void Refresh() => OnPropertyChanged(string.Empty);
 }
+
+/// <summary>One row of the type matchups: the multiplier and the attacking types that do it.</summary>
+public sealed record DexMatchupRow(string Label, Avalonia.Media.IBrush LabelBackground, IReadOnlyList<TypeChip> Types);
