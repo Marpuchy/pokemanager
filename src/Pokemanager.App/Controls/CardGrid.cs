@@ -19,6 +19,19 @@ public sealed class CardGrid : Panel
     public static readonly StyledProperty<int> MaxColumnsProperty =
         AvaloniaProperty.Register<CardGrid, int>(nameof(MaxColumns), 3);
 
+    /// <summary>
+    /// False keeps every card at the column width, the last row too, and no fewer columns when there are few cards
+    /// (the start screen's team: two Pokémon are not stretched across the page).
+    /// </summary>
+    public static readonly StyledProperty<bool> FillLastRowProperty =
+        AvaloniaProperty.Register<CardGrid, bool>(nameof(FillLastRow), true);
+
+    public bool FillLastRow
+    {
+        get => GetValue(FillLastRowProperty);
+        set => SetValue(FillLastRowProperty, value);
+    }
+
     public static readonly StyledProperty<double> SpacingProperty =
         AvaloniaProperty.Register<CardGrid, double>(nameof(Spacing), 12);
 
@@ -33,7 +46,7 @@ public sealed class CardGrid : Panel
     private static bool IsFixed(Control card) =>
         GetFixed(card) || card is Avalonia.Controls.Presenters.ContentPresenter { Child: { } child } && GetFixed(child);
 
-    static CardGrid() => AffectsMeasure<CardGrid>(MinColumnWidthProperty, MaxColumnsProperty, SpacingProperty);
+    static CardGrid() => AffectsMeasure<CardGrid>(MinColumnWidthProperty, MaxColumnsProperty, SpacingProperty, FillLastRowProperty);
 
     public double MinColumnWidth
     {
@@ -69,7 +82,9 @@ public sealed class CardGrid : Panel
             ? availableSize.Width
             : MaxColumns * MinColumnWidth + (MaxColumns - 1) * gap;
         int columns = Math.Clamp((int)((width + gap) / (MinColumnWidth + gap)), 1, Math.Max(1, MaxColumns));
-        columns = Math.Min(columns, cards.Count);
+        bool fill = FillLastRow;
+        if (fill)
+            columns = Math.Min(columns, cards.Count);
         double columnWidth = (width - (columns - 1) * gap) / columns;
 
         // Each card's height in one column, to pick the tallest for a short last row.
@@ -85,7 +100,9 @@ public sealed class CardGrid : Panel
         int last = cards.Count % columns;
         var fixedCards = cards.Where(IsFixed).ToList();
         var rest = cards.Where(c => !IsFixed(c)).OrderByDescending(c => tall[c]).ToList();
-        var order = last != 0 && rest.Count >= last
+        // Not filling: the cards keep their order (a party is in its own order) and their column width.
+        var order = !fill ? cards
+            : last != 0 && rest.Count >= last
             ? [.. fixedCards, .. rest.Skip(last), .. rest.Take(last)]
             : new List<Control>([.. fixedCards, .. rest]);
 
@@ -93,11 +110,11 @@ public sealed class CardGrid : Panel
         for (int i = 0; i < order.Count; i += columns)
         {
             var row = order.Skip(i).Take(columns).ToList();
-            double rowWidth = (width - (row.Count - 1) * gap) / row.Count;
+            double rowWidth = fill ? (width - (row.Count - 1) * gap) / row.Count : columnWidth;
             double height = 0;
             foreach (var card in row)
             {
-                if (row.Count != columns)
+                if (fill && row.Count != columns)
                     card.Measure(new Size(rowWidth, double.PositiveInfinity));
                 height = Math.Max(height, card.DesiredSize.Height);
             }

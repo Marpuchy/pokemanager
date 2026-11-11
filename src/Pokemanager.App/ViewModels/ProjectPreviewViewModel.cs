@@ -260,7 +260,8 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
         this.reload = reload;
         Loaded = loaded;
         TrialsFold = new FoldState(main.Settings, "trials", up: true);
-        TeamFold = new FoldState(main.Settings, "team");
+        // The team starts as a strip of icons beside the picked Pokémon (2026-11-11, user); unfolded, the six in a row above.
+        TeamFold = new FoldState(main.Settings, "team", folded: true);
         var project = loaded.Project;
         var r = project.Randomization;
         var gameNames = new GameNames(loaded.Dump, loaded.Session.Original, loaded.Session.Layers);

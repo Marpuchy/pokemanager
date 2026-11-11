@@ -7,7 +7,7 @@ namespace Pokemanager.App.ViewModels;
 
 /// <summary>
 /// A panel that can be folded with a small chevron (2026-11-11, user: "desplegables y plegables… con una flechita sutil"):
-/// the recent projects and the team fold to the left, the trials up. Remembered in <see cref="AppSettings.FoldedPanels"/>.
+/// the recent projects and the team fold to the left, the trials up. Remembered in <see cref="AppSettings.Panels"/>.
 /// </summary>
 public sealed partial class FoldState : ObservableObject
 {
@@ -15,12 +15,12 @@ public sealed partial class FoldState : ObservableObject
     private readonly string name;
     private readonly bool up;
 
-    public FoldState(AppSettings settings, string name, bool up = false)
+    public FoldState(AppSettings settings, string name, bool up = false, bool folded = false)
     {
         this.settings = settings;
         this.name = name;
         this.up = up;
-        IsFolded = settings.IsFolded(name);
+        IsFolded = settings.IsFolded(name, folded);
     }
 
     [ObservableProperty]

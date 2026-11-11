@@ -31,6 +31,12 @@
     <Style Selector="ListBox.projects ListBoxItem:selected TextBlock.hint">
       <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
     </Style>
+    <!-- The folded team: square icons on their type colours -->
+    <Style Selector="Border.member.mini">
+      <Setter Property="Width" Value="76" />
+      <Setter Property="Height" Value="58" />
+      <Setter Property="Padding" Value="4" />
+    </Style>
     <Style Selector="Border.project-card">
       <Setter Property="Background" Value="{DynamicResource PanelBrush}" />
       <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
@@ -67,23 +73,24 @@
     <Style Selector="Button.game-open:pointerover /template/ ContentPresenter#PART_ContentPresenter">
       <Setter Property="Opacity" Value="0.88" />
     </Style>
-    <!-- The bin below the list: drop a project on it to delete it -->
+    <!-- The bin below the list, in red (2026-11-11, user): drop a project on it to delete it -->
     <Style Selector="Border.trash">
-      <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource ErrorBrush}" />
       <Setter Property="BorderThickness" Value="1" />
       <Setter Property="CornerRadius" Value="2" />
       <Setter Property="Padding" Value="8,6" />
-      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Background" Value="{DynamicResource ErrorSoftBrush}" />
     </Style>
     <Style Selector="Border.trash TextBlock">
-      <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}" />
     </Style>
     <Style Selector="Border.trash.drop">
-      <Setter Property="Background" Value="{DynamicResource ErrorSoftBrush}" />
+      <Setter Property="Background" Value="{DynamicResource ErrorBrush}" />
       <Setter Property="BorderBrush" Value="{DynamicResource ErrorBrush}" />
     </Style>
     <Style Selector="Border.trash.drop TextBlock">
-      <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}" />
+      <Setter Property="Foreground" Value="White" />
+      <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
   </UserControl.Styles>
 
@@ -260,51 +267,65 @@
           <!-- No save -->
           <TextBlock Classes="hint" Margin="4" Text="{Binding SaveMessage}" IsVisible="{Binding !HasSave}" TextWrapping="Wrap" />
 
-          <!-- Team (two columns of three, foldable to the left) and the selected Pokémon beside it -->
-          <c:SidePanel IsVisible="{Binding HasSave}" MinMainWidth="560">
-            <Panel VerticalAlignment="Top" HorizontalAlignment="Left">
-            <Border Classes="card" Width="420" VerticalAlignment="Top" IsVisible="{Binding TeamFold.IsOpen}">
+          <!-- Team (2026-11-11, user): folded by default to a strip of icons beside the picked Pokémon; unfolded, the
+               six cards in a row above it -->
+          <StackPanel Spacing="8" IsVisible="{Binding HasSave}">
+            <Border Classes="card" IsVisible="{Binding TeamFold.IsOpen}">
               <StackPanel Spacing="6">
                 <DockPanel>
                   <Button DockPanel.Dock="Right" Classes="fold" Command="{Binding TeamFold.ToggleCommand}" ToolTip.Tip="{Binding TeamFold.Tip}">
                     <c:Chevron Angle="{Binding TeamFold.Angle}" />
                   </Button>
                   <TextBlock Classes="card-title" Text="{x:Static r:Strings.Preview_Team}" VerticalAlignment="Center" />
+                  <TextBlock Classes="hint" Margin="10,0,0,0" Text="{Binding TrainerText}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
                 </DockPanel>
-                <TextBlock Classes="hint" Text="{Binding TrainerText}" TextWrapping="Wrap" />
                 <ItemsControl ItemsSource="{Binding Party}" ItemTemplate="{StaticResource PartyCard}">
                   <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                      <UniformGrid Columns="2" />
+                      <c:CardGrid MinColumnWidth="170" MaxColumns="6" Spacing="6" FillLastRow="False" />
                     </ItemsPanelTemplate>
                   </ItemsControl.ItemsPanel>
                 </ItemsControl>
               </StackPanel>
             </Border>
-            <!-- Folded: a strip with the chevron and the party's icons, still clickable -->
-            <Border Classes="card" Padding="4,8" VerticalAlignment="Top" IsVisible="{Binding TeamFold.IsFolded}">
-              <StackPanel Spacing="4">
-                <Button Classes="fold" HorizontalAlignment="Center" Command="{Binding TeamFold.ToggleCommand}" ToolTip.Tip="{Binding TeamFold.Tip}">
-                  <c:Chevron Angle="{Binding TeamFold.Angle}" />
-                </Button>
-                <ItemsControl ItemsSource="{Binding Party}">
-                  <ItemsControl.ItemTemplate>
-                    <DataTemplate x:DataType="vm:PartyMemberViewModel">
-                      <Button Classes="icon ghost" Width="44" Height="40" Padding="0" Command="{Binding SelectCommand}" ToolTip.Tip="{Binding Tooltip}">
-                        <Image Source="{Binding Icon}" Width="40" Height="30" RenderOptions.BitmapInterpolationMode="None" />
-                      </Button>
-                    </DataTemplate>
-                  </ItemsControl.ItemTemplate>
-                </ItemsControl>
-              </StackPanel>
-            </Border>
-            </Panel>
 
-            <Panel VerticalAlignment="Top">
-              <TextBlock Classes="hint" Margin="4" Text="{x:Static r:Strings.Preview_ClickHint}" IsVisible="{Binding !HasSelection}" TextWrapping="Wrap" />
-              <ContentControl Content="{Binding SelectedSheet}" ContentTemplate="{StaticResource MonSheet}" IsVisible="{Binding HasSelection}" />
-            </Panel>
-          </c:SidePanel>
+            <c:SidePanel MinMainWidth="480">
+              <!-- Folded: the chevron and the party as icons on their type colours, with what they hold -->
+              <Border Classes="card" Padding="6,8" VerticalAlignment="Top" IsVisible="{Binding TeamFold.IsFolded}">
+                <StackPanel Spacing="6">
+                  <Button Classes="fold" HorizontalAlignment="Center" Command="{Binding TeamFold.ToggleCommand}" ToolTip.Tip="{Binding TeamFold.Tip}">
+                    <c:Chevron Angle="{Binding TeamFold.Angle}" />
+                  </Button>
+                  <ItemsControl ItemsSource="{Binding Party}">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <StackPanel Spacing="6" />
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vm:PartyMemberViewModel">
+                        <Button Classes="plain" Padding="0" Command="{Binding SelectCommand}" ToolTip.Tip="{Binding Tooltip}">
+                          <Border Classes="member mini" Classes.selected="{Binding IsSelected}" Background="{Binding TypeBackground}">
+                            <Panel>
+                              <Image Classes="sprite" Source="{Binding Icon}" Width="64" Height="48" RenderOptions.BitmapInterpolationMode="None" />
+                              <TextBlock Text="🥚" FontSize="26" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsEgg}" />
+                              <Image Source="{Binding ItemIcon}" Width="22" Height="22" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                     RenderOptions.BitmapInterpolationMode="None" IsVisible="{Binding HasItem}" />
+                            </Panel>
+                          </Border>
+                        </Button>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+              </Border>
+
+              <Panel VerticalAlignment="Top">
+                <TextBlock Classes="hint" Margin="4" Text="{x:Static r:Strings.Preview_ClickHint}" IsVisible="{Binding !HasSelection}" TextWrapping="Wrap" />
+                <ContentControl Content="{Binding SelectedSheet}" ContentTemplate="{StaticResource MonSheet}" IsVisible="{Binding HasSelection}" />
+              </Panel>
+            </c:SidePanel>
+          </StackPanel>
         </StackPanel>
       </ScrollViewer>
     </DataTemplate>
@@ -353,10 +374,12 @@
             </Button>
             <TextBlock Classes="card-title" VerticalAlignment="Center" Text="{x:Static r:Strings.Welcome_Recent}" />
           </DockPanel>
-          <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="6" Margin="0,8,0,0">
-            <Button Content="{x:Static r:Strings.Welcome_NewProjectButton}" Command="{Binding NewProjectCommand}" />
-            <Button Content="{x:Static r:Strings.Welcome_OpenExisting}" Command="{Binding OpenExistingCommand}" />
-          </StackPanel>
+          <Grid DockPanel.Dock="Bottom" ColumnDefinitions="*,6,*" Margin="0,8,0,0">
+            <Button HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                    Content="{x:Static r:Strings.Welcome_NewProjectButton}" Command="{Binding NewProjectCommand}" />
+            <Button Grid.Column="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                    Content="{x:Static r:Strings.Welcome_OpenExisting}" Command="{Binding OpenExistingCommand}" />
+          </Grid>
           <Border DockPanel.Dock="Bottom" Classes="trash" Margin="0,8,0,0" ToolTip.Tip="{x:Static r:Strings.Welcome_TrashTip}"
                   IsVisible="{Binding HasRecentProjects}">
             <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">

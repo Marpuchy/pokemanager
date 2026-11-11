@@ -31,6 +31,7 @@ public sealed class SidePanel : Panel
     }
 
     private bool stacked;
+    private double gap;
 
     protected override Size MeasureOverride(Size availableSize)
     {
@@ -38,12 +39,13 @@ public sealed class SidePanel : Panel
             return Children.Count == 1 ? Measure(Children[0], availableSize) : default;
         var (side, main) = (Children[0], Children[1]);
         side.Measure(new Size(availableSize.Width, double.PositiveInfinity));
-        double rest = availableSize.Width - side.DesiredSize.Width - Spacing;
+        gap = side.IsVisible ? Spacing : 0;
+        double rest = availableSize.Width - side.DesiredSize.Width - gap;
         stacked = rest < MinMainWidth;
         if (stacked)
         {
             main.Measure(new Size(availableSize.Width, double.PositiveInfinity));
-            return new Size(availableSize.Width, side.DesiredSize.Height + Spacing + main.DesiredSize.Height);
+            return new Size(availableSize.Width, side.DesiredSize.Height + gap + main.DesiredSize.Height);
         }
         main.Measure(new Size(rest, double.PositiveInfinity));
         return new Size(availableSize.Width, Math.Max(side.DesiredSize.Height, main.DesiredSize.Height));
@@ -67,13 +69,13 @@ public sealed class SidePanel : Panel
         if (stacked)
         {
             side.Arrange(new Rect(0, 0, finalSize.Width, side.DesiredSize.Height));
-            main.Arrange(new Rect(0, side.DesiredSize.Height + Spacing, finalSize.Width, main.DesiredSize.Height));
+            main.Arrange(new Rect(0, side.DesiredSize.Height + gap, finalSize.Width, main.DesiredSize.Height));
         }
         else
         {
             double w = side.DesiredSize.Width;
             side.Arrange(new Rect(0, 0, w, finalSize.Height));
-            main.Arrange(new Rect(w + Spacing, 0, Math.Max(0, finalSize.Width - w - Spacing), finalSize.Height));
+            main.Arrange(new Rect(w + gap, 0, Math.Max(0, finalSize.Width - w - gap), finalSize.Height));
         }
         return finalSize;
     }

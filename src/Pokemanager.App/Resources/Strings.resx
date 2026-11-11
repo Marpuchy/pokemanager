@@ -46,7 +46,7 @@
     <value>Create project</value>
   </data>
   <data name="Welcome_OpenExisting" xml:space="preserve">
-    <value>Open existing project…</value>
+    <value>Open existing…</value>
   </data>
   <data name="Welcome_PickDumpTitle" xml:space="preserve">
     <value>Dump folder (with the .3ds, romfs and exefs)</value>

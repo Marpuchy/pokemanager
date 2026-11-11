@@ -46,7 +46,7 @@
     <value>Crear proyecto</value>
   </data>
   <data name="Welcome_OpenExisting" xml:space="preserve">
-    <value>Abrir proyecto existente…</value>
+    <value>Abrir existente…</value>
   </data>
   <data name="Welcome_PickDumpTitle" xml:space="preserve">
     <value>Carpeta del volcado (con el .3ds, romfs y exefs)</value>
