@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Pokemanager.App.Resources;
@@ -39,6 +39,42 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     public partial bool LanguageChanged { get; set; }
 
+    /// <summary>The backgrounds offered in Ajustes, in the order shown (2026-11-11: "brillo del juego" first, the default).</summary>
+    public static IReadOnlyList<BackgroundOption> Backgrounds { get; } =
+    [
+        new(AppBackground.Glow, Strings.Bg_Glow), new(AppBackground.Hexagons, Strings.Bg_Hexagons),
+        new(AppBackground.PokeBalls, Strings.Bg_PokeBalls), new(AppBackground.Lines, Strings.Bg_Lines),
+        new(AppBackground.Plain, Strings.Bg_Plain),
+    ];
+
+    /// <summary>Dark (the default) or light; applied at once and saved.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(LightMode))]
+    public partial bool DarkMode { get; set; }
+
+    public bool LightMode
+    {
+        get => !DarkMode;
+        set => DarkMode = !value;
+    }
+
+    [ObservableProperty]
+    public partial BackgroundOption SelectedBackground { get; set; }
+
+    partial void OnDarkModeChanged(bool value) => ApplyLook();
+
+    partial void OnSelectedBackgroundChanged(BackgroundOption value) => ApplyLook();
+
+    private void ApplyLook()
+    {
+        if (!initialized)
+            return;
+        settings.DarkMode = DarkMode;
+        settings.Background = SelectedBackground.Kind;
+        settings.Save();
+        AppTheme.Configure(settings.DarkMode, settings.Background);
+    }
+
     /// <summary>The open project's version history, shown as a button here; null on the start screen.</summary>
     public HistoryViewModel? History { get; }
 
@@ -71,6 +107,8 @@ public partial class SettingsViewModel : ObservableObject
         Emulators = options;
         SelectedEmulator = options.FirstOrDefault(o => string.Equals(o.Path, settings.EmulatorUserDirectory, StringComparison.OrdinalIgnoreCase)) ?? options[0];
         SelectedLanguage = UiLanguages.FirstOrDefault(l => l.Code == settings.UiLanguage) ?? UiLanguages[0];
+        DarkMode = settings.DarkMode;
+        SelectedBackground = Backgrounds.FirstOrDefault(b => b.Kind == settings.Background) ?? Backgrounds[0];
         ProfileAvatar = new AvatarViewModel(new Multiplayer.PlayerProfile(settings.Profile.Name.Trim().Length > 0 ? settings.Profile.Name : "?",
             settings.Profile.Sprite, SafeImage(settings.Profile.Image), settings.Profile.Color));
         _ = SearchSpritesAsync("");
@@ -386,3 +424,6 @@ public partial class SettingsViewModel
         ProfileSaved();
     }
 }
+
+/// <summary>A background in the Ajustes list.</summary>
+public sealed record BackgroundOption(AppBackground Kind, string Name);

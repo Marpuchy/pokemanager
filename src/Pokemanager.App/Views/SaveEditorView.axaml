@@ -1,4 +1,4 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Pokemanager.App.ViewModels"
              xmlns:r="using:Pokemanager.App.Resources"
@@ -30,7 +30,7 @@
             <TextBlock Text="{Binding HeaderText}" TextWrapping="Wrap" ToolTip.Tip="{Binding SavePath}" />
             <TextBlock Classes="error" Text="{Binding ProblemsText}" IsVisible="{Binding HasProblems}" />
             <TextBlock Classes="hint" Text="{Binding ProblemsText}" IsVisible="{Binding !HasProblems}" />
-            <TextBlock Classes="hint" Foreground="#E07B00" Text="{Binding RomWarning}" IsVisible="{Binding HasRomWarning}" TextWrapping="Wrap" />
+            <TextBlock Classes="hint" Foreground="{DynamicResource ModifiedBrush}" Text="{Binding RomWarning}" IsVisible="{Binding HasRomWarning}" TextWrapping="Wrap" />
           </StackPanel>
           <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Top">
             <TextBlock Classes="dot" Text="● " VerticalAlignment="Center" IsVisible="{Binding IsDirty}" />
@@ -92,7 +92,7 @@
                 <StackPanel Spacing="8">
                   <TextBlock Classes="card-title" Text="{x:Static r:Strings.Save_CreateTitle}" />
                   <TextBlock Classes="hint" Text="{x:Static r:Strings.Save_CreateHint}" />
-                  <Border Background="#F2F4F6" CornerRadius="2" Width="96" Height="76" HorizontalAlignment="Left" BorderBrush="#20000000" BorderThickness="1">
+                  <Border Background="{DynamicResource Panel2Brush}" CornerRadius="2" Width="96" Height="76" HorizontalAlignment="Left" BorderBrush="#20000000" BorderThickness="1">
                     <Image Classes="sprite" RenderOptions.BitmapInterpolationMode="None" Source="{Binding NewSpeciesIcon}" Width="80" Height="60" />
                   </Border>
                   <Grid ColumnDefinitions="140,*" RowDefinitions="Auto,Auto" >
@@ -161,7 +161,7 @@
                     <DataTemplate x:DataType="vm:PokemonEditorViewModel">
                       <ScrollViewer Margin="12,4,12,8">
                         <StackPanel>
-                          <Border Padding="8" CornerRadius="2" Background="#22D13438" IsVisible="{Binding HasProblems}" Margin="0,4,0,8">
+                          <Border Padding="8" CornerRadius="2" Background="{DynamicResource ErrorSoftBrush}" IsVisible="{Binding HasProblems}" Margin="0,4,0,8">
                             <ItemsControl ItemsSource="{Binding Problems}">
                               <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="x:String">
@@ -302,7 +302,7 @@
                                               <Run Text="{Binding NatureMark}" FontSize="10" />
                                             </TextBlock>
                                             <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Base}" />
-                                            <Border Grid.Column="2" Margin="0,0,10,0" Height="10" Background="#E8ECEF" VerticalAlignment="Center">
+                                            <Border Grid.Column="2" Margin="0,0,10,0" Height="10" Background="{DynamicResource Panel2Brush}" VerticalAlignment="Center">
                                               <Border HorizontalAlignment="Left" Width="{Binding BarWidth}" Background="{Binding BarBrush}" BorderBrush="#30000000" BorderThickness="1" />
                                             </Border>
                                             <TextBlock Grid.Column="3" VerticalAlignment="Center" FontWeight="Bold" FontSize="14" Foreground="{Binding LabelBrush}" Text="{Binding Stat}" />
@@ -353,7 +353,7 @@
                                               <Border Width="10" Height="10" Background="{Binding Brush}" BorderBrush="#30000000" BorderThickness="1" />
                                               <TextBlock FontWeight="SemiBold" Text="{Binding Label}" />
                                             </StackPanel>
-                                            <Border Grid.Column="1" Height="10" Background="#E8ECEF" VerticalAlignment="Center">
+                                            <Border Grid.Column="1" Height="10" Background="{DynamicResource Panel2Brush}" VerticalAlignment="Center">
                                               <Border HorizontalAlignment="Left" Width="{Binding BarWidth}" Background="{Binding Brush}" BorderBrush="#30000000" BorderThickness="1" />
                                             </Border>
                                             <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_PkmContest}" Grid.Column="3" Value="{Binding Value}" Minimum="0" Maximum="255" Increment="10" FormatString="0" ParsingNumberStyle="Integer" />
@@ -398,8 +398,8 @@
                 <Setter Property="Background" Value="Transparent" />
               </Style>
               <Style Selector="Border.pocket">
-                <Setter Property="Background" Value="White" />
-                <Setter Property="BorderBrush" Value="#D5DFE5" />
+                <Setter Property="Background" Value="{DynamicResource PanelBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
                 <Setter Property="BorderThickness" Value="1" />
               </Style>
               <Style Selector="ListBox.pockets ListBoxItem Border.pocket-bar">
@@ -409,10 +409,10 @@
                 <Setter Property="Opacity" Value="1" />
               </Style>
               <Style Selector="ListBox.pockets ListBoxItem:pointerover Border.pocket">
-                <Setter Property="Background" Value="#F2F6FA" />
+                <Setter Property="Background" Value="{DynamicResource HoverBrush}" />
               </Style>
               <Style Selector="ListBox.pockets ListBoxItem:selected TextBlock, ListBox.pockets ListBoxItem TextBlock">
-                <Setter Property="Foreground" Value="#1A1A1A" />
+                <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
               </Style>
               <Style Selector="ListBox.bag-list ListBoxItem">
                 <Setter Property="Padding" Value="8,4" />
@@ -486,7 +486,7 @@
                   <StackPanel IsVisible="{Binding HasSelectedItem}">
                     <Border Background="{Binding SelectedPocket.Accent}" Padding="14,12">
                       <Grid ColumnDefinitions="Auto,*">
-                        <Border Width="72" Height="72" CornerRadius="999" Background="White" BorderBrush="#40000000" BorderThickness="1" Margin="0,0,14,0">
+                        <Border Width="72" Height="72" CornerRadius="999" Background="{DynamicResource PanelBrush}" BorderBrush="#40000000" BorderThickness="1" Margin="0,0,14,0">
                           <Panel>
                             <Image Source="{Binding SelectedItem.Icon}" Width="48" Height="48" RenderOptions.BitmapInterpolationMode="None" IsVisible="{Binding SelectedItem.HasIcon}" />
                             <TextBlock Text="🔑" FontSize="30" HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding !SelectedItem.HasIcon}" />
@@ -880,7 +880,7 @@
             <!-- Map position -->
             <TabItem Header="{x:Static r:Strings.Trainer_TabMap}" IsVisible="{Binding HasPosition}">
               <StackPanel Margin="16,8" Spacing="6" MaxWidth="640" HorizontalAlignment="Left">
-                <Border Padding="10" CornerRadius="2" Background="#26E07B00" BorderBrush="#E07B00" BorderThickness="1">
+                <Border Padding="10" CornerRadius="2" Background="{DynamicResource WarningBrush}" BorderBrush="{DynamicResource ModifiedBrush}" BorderThickness="1">
                   <TextBlock Text="{x:Static r:Strings.Trainer_MapWarning}" TextWrapping="Wrap" />
                 </Border>
                 <Grid ColumnDefinitions="170,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <resheader name="resmimetype">
     <value>text/microsoft-resx</value>
@@ -5239,5 +5239,53 @@ Proyecto: {2}</value>
   </data>
   <data name="UserMods_EnabledStatus" xml:space="preserve">
     <value>{0} activado y proyecto guardado. Crea la ROM para jugar con él.</value>
+  </data>
+  <data name="Editor_PlayButton" xml:space="preserve">
+    <value>▶ Jugar</value>
+  </data>
+  <data name="Editor_BuildRomButton" xml:space="preserve">
+    <value>⚒ Crear ROM</value>
+  </data>
+  <data name="Editor_MoreTip" xml:space="preserve">
+    <value>Más: proyectos, historial y ajustes</value>
+  </data>
+  <data name="Editor_HistoryMenu" xml:space="preserve">
+    <value>Historial</value>
+  </data>
+  <data name="Set_Appearance" xml:space="preserve">
+    <value>Apariencia</value>
+  </data>
+  <data name="Set_ThemeDark" xml:space="preserve">
+    <value>Oscuro</value>
+  </data>
+  <data name="Set_ThemeLight" xml:space="preserve">
+    <value>Claro</value>
+  </data>
+  <data name="Set_Background" xml:space="preserve">
+    <value>Fondo</value>
+  </data>
+  <data name="Bg_Glow" xml:space="preserve">
+    <value>Brillo del juego</value>
+  </data>
+  <data name="Bg_Hexagons" xml:space="preserve">
+    <value>Hexágonos</value>
+  </data>
+  <data name="Bg_PokeBalls" xml:space="preserve">
+    <value>Poké Balls</value>
+  </data>
+  <data name="Bg_Lines" xml:space="preserve">
+    <value>Líneas</value>
+  </data>
+  <data name="Bg_Plain" xml:space="preserve">
+    <value>Liso</value>
+  </data>
+  <data name="Tip_ThemeDark" xml:space="preserve">
+    <value>Fondo gris pizarra con texto claro. Cansa menos la vista en sesiones largas.</value>
+  </data>
+  <data name="Tip_ThemeLight" xml:space="preserve">
+    <value>Fondo claro con texto oscuro.</value>
+  </data>
+  <data name="Tip_Background" xml:space="preserve">
+    <value>Lo que se dibuja detrás de las páginas. Todas las opciones usan el color del juego que estás editando.</value>
   </data>
 </root>

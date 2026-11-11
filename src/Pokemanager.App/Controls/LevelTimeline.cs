@@ -32,9 +32,9 @@ public sealed class LevelTimeline : Control
     private const double FontSize = 11;
 
     private static readonly Typeface Face = new(FontFamily.Default, FontStyle.Normal, FontWeight.SemiBold);
-    private static readonly IBrush LineBrush = new SolidColorBrush(Color.Parse("#C9D1DA"));
-    private static readonly IBrush DotBrush = new SolidColorBrush(Color.Parse("#1C3A70"));
-    private static readonly IBrush TickBrush = new SolidColorBrush(Color.Parse("#9AA6B2"));
+    private static IBrush LineBrush => Pokemanager.App.Services.Tokens.Line;
+    private static IBrush DotBrush => Pokemanager.App.Services.Tokens.AccentText;
+    private static IBrush TickBrush => Pokemanager.App.Services.Tokens.Muted;
     private static readonly IPen LinePen = new Pen(LineBrush, 3, lineCap: PenLineCap.Round);
     private static readonly IPen TickPen = new Pen(TickBrush, 1);
 

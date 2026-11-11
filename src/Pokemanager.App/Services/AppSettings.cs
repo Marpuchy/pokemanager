@@ -57,6 +57,12 @@ public sealed class AppSettings
     /// <summary>UI language code ("en", "es"). Applied when the app starts.</summary>
     public string UiLanguage { get; set; } = DefaultLanguage;
 
+    /// <summary>Dark (the default, 2026-11-11) or light.</summary>
+    public bool DarkMode { get; set; } = true;
+
+    /// <summary>The background behind the pages: the game's glow by default.</summary>
+    public AppBackground Background { get; set; } = AppBackground.Glow;
+
     public string? LastProject { get; set; }
 
     /// <summary>Recently opened projects, most recent first.</summary>

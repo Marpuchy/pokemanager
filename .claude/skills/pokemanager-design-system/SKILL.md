@@ -7,55 +7,77 @@ description: Use whenever a view, control, style or visual detail of Pokemanager
 
 ## 1. Context
 
-Pokemanager is a **Windows desktop app** (Avalonia 12, light theme only) used by one player while they play a 3DS
-Pokémon game on Citra: randomize and build the ROM, edit the save, follow a Nuzlocke. The window sits next to the
-emulator, so it must be **readable at a glance and dense**, like PKHeX / UPR ZX, not like a web page. Mouse and
-keyboard, no touch.
+Pokemanager is a **Windows desktop app** (Avalonia 12) used by one player while they play a 3DS Pokémon game on Citra:
+randomize and build the ROM, edit the save, follow a Nuzlocke. The window sits next to the emulator, so it must be
+**readable at a glance and dense**, like PKHeX / UPR ZX, not like a web page. Mouse and keyboard, no touch.
+
+Look chosen with the user on 2026-11-11 ("Grafito + color de tu juego"): **dark slate by default, light in Ajustes**,
+square edges (2 px radius), the **accent is the colour of the game being edited**, sentence case everywhere (never
+all-caps).
 
 Source of truth for the look, in this order:
 
-- `src/Pokemanager.App/Styles/ClassicTheme.axaml`: the classic WinForms-like skin on top of Fluent (compact). Brushes
-  `Classic*`.
+- `src/Pokemanager.App/App.axaml`: the colour **tokens** (`ThemeDictionaries` Dark/Light), `Border.card`,
+  `TextBlock.card-title/.section/.hint/.error/.dot`, `field-label.modified`.
+- `src/Pokemanager.App/Styles/ClassicTheme.axaml`: controls on the tokens (buttons, inputs, tabs, lists, menus).
+- `src/Pokemanager.App/Services/AppTheme.cs`: variant, background and the accent brushes that follow the game.
+- `src/Pokemanager.App/Services/Tokens.cs`: the tokens for C# that builds brushes (read them when drawing, never into a
+  static field: the variant changes at run time).
 - `src/Pokemanager.App/Styles/PokemonLook.axaml`: **everything that shows a Pokémon** (party cards, box cells, detail
   header, badges, stat bars, move rows, evolution cards, `MonSheet`). Reuse these classes and keyed templates; **never
   copy their styles into a view** (local styles win and the looks drift apart).
-- `src/Pokemanager.App/App.axaml`: `Border.card`, `TextBlock.card-title/.section/.hint/.error/.dot`, `field-label.modified`.
 - `src/Pokemanager.App/Services/TypeColors.cs`: the 18 type colours and the text colour on them.
 
 ## 2. Colour
 
-Only these values. A new colour needs a reason and a token here first.
+**Always `{DynamicResource XBrush}`, never a hex value in a view.** A new colour needs a token in both variants first.
 
-| Token | Value | Use | Contrast (WCAG) |
+| Token (`…Brush`) | Dark | Light | Use |
 |---|---|---|---|
-| `surface` | `#F0F0F0` | window background (`ClassicWindowBrush`) | — |
-| `panel` | `#FFFFFF` | tab pages, `Border.card`, inputs | — |
-| `button` | `#E1E1E1` | button face | — |
-| `ink` | `#000000` / `#1A1A1A` | body text | 21 / 17.4 on panel |
-| `ink-muted` | `#6D6D6D` | `TextBlock.hint`, secondary lines | 5.17 on panel, 4.54 on surface, **3.96 on button: not for button text** |
-| `title` | `#1C3A70` | `card-title`, `section`, selected outline, level pills | 11.1 on panel |
-| `accent` | `#0078D7` | focus, hover border, selection, `Button.accent` frame | 4.50 on panel (limit), 3.95 on surface |
-| `accent-hover` / `accent-pressed` | `#E5F1FB` / `#CCE4F7` | button hover / pressed fill | — |
-| `border-control` | `#7A7A7A` | input borders | 4.29 on panel ✓ (≥ 3) |
-| `border-button` | `#ADADAD` | button borders | 2.24 — the face carries the shape |
-| `border-card` | `#D5DFE5` / `#D9D9D9` | card and row rules (decorative only) | 1.35 |
-| `modified` | `#E07B00` | modified bars, dots, tags' fill | **3.0 on panel: only for shapes, ≥ bold 14 px or with an icon** |
-| `modified-text` | `#7A4B00` | text of "Modified" tags and labels | 7.41 on panel |
-| `error` | `#D13438` | `TextBlock.error`, problem frames | 4.93 on panel, 4.33 on surface |
-| `success` | `#2E8B57` | `hint.current`, earned ✓ | **4.25 on panel: below 4.5** |
-| `disabled-text` | `#A0A0A0` | disabled controls only | 2.61 (WCAG exempts disabled) |
-| `gold` | `#FFD700` | shiny star | shape only |
+| `AppBase` / `AppBase2` | `#22262E` / `#2A2F38` | `#EEF0F3` / `#F7F8FA` | window gradient (also `…Color`) |
+| `Panel` / `Panel2` | `#2B3039` / `#333944` | `#FFFFFF` / `#F1F3F6` | cards, flyouts / buttons, empty slots |
+| `Field` | `#1E2228` | `#FFFFFF` | inputs |
+| `Bar` | `#1D2026` | `#FFFFFF` | top bar, status bar |
+| `Line` / `InputLine` | `#3C4350` / `#5A6372` | `#D5DAE1` / `#8A929E` | rules, card borders / input borders |
+| `Text` / `Muted` | `#ECEEF2` / `#A9B1BD` | `#1B1E24` / `#5B6370` | body / hints (≥ 4.5:1 on Panel) |
+| `Hover` / `Pressed` | `#3A414D` / `#454D5B` | `#E6EBF1` / `#D8DFE8` | control states |
+| `Disabled` / `DisabledText` | `#262A31` / `#6F7784` | `#EEF0F3` / `#A0A6AF` | disabled only |
+| `Modified` / `ModifiedText` | `#F5A524` / `#F5B54A` | `#E07B00` / `#7A4B00` | shapes / text of "modified" |
+| `Error` / `ErrorSoft` | `#FF6B6E` | `#C42B2F` | problems / their fill |
+| `Success` | `#4CC38A` | `#237A4B` | `hint.current`, earned ✓ |
+| `Warning` / `WarningLine` | amber 20 % / `#B57A16` | amber 12 % / `#E07B00` | the "not in a ROM yet" banner |
+| `Overlay` | `#33000000` | `#14000000` | dimming |
 
-Known contrast debts (do not copy; fix when the file is touched, ask before a sweep):
-- `success` text → `#237A4B` (5.31 on panel, 4.66 on surface).
-- `modified` used as **text** at 12 px → `modified-text` `#7A4B00`, or `#A85A00` (5.09) if it must stay orange.
-- `error` on the grey window → `#C42B2F` (4.94 on surface).
+Set by `AppTheme` (follow the game): `Accent` (filled: primary, selection, focus, checks), `AccentSoft` (tonal fill,
+selected side tab, badges), `AccentText` (card titles, accent text: 35 % towards white/black, keeps 4.5:1), `AccentInk`
+(text on a filled accent: white or `#16130F`, whichever contrasts more), `AppGlow`, `AppPattern`, `BarGlow`.
+Game colours: X `#2F7FE0`, Y `#E0414B`, OR `#D9483B`, AS `#2F77D0`, Sun `#F29A2E`, Moon `#7B6CF0`, US `#F28C28`,
+UM `#9B6CF2`, none `#3B82F6`.
+
+Backgrounds (Ajustes → Apariencia): Brillo del juego (default), Hexágonos, Poké Balls, Líneas, Liso.
+
+Kept fixed on purpose: type colours and the text on them, badges (`badge-value`/`badge-label` on a light chip), gold
+`#FFD700`, the save-dex flag colours, the roulette palette. Nature marks: `Tokens.Raised` / `Tokens.Lowered`.
 
 **Type colours** (`TypeColors`, game order: Normal, Fighting, Flying, Poison, Ground, Rock, Bug, Ghost, Steel, Fire,
 Water, Grass, Electric, Psychic, Ice, Dragon, Dark, Fairy) are the Showdown palette. Two types = **hard diagonal cut**
 (both gradient stops at 0.5). Text on them always comes from `TypeColors.Foreground` (white below luminance 0.62,
 `#1A1A1A` above); never hard-code a text colour on a type background. Stat bars use the Showdown stat colours of
 `StatFieldViewModel` / `StatBars`; nature marks: raised ▲ red, lowered ▼ blue.
+
+### Buttons (one primary per screen)
+
+| Class | Size | Use |
+|---|---|---|
+| `primary` | 38 px, 14 SemiBold, accent fill | the one main action (Crear ROM while there are unbuilt changes, else Jugar; Abrir proyecto) |
+| `tonal` | 38 px, accent frame on soft fill | the second important action beside it (Jugar while the ROM is not built) |
+| `accent` | 30 px, accent fill | the main action of a card or dialog (Escribir en la partida, Crear sala) |
+| (none) | 30 px | ordinary secondary actions (Guardar) |
+| `text` | 26 px, underlined, muted | optional / look-up (Ver log) |
+| `icon` (+`ghost`) | 30×30 | glyph with a tooltip (↶ ↷ ⋯) |
+| `danger` | 26 px, error frame | what cannot be undone, kept apart |
+
+Rare destinations go in the ⋯ menu (Proyectos, Historial, Ajustes), not as buttons.
 
 ## 3. Spacing
 
@@ -74,14 +96,14 @@ New code uses 2 / 4 / 6 / 8 / 12 / 16 / 24; avoid 3, 5 and odd one-offs.
 
 ## 4. Typography
 
-Segoe UI (Tahoma, Verdana fallback), **12 px base** everywhere (`Window`, controls). Scale:
+Segoe UI (Tahoma, Verdana fallback), **13 px base** everywhere (`Window`, controls). Sentence case only. Scale:
 
 | Role | Size / weight |
 |---|---|
 | display (detail header name, level) | 18–22 SemiBold |
 | h1 (page or dialog title) | 16 SemiBold |
-| h2 (`card-title`, `section`) | 12 SemiBold, `title` colour |
-| body | 12 Normal |
+| h2 (`card-title`, `section`) | 13 Bold, `AccentText` |
+| body | 13 Normal |
 | small (chips, badges, evolution "how", timeline labels) | 11 SemiBold |
 | label (type chip text only) | 10 SemiBold, on a type colour |
 
@@ -152,10 +174,11 @@ Rules agreed with the user:
 
 ## 9. Checklist
 
-- [ ] Colours only from the table above; type backgrounds with `TypeColors.Foreground` text.
+- [ ] Colours only as `DynamicResource` tokens (C#: `Tokens`); type backgrounds with `TypeColors.Foreground` text.
+- [ ] Checked in dark **and** light; one `primary` per screen; sentence case.
 - [ ] Text ≥ 4.5:1 on its background (compute it, do not guess); no `modified`/`success` as small text.
 - [ ] Spacing from 2 / 4 / 6 / 8 / 12 / 16 / 24.
-- [ ] 12 px body; nothing new under 11 px; ≤ 3 weights.
+- [ ] 13 px body; nothing new under 11 px; ≤ 3 weights.
 - [ ] Pokémon look reused from `PokemonLook.axaml`, no local copies of its styles.
 - [ ] Game art or the glyph table for icons; sprites centred and pixel-sharp; no new emoji.
 - [ ] Tooltip on every option and icon-only button; strings in both resx files.

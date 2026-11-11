@@ -1,4 +1,4 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Pokemanager.App.ViewModels"
              xmlns:r="using:Pokemanager.App.Resources"
@@ -64,7 +64,7 @@
             <TextBox Text="{Binding OutputName}" IsVisible="{Binding IsNameEditable}" />
             <TextBlock Classes="error" Text="{Binding OutputError}" IsVisible="{Binding OutputError, Converter={x:Static ObjectConverters.IsNotNull}}" />
             <TextBlock Classes="hint" Text="{Binding OutputPath}" TextWrapping="Wrap" />
-            <TextBlock Classes="hint" Foreground="#E07B00" IsVisible="{Binding OutputExists}" Text="{x:Static r:Strings.Rnd_OutputExists}" />
+            <TextBlock Classes="hint" Foreground="{DynamicResource ModifiedBrush}" IsVisible="{Binding OutputExists}" Text="{x:Static r:Strings.Rnd_OutputExists}" />
           </StackPanel>
           </Border>
 
@@ -78,7 +78,7 @@
             <Button Content="{x:Static r:Strings.Rnd_AdaptNow}" Command="{Binding AdaptSaveNowCommand}"
                     IsVisible="{Binding HasPreviousRom}" IsEnabled="{Binding HasSave}"
                     ToolTip.Tip="{x:Static r:Strings.Rnd_AdaptNowTip}" />
-            <Border Padding="10" CornerRadius="2" Background="#26E07B00" BorderBrush="#E07B00" BorderThickness="1"
+            <Border Padding="10" CornerRadius="2" Background="{DynamicResource WarningBrush}" BorderBrush="{DynamicResource ModifiedBrush}" BorderThickness="1"
                     IsVisible="{Binding HasSaveWarning}">
               <TextBlock Text="{Binding SaveWarning}" TextWrapping="Wrap" />
             </Border>

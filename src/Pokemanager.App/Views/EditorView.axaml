@@ -1,4 +1,4 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Pokemanager.App.ViewModels"
              xmlns:r="using:Pokemanager.App.Resources"
@@ -72,29 +72,29 @@
       <Setter Property="BorderBrush" Value="Transparent" />
     </Style>
     <Style Selector="Border.entry.modified">
-      <Setter Property="Background" Value="#FFF0D4" />
-      <Setter Property="BorderBrush" Value="#E07B00" />
+      <Setter Property="Background" Value="{DynamicResource WarningBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource ModifiedBrush}" />
     </Style>
     <Style Selector="ListBoxItem:pointerover Border.entry.modified">
-      <Setter Property="Background" Value="#FFE3B0" />
+      <Setter Property="Background" Value="{DynamicResource WarningBrush}" />
     </Style>
     <Style Selector="ListBoxItem:selected Border.entry.modified">
       <Setter Property="Background" Value="Transparent" />
-      <Setter Property="BorderBrush" Value="#FFB347" />
+      <Setter Property="BorderBrush" Value="{DynamicResource WarningLineBrush}" />
     </Style>
     <Style Selector="Border.entry.modified TextBlock.entry-name">
       <Setter Property="FontWeight" Value="SemiBold" />
-      <Setter Property="Foreground" Value="#8A4B00" />
+      <Setter Property="Foreground" Value="{DynamicResource ModifiedTextBrush}" />
     </Style>
     <Style Selector="ListBoxItem:selected Border.entry.modified TextBlock.entry-name">
       <Setter Property="Foreground" Value="White" />
     </Style>
     <!-- The selected row is blue: its secondary line has to turn white too -->
     <Style Selector="ListBoxItem:selected TextBlock.hint">
-      <Setter Property="Foreground" Value="#E8F0FF" />
+      <Setter Property="Foreground" Value="{DynamicResource AccentSoftBrush}" />
     </Style>
     <Style Selector="Border.modified-tag">
-      <Setter Property="Background" Value="#E07B00" />
+      <Setter Property="Background" Value="{DynamicResource ModifiedBrush}" />
       <Setter Property="Padding" Value="5,1" />
       <Setter Property="Margin" Value="6,0,0,0" />
       <Setter Property="VerticalAlignment" Value="Center" />
@@ -109,48 +109,65 @@
   </UserControl.Styles>
 
   <DockPanel>
-    <!-- Top bar -->
-    <Border DockPanel.Dock="Top" Padding="12,8" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
-      <Grid ColumnDefinitions="*,Auto">
-        <StackPanel Spacing="2" ToolTip.Tip="{Binding GameTip}">
-          <TextBlock Text="{Binding GameText}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-          <TextBlock Classes="hint">
-            <Run Text="{Binding BaseText}" />
-            <Run Text=" · " />
-            <Run Text="{Binding EditCountText}" />
-            <Run Text=" · " />
-            <Run Text="{Binding DirtyText}" />
-            <Run Text=" · " />
-            <Run Text="{Binding EmulatorText}" />
-          </TextBlock>
-        </StackPanel>
-        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-          <ProgressBar IsIndeterminate="True" Width="80" IsVisible="{Binding IsBusy}" />
-          <!-- The level cap the save is on: always in sight while the cap by milestones is on -->
-          <Border Background="#E8F1FB" BorderBrush="#3A7BD5" BorderThickness="1" CornerRadius="2" Padding="8,2" VerticalAlignment="Center"
-                  IsVisible="{Binding LevelCap.ShowBadge}" ToolTip.Tip="{Binding LevelCap.CurrentText}">
-            <TextBlock Text="{Binding LevelCap.BadgeText}" FontWeight="SemiBold" Foreground="#1F4E8C" />
+    <!-- Top bar (2026-11-11): the game's icon and name; Undo/Redo as icons, Guardar, then Jugar and Crear ROM big — the
+         main one is Crear ROM while the ROM lacks changes and Jugar once it has them —; Proyectos, Historial and
+         Ajustes in the ⋯ menu -->
+    <Border DockPanel.Dock="Top" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource LineBrush}" Background="{DynamicResource BarBrush}">
+      <Panel>
+        <Border Background="{DynamicResource BarGlowBrush}" />
+        <Grid ColumnDefinitions="Auto,*,Auto" Margin="12,8">
+          <Border Width="42" Height="42" Margin="0,0,10,0" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1"
+                  IsVisible="{Binding HasGameIcon}" VerticalAlignment="Center">
+            <Image Source="{Binding GameIcon}" Width="40" Height="40" RenderOptions.BitmapInterpolationMode="None" />
           </Border>
-          <Button Content="{Binding UndoText}" Command="{Binding UndoCommand}" ToolTip.Tip="{Binding UndoTip}" />
-          <Button Content="{Binding RedoText}" Command="{Binding RedoCommand}" ToolTip.Tip="{Binding RedoTip}" />
-          <Border Width="1" Background="#C8C8C8" Margin="2,2" />
-          <Button Content="{x:Static r:Strings.Editor_Save}" Command="{Binding SaveCommand}" ToolTip.Tip="Ctrl+S" />
-          <Button Content="{x:Static r:Strings.Editor_Play}" Command="{Binding PlayCommand}" ToolTip.Tip="{x:Static r:Strings.Editor_PlayTip}" />
-          <Button Classes="accent" Content="{x:Static r:Strings.Editor_BuildRom}" Command="{Binding BuildRomCommand}"
-                  ToolTip.Tip="{x:Static r:Strings.Editor_BuildRomTip}" />
-          <Button Content="{x:Static r:Strings.Editor_Projects}" Command="{Binding ViewRomCommand}" ToolTip.Tip="{x:Static r:Strings.Editor_ViewRomTip}" />
-          <Button Content="{x:Static r:Strings.Editor_Settings}" Command="{Binding OpenSettingsCommand}" />
-        </StackPanel>
-      </Grid>
+          <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center" ToolTip.Tip="{Binding GameTip}">
+            <TextBlock Text="{Binding GameText}" FontWeight="Bold" FontSize="15" TextTrimming="CharacterEllipsis" />
+            <TextBlock Classes="hint" FontSize="12" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap">
+              <Run Text="{Binding BaseText}" />
+              <Run Text=" · " />
+              <Run Text="{Binding EditCountText}" />
+              <Run Text=" · " />
+              <Run Text="{Binding DirtyText}" />
+              <Run Text=" · " />
+              <Run Text="{Binding EmulatorText}" />
+            </TextBlock>
+          </StackPanel>
+          <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Margin="10,0,0,0">
+            <ProgressBar IsIndeterminate="True" Width="80" IsVisible="{Binding IsBusy}" />
+            <!-- The level cap the save is on: always in sight while the cap by milestones is on -->
+            <Border Background="{DynamicResource AccentSoftBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="2"
+                    Padding="8,3" VerticalAlignment="Center" IsVisible="{Binding LevelCap.ShowBadge}" ToolTip.Tip="{Binding LevelCap.CurrentText}">
+              <TextBlock Text="{Binding LevelCap.BadgeText}" FontWeight="SemiBold" />
+            </Border>
+            <Button Classes="icon ghost" Content="↶" Command="{Binding UndoCommand}" ToolTip.Tip="{Binding UndoTip}" />
+            <Button Classes="icon ghost" Content="↷" Command="{Binding RedoCommand}" ToolTip.Tip="{Binding RedoTip}" />
+            <Border Width="1" Background="{DynamicResource LineBrush}" Margin="4,4" />
+            <Button Content="{x:Static r:Strings.Editor_Save}" Command="{Binding SaveCommand}" ToolTip.Tip="Ctrl+S" />
+            <Button Classes.primary="{Binding !NeedsRomBuild}" Classes.tonal="{Binding NeedsRomBuild}"
+                    Content="{x:Static r:Strings.Editor_PlayButton}" Command="{Binding PlayCommand}" ToolTip.Tip="{x:Static r:Strings.Editor_PlayTip}" />
+            <Button Classes.primary="{Binding NeedsRomBuild}" Classes.tonal="{Binding !NeedsRomBuild}"
+                    Content="{x:Static r:Strings.Editor_BuildRomButton}" Command="{Binding BuildRomCommand}" ToolTip.Tip="{x:Static r:Strings.Editor_BuildRomTip}" />
+            <Button Classes="icon" Content="⋯" ToolTip.Tip="{x:Static r:Strings.Editor_MoreTip}">
+              <Button.Flyout>
+                <MenuFlyout Placement="BottomEdgeAlignedRight">
+                  <MenuItem Header="{x:Static r:Strings.Editor_Projects}" Command="{Binding ViewRomCommand}" ToolTip.Tip="{x:Static r:Strings.Editor_ViewRomTip}" />
+                  <MenuItem Header="{x:Static r:Strings.Editor_HistoryMenu}" Command="{Binding ShowHistoryCommand}" />
+                  <MenuItem Header="{x:Static r:Strings.Editor_Settings}" Command="{Binding OpenSettingsCommand}" />
+                </MenuFlyout>
+              </Button.Flyout>
+            </Button>
+          </StackPanel>
+        </Grid>
+      </Panel>
     </Border>
 
     <!-- Changes that the built ROM does not have yet: stats, moves and randomizer options only reach the game when it is built -->
-    <Border DockPanel.Dock="Top" Background="#FFF6E5" BorderBrush="#E8A33D" BorderThickness="0,0,0,1" Padding="12,7" IsVisible="{Binding NeedsRomBuild}">
-      <TextBlock Foreground="#7A4B00" VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding NeedsRomBuildText}" />
+    <Border DockPanel.Dock="Top" Background="{DynamicResource WarningBrush}" BorderBrush="{DynamicResource WarningLineBrush}" BorderThickness="0,0,0,1" Padding="12,7" IsVisible="{Binding NeedsRomBuild}">
+      <TextBlock Foreground="{DynamicResource ModifiedTextBrush}" VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding NeedsRomBuildText}" />
     </Border>
 
     <!-- Status bar -->
-    <Border DockPanel.Dock="Bottom" Padding="12,6" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+    <Border DockPanel.Dock="Bottom" Padding="12,6" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource LineBrush}" Background="{DynamicResource BarBrush}"
             IsVisible="{Binding Status, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
       <TextBlock Text="{Binding Status}" TextWrapping="Wrap" Classes.error="{Binding StatusIsError}" />
     </Border>
@@ -159,7 +176,7 @@
       <!-- Three tabs (2026-11-09, user): Proyecto · Opciones de la ROM · Partida. The run's index routes undo to the save. -->
       <!-- ================= Project: build, files, mods, history ================= -->
       <TabItem Header="{x:Static r:Strings.Tab_Project}">
-        <TabControl x:Name="ProjectTabs" Padding="0">
+        <TabControl x:Name="ProjectTabs" Padding="0" SelectedIndex="{Binding ProjectTabIndex}">
           <TabItem Header="{x:Static r:Strings.Tab_GameBuild}">
             <ContentControl Content="{Binding Randomizer}" />
           </TabItem>
@@ -246,7 +263,7 @@
               </TabItem>
               <TabItem Header="{x:Static r:Strings.Sub_Editor}">
                   <DockPanel>
-                  <Border DockPanel.Dock="Top" Padding="8,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+                  <Border DockPanel.Dock="Top" Padding="8,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource LineBrush}">
                     <Grid ColumnDefinitions="Auto,6,Auto,*,Auto">
                       <TextBlock Grid.Column="3" Classes="hint" Margin="6,0,12,0" VerticalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"
                                  Text="{x:Static r:Strings.Data_Hint}" ToolTip.Tip="{x:Static r:Strings.Data_Hint}" />
@@ -310,7 +327,7 @@
                                                   <TextBlock Text="{Binding Label}" />
                                                   <TextBlock Grid.Column="1" Text="{Binding Original}" HorizontalAlignment="Right" FontWeight="SemiBold" />
                                                   <TextBlock Grid.Column="2" Text="{Binding Current}" HorizontalAlignment="Right" />
-                                                  <TextBlock Grid.Column="3" Text="{Binding Difference}" HorizontalAlignment="Right" Foreground="#7A4B00"
+                                                  <TextBlock Grid.Column="3" Text="{Binding Difference}" HorizontalAlignment="Right" Foreground="{DynamicResource ModifiedTextBrush}"
                                                              FontWeight="SemiBold" IsVisible="{Binding Changed}" />
                                                 </Grid>
                                               </DataTemplate>
@@ -339,7 +356,7 @@
                                                 <TextBlock Classes="field-label" Classes.modified="{Binding IsModified}" Text="{Binding Label}" />
                                                 <NumericUpDown Grid.Column="1" Value="{Binding Value}" Minimum="{Binding Min}" Maximum="{Binding Max}"
                                                                Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
-                                                <Border Grid.Column="2" Margin="10,0,0,0" Height="12" CornerRadius="2" Background="#E8ECEF" VerticalAlignment="Center">
+                                                <Border Grid.Column="2" Margin="10,0,0,0" Height="12" CornerRadius="2" Background="{DynamicResource Panel2Brush}" VerticalAlignment="Center">
                                                   <Border HorizontalAlignment="Left" Width="{Binding BarWidth}" CornerRadius="2" Background="{Binding BarBrush}"
                                                           BorderBrush="#30000000" BorderThickness="1" />
                                                 </Border>
@@ -554,7 +571,7 @@
               </TabItem>
               <TabItem Header="{x:Static r:Strings.Sub_Editor}">
                   <DockPanel>
-                  <Border DockPanel.Dock="Top" Padding="8,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+                  <Border DockPanel.Dock="Top" Padding="8,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource LineBrush}">
                     <Grid ColumnDefinitions="*,Auto">
                       <TextBlock Classes="hint" VerticalAlignment="Center" Text="{x:Static r:Strings.Data_MovesHint}" />
                       <Button Grid.Column="1" Content="{Binding MoveRevertText}" Command="{Binding RevertMoveEditsCommand}"
@@ -790,7 +807,7 @@
               </TabItem>
               <TabItem Header="{x:Static r:Strings.Sub_Editor}">
                   <DockPanel>
-                    <Border DockPanel.Dock="Top" Padding="8,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}">
+                    <Border DockPanel.Dock="Top" Padding="8,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource LineBrush}">
                       <Grid ColumnDefinitions="Auto,Auto,12,*,Auto">
                         <RadioButton GroupName="TrainerMode" IsChecked="{Binding TrainersByCategory}" Content="{x:Static r:Strings.Trainer_ModeCategory}"
                                      ToolTip.Tip="{x:Static r:Strings.Trainer_ModeCategoryTip}" Margin="0,0,10,0" />

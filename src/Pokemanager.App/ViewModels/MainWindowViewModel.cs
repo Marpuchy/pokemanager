@@ -90,6 +90,13 @@ public partial class MainWindowViewModel : ObservableObject
     partial void OnCurrentPageChanged(ObservableObject value)
     {
         OnPropertyChanged(nameof(Title));
+        // The accent and the glow follow the game being edited (the start page sets its own as projects are picked).
+        Services.AppTheme.UseGame(value switch
+        {
+            EditorViewModel editor => editor.Session.Project.Game,
+            WelcomeViewModel welcome => welcome.SelectedProject?.Game,
+            _ => null,
+        });
         RequestLevelCapCheck();
     }
 

@@ -7,5 +7,18 @@
         Title="{Binding Title}"
         Width="1280" Height="820" MinWidth="960" MinHeight="600"
         WindowStartupLocation="CenterScreen">
-  <ContentControl Content="{Binding CurrentPage}" />
+  <!-- The background (Services/AppTheme): the slate gradient, the game's glow, then a faint pattern; the pages over it -->
+  <Panel>
+    <Border>
+      <Border.Background>
+        <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+          <GradientStop Color="{DynamicResource AppBase2Color}" Offset="0" />
+          <GradientStop Color="{DynamicResource AppBaseColor}" Offset="1" />
+        </LinearGradientBrush>
+      </Border.Background>
+    </Border>
+    <Border Background="{DynamicResource AppGlowBrush}" />
+    <Border Background="{DynamicResource AppPatternBrush}" />
+    <ContentControl Content="{Binding CurrentPage}" />
+  </Panel>
 </Window>

@@ -1,9 +1,82 @@
-﻿<Application xmlns="https://github.com/avaloniaui"
+<Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Pokemanager.App.ViewModels"
              xmlns:views="using:Pokemanager.App.Views"
              x:Class="Pokemanager.App.App"
-             RequestedThemeVariant="Light">
+             RequestedThemeVariant="Dark">
+
+  <!--
+    Colour tokens (2026-11-11, user chose the "Grafito + color de tu juego" style, slate grey, dark by default and light
+    in Ajustes): every colour of the interface comes from here, as a DynamicResource, so switching the variant repaints
+    the whole application. The accent (AccentBrush, AccentSoftBrush, AccentTextBrush, AccentInkBrush) and the background
+    (AppGlowBrush, AppPatternBrush) are set from code by Services/AppTheme for the project's game. Type colours, stat
+    bars and the games' own art are not tokens: they are the games'.
+  -->
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="AppBaseBrush" Color="#22262E" />
+          <Color x:Key="AppBaseColor">#22262E</Color>
+          <Color x:Key="AppBase2Color">#2A2F38</Color> <!-- window base under the background -->
+          <SolidColorBrush x:Key="AppBase2Brush" Color="#2A2F38" /> <!-- the other end of the base gradient -->
+          <SolidColorBrush x:Key="PanelBrush" Color="#2B3039" /> <!-- cards, pages that are not cards, lists -->
+          <SolidColorBrush x:Key="Panel2Brush" Color="#333944" /> <!-- secondary buttons, headers inside cards, bar tracks -->
+          <SolidColorBrush x:Key="FieldBrush" Color="#1E2228" /> <!-- text boxes, combo boxes, spinners -->
+          <SolidColorBrush x:Key="BarBrush" Color="#1D2026" /> <!-- the editor's top bar -->
+          <SolidColorBrush x:Key="LineBrush" Color="#3C4350" /> <!-- card and row borders (decorative) -->
+          <SolidColorBrush x:Key="InputLineBrush" Color="#5A6372" /> <!-- input borders (3:1 against Field and Panel) -->
+          <SolidColorBrush x:Key="TextBrush" Color="#ECEEF2" /> <!-- body text -->
+          <SolidColorBrush x:Key="MutedBrush" Color="#A9B1BD" /> <!-- hints, secondary lines (4.5:1 on Panel) -->
+          <SolidColorBrush x:Key="HoverBrush" Color="#3A414D" /> <!-- hover fill -->
+          <SolidColorBrush x:Key="PressedBrush" Color="#454D5B" /> <!-- pressed fill -->
+          <SolidColorBrush x:Key="DisabledBrush" Color="#262A31" /> <!-- disabled fill -->
+          <SolidColorBrush x:Key="DisabledTextBrush" Color="#6F7784" /> <!-- disabled text (WCAG exempts it) -->
+          <SolidColorBrush x:Key="ModifiedBrush" Color="#F5A524" /> <!-- modified bars, dots, tag fill (shapes) -->
+          <SolidColorBrush x:Key="ModifiedTextBrush" Color="#F5B54A" /> <!-- modified text -->
+          <SolidColorBrush x:Key="ErrorBrush" Color="#FF6B6E" /> <!-- errors -->
+          <SolidColorBrush x:Key="ErrorSoftBrush" Color="#33FF6B6E" /> <!-- error frames -->
+          <SolidColorBrush x:Key="SuccessBrush" Color="#4CC38A" /> <!-- earned, current -->
+          <SolidColorBrush x:Key="WarningBrush" Color="#33F5A524" /> <!-- warning frames (orange soft) -->
+          <SolidColorBrush x:Key="WarningLineBrush" Color="#B57A16" /> <!-- warning frame borders -->
+          <SolidColorBrush x:Key="OverlayBrush" Color="#33000000" /> <!-- icon backdrops on cards -->
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="AppBaseBrush" Color="#EEF0F3" />
+          <Color x:Key="AppBaseColor">#EEF0F3</Color>
+          <Color x:Key="AppBase2Color">#F7F8FA</Color>
+          <SolidColorBrush x:Key="AppBase2Brush" Color="#F7F8FA" />
+          <SolidColorBrush x:Key="PanelBrush" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="Panel2Brush" Color="#F1F3F6" />
+          <SolidColorBrush x:Key="FieldBrush" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="BarBrush" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="LineBrush" Color="#D5DAE1" />
+          <SolidColorBrush x:Key="InputLineBrush" Color="#8A929E" />
+          <SolidColorBrush x:Key="TextBrush" Color="#1B1E24" />
+          <SolidColorBrush x:Key="MutedBrush" Color="#5B6370" />
+          <SolidColorBrush x:Key="HoverBrush" Color="#E6EBF1" />
+          <SolidColorBrush x:Key="PressedBrush" Color="#D8DFE8" />
+          <SolidColorBrush x:Key="DisabledBrush" Color="#EEF0F3" />
+          <SolidColorBrush x:Key="DisabledTextBrush" Color="#A0A6AF" />
+          <SolidColorBrush x:Key="ModifiedBrush" Color="#E07B00" />
+          <SolidColorBrush x:Key="ModifiedTextBrush" Color="#7A4B00" />
+          <SolidColorBrush x:Key="ErrorBrush" Color="#C42B2F" />
+          <SolidColorBrush x:Key="ErrorSoftBrush" Color="#14C42B2F" />
+          <SolidColorBrush x:Key="SuccessBrush" Color="#237A4B" />
+          <SolidColorBrush x:Key="WarningBrush" Color="#1FE07B00" />
+          <SolidColorBrush x:Key="WarningLineBrush" Color="#E07B00" />
+          <SolidColorBrush x:Key="OverlayBrush" Color="#14000000" />
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+      <SolidColorBrush x:Key="AccentBrush" Color="#3B82F6" />
+      <SolidColorBrush x:Key="AccentSoftBrush" Color="#293B82F6" />
+      <SolidColorBrush x:Key="AccentTextBrush" Color="#7FB0FF" />
+      <SolidColorBrush x:Key="AccentInkBrush" Color="#FFFFFF" />
+      <SolidColorBrush x:Key="AppGlowBrush" Color="Transparent" />
+      <SolidColorBrush x:Key="AppPatternBrush" Color="Transparent" />
+      <SolidColorBrush x:Key="BarGlowBrush" Color="Transparent" />
+    </ResourceDictionary>
+  </Application.Resources>
 
   <Application.DataTemplates>
     <DataTemplate DataType="vm:WelcomeViewModel">
@@ -45,7 +118,7 @@
       </Border>
     </DataTemplate>
     <DataTemplate DataType="vm:TypeChip">
-      <Border Background="{Binding Background}" BorderBrush="#60000000" BorderThickness="1" CornerRadius="2" Padding="5,0">
+      <Border Background="{Binding Background}" BorderBrush="#40000000" BorderThickness="1" CornerRadius="2" Padding="5,0">
         <TextBlock Text="{Binding Name}" Foreground="{Binding Foreground}" FontSize="10" FontWeight="SemiBold" />
       </Border>
     </DataTemplate>
@@ -59,17 +132,18 @@
 
     <!-- Group boxes of the responsive pages (WinForms GroupBox look) -->
     <Style Selector="Border.card">
-      <Setter Property="Background" Value="White" />
-      <Setter Property="BorderBrush" Value="#D5DFE5" />
+      <Setter Property="Background" Value="{DynamicResource PanelBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
       <Setter Property="BorderThickness" Value="1" />
       <Setter Property="CornerRadius" Value="2" />
-      <Setter Property="Padding" Value="10,6,10,8" />
+      <Setter Property="Padding" Value="12,8,12,10" />
+      <Setter Property="BoxShadow" Value="0 1 2 0 #26000000" />
     </Style>
     <Style Selector="TextBlock.card-title">
-      <Setter Property="FontSize" Value="12" />
-      <Setter Property="FontWeight" Value="SemiBold" />
-      <Setter Property="Foreground" Value="#1C3A70" />
-      <Setter Property="Margin" Value="0,0,0,2" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
+      <Setter Property="Margin" Value="0,0,0,4" />
     </Style>
 
     <!-- Pixel-art sprites: scale without blurring -->
@@ -79,7 +153,7 @@
 
     <!-- Field whose value differs from the base -->
     <Style Selector="TextBlock.field-label.modified">
-      <Setter Property="Foreground" Value="#E07B00" />
+      <Setter Property="Foreground" Value="{DynamicResource ModifiedTextBrush}" />
       <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
     <Style Selector="TextBlock.field-label">
@@ -87,25 +161,25 @@
       <Setter Property="Margin" Value="0,0,8,0" />
     </Style>
     <Style Selector="TextBlock.section">
-      <Setter Property="FontSize" Value="12" />
-      <Setter Property="FontWeight" Value="SemiBold" />
-      <Setter Property="Foreground" Value="#1C3A70" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
       <Setter Property="Margin" Value="0,10,0,4" />
     </Style>
     <Style Selector="TextBlock.dot">
-      <Setter Property="Foreground" Value="#E07B00" />
+      <Setter Property="Foreground" Value="{DynamicResource ModifiedBrush}" />
       <Setter Property="FontWeight" Value="Bold" />
     </Style>
     <Style Selector="TextBlock.error">
-      <Setter Property="Foreground" Value="#D13438" />
+      <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}" />
       <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
     <Style Selector="TextBlock.hint">
-      <Setter Property="Foreground" Value="#6D6D6D" />
+      <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
       <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
     <Style Selector="TextBlock.hint.current">
-      <Setter Property="Foreground" Value="#2E8B57" />
+      <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}" />
       <Setter Property="Opacity" Value="1" />
     </Style>
   </Application.Styles>

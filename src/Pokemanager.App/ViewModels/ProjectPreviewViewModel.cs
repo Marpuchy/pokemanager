@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -18,7 +18,7 @@ public sealed record MoveLine(string Name, string PP, string Type, Avalonia.Medi
     Bitmap? TypeIcon = null, Avalonia.Media.IImage? CategoryIcon = null)
 {
     /// <summary>An empty slot, drawn as the save editor draws one.</summary>
-    public static MoveLine Empty { get; } = new("—", "", "", new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#F2F4F6")), Avalonia.Media.Brushes.Gray);
+    public static MoveLine Empty => new("—", "", "", Pokemanager.App.Services.Tokens.Panel2, Pokemanager.App.Services.Tokens.Muted);
 
     public static MoveLine Of(string name, string pp, int type, string typeName, int category) =>
         new(name, pp, typeName, TypeColors.Background(type), TypeColors.Foreground(type),

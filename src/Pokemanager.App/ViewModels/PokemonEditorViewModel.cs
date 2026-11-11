@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PKHeX.Core;
 using Pokemanager.App.Resources;
@@ -28,10 +28,10 @@ public sealed class StatRowViewModel(PokemonEditorViewModel owner, int index, st
     /// <summary>+1 when the nature raises this stat, -1 when it lowers it (PKHeX colors the label red and blue).</summary>
     public int NatureEffect => owner.NatureEffect(Index);
 
-    public Avalonia.Media.IBrush LabelBrush => new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse(NatureEffect switch
+    public Avalonia.Media.IBrush LabelBrush => NatureEffect switch
     {
-        > 0 => "#D13438", < 0 => "#1C6FD1", _ => "#1A1A1A",
-    }));
+        > 0 => Services.Tokens.Raised, < 0 => Services.Tokens.Lowered, _ => Services.Tokens.Text,
+    };
 
     public string NatureMark => NatureEffect switch { > 0 => "▲", < 0 => "▼", _ => "" };
 
@@ -114,8 +114,8 @@ public sealed class MoveSlotViewModel(PokemonEditorViewModel owner, int index) :
     /// <summary>Type of the move in the ROM being played; -1 for an empty slot.</summary>
     private int Type => owner.Pokemon.GetMove(Index) is var m and > 0 && m < owner.Document.Rom.Moves.Length ? owner.Document.Rom.Moves[m].Type : -1;
 
-    public Avalonia.Media.IBrush TypeBackground => Type < 0 ? new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#F2F4F6")) : TypeColors.Background(Type);
-    public Avalonia.Media.IBrush TypeForeground => Type < 0 ? Avalonia.Media.Brushes.Gray : TypeColors.Foreground(Type);
+    public Avalonia.Media.IBrush TypeBackground => Type < 0 ? Services.Tokens.Panel2 : TypeColors.Background(Type);
+    public Avalonia.Media.IBrush TypeForeground => Type < 0 ? Services.Tokens.Muted : TypeColors.Foreground(Type);
     public string TypeName => Type >= 0 && Type < owner.Names.Types.Count ? owner.Names.Types[Type] : "";
 
     public Avalonia.Media.Imaging.Bitmap? TypeIcon => Type < 0 ? null : PkhexImages.Type(Type);

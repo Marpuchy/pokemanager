@@ -1,4 +1,4 @@
-﻿<!--
+<!--
   The Pokédex of the run: every Pokémon and form of the ROM, with the save's seen / caught flags. A top-level tab of its
   own since 2026-11-09 (issue #2: "el apartado de pokedex debe salir arriba al lado de rom y partida").
 -->
@@ -23,17 +23,17 @@
       <Setter Property="Padding" Value="10,3" />
     </Style>
     <Style Selector="ToggleButton.flag /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="White" />
-      <Setter Property="BorderBrush" Value="#C8D0D6" />
+      <Setter Property="Background" Value="{DynamicResource PanelBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
     </Style>
     <Style Selector="ToggleButton.flag:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Background" Value="#F2F6FA" />
-      <Setter Property="BorderBrush" Value="#8FA3B3" />
+      <Setter Property="Background" Value="{DynamicResource HoverBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource InputLineBrush}" />
     </Style>
     <Style Selector="ToggleButton.flag TextBlock, ListBoxItem:selected ToggleButton.flag TextBlock">
       <Setter Property="FontSize" Value="11" />
       <Setter Property="FontWeight" Value="SemiBold" />
-      <Setter Property="Foreground" Value="#7A8690" />
+      <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
     </Style>
     <Style Selector="ToggleButton.flag.seen:checked /template/ ContentPresenter#PART_ContentPresenter">
       <Setter Property="Background" Value="#2F7BBF" />
@@ -72,11 +72,11 @@
               <Button Classes="plain tri" Margin="0,0,14,0" Command="{Binding CycleMegaCommand}" ToolTip.Tip="{x:Static r:Strings.Dex_FilterMegaTip}">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                   <Panel Width="18" Height="18" VerticalAlignment="Center">
-                    <Border Background="White" BorderBrush="#7A7A7A" BorderThickness="1" CornerRadius="2" />
-                    <Border Background="#0078D7" CornerRadius="2" IsVisible="{Binding MegaOnly}">
+                    <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource InputLineBrush}" BorderThickness="1" CornerRadius="2" />
+                    <Border Background="{DynamicResource AccentBrush}" CornerRadius="2" IsVisible="{Binding MegaOnly}">
                       <TextBlock Text="✓" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <Border Background="#D13438" CornerRadius="2" IsVisible="{Binding MegaExcluded}">
+                    <Border Background="{DynamicResource ErrorBrush}" CornerRadius="2" IsVisible="{Binding MegaExcluded}">
                       <TextBlock Text="✕" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                   </Panel>
@@ -86,11 +86,11 @@
               <Button Classes="plain tri" Margin="0,0,14,0" Command="{Binding CycleLegendaryCommand}" ToolTip.Tip="{x:Static r:Strings.Dex_FilterLegendaryTip}">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                   <Panel Width="18" Height="18" VerticalAlignment="Center">
-                    <Border Background="White" BorderBrush="#7A7A7A" BorderThickness="1" CornerRadius="2" />
-                    <Border Background="#0078D7" CornerRadius="2" IsVisible="{Binding LegendaryOnly}">
+                    <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource InputLineBrush}" BorderThickness="1" CornerRadius="2" />
+                    <Border Background="{DynamicResource AccentBrush}" CornerRadius="2" IsVisible="{Binding LegendaryOnly}">
                       <TextBlock Text="✓" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <Border Background="#D13438" CornerRadius="2" IsVisible="{Binding LegendaryExcluded}">
+                    <Border Background="{DynamicResource ErrorBrush}" CornerRadius="2" IsVisible="{Binding LegendaryExcluded}">
                       <TextBlock Text="✕" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                   </Panel>
@@ -218,7 +218,7 @@
                             <Grid ColumnDefinitions="80,36,*">
                               <TextBlock Classes="hint" Text="{Binding Label}" VerticalAlignment="Center" />
                               <TextBlock Grid.Column="1" FontWeight="SemiBold" Text="{Binding Value}" VerticalAlignment="Center" />
-                              <Border Grid.Column="2" Height="10" Background="#E8ECEF" VerticalAlignment="Center">
+                              <Border Grid.Column="2" Height="10" Background="{DynamicResource Panel2Brush}" VerticalAlignment="Center">
                                 <Border HorizontalAlignment="Left" Width="{Binding BarWidth}" Background="{Binding BarBrush}" BorderBrush="#30000000" BorderThickness="1" />
                               </Border>
                             </Grid>

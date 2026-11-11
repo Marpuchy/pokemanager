@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <resheader name="resmimetype">
     <value>text/microsoft-resx</value>
@@ -5239,5 +5239,53 @@ Project: {2}</value>
   </data>
   <data name="UserMods_EnabledStatus" xml:space="preserve">
     <value>{0} on and project saved. Build the ROM to play with it.</value>
+  </data>
+  <data name="Editor_PlayButton" xml:space="preserve">
+    <value>▶ Play</value>
+  </data>
+  <data name="Editor_BuildRomButton" xml:space="preserve">
+    <value>⚒ Build ROM</value>
+  </data>
+  <data name="Editor_MoreTip" xml:space="preserve">
+    <value>More: projects, history and settings</value>
+  </data>
+  <data name="Editor_HistoryMenu" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="Set_Appearance" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+  <data name="Set_ThemeDark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="Set_ThemeLight" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="Set_Background" xml:space="preserve">
+    <value>Background</value>
+  </data>
+  <data name="Bg_Glow" xml:space="preserve">
+    <value>Glow of the game</value>
+  </data>
+  <data name="Bg_Hexagons" xml:space="preserve">
+    <value>Hexagons</value>
+  </data>
+  <data name="Bg_PokeBalls" xml:space="preserve">
+    <value>Poké Balls</value>
+  </data>
+  <data name="Bg_Lines" xml:space="preserve">
+    <value>Lines</value>
+  </data>
+  <data name="Bg_Plain" xml:space="preserve">
+    <value>Plain</value>
+  </data>
+  <data name="Tip_ThemeDark" xml:space="preserve">
+    <value>Dark slate background with light text. Easier on the eyes for long sessions.</value>
+  </data>
+  <data name="Tip_ThemeLight" xml:space="preserve">
+    <value>Light background with dark text.</value>
+  </data>
+  <data name="Tip_Background" xml:space="preserve">
+    <value>What is drawn behind the pages. Every option uses the colour of the game you are editing.</value>
   </data>
 </root>

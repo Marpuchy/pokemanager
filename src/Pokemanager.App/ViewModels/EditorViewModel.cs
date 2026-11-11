@@ -164,6 +164,23 @@ public partial class EditorViewModel : ObservableObject
 
     public string GameText => string.Format(Strings.Editor_GameText, Dump.Title.DisplayName(), Path.GetFileNameWithoutExtension(ProjectPath));
 
+    /// <summary>The game's own 3DS menu icon, read once from the game folder (null when the import has none).</summary>
+    public Avalonia.Media.Imaging.Bitmap? GameIcon => field ??= Services.GameIcon.Load(Session.Project.DumpDirectory);
+
+    public bool HasGameIcon => GameIcon is not null;
+
+    /// <summary>Opens Proyecto → Historial (from the ⋯ menu of the top bar).</summary>
+    [RelayCommand]
+    private void ShowHistory()
+    {
+        SelectedTab = 0;
+        ProjectTabIndex = 3;
+    }
+
+    /// <summary>Which page of Proyecto is open: Generar, Archivos, Mods, Historial.</summary>
+    [ObservableProperty]
+    public partial int ProjectTabIndex { get; set; }
+
     /// <summary>The title id and the paths: in the top bar's tooltip, not in its text (2026-11-09, user).</summary>
     public string GameTip => string.Format(Strings.Editor_GameTip, Dump.Title.TitleIdHex(), Session.Project.DumpDirectory, ProjectPath);
     public string EditCountText => Session.Project.Edits.Count == 1 ? Strings.Editor_EditCountOne : string.Format(Strings.Editor_EditCount, Session.Project.Edits.Count);

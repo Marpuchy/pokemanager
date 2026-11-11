@@ -1,4 +1,4 @@
-﻿<!--
+<!--
   How a Pokémon looks, everywhere: party cards, box cells, the type-colored header and the read-only sheet. The save
   editor, the project preview and multiplayer rooms use these same styles and templates (IMonCard, IBoxBrowser, MonSheet),
   so a change here changes all of them.
@@ -25,7 +25,7 @@
     <Setter Property="Margin" Value="0,3,0,0" />
   </Style>
   <Style Selector="Button.evo-node.current Border.evo-card">
-    <Setter Property="BorderBrush" Value="#1C3A70" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentTextBrush}" />
     <Setter Property="BorderThickness" Value="3" />
   </Style>
   <Style Selector="Button.evo-node:pointerover Border.evo-card">
@@ -56,18 +56,18 @@
     <Setter Property="Height" Value="50" />
   </Style>
   <Style Selector="Button.plain:pointerover Border.member">
-    <Setter Property="BorderBrush" Value="#0078D7" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
   </Style>
   <Style Selector="Border.member.empty">
     <Setter Property="BorderBrush" Value="#30000000" />
   </Style>
   <Style Selector="Border.member.selected">
-    <Setter Property="BorderBrush" Value="#0078D7" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
     <Setter Property="BorderThickness" Value="3" />
     <Setter Property="Padding" Value="1,0" />
   </Style>
   <Style Selector="Border.member.problem">
-    <Setter Property="BorderBrush" Value="#D13438" />
+    <Setter Property="BorderBrush" Value="{DynamicResource ErrorBrush}" />
     <Setter Property="BorderThickness" Value="3" />
     <Setter Property="Padding" Value="1,0" />
   </Style>
@@ -78,7 +78,7 @@
     <Setter Property="BorderBrush" Value="#60000000" />
     <Setter Property="BorderThickness" Value="1" />
     <Setter Property="ClipToBounds" Value="True" />
-    <Setter Property="Background" Value="#1C3A70" />
+    <Setter Property="Background" Value="{DynamicResource AccentTextBrush}" />
   </Style>
   <Style Selector="Border.cell">
     <Setter Property="CornerRadius" Value="2" />
@@ -93,20 +93,20 @@
   </Style>
   <!-- Where a dragged Pokémon would land (Controls/SlotDrag) -->
   <Style Selector="Button.drop > Border.member, Button.drop > Border.cell">
-    <Setter Property="BorderBrush" Value="#1C3A70" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentTextBrush}" />
     <Setter Property="BorderThickness" Value="3" />
   </Style>
   <Style Selector="Button.drop > Border.cell">
-    <Setter Property="Background" Value="#CCE4F7" />
+    <Setter Property="Background" Value="{DynamicResource PressedBrush}" />
   </Style>
 
   <Style Selector="Border.cell.selected">
     <Setter Property="Background" Value="#90FFFFFF" />
-    <Setter Property="BorderBrush" Value="#0078D7" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
   </Style>
   <Style Selector="Border.cell.problem">
     <Setter Property="Background" Value="#66D13438" />
-    <Setter Property="BorderBrush" Value="#D13438" />
+    <Setter Property="BorderBrush" Value="{DynamicResource ErrorBrush}" />
   </Style>
 
   <!-- Detail pages: header in the type colors, number badges, cards and ruled rows -->
@@ -140,7 +140,7 @@
     <Setter Property="VerticalAlignment" Value="Top" />
   </Style>
   <Style Selector="Border.icon-circle">
-    <Setter Property="Background" Value="White" />
+    <Setter Property="Background" Value="{DynamicResource PanelBrush}" />
     <Setter Property="BorderBrush" Value="#30000000" />
     <Setter Property="BorderThickness" Value="1" />
     <Setter Property="CornerRadius" Value="999" />
@@ -149,7 +149,7 @@
     <Setter Property="Margin" Value="0,0,6,0" />
   </Style>
   <Style Selector="Border.info-row">
-    <Setter Property="BorderBrush" Value="#EDF0F2" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Panel2Brush}" />
     <Setter Property="BorderThickness" Value="0,0,0,1" />
     <Setter Property="Padding" Value="0,5" />
   </Style>
@@ -159,7 +159,7 @@
     <Setter Property="MinHeight" Value="0" />
     <Setter Property="MinWidth" Value="24" />
     <Setter Property="CornerRadius" Value="0" />
-    <Setter Property="Background" Value="#E8ECEF" />
+    <Setter Property="Background" Value="{DynamicResource Panel2Brush}" />
     <Setter Property="VerticalAlignment" Value="Center" />
   </Style>
   <Style Selector="ProgressBar.stat-bar /template/ Border#ProgressBarTrack">
@@ -409,10 +409,10 @@
                   <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:EvolutionBranchViewModel">
                       <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="➜" FontSize="22" Foreground="#8A96A3" VerticalAlignment="Center" Margin="6,0" />
+                        <TextBlock Text="➜" FontSize="22" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="6,0" />
                         <ContentControl Content="{Binding}" VerticalAlignment="Center" />
                         <!-- Converging line: an arrow tilted towards the Pokémon every branch leads to -->
-                        <TextBlock Text="➜" FontSize="22" Foreground="#8A96A3" VerticalAlignment="Center" Margin="10,0,4,0"
+                        <TextBlock Text="➜" FontSize="22" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="10,0,4,0"
                                    IsVisible="{Binding IsConverging}">
                           <TextBlock.RenderTransform>
                             <RotateTransform Angle="{Binding ConvergeAngle, FallbackValue=0}" />
@@ -426,7 +426,7 @@
                 <ContentControl Content="{Binding Converge}" IsVisible="{Binding HasConverge}" VerticalAlignment="Center" />
                 <!-- Many branches (Eevee): columns of four, behind one arrow -->
                 <StackPanel Orientation="Horizontal" IsVisible="{Binding IsWide}" VerticalAlignment="Center">
-                  <TextBlock Text="➜" FontSize="22" Foreground="#8A96A3" VerticalAlignment="Center" Margin="6,0" />
+                  <TextBlock Text="➜" FontSize="22" Foreground="{DynamicResource MutedBrush}" VerticalAlignment="Center" Margin="6,0" />
                   <ItemsControl ItemsSource="{Binding Children}" VerticalAlignment="Center">
                     <ItemsControl.ItemsPanel>
                       <ItemsPanelTemplate>

@@ -26,9 +26,11 @@ public partial class App : Application
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            var settings = AppSettings.Load();
+            AppTheme.Configure(settings.DarkMode, settings.Background);
             var window = new MainWindow();
             var dialogs = new Dialogs(window);
-            var main = new MainWindowViewModel(dialogs, AppSettings.Load());
+            var main = new MainWindowViewModel(dialogs, settings);
             window.DataContext = main;
             window.Closing += (_, _) => main.Room.CloseForExit(); // tells the room and closes the router port
             desktop.MainWindow = window;

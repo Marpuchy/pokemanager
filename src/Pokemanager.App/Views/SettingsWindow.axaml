@@ -1,4 +1,4 @@
-﻿<Window xmlns="https://github.com/avaloniaui"
+<Window xmlns="https://github.com/avaloniaui"
         Icon="avares://Pokemanager.App/Assets/pokemanager.ico"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Pokemanager.App.ViewModels"
@@ -59,6 +59,22 @@
       </ItemsControl>
       <TextBlock Classes="hint" FontSize="11" Text="{x:Static r:Strings.Profile_Credit}" />
 
+      <TextBlock Classes="section" Text="{x:Static r:Strings.Set_Appearance}" />
+      <StackPanel Orientation="Horizontal" Spacing="16">
+        <RadioButton GroupName="theme" Content="{x:Static r:Strings.Set_ThemeDark}" ToolTip.Tip="{x:Static r:Strings.Tip_ThemeDark}" IsChecked="{Binding DarkMode}" />
+        <RadioButton GroupName="theme" Content="{x:Static r:Strings.Set_ThemeLight}" ToolTip.Tip="{x:Static r:Strings.Tip_ThemeLight}" IsChecked="{Binding LightMode}" />
+      </StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <TextBlock Text="{x:Static r:Strings.Set_Background}" VerticalAlignment="Center" />
+        <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_Background}" ItemsSource="{x:Static vm:SettingsViewModel.Backgrounds}" SelectedItem="{Binding SelectedBackground}" MinWidth="200">
+          <ComboBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:BackgroundOption">
+              <TextBlock Text="{Binding Name}" />
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+      </StackPanel>
+
       <TextBlock Classes="section" Text="{x:Static r:Strings.Set_Language}" />
       <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_SettingsLanguage}" ItemsSource="{x:Static vm:SettingsViewModel.UiLanguages}" SelectedItem="{Binding SelectedLanguage}" MinWidth="200">
         <ComboBox.ItemTemplate>
@@ -67,7 +83,7 @@
           </DataTemplate>
         </ComboBox.ItemTemplate>
       </ComboBox>
-      <TextBlock Classes="hint" Foreground="#E07B00" Text="{x:Static r:Strings.Set_LanguageHint}" IsVisible="{Binding LanguageChanged}" />
+      <TextBlock Classes="hint" Foreground="{DynamicResource ModifiedBrush}" Text="{x:Static r:Strings.Set_LanguageHint}" IsVisible="{Binding LanguageChanged}" />
 
       <TextBlock Classes="section" Text="{x:Static r:Strings.Set_Emulator}" />
       <TextBlock Classes="hint" Text="{x:Static r:Strings.Set_EmulatorHint}" />

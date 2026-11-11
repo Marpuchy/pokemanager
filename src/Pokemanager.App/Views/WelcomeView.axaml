@@ -1,4 +1,4 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Pokemanager.App.ViewModels"
              xmlns:r="using:Pokemanager.App.Resources"
@@ -9,7 +9,7 @@
   <UserControl.Styles>
     <!-- Project list on a box wallpaper: the frame clips the picture, the list is see-through, each project a white card. -->
     <Style Selector="Border.projects-frame">
-      <Setter Property="BorderBrush" Value="#828790" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
       <Setter Property="BorderThickness" Value="1" />
       <Setter Property="ClipToBounds" Value="True" />
     </Style>
@@ -26,23 +26,23 @@
       <Setter Property="Background" Value="Transparent" />
     </Style>
     <Style Selector="ListBox.projects ListBoxItem:selected TextBlock">
-      <Setter Property="Foreground" Value="#1A1A1A" />
+      <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
     </Style>
     <Style Selector="ListBox.projects ListBoxItem:selected TextBlock.hint">
-      <Setter Property="Foreground" Value="#6D6D6D" />
+      <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
     </Style>
     <Style Selector="Border.project-card">
-      <Setter Property="Background" Value="White" />
-      <Setter Property="BorderBrush" Value="#D5DFE5" />
+      <Setter Property="Background" Value="{DynamicResource PanelBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
       <Setter Property="BorderThickness" Value="2" />
       <Setter Property="CornerRadius" Value="2" />
       <Setter Property="Padding" Value="0,6,8,6" />
     </Style>
     <Style Selector="ListBoxItem:pointerover Border.project-card">
-      <Setter Property="Background" Value="#E5F1FB" />
+      <Setter Property="Background" Value="{DynamicResource HoverBrush}" />
     </Style>
     <Style Selector="ListBoxItem:selected Border.project-card">
-      <Setter Property="BorderBrush" Value="#0078D7" />
+      <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
     </Style>
   </UserControl.Styles>
 
@@ -62,7 +62,7 @@
                          IsVisible="{Binding PlayStatus, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
                 <TextBlock.Styles>
                   <Style Selector="TextBlock.error">
-                    <Setter Property="Foreground" Value="#B3261E" />
+                    <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}" />
                   </Style>
                 </TextBlock.Styles>
               </TextBlock>
@@ -82,8 +82,8 @@
         <Border DockPanel.Dock="Top" Classes="card" Margin="0,0,0,8" Classes.gameover="{Binding IsGameOver}">
           <Border.Styles>
             <Style Selector="Border.card.gameover">
-              <Setter Property="Background" Value="#FDECEC" />
-              <Setter Property="BorderBrush" Value="#D13438" />
+              <Setter Property="Background" Value="{DynamicResource ErrorSoftBrush}" />
+              <Setter Property="BorderBrush" Value="{DynamicResource ErrorBrush}" />
             </Style>
             <Style Selector="Button.badge">
               <Setter Property="Width" Value="42" />
@@ -104,7 +104,7 @@
             </Style>
             <Style Selector="Button.badge:pointerover /template/ ContentPresenter#PART_ContentPresenter">
               <Setter Property="Background" Value="{Binding $parent[Button].Background}" />
-              <Setter Property="BorderBrush" Value="#1C3A70" />
+              <Setter Property="BorderBrush" Value="{DynamicResource AccentTextBrush}" />
             </Style>
             <Style Selector="Button.badge:pressed /template/ ContentPresenter#PART_ContentPresenter">
               <Setter Property="Background" Value="{Binding $parent[Button].Background}" />
@@ -118,21 +118,21 @@
               <Setter Property="BorderBrush" Value="Transparent" />
             </Style>
             <Style Selector="Button.badge.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-              <Setter Property="Background" Value="#E3EEFA" />
+              <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
             </Style>
             <Style Selector="Button.badge.icon:pressed /template/ ContentPresenter#PART_ContentPresenter">
-              <Setter Property="Background" Value="#CCE0F5" />
+              <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
             </Style>
             <Style Selector="Button.badge.pending">
-              <Setter Property="BorderBrush" Value="#E07B00" />
+              <Setter Property="BorderBrush" Value="{DynamicResource ModifiedBrush}" />
             </Style>
           </Border.Styles>
           <WrapPanel>
             <StackPanel Spacing="4" Margin="0,0,24,0">
               <TextBlock Classes="card-title" Text="{Binding BadgesText}" />
-              <Border Background="#E8F1FB" BorderBrush="#3A7BD5" BorderThickness="1" CornerRadius="2" Padding="8,2" Margin="0,0,0,4"
+              <Border Background="{DynamicResource AccentSoftBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="2" Padding="8,2" Margin="0,0,0,4"
                       HorizontalAlignment="Left" IsVisible="{Binding HasLevelCap}">
-                <TextBlock Text="{Binding LevelCapText}" FontWeight="SemiBold" Foreground="#1F4E8C" />
+                <TextBlock Text="{Binding LevelCapText}" FontWeight="SemiBold" Foreground="{DynamicResource AccentTextBrush}" />
               </Border>
               <ItemsControl ItemsSource="{Binding Badges}">
                 <ItemsControl.ItemsPanel>
@@ -153,8 +153,8 @@
                       <!-- A grand trial or the league: the major roulette -->
                       <TextBlock IsVisible="{Binding IsMajor}" Text="★" FontSize="13" Foreground="#D4A017" HorizontalAlignment="Right" VerticalAlignment="Top"
                                  Margin="0,-3,-2,0" IsHitTestVisible="False" />
-                      <Border IsVisible="{Binding HasMark}" Width="17" Height="17" CornerRadius="2" Background="White"
-                              BorderBrush="#9A9A9A" BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" IsHitTestVisible="False">
+                      <Border IsVisible="{Binding HasMark}" Width="17" Height="17" CornerRadius="2" Background="{DynamicResource PanelBrush}"
+                              BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" IsHitTestVisible="False">
                         <TextBlock Text="{Binding Mark}" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{Binding MarkBrush}" />
                       </Border>
                     </Panel>
@@ -166,12 +166,12 @@
             <StackPanel Spacing="4" IsVisible="{Binding TracksLives}">
               <TextBlock Classes="card-title" Text="{Binding LivesText}" />
               <StackPanel Orientation="Horizontal" Spacing="6">
-                <TextBlock Text="{Binding Hearts}" FontSize="26" Foreground="#D13438" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding Hearts}" FontSize="26" Foreground="{DynamicResource ErrorBrush}" VerticalAlignment="Center" />
                 <Button Content="−" Width="26" Padding="0" HorizontalContentAlignment="Center" VerticalAlignment="Center"
                         Command="{Binding LoseLifeCommand}" ToolTip.Tip="{x:Static r:Strings.Locke_LoseLife}" />
                 <Button Content="+" Width="26" Padding="0" HorizontalContentAlignment="Center" VerticalAlignment="Center"
                         Command="{Binding GainLifeCommand}" ToolTip.Tip="{x:Static r:Strings.Locke_GainLife}" />
-                <TextBlock Text="{x:Static r:Strings.Locke_GameOver}" IsVisible="{Binding IsGameOver}" FontWeight="Bold" Foreground="#D13438" VerticalAlignment="Center" Margin="6,0,0,0" />
+                <TextBlock Text="{x:Static r:Strings.Locke_GameOver}" IsVisible="{Binding IsGameOver}" FontWeight="Bold" Foreground="{DynamicResource ErrorBrush}" VerticalAlignment="Center" Margin="6,0,0,0" />
               </StackPanel>
             </StackPanel>
           </WrapPanel>
@@ -227,7 +227,7 @@
             <TextBlock Classes="hint" FontSize="11" Text="{Binding Room.SummaryText}" TextWrapping="Wrap" />
           </StackPanel>
           <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="6" Margin="0,8,0,0">
-            <Button Classes="accent" Content="{x:Static r:Strings.Room_Open}" Command="{Binding OpenRoomCommand}" IsVisible="{Binding !ShowRoom}" />
+            <Button Content="{x:Static r:Strings.Room_Open}" Command="{Binding OpenRoomCommand}" IsVisible="{Binding !ShowRoom}" />
             <Button Content="{x:Static r:Strings.Room_ClosePanel}" Command="{Binding CloseRoomPanelCommand}" IsVisible="{Binding ShowRoom}"
                     ToolTip.Tip="{x:Static r:Strings.Room_ClosePanelTip}" />
             <Button Content="{x:Static r:Strings.Room_EditProfile}" Command="{Binding OpenSettingsCommand}" />
@@ -309,9 +309,9 @@
               <TextBox Text="{Binding RomPath}" PlaceholderText="D:\roms\Pokemon Ultra Moon.3ds" />
               <Button Grid.Column="1" Margin="6,0,0,0" Content="{x:Static r:Strings.Common_Browse}" Command="{Binding BrowseRomCommand}" />
             </Grid>
-            <TextBlock Text="{Binding DetectedGame}" FontWeight="SemiBold" Foreground="#2E8B57"
+            <TextBlock Text="{Binding DetectedGame}" FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}"
                        IsVisible="{Binding DetectedGame, Converter={x:Static ObjectConverters.IsNotNull}}" />
-            <TextBlock Classes="hint" Foreground="#B35C00" Text="{x:Static r:Strings.Welcome_RomRandomized}" IsVisible="{Binding RomLooksRandomized}" />
+            <TextBlock Classes="hint" Foreground="{DynamicResource ModifiedTextBrush}" Text="{x:Static r:Strings.Welcome_RomRandomized}" IsVisible="{Binding RomLooksRandomized}" />
             <TextBlock Margin="0,8,0,0" Text="{x:Static r:Strings.Welcome_ProjectName}" />
             <TextBox Text="{Binding ProjectName}" MaxWidth="400" HorizontalAlignment="Left" MinWidth="300" />
             <TextBlock Classes="hint" Text="{Binding ProjectFileText}" TextWrapping="Wrap" />

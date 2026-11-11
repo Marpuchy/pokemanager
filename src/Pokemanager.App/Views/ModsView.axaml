@@ -1,4 +1,4 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Pokemanager.App.ViewModels"
              xmlns:r="using:Pokemanager.App.Resources"
@@ -78,7 +78,7 @@
                             IsVisible="{Binding IsRomMod}" ToolTip.Tip="{Binding EnableTip}" />
                   <!-- The picture the user gave their own mod -->
                   <Border Grid.Column="1" Width="64" Height="64" Margin="0,0,10,0" VerticalAlignment="Top"
-                          Background="#F2F4F6" BorderBrush="#30000000" BorderThickness="1" IsVisible="{Binding HasImage}">
+                          Background="{DynamicResource Panel2Brush}" BorderBrush="#30000000" BorderThickness="1" IsVisible="{Binding HasImage}">
                     <Image Source="{Binding Image}" Stretch="Uniform" />
                   </Border>
                   <StackPanel Grid.Column="2" Spacing="2">
@@ -100,7 +100,7 @@
                 </Grid>
 
                 <!-- ============ files another enabled mod also brings: which one wins ============ -->
-                <Border Padding="10" CornerRadius="2" Background="#26E07B00" BorderBrush="#E07B00" BorderThickness="1"
+                <Border Padding="10" CornerRadius="2" Background="{DynamicResource WarningBrush}" BorderBrush="{DynamicResource ModifiedBrush}" BorderThickness="1"
                         IsVisible="{Binding HasConflict}" ToolTip.Tip="{x:Static r:Strings.UserMods_OrderHint}">
                   <TextBlock Text="{Binding ConflictText}" TextWrapping="Wrap" />
                 </Border>
@@ -144,7 +144,7 @@
                 </Border>
 
                 <!-- ============ while it is downloading: what, how much, and a way out ============ -->
-                <Border Padding="10" CornerRadius="2" Background="#14305FA8" BorderBrush="#AFC4DE" BorderThickness="1"
+                <Border Padding="10" CornerRadius="2" Background="{DynamicResource AccentSoftBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
                         IsVisible="{Binding IsDownloading}" ToolTip.Tip="{x:Static r:Strings.Mods_DownloadProgressTip}">
                   <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
                     <TextBlock Text="{Binding DownloadText}" TextWrapping="Wrap" VerticalAlignment="Center"
@@ -168,31 +168,31 @@
                 <TextBlock Text="{Binding Description}" TextWrapping="Wrap" />
 
                 <!-- The author declares two licences that do not agree: both are shown and neither is chosen -->
-                <Border Padding="10" CornerRadius="2" Background="#14305FA8" BorderBrush="#AFC4DE" BorderThickness="1"
+                <Border Padding="10" CornerRadius="2" Background="{DynamicResource AccentSoftBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
                         IsVisible="{Binding HasLicenseWarning}" ToolTip.Tip="{x:Static r:Strings.Mods_LicenseTip}">
                   <TextBlock Text="{Binding LicenseWarning}" TextWrapping="Wrap" />
                 </Border>
 
                 <!-- ============ a plugin does nothing until the emulator's loader is on ============ -->
-                <Border Padding="10" CornerRadius="2" Background="#26E07B00" BorderBrush="#E07B00" BorderThickness="1"
+                <Border Padding="10" CornerRadius="2" Background="{DynamicResource WarningBrush}" BorderBrush="{DynamicResource ModifiedBrush}" BorderThickness="1"
                         IsVisible="{Binding HasSetupNote}" ToolTip.Tip="{x:Static r:Strings.Mods_PluginHint}">
                   <StackPanel Spacing="4">
-                    <TextBlock FontWeight="SemiBold" Foreground="#7A4B00"
+                    <TextBlock FontWeight="SemiBold" Foreground="{DynamicResource ModifiedTextBrush}"
                                Text="{x:Static r:Strings.Mods_PluginSetupTitle}" TextWrapping="Wrap" />
                     <TextBlock Text="{Binding SetupNote}" TextWrapping="Wrap" />
                   </StackPanel>
                 </Border>
 
                 <!-- ============ the known faults, where they cannot be missed ============ -->
-                <Border Padding="10" CornerRadius="2" Background="#26E07B00" BorderBrush="#E07B00" BorderThickness="1"
+                <Border Padding="10" CornerRadius="2" Background="{DynamicResource WarningBrush}" BorderBrush="{DynamicResource ModifiedBrush}" BorderThickness="1"
                         IsVisible="{Binding HasKnownIssues}" ToolTip.Tip="{x:Static r:Strings.Mods_KnownIssuesTip}">
                   <StackPanel Spacing="4">
-                    <TextBlock FontWeight="SemiBold" Foreground="#7A4B00" Text="{Binding KnownIssuesTitle}" TextWrapping="Wrap" />
+                    <TextBlock FontWeight="SemiBold" Foreground="{DynamicResource ModifiedTextBrush}" Text="{Binding KnownIssuesTitle}" TextWrapping="Wrap" />
                     <ItemsControl ItemsSource="{Binding KnownIssues}">
                       <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="x:String">
                           <Grid ColumnDefinitions="12,*" Margin="0,1">
-                            <TextBlock Text="•" Foreground="#7A4B00" FontWeight="Bold" />
+                            <TextBlock Text="•" Foreground="{DynamicResource ModifiedTextBrush}" FontWeight="Bold" />
                             <TextBlock Grid.Column="1" Text="{Binding}" TextWrapping="Wrap" />
                           </Grid>
                         </DataTemplate>
@@ -203,7 +203,7 @@
                 </Border>
 
                 <!-- ============ what it will not work alongside, before it is installed ============ -->
-                <Border Padding="10" CornerRadius="2" Background="#1AD13438" BorderBrush="#D13438" BorderThickness="1"
+                <Border Padding="10" CornerRadius="2" Background="{DynamicResource ErrorSoftBrush}" BorderBrush="{DynamicResource ErrorBrush}" BorderThickness="1"
                         IsVisible="{Binding HasConflicts}" ToolTip.Tip="{x:Static r:Strings.Mods_PluginConflictsTip}">
                   <StackPanel Spacing="4">
                     <TextBlock FontWeight="SemiBold" Text="{x:Static r:Strings.Mods_PluginConflictsTitle}" TextWrapping="Wrap" />
@@ -227,7 +227,7 @@
                 <TextBlock Text="{Binding VersionText}" TextWrapping="Wrap" Classes="hint"
                            ToolTip.Tip="{x:Static r:Strings.Mods_VersionTip}" />
                 <!-- A missing required file says which one and the folder it goes in, not just "it does not work" -->
-                <Border Padding="10" CornerRadius="2" Background="#1AD13438" BorderBrush="#D13438" BorderThickness="1"
+                <Border Padding="10" CornerRadius="2" Background="{DynamicResource ErrorSoftBrush}" BorderBrush="{DynamicResource ErrorBrush}" BorderThickness="1"
                         IsVisible="{Binding HasProblem}">
                   <TextBlock Text="{Binding Problem}" TextWrapping="Wrap" />
                 </Border>
@@ -259,10 +259,10 @@
                 </Expander>
 
                 <!-- ============ the file that comes apart ============ -->
-                <Border Padding="10" CornerRadius="2" Background="#14305FA8" BorderBrush="#AFC4DE" BorderThickness="1"
+                <Border Padding="10" CornerRadius="2" Background="{DynamicResource AccentSoftBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
                         IsVisible="{Binding HasSeparateNote}">
                   <StackPanel Spacing="4">
-                    <TextBlock FontWeight="SemiBold" Foreground="#1C3A70" Text="{x:Static r:Strings.Mods_SeparateTitle}" />
+                    <TextBlock FontWeight="SemiBold" Foreground="{DynamicResource AccentTextBrush}" Text="{x:Static r:Strings.Mods_SeparateTitle}" />
                     <TextBlock Text="{Binding SeparateNote}" TextWrapping="Wrap" />
                   </StackPanel>
                 </Border>
@@ -280,9 +280,9 @@
                              ToolTip.Tip="{x:Static r:Strings.Mods_PluginStateTip}" />
 
                   <!-- Another .3gx in the same folder: installed, and still not the one that loads -->
-                  <Border Padding="10" CornerRadius="2" Background="#26E07B00" BorderBrush="#E07B00" BorderThickness="1"
+                  <Border Padding="10" CornerRadius="2" Background="{DynamicResource WarningBrush}" BorderBrush="{DynamicResource ModifiedBrush}" BorderThickness="1"
                           IsVisible="{Binding HasPluginOther}" ToolTip.Tip="{x:Static r:Strings.Mods_PluginConflictsTip}">
-                    <TextBlock Text="{Binding PluginOtherText}" TextWrapping="Wrap" Foreground="#7A4B00" />
+                    <TextBlock Text="{Binding PluginOtherText}" TextWrapping="Wrap" Foreground="{DynamicResource ModifiedTextBrush}" />
                   </Border>
 
                   <WrapPanel>
@@ -305,10 +305,10 @@
                              ToolTip.Tip="{x:Static r:Strings.Mods_MeasuredTip}" />
                   <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Mods_MeasuredHint}" />
 
-                  <Border Padding="10" CornerRadius="2" Background="#26E07B00" BorderBrush="#E07B00" BorderThickness="1"
+                  <Border Padding="10" CornerRadius="2" Background="{DynamicResource WarningBrush}" BorderBrush="{DynamicResource ModifiedBrush}" BorderThickness="1"
                           ToolTip.Tip="{x:Static r:Strings.Mods_SideEffectsTip}">
                     <StackPanel Spacing="4">
-                      <TextBlock FontWeight="SemiBold" Foreground="#7A4B00" Text="{x:Static r:Strings.Mods_SideEffectsTitle}" />
+                      <TextBlock FontWeight="SemiBold" Foreground="{DynamicResource ModifiedTextBrush}" Text="{x:Static r:Strings.Mods_SideEffectsTitle}" />
                       <TextBlock TextWrapping="Wrap" Text="{Binding ShinyEffectText}" Classes.error="{Binding ShinyGone}" />
                       <TextBlock TextWrapping="Wrap" Text="{Binding ShopsEffectText}" Classes.error="{Binding ShopsGone}" />
                       <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Mods_SideEffectsHint}" />

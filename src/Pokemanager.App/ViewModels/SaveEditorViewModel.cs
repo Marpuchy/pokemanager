@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PKHeX.Core;
@@ -81,7 +81,7 @@ public partial class SlotViewModel(SaveEditorViewModel owner, SaveSlot slot) : O
         ? EmptyBrush
         : TypeColors.Background(Types[0], Types[^1]);
 
-    private static readonly Avalonia.Media.IBrush EmptyBrush = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#F2F4F6"));
+    private static Avalonia.Media.IBrush EmptyBrush => Pokemanager.App.Services.Tokens.Panel2;
 
     public Avalonia.Media.IBrush TypeForeground => Types.Length == 0 ? Avalonia.Media.Brushes.Black : TypeColors.Foreground(Types);
 

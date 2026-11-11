@@ -150,6 +150,7 @@ public partial class WelcomeViewModel : ObservableObject
     partial void OnSelectedProjectChanged(RecentProjectItem? value)
     {
         OnPropertyChanged(nameof(ProjectsWallpaper));
+        Services.AppTheme.UseGame(value?.Game);
         if (value is not null)
         {
             // Before a room starts, picking a project only chooses the save to share; afterwards it shows its preview.

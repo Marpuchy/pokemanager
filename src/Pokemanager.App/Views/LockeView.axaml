@@ -1,4 +1,4 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Pokemanager.App.ViewModels"
              xmlns:r="using:Pokemanager.App.Resources"
@@ -19,7 +19,7 @@
               <TextBlock Grid.Row="1" Classes="field-label" Text="{x:Static r:Strings.Locke_LivesLost}" />
               <NumericUpDown ToolTip.Tip="{x:Static r:Strings.Tip_LockeLivesLost}" Grid.Row="1" Grid.Column="1" Value="{Binding LivesLost}" Minimum="0" Maximum="99" FormatString="0" ParsingNumberStyle="Integer" Width="130" HorizontalAlignment="Left" Margin="0,3" />
             </Grid>
-            <TextBlock Text="{Binding LivesText}" FontSize="16" Foreground="#D13438" />
+            <TextBlock Text="{Binding LivesText}" FontSize="16" Foreground="{DynamicResource ErrorBrush}" />
           </StackPanel>
         </Border>
 
@@ -48,7 +48,7 @@
                 <DataTemplate x:DataType="vm:SpinRowViewModel">
                   <Grid ColumnDefinitions="130,Auto,*,Auto" Margin="0,2">
                     <TextBlock Text="{Binding Badge}" FontWeight="SemiBold" VerticalAlignment="Center" />
-                    <Border Grid.Column="1" Width="30" Height="30" Background="#F2F4F6" BorderBrush="#30000000" BorderThickness="1" Margin="0,0,8,0" VerticalAlignment="Center"><Panel><Image Source="{Binding Icon}" Width="22" Height="22" RenderOptions.BitmapInterpolationMode="None" /><TextBlock Text="{Binding Glyph}" FontSize="15" FontWeight="Bold" Foreground="#D13438" HorizontalAlignment="Center" VerticalAlignment="Center" /></Panel></Border>
+                    <Border Grid.Column="1" Width="30" Height="30" Background="{DynamicResource Panel2Brush}" BorderBrush="#30000000" BorderThickness="1" Margin="0,0,8,0" VerticalAlignment="Center"><Panel><Image Source="{Binding Icon}" Width="22" Height="22" RenderOptions.BitmapInterpolationMode="None" /><TextBlock Text="{Binding Glyph}" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource ErrorBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" /></Panel></Border>
                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
                       <TextBlock Text="{Binding PrizeText}" />
                       <TextBlock Classes="hint" FontSize="11">
@@ -89,7 +89,7 @@
           <ItemsControl ItemsSource="{Binding Prizes}">
             <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="vm:PrizeRowViewModel">
-                <Grid ColumnDefinitions="36,110,*,120,100,56,Auto" Margin="0,2"><Border Width="30" Height="30" Background="#F2F4F6" BorderBrush="#30000000" BorderThickness="1" Margin="0,0,6,0" VerticalAlignment="Center"><Panel><Image Source="{Binding Icon}" Width="22" Height="22" RenderOptions.BitmapInterpolationMode="None" /><TextBlock Text="{Binding Glyph}" FontSize="15" FontWeight="Bold" Foreground="#D13438" HorizontalAlignment="Center" VerticalAlignment="Center" /></Panel></Border>
+                <Grid ColumnDefinitions="36,110,*,120,100,56,Auto" Margin="0,2"><Border Width="30" Height="30" Background="{DynamicResource Panel2Brush}" BorderBrush="#30000000" BorderThickness="1" Margin="0,0,6,0" VerticalAlignment="Center"><Panel><Image Source="{Binding Icon}" Width="22" Height="22" RenderOptions.BitmapInterpolationMode="None" /><TextBlock Text="{Binding Glyph}" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource ErrorBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" /></Panel></Border>
                   <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_LockePrizeKind}" Grid.Column="1" ItemsSource="{x:Static vm:PrizeRowViewModel.KindNames}" SelectedIndex="{Binding KindIndex}" HorizontalAlignment="Stretch" Margin="0,0,4,0" />
                   <ComboBox ToolTip.Tip="{x:Static r:Strings.Tip_LockePrizeItem}" Grid.Column="2" ItemsSource="{Binding ItemNames}" SelectedIndex="{Binding ItemIndex}" IsVisible="{Binding IsItem}"
                             HorizontalAlignment="Stretch" MaxDropDownHeight="400" Margin="0,0,4,0" />

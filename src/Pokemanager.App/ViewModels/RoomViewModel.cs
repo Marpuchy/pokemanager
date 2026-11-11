@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
@@ -74,7 +74,7 @@ public sealed partial class RoomMonCard(RoomViewModel owner, SharedPokemon? mon,
     public string Tooltip => IsEmpty ? "" : $"{Name} · {SpeciesName} · {LevelText}";
 
     private int[] TypeIds => Mon?.Types is { Length: > 0 } t ? [t[0], t.Length > 1 ? t[1] : t[0]] : [0, 0];
-    private static readonly IBrush EmptySlot = new SolidColorBrush(Color.Parse("#F2F4F6"));
+    private static IBrush EmptySlot => Pokemanager.App.Services.Tokens.Panel2;
 
     public IBrush TypeBackground => Mon is null ? EmptySlot : Mon.IsEgg ? TypeColors.Background(0) : TypeColors.Background(TypeIds[0], TypeIds[1]);
     public IBrush TypeForeground => TypeColors.Foreground(TypeIds);

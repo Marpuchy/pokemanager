@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.Input;
@@ -73,9 +73,9 @@ public sealed record SheetStat(string Label, int Value, int? Base = null, int? I
     public IBrush LabelBrush => Nature > 0 ? Raised : Nature < 0 ? Lowered : Plain;
     public string NatureMark => Nature > 0 ? "▲" : Nature < 0 ? "▼" : "";
 
-    private static readonly IBrush Raised = new SolidColorBrush(Color.Parse("#D13438"));
-    private static readonly IBrush Lowered = new SolidColorBrush(Color.Parse("#1C6FD1"));
-    private static readonly IBrush Plain = new SolidColorBrush(Color.Parse("#1A1A1A"));
+    private static IBrush Raised => Pokemanager.App.Services.Tokens.Raised;
+    private static IBrush Lowered => Pokemanager.App.Services.Tokens.Lowered;
+    private static IBrush Plain => Pokemanager.App.Services.Tokens.Text;
 
     public bool HasBase => Base is not null;
     public bool HasTraining => Iv is not null;
