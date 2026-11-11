@@ -24,12 +24,16 @@
     <Setter Property="Padding" Value="6,2" />
     <Setter Property="Margin" Value="0,3,0,0" />
   </Style>
+  <!-- The chip is near-white in both themes: its text is dark ink, not the theme's text colour (2026-11-11) -->
+  <Style Selector="Border.evo-how > TextBlock">
+    <Setter Property="Foreground" Value="#1A1A1A" />
+  </Style>
   <Style Selector="Button.evo-node.current Border.evo-card">
     <Setter Property="BorderBrush" Value="{DynamicResource AccentTextBrush}" />
     <Setter Property="BorderThickness" Value="3" />
   </Style>
   <Style Selector="Button.evo-node:pointerover Border.evo-card">
-    <Setter Property="BorderBrush" Value="#0078D4" />
+    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
     <Setter Property="BorderThickness" Value="2" />
   </Style>
 

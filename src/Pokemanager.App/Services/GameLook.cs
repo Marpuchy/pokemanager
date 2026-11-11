@@ -12,12 +12,8 @@ namespace Pokemanager.App.Services;
 /// </summary>
 public static class GameLook
 {
-    public static Color Color(GameTitle game) => Avalonia.Media.Color.Parse(game switch
-    {
-        GameTitle.X => "#2A5DB0", GameTitle.Y => "#C0392B", GameTitle.OmegaRuby => "#B8322A", GameTitle.AlphaSapphire => "#1F5FA8",
-        GameTitle.Sun => "#E07B20", GameTitle.Moon => "#5B3F9E", GameTitle.UltraSun => "#D9601F", GameTitle.UltraMoon => "#44349A",
-        _ => "#1C3A70",
-    });
+    /// <summary>The game's colour: the accent of <see cref="AppTheme"/>, so the start screen and the editor agree.</summary>
+    public static Color Color(GameTitle game) => AppTheme.ColorOf(game);
 
     /// <summary>The wallpaper number (0-based, as the save stores it) shown for a game.</summary>
     public static int WallpaperOf(GameTitle? game) => game switch

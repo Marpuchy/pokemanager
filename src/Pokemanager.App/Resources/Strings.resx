@@ -5288,4 +5288,34 @@ Project: {2}</value>
   <data name="Tip_Background" xml:space="preserve">
     <value>What is drawn behind the pages. Every option uses the colour of the game you are editing.</value>
   </data>
+  <data name="Welcome_TrashHint" xml:space="preserve">
+    <value>Drag a project here to delete it</value>
+  </data>
+  <data name="Welcome_TrashTip" xml:space="preserve">
+    <value>Drop a project here to delete it (its file and its history, after asking). The ROM, the game data and the save are not touched.</value>
+  </data>
+  <data name="Panel_Fold" xml:space="preserve">
+    <value>Fold</value>
+  </data>
+  <data name="Panel_Unfold" xml:space="preserve">
+    <value>Unfold</value>
+  </data>
+  <data name="Editor_BackTip" xml:space="preserve">
+    <value>Back to the projects</value>
+  </data>
+  <data name="Tab_Detach" xml:space="preserve">
+    <value>Open in a new window</value>
+  </data>
+  <data name="Tab_DetachTip" xml:space="preserve">
+    <value>Drag a tab out of the window, or right-click it, to open it in a window of its own. Closing that window puts it back.</value>
+  </data>
+  <data name="Tip_WelcomeSettings" xml:space="preserve">
+    <value>Your profile, appearance, language, emulator and backups.</value>
+  </data>
+  <data name="Tab_Back" xml:space="preserve">
+    <value>Bring it back</value>
+  </data>
+  <data name="Tab_Detached" xml:space="preserve">
+    <value>This tab is open in its own window.</value>
+  </data>
 </root>

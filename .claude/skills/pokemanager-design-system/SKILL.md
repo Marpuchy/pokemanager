@@ -77,7 +77,20 @@ Water, Grass, Electric, Psychic, Ice, Dragon, Dark, Fairy) are the Showdown pale
 | `icon` (+`ghost`) | 30×30 | glyph with a tooltip (↶ ↷ ⋯) |
 | `danger` | 26 px, error frame | what cannot be undone, kept apart |
 
-Rare destinations go in the ⋯ menu (Proyectos, Historial, Ajustes), not as buttons.
+Rare destinations go in the ⋯ menu (Historial, Ajustes), not as buttons; ◀ at the left of the editor bar goes back to
+the projects.
+
+### Blocks, folding, windows (2026-11-11)
+
+- Cards of a page go in a `c:CardGrid` (never a `WrapPanel` of fixed-width cards): equal columns, a row as tall as its
+  tallest card, the tallest cards into a short last row at full width. Cards have no `Width`, `Margin` or
+  `VerticalAlignment`; mark the one that must stay first with `c:CardGrid.Fixed`. One card alone loses its frame.
+  Advanced editors use `Classes="dense"` and must fit a 1600×1000 window without scrolling.
+- Options inside a card that can become wide flow in a `ColumnFlowPanel`, so a full-width card spreads them across.
+- A side panel or a top strip that can be folded uses `FoldState` + `Button.fold` with a `c:Chevron` (subtle, muted).
+- Every tab can be torn off (`TabTearOff`): do not rely on a view's `UserControl.Resources` with `DynamicResource`
+  inside a tab's content; styles are copied, resources are not.
+- An edited field sits in a `Border.field` with `Classes.modified`: a 2 px accent bar and the label in `AccentText`.
 
 ## 3. Spacing
 

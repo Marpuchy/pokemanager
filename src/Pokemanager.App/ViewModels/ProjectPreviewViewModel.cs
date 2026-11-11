@@ -177,7 +177,7 @@ public sealed partial class BadgeItemViewModel(ProjectPreviewViewModel owner, in
     /// <summary>Sun/Moon: a grand trial or the league, whose roulette is the major one (2026-11-10, user).</summary>
     public bool IsMajor { get; } = major;
 
-    public string Tooltip => (major ? Strings.Locke_MajorRouletteTag + "\n" : "") + (!Earned
+    public string Tooltip => (major && (crystalType is not null || league) ? Strings.Locke_MajorRouletteTag + "\n" : "") + (!Earned
         ? string.Format(Strings.Locke_BadgeNotEarned, Name)
         : spin is null
             ? string.Format(hasRoulette ? Strings.Locke_BadgeSpin : Strings.Locke_BadgeSpinAnyway, Name)
@@ -224,6 +224,17 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
 
     public ObservableCollection<BadgeItemViewModel> Badges { get; } = [];
 
+    /// <summary>The big row: gym badges, or in Sun/Moon the grand trials and the league (the major roulette).</summary>
+    public IEnumerable<BadgeItemViewModel> MajorBadges => Badges.Where(b => b.IsMajor);
+
+    /// <summary>Sun/Moon: the captains' trials with their Z-crystals, smaller, below.</summary>
+    public IEnumerable<BadgeItemViewModel> MinorBadges => Badges.Where(b => !b.IsMajor);
+
+    public bool HasMinorBadges => Badges.Any(b => !b.IsMajor);
+
+    public FoldState TrialsFold { get; }
+    public FoldState TeamFold { get; }
+
     public string BadgesText => string.Format(Loaded.Project.Game.HasBadges() ? Strings.Locke_BadgesCount : Strings.Locke_TrialsCount,
         Badges.Count(b => b.Earned), Badges.Count);
 
@@ -248,6 +259,8 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
         this.main = main;
         this.reload = reload;
         Loaded = loaded;
+        TrialsFold = new FoldState(main.Settings, "trials", up: true);
+        TeamFold = new FoldState(main.Settings, "team");
         var project = loaded.Project;
         var r = project.Randomization;
         var gameNames = new GameNames(loaded.Dump, loaded.Session.Original, loaded.Session.Layers);
@@ -285,6 +298,7 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
                     $"{doc.PlayedHours}:{doc.PlayedMinutes:00}", settings.EffectiveEmulatorName, File.GetLastWriteTime(savePath));
                 for (int i = 0; i < doc.PartyCount; i++)
                     Party.Add(new PartyMemberViewModel(doc, names, Sprites, new SaveSlot(null, i), m => Selected = m));
+                Selected = Party.FirstOrDefault();
                 LevelCapText = LevelCapViewModel.Indicator(loaded.Session, doc, itemNames) ?? "";
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SaveUpdateException)
@@ -307,7 +321,7 @@ public sealed partial class ProjectPreviewViewModel : ObservableObject
             if (m.Kind == LockeMilestoneKind.Badge)
             {
                 Badges.Add(new BadgeItemViewModel(this, i, name, milestones[m.Value].Type, earned, project.Locke.SpinOf(i), itemNames,
-                    images?[m.Value], project.Locke.HasRoulette(i)));
+                    images?[m.Value], project.Locke.HasRoulette(i), major: true));
                 continue;
             }
             // A story crystal: the game's own icon (type crystals are items 776-793 in Pokédex order); the league a cup.

@@ -63,6 +63,19 @@ public sealed class AppSettings
     /// <summary>The background behind the pages: the game's glow by default.</summary>
     public AppBackground Background { get; set; } = AppBackground.Glow;
 
+    /// <summary>Panels folded by the user (2026-11-11: remembered between sessions), by name: "recent", "team", "trials".</summary>
+    public HashSet<string> FoldedPanels { get; set; } = [];
+
+    /// <summary>Whether the panel <paramref name="name"/> is folded.</summary>
+    public bool IsFolded(string name) => FoldedPanels.Contains(name);
+
+    /// <summary>Folds or unfolds the panel <paramref name="name"/> and saves.</summary>
+    public void SetFolded(string name, bool folded)
+    {
+        if (folded ? FoldedPanels.Add(name) : FoldedPanels.Remove(name))
+            Save();
+    }
+
     public string? LastProject { get; set; }
 
     /// <summary>Recently opened projects, most recent first.</summary>

@@ -1,5 +1,6 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:c="using:Pokemanager.App.Controls"
              xmlns:vm="using:Pokemanager.App.ViewModels"
              xmlns:views="using:Pokemanager.App.Views"
              x:Class="Pokemanager.App.App"
@@ -139,6 +140,13 @@
       <Setter Property="Padding" Value="12,8,12,10" />
       <Setter Property="BoxShadow" Value="0 1 2 0 #26000000" />
     </Style>
+    <!-- A card alone in a CardGrid: no frame, its options straight on the page (2026-11-11, user) -->
+    <Style Selector="c|CardGrid.solo > Border.card, c|CardGrid.solo > ContentPresenter > Border.card">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="BoxShadow" Value="none" />
+      <Setter Property="Padding" Value="0" />
+    </Style>
     <Style Selector="TextBlock.card-title">
       <Setter Property="FontSize" Value="13" />
       <Setter Property="FontWeight" Value="Bold" />
@@ -151,10 +159,20 @@
       <Setter Property="Stretch" Value="Uniform" />
     </Style>
 
-    <!-- Field whose value differs from the base -->
+    <!-- Field whose value differs from the base (2026-11-11, user: orange stood out too much): the label in the game's
+         colour, and a thin bar of it on the left where the field sits in a Border.field -->
     <Style Selector="TextBlock.field-label.modified">
-      <Setter Property="Foreground" Value="{DynamicResource ModifiedTextBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource AccentTextBrush}" />
       <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="Border.field">
+      <Setter Property="BorderThickness" Value="2,0,0,0" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Padding" Value="6,0,0,0" />
+      <Setter Property="Margin" Value="-8,0,0,0" />
+    </Style>
+    <Style Selector="Border.field.modified">
+      <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
     </Style>
     <Style Selector="TextBlock.field-label">
       <Setter Property="VerticalAlignment" Value="Center" />

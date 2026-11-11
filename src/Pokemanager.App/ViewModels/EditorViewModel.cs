@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Pokemanager.App.Resources;
@@ -113,13 +113,7 @@ public partial class EditorViewModel : ObservableObject
     public partial bool ShowAbilities { get; set; }
 
     [RelayCommand]
-    private void RevealAbilities() => ShowAbilities = true;
-
-    [RelayCommand]
     private void RevealTrainerTeam() => ShowTrainerTeam = true;
-
-    [RelayCommand]
-    private void HideAbilities() => ShowAbilities = false;
 
     [ObservableProperty]
     public partial string MoveFilter { get; set; } = "";

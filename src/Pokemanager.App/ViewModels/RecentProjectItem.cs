@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Text.Json;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.Input;
@@ -35,7 +35,13 @@ public partial class RecentProjectItem(WelcomeViewModel owner, RecentProject rec
     public string GameName => Game?.DisplayName() ?? "";
 
     /// <summary>The strip on the row's left, in the game's colour.</summary>
-    public IBrush GameBrush => new SolidColorBrush(Game is { } g ? GameLook.Color(g) : Color.Parse("#1C3A70"));
+    public IBrush GameBrush => new SolidColorBrush(GameColor);
+
+    private Color GameColor => Game is { } g ? GameLook.Color(g) : AppTheme.Neutral;
+
+    /// <summary>Text on <see cref="GameBrush"/>: white or a near-black ink, whichever contrasts more.</summary>
+    public IBrush GameInk => new SolidColorBrush(AppTheme.Contrast(Colors.White, GameColor) >= AppTheme.Contrast(Color.Parse("#16130F"), GameColor)
+        ? Colors.White : Color.Parse("#16130F"));
 
     private static GameTitle? ReadGame(string path)
     {

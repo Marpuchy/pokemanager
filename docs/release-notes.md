@@ -1,3 +1,18 @@
+## New in 3.1 (in progress): a new look and a start screen made for playing
+
+- **Graphite with the colour of your game.** Dark by default, light in Ajustes → Apariencia, with a background to
+  choose (the game's glow, hexagons, Poké Balls, lines or plain). Buttons by importance: one big main action.
+- **Start screen.** Jugar big at the top, Abrir proyecto and Pokédex under it. Each project opens with its button in
+  the game's colour; drag a project onto the bin below the list to delete it. The grand trials (or the badges) big,
+  the captains' trials small below them, the lives on the right. The team in two columns with the picked Pokémon
+  beside it, everything in one scroll. Recent projects, team and trials fold away with a small arrow, and stay folded.
+- **Tabs in their own window.** Drag any tab out of the window, or right-click it, to open it on its own; closing that
+  window puts it back.
+- **◀ back to the projects** at the left of the editor bar.
+- **Blocks that line up.** The cards of a page share each row's height and fill the width; a page with a single card
+  shows its options without a frame. The advanced editors of Pokémon, moves and trainers fit on one screen when the
+  window is big enough. Edited fields are marked with a thin bar in the game's colour instead of orange.
+
 ## New in 3.0: mods, a Pokédex of the ROM you play, and trainers that fight properly
 
 ### Mods

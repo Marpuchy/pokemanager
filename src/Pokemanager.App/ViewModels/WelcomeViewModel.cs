@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Pokemanager.App.Resources;
@@ -125,8 +125,12 @@ public partial class WelcomeViewModel : ObservableObject
 
     private int previewVersion;
 
+    /// <summary>The left column (recent projects and profile), foldable to the left.</summary>
+    public FoldState RecentFold { get; }
+
     public WelcomeViewModel(MainWindowViewModel main, IDialogs dialogs)
     {
+        RecentFold = new FoldState(main.Settings, "recent");
         this.main = main;
         this.dialogs = dialogs;
         main.Room.SelectedProject = () => Preview?.Loaded;

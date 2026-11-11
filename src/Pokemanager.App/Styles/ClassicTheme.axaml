@@ -134,6 +134,34 @@
   <Style Selector="Button.icon.ghost:pointerover /template/ ContentPresenter#PART_ContentPresenter">
     <Setter Property="Background" Value="{DynamicResource HoverBrush}" />
   </Style>
+  <!-- Every tab can be dragged out (or right-clicked) to a window of its own: Controls/TabTearOff.cs -->
+  <Style Selector="TabControl">
+    <Setter Property="c:TabTearOff.Enabled" Value="True" />
+  </Style>
+  <!-- Fold: the subtle chevron that folds a panel (FoldState). No frame, muted until hovered. -->
+  <Style Selector="Button.fold">
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Width" Value="20" />
+    <Setter Property="Height" Value="20" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Button.fold /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+  </Style>
+  <Style Selector="Button.fold:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource HoverBrush}" />
+  </Style>
+  <Style Selector="Button.fold c|Chevron">
+    <Setter Property="Width" Value="12" />
+    <Setter Property="Height" Value="12" />
+    <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
+  </Style>
+  <Style Selector="Button.fold:pointerover c|Chevron">
+    <Setter Property="Foreground" Value="{DynamicResource TextBrush}" />
+  </Style>
   <!-- Danger: what cannot be undone -->
   <Style Selector="Button.danger">
     <Setter Property="MinHeight" Value="26" />

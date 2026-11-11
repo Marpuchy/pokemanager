@@ -36,7 +36,8 @@
       <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
       <Setter Property="BorderThickness" Value="2" />
       <Setter Property="CornerRadius" Value="2" />
-      <Setter Property="Padding" Value="0,6,8,6" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="ClipToBounds" Value="True" />
     </Style>
     <Style Selector="ListBoxItem:pointerover Border.project-card">
       <Setter Property="Background" Value="{DynamicResource HoverBrush}" />
@@ -44,165 +45,268 @@
     <Style Selector="ListBoxItem:selected Border.project-card">
       <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
     </Style>
+    <Style Selector="Border.project-card.dragging">
+      <Setter Property="Opacity" Value="0.5" />
+    </Style>
+    <!-- Open: the whole right side of the card, in the game's colour (2026-11-11, user) -->
+    <Style Selector="Button.game-open">
+      <Setter Property="VerticalAlignment" Value="Stretch" />
+      <Setter Property="MinWidth" Value="76" />
+      <Setter Property="Padding" Value="14,0" />
+      <Setter Property="CornerRadius" Value="0" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.game-open /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{Binding $parent[Button].Background}" />
+      <Setter Property="Foreground" Value="{Binding $parent[Button].Foreground}" />
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+    <Style Selector="Button.game-open:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Opacity" Value="0.88" />
+    </Style>
+    <!-- The bin below the list: drop a project on it to delete it -->
+    <Style Selector="Border.trash">
+      <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="2" />
+      <Setter Property="Padding" Value="8,6" />
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="Border.trash TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
+    </Style>
+    <Style Selector="Border.trash.drop">
+      <Setter Property="Background" Value="{DynamicResource ErrorSoftBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource ErrorBrush}" />
+    </Style>
+    <Style Selector="Border.trash.drop TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}" />
+    </Style>
   </UserControl.Styles>
+
+  <UserControl.Resources>
+    <!-- A badge, a trial or the league: click an earned one to spin its roulette -->
+    <DataTemplate x:Key="BadgeItem" x:DataType="vm:BadgeItemViewModel">
+      <Panel Margin="0,0,6,0" ToolTip.Tip="{Binding Tooltip}">
+        <Button Classes="badge" Classes.icon="{Binding HasIcon}" Classes.pending="{Binding IsPending}" Background="{Binding Background}"
+                Command="{Binding SpinCommand}" IsEnabled="{Binding CanSpin}">
+          <Panel>
+            <Image Source="{Binding Icon}" IsVisible="{Binding HasIcon}" Opacity="{Binding IconOpacity}" Stretch="Uniform" />
+            <TextBlock Text="{Binding Number}" FontSize="15" FontWeight="Bold" Foreground="{Binding Foreground}" IsVisible="{Binding !HasIcon}"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </Panel>
+        </Button>
+        <Border IsVisible="{Binding HasMark}" Width="17" Height="17" CornerRadius="2" Background="{DynamicResource PanelBrush}"
+                BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" IsHitTestVisible="False">
+          <TextBlock Text="{Binding Mark}" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{Binding MarkBrush}" />
+        </Border>
+      </Panel>
+    </DataTemplate>
+  </UserControl.Resources>
 
   <UserControl.DataTemplates>
     <!-- ======================= Preview of a project: ROM and team, read only ======================= -->
     <DataTemplate DataType="vm:ProjectPreviewViewModel">
-      <DockPanel>
-        <!-- ROM summary -->
-        <Border DockPanel.Dock="Top" Classes="card" Margin="0,0,0,8">
-          <Grid ColumnDefinitions="*,Auto">
-            <StackPanel Spacing="2">
-              <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-              <TextBlock Text="{Binding GameText}" TextTrimming="CharacterEllipsis" />
-              <TextBlock Classes="hint" Text="{Binding RomText}" TextTrimming="CharacterEllipsis" />
-              <TextBlock Classes="hint" Text="{Binding RandomText}" TextTrimming="CharacterEllipsis" />
-              <TextBlock Text="{Binding PlayStatus}" TextWrapping="Wrap" Classes.error="{Binding PlayFailed}"
-                         IsVisible="{Binding PlayStatus, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-                <TextBlock.Styles>
-                  <Style Selector="TextBlock.error">
-                    <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}" />
-                  </Style>
-                </TextBlock.Styles>
-              </TextBlock>
-            </StackPanel>
-            <StackPanel Grid.Column="1" Spacing="6" VerticalAlignment="Top">
-              <Button Classes="accent" Padding="16,6" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                      Content="{x:Static r:Strings.Preview_Manage}" Command="{Binding ManageCommand}" ToolTip.Tip="{x:Static r:Strings.Preview_ManageTip}" />
-              <Button Padding="16,6" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                      Content="{x:Static r:Strings.Editor_Play}" Command="{Binding PlayCommand}" ToolTip.Tip="{x:Static r:Strings.Editor_PlayTip}" />
-              <Button Padding="16,6" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                      Content="{x:Static r:Strings.Preview_Pokedex}" Command="{Binding OpenPokedexCommand}" ToolTip.Tip="{x:Static r:Strings.Preview_PokedexTip}" />
-            </StackPanel>
-          </Grid>
-        </Border>
-
-        <!-- Locke: badges from the save (click an earned one to spin its roulette) and lives -->
-        <Border DockPanel.Dock="Top" Classes="card" Margin="0,0,0,8" Classes.gameover="{Binding IsGameOver}">
-          <Border.Styles>
-            <Style Selector="Border.card.gameover">
-              <Setter Property="Background" Value="{DynamicResource ErrorSoftBrush}" />
-              <Setter Property="BorderBrush" Value="{DynamicResource ErrorBrush}" />
-            </Style>
-            <Style Selector="Button.badge">
-              <Setter Property="Width" Value="42" />
-              <Setter Property="Height" Value="42" />
-              <Setter Property="Padding" Value="0" />
-              <Setter Property="CornerRadius" Value="2" />
-              <Setter Property="BorderThickness" Value="2" />
-              <Setter Property="BorderBrush" Value="#80FFFFFF" />
-              <Setter Property="HorizontalContentAlignment" Value="Center" />
-              <Setter Property="VerticalContentAlignment" Value="Center" />
-            </Style>
-            <Style Selector="Button.badge:disabled">
-              <Setter Property="Opacity" Value="1" />
-            </Style>
-            <Style Selector="Button.badge:disabled /template/ ContentPresenter#PART_ContentPresenter">
-              <Setter Property="Background" Value="{Binding $parent[Button].Background}" />
-              <Setter Property="BorderBrush" Value="{Binding $parent[Button].BorderBrush}" />
-            </Style>
-            <Style Selector="Button.badge:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-              <Setter Property="Background" Value="{Binding $parent[Button].Background}" />
-              <Setter Property="BorderBrush" Value="{DynamicResource AccentTextBrush}" />
-            </Style>
-            <Style Selector="Button.badge:pressed /template/ ContentPresenter#PART_ContentPresenter">
-              <Setter Property="Background" Value="{Binding $parent[Button].Background}" />
-              <Setter Property="BorderBrush" Value="#0B1E40" />
-            </Style>
-            <!-- With the game's badge image: no circle, only a frame on hover or when a prize is pending -->
-            <Style Selector="Button.badge.icon">
-              <Setter Property="Width" Value="52" />
-              <Setter Property="Height" Value="52" />
-              <Setter Property="CornerRadius" Value="2" />
-              <Setter Property="BorderBrush" Value="Transparent" />
-            </Style>
-            <Style Selector="Button.badge.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-              <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
-            </Style>
-            <Style Selector="Button.badge.icon:pressed /template/ ContentPresenter#PART_ContentPresenter">
-              <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
-            </Style>
-            <Style Selector="Button.badge.pending">
-              <Setter Property="BorderBrush" Value="{DynamicResource ModifiedBrush}" />
-            </Style>
-          </Border.Styles>
-          <WrapPanel>
-            <StackPanel Spacing="4" Margin="0,0,24,0">
-              <TextBlock Classes="card-title" Text="{Binding BadgesText}" />
-              <Border Background="{DynamicResource AccentSoftBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="2" Padding="8,2" Margin="0,0,0,4"
-                      HorizontalAlignment="Left" IsVisible="{Binding HasLevelCap}">
-                <TextBlock Text="{Binding LevelCapText}" FontWeight="SemiBold" Foreground="{DynamicResource AccentTextBrush}" />
-              </Border>
-              <ItemsControl ItemsSource="{Binding Badges}">
-                <ItemsControl.ItemsPanel>
-                  <ItemsPanelTemplate>
-                    <WrapPanel />
-                  </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                  <DataTemplate x:DataType="vm:BadgeItemViewModel">
-                    <Panel Margin="0,0,6,0" ToolTip.Tip="{Binding Tooltip}">
-                      <Button Classes="badge" Classes.icon="{Binding HasIcon}" Classes.pending="{Binding IsPending}" Background="{Binding Background}"
-                              Command="{Binding SpinCommand}" IsEnabled="{Binding CanSpin}">
-                        <Panel>
-                          <Image Source="{Binding Icon}" IsVisible="{Binding HasIcon}" Opacity="{Binding IconOpacity}" Width="44" Height="44" Stretch="Uniform" />
-                          <TextBlock Text="{Binding Number}" FontSize="15" FontWeight="Bold" Foreground="{Binding Foreground}" IsVisible="{Binding !HasIcon}" />
-                        </Panel>
-                      </Button>
-                      <!-- A grand trial or the league: the major roulette -->
-                      <TextBlock IsVisible="{Binding IsMajor}" Text="★" FontSize="13" Foreground="#D4A017" HorizontalAlignment="Right" VerticalAlignment="Top"
-                                 Margin="0,-3,-2,0" IsHitTestVisible="False" />
-                      <Border IsVisible="{Binding HasMark}" Width="17" Height="17" CornerRadius="2" Background="{DynamicResource PanelBrush}"
-                              BorderBrush="{DynamicResource LineBrush}" BorderThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" IsHitTestVisible="False">
-                        <TextBlock Text="{Binding Mark}" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{Binding MarkBrush}" />
-                      </Border>
-                    </Panel>
-                  </DataTemplate>
-                </ItemsControl.ItemTemplate>
-              </ItemsControl>
-            </StackPanel>
-
-            <StackPanel Spacing="4" IsVisible="{Binding TracksLives}">
-              <TextBlock Classes="card-title" Text="{Binding LivesText}" />
-              <StackPanel Orientation="Horizontal" Spacing="6">
-                <TextBlock Text="{Binding Hearts}" FontSize="26" Foreground="{DynamicResource ErrorBrush}" VerticalAlignment="Center" />
-                <Button Content="−" Width="26" Padding="0" HorizontalContentAlignment="Center" VerticalAlignment="Center"
-                        Command="{Binding LoseLifeCommand}" ToolTip.Tip="{x:Static r:Strings.Locke_LoseLife}" />
-                <Button Content="+" Width="26" Padding="0" HorizontalContentAlignment="Center" VerticalAlignment="Center"
-                        Command="{Binding GainLifeCommand}" ToolTip.Tip="{x:Static r:Strings.Locke_GainLife}" />
-                <TextBlock Text="{x:Static r:Strings.Locke_GameOver}" IsVisible="{Binding IsGameOver}" FontWeight="Bold" Foreground="{DynamicResource ErrorBrush}" VerticalAlignment="Center" Margin="6,0,0,0" />
+      <!-- One scroll for the whole right side (2026-11-11, user): ROM, trials and team move together. -->
+      <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="8">
+          <!-- ROM summary; Jugar big, Abrir proyecto and Pokédex below it, as wide together -->
+          <Border Classes="card">
+            <Grid ColumnDefinitions="*,Auto">
+              <StackPanel Spacing="2">
+                <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                <TextBlock Text="{Binding GameText}" TextTrimming="CharacterEllipsis" />
+                <TextBlock Classes="hint" Text="{Binding RomText}" TextTrimming="CharacterEllipsis" />
+                <TextBlock Classes="hint" Text="{Binding RandomText}" TextTrimming="CharacterEllipsis" />
+                <TextBlock Text="{Binding PlayStatus}" TextWrapping="Wrap" Classes.error="{Binding PlayFailed}"
+                           IsVisible="{Binding PlayStatus, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                  <TextBlock.Styles>
+                    <Style Selector="TextBlock.error">
+                      <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}" />
+                    </Style>
+                  </TextBlock.Styles>
+                </TextBlock>
               </StackPanel>
-            </StackPanel>
-          </WrapPanel>
-        </Border>
-
-        <!-- No save -->
-        <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="4" Text="{Binding SaveMessage}" IsVisible="{Binding !HasSave}" TextWrapping="Wrap" />
-
-        <!-- Team: the save editor's party cards -->
-        <Border DockPanel.Dock="Top" Classes="card" Margin="0,0,0,8" IsVisible="{Binding HasSave}">
-          <StackPanel Spacing="4">
-            <Grid ColumnDefinitions="Auto,*">
-              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Preview_Team}" />
-              <TextBlock Grid.Column="1" Classes="hint" Margin="10,0,0,0" Text="{Binding TrainerText}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" VerticalAlignment="Center" />
+              <Grid Grid.Column="1" Width="300" Margin="12,0,0,0" RowDefinitions="Auto,6,Auto" ColumnDefinitions="*,6,*" VerticalAlignment="Top">
+                <Button Grid.ColumnSpan="3" Classes="primary" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                        Content="{x:Static r:Strings.Editor_Play}" Command="{Binding PlayCommand}" ToolTip.Tip="{x:Static r:Strings.Editor_PlayTip}" />
+                <Button Grid.Row="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                        Content="{x:Static r:Strings.Preview_Manage}" Command="{Binding ManageCommand}" ToolTip.Tip="{x:Static r:Strings.Preview_ManageTip}" />
+                <Button Grid.Row="2" Grid.Column="2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                        Content="{x:Static r:Strings.Preview_Pokedex}" Command="{Binding OpenPokedexCommand}" ToolTip.Tip="{x:Static r:Strings.Preview_PokedexTip}" />
+              </Grid>
             </Grid>
-            <ItemsControl ItemsSource="{Binding Party}" ItemTemplate="{StaticResource PartyCard}">
-              <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                  <UniformGrid Columns="3" />
-                </ItemsPanelTemplate>
-              </ItemsControl.ItemsPanel>
-            </ItemsControl>
-            <TextBlock Classes="hint" Text="{x:Static r:Strings.Preview_ClickHint}" IsVisible="{Binding !HasSelection}" />
-          </StackPanel>
-        </Border>
+          </Border>
 
-        <!-- Selected Pokémon, laid out as in the save editor -->
-        <ScrollViewer IsVisible="{Binding HasSelection}">
-          <ContentControl Content="{Binding SelectedSheet}" ContentTemplate="{StaticResource MonSheet}" />
-        </ScrollViewer>
-      </DockPanel>
+          <!-- Locke: badges or trials on the left (the big ones above, the captains' trials below), lives on the right -->
+          <Border Classes="card" Classes.gameover="{Binding IsGameOver}">
+            <Border.Styles>
+              <Style Selector="Border.card.gameover">
+                <Setter Property="Background" Value="{DynamicResource ErrorSoftBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource ErrorBrush}" />
+              </Style>
+              <Style Selector="Button.badge">
+                <Setter Property="Width" Value="56" />
+                <Setter Property="Height" Value="56" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="CornerRadius" Value="2" />
+                <Setter Property="BorderThickness" Value="2" />
+                <Setter Property="BorderBrush" Value="#80FFFFFF" />
+                <Setter Property="HorizontalContentAlignment" Value="Center" />
+                <Setter Property="VerticalContentAlignment" Value="Center" />
+              </Style>
+              <Style Selector="Button.badge:disabled">
+                <Setter Property="Opacity" Value="1" />
+              </Style>
+              <Style Selector="Button.badge:disabled /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{Binding $parent[Button].Background}" />
+                <Setter Property="BorderBrush" Value="{Binding $parent[Button].BorderBrush}" />
+              </Style>
+              <Style Selector="Button.badge:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{Binding $parent[Button].Background}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource AccentTextBrush}" />
+              </Style>
+              <Style Selector="Button.badge:pressed /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{Binding $parent[Button].Background}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
+              </Style>
+              <Style Selector="Button.badge.icon">
+                <Setter Property="Width" Value="72" />
+                <Setter Property="Height" Value="72" />
+                <Setter Property="BorderBrush" Value="Transparent" />
+              </Style>
+              <Style Selector="Button.badge Image">
+                <Setter Property="Width" Value="64" />
+                <Setter Property="Height" Value="64" />
+              </Style>
+              <!-- The captains' trials: smaller -->
+              <Style Selector="ItemsControl.minor Button.badge">
+                <Setter Property="Width" Value="38" />
+                <Setter Property="Height" Value="38" />
+              </Style>
+              <Style Selector="ItemsControl.minor Button.badge.icon">
+                <Setter Property="Width" Value="44" />
+                <Setter Property="Height" Value="44" />
+              </Style>
+              <Style Selector="ItemsControl.minor Button.badge Image">
+                <Setter Property="Width" Value="36" />
+                <Setter Property="Height" Value="36" />
+              </Style>
+              <Style Selector="Button.badge.icon:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+              </Style>
+              <Style Selector="Button.badge.icon:pressed /template/ ContentPresenter#PART_ContentPresenter">
+                <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+              </Style>
+              <Style Selector="Button.badge.pending">
+                <Setter Property="BorderBrush" Value="{DynamicResource ModifiedBrush}" />
+              </Style>
+            </Border.Styles>
+            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+              <!-- Title row; the chevron folds the card up -->
+              <DockPanel Grid.ColumnSpan="2">
+                <Button DockPanel.Dock="Right" Classes="fold" Command="{Binding TrialsFold.ToggleCommand}" ToolTip.Tip="{Binding TrialsFold.Tip}">
+                  <c:Chevron Angle="{Binding TrialsFold.Angle}" />
+                </Button>
+                <TextBlock DockPanel.Dock="Right" Classes="card-title" Margin="0,0,10,0" Text="{Binding LivesText}"
+                           IsVisible="{Binding TrialsFold.IsFolded}" />
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                  <TextBlock Classes="card-title" VerticalAlignment="Center" Text="{Binding BadgesText}" />
+                  <Border Background="{DynamicResource AccentSoftBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="2" Padding="8,1"
+                          IsVisible="{Binding HasLevelCap}" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding LevelCapText}" FontWeight="SemiBold" Foreground="{DynamicResource AccentTextBrush}" />
+                  </Border>
+                </StackPanel>
+              </DockPanel>
+
+              <StackPanel Grid.Row="1" Spacing="6" Margin="0,8,0,0" IsVisible="{Binding TrialsFold.IsOpen}">
+                <ItemsControl ItemsSource="{Binding MajorBadges}" ItemTemplate="{StaticResource BadgeItem}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <WrapPanel />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                </ItemsControl>
+                <ItemsControl Classes="minor" ItemsSource="{Binding MinorBadges}" ItemTemplate="{StaticResource BadgeItem}" IsVisible="{Binding HasMinorBadges}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <WrapPanel />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                </ItemsControl>
+              </StackPanel>
+
+              <!-- Lives: the right side only -->
+              <Border Grid.Row="1" Grid.Column="1" Width="180" Margin="12,8,0,0" Padding="12,0,0,0" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1,0,0,0"
+                      IsVisible="{Binding TrialsFold.IsOpen}">
+                <StackPanel Spacing="6" IsVisible="{Binding TracksLives}">
+                  <TextBlock Classes="card-title" Text="{Binding LivesText}" />
+                  <TextBlock Text="{Binding Hearts}" FontSize="24" LineHeight="26" Foreground="{DynamicResource ErrorBrush}" TextWrapping="Wrap" />
+                  <TextBlock Text="{x:Static r:Strings.Locke_GameOver}" IsVisible="{Binding IsGameOver}" FontWeight="Bold" Foreground="{DynamicResource ErrorBrush}" />
+                  <Grid ColumnDefinitions="*,6,*">
+                    <Button Content="−" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                            Command="{Binding LoseLifeCommand}" ToolTip.Tip="{x:Static r:Strings.Locke_LoseLife}" />
+                    <Button Grid.Column="2" Content="+" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                            Command="{Binding GainLifeCommand}" ToolTip.Tip="{x:Static r:Strings.Locke_GainLife}" />
+                  </Grid>
+                </StackPanel>
+              </Border>
+            </Grid>
+          </Border>
+
+          <!-- No save -->
+          <TextBlock Classes="hint" Margin="4" Text="{Binding SaveMessage}" IsVisible="{Binding !HasSave}" TextWrapping="Wrap" />
+
+          <!-- Team (two columns of three, foldable to the left) and the selected Pokémon beside it -->
+          <c:SidePanel IsVisible="{Binding HasSave}" MinMainWidth="560">
+            <Panel VerticalAlignment="Top" HorizontalAlignment="Left">
+            <Border Classes="card" Width="420" VerticalAlignment="Top" IsVisible="{Binding TeamFold.IsOpen}">
+              <StackPanel Spacing="6">
+                <DockPanel>
+                  <Button DockPanel.Dock="Right" Classes="fold" Command="{Binding TeamFold.ToggleCommand}" ToolTip.Tip="{Binding TeamFold.Tip}">
+                    <c:Chevron Angle="{Binding TeamFold.Angle}" />
+                  </Button>
+                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Preview_Team}" VerticalAlignment="Center" />
+                </DockPanel>
+                <TextBlock Classes="hint" Text="{Binding TrainerText}" TextWrapping="Wrap" />
+                <ItemsControl ItemsSource="{Binding Party}" ItemTemplate="{StaticResource PartyCard}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <UniformGrid Columns="2" />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                </ItemsControl>
+              </StackPanel>
+            </Border>
+            <!-- Folded: a strip with the chevron and the party's icons, still clickable -->
+            <Border Classes="card" Padding="4,8" VerticalAlignment="Top" IsVisible="{Binding TeamFold.IsFolded}">
+              <StackPanel Spacing="4">
+                <Button Classes="fold" HorizontalAlignment="Center" Command="{Binding TeamFold.ToggleCommand}" ToolTip.Tip="{Binding TeamFold.Tip}">
+                  <c:Chevron Angle="{Binding TeamFold.Angle}" />
+                </Button>
+                <ItemsControl ItemsSource="{Binding Party}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:PartyMemberViewModel">
+                      <Button Classes="icon ghost" Width="44" Height="40" Padding="0" Command="{Binding SelectCommand}" ToolTip.Tip="{Binding Tooltip}">
+                        <Image Source="{Binding Icon}" Width="40" Height="30" RenderOptions.BitmapInterpolationMode="None" />
+                      </Button>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </Border>
+            </Panel>
+
+            <Panel VerticalAlignment="Top">
+              <TextBlock Classes="hint" Margin="4" Text="{x:Static r:Strings.Preview_ClickHint}" IsVisible="{Binding !HasSelection}" TextWrapping="Wrap" />
+              <ContentControl Content="{Binding SelectedSheet}" ContentTemplate="{StaticResource MonSheet}" IsVisible="{Binding HasSelection}" />
+            </Panel>
+          </c:SidePanel>
+        </StackPanel>
+      </ScrollViewer>
     </DataTemplate>
   </UserControl.DataTemplates>
 
@@ -212,11 +316,16 @@
       <TextBlock Text="Pokemanager" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center" />
       <TextBlock Grid.Column="1" Classes="hint" Margin="14,0" VerticalAlignment="Center" Text="{x:Static r:Strings.Welcome_Subtitle}"
                  TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
-      <Button Grid.Column="2" Content="{x:Static r:Strings.Welcome_Settings}" Command="{Binding OpenSettingsCommand}" VerticalAlignment="Center" />
     </Grid>
 
-    <Grid ColumnDefinitions="360,*">
-      <DockPanel Margin="0,0,10,0">
+    <Grid ColumnDefinitions="Auto,*">
+      <!-- Folded: a thin strip with the chevron -->
+      <Border Classes="card" Padding="4,8" Margin="0,0,10,0" VerticalAlignment="Stretch" IsVisible="{Binding RecentFold.IsFolded}">
+        <Button Classes="fold" VerticalAlignment="Top" Command="{Binding RecentFold.ToggleCommand}" ToolTip.Tip="{Binding RecentFold.Tip}">
+          <c:Chevron Angle="{Binding RecentFold.Angle}" />
+        </Button>
+      </Border>
+      <DockPanel Width="360" Margin="0,0,10,0" IsVisible="{Binding RecentFold.IsOpen}">
       <!-- ======================= Multiplayer: profile and room ======================= -->
       <Border DockPanel.Dock="Bottom" Classes="card" Margin="0,8,0,0">
         <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto">
@@ -230,7 +339,7 @@
             <Button Content="{x:Static r:Strings.Room_Open}" Command="{Binding OpenRoomCommand}" IsVisible="{Binding !ShowRoom}" />
             <Button Content="{x:Static r:Strings.Room_ClosePanel}" Command="{Binding CloseRoomPanelCommand}" IsVisible="{Binding ShowRoom}"
                     ToolTip.Tip="{x:Static r:Strings.Room_ClosePanelTip}" />
-            <Button Content="{x:Static r:Strings.Room_EditProfile}" Command="{Binding OpenSettingsCommand}" />
+            <Button Content="{x:Static r:Strings.Welcome_Settings}" Command="{Binding OpenSettingsCommand}" ToolTip.Tip="{x:Static r:Strings.Tip_WelcomeSettings}" />
           </StackPanel>
         </Grid>
       </Border>
@@ -238,11 +347,23 @@
       <!-- ======================= Project list ======================= -->
       <Border Classes="card">
         <DockPanel>
-          <TextBlock DockPanel.Dock="Top" Classes="card-title" Margin="0,0,0,6" Text="{x:Static r:Strings.Welcome_Recent}" />
+          <DockPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+            <Button DockPanel.Dock="Right" Classes="fold" Command="{Binding RecentFold.ToggleCommand}" ToolTip.Tip="{Binding RecentFold.Tip}">
+              <c:Chevron Angle="{Binding RecentFold.Angle}" />
+            </Button>
+            <TextBlock Classes="card-title" VerticalAlignment="Center" Text="{x:Static r:Strings.Welcome_Recent}" />
+          </DockPanel>
           <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="6" Margin="0,8,0,0">
             <Button Content="{x:Static r:Strings.Welcome_NewProjectButton}" Command="{Binding NewProjectCommand}" />
             <Button Content="{x:Static r:Strings.Welcome_OpenExisting}" Command="{Binding OpenExistingCommand}" />
           </StackPanel>
+          <Border DockPanel.Dock="Bottom" Classes="trash" Margin="0,8,0,0" ToolTip.Tip="{x:Static r:Strings.Welcome_TrashTip}"
+                  IsVisible="{Binding HasRecentProjects}">
+            <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+              <TextBlock Text="✕" FontWeight="Bold" />
+              <TextBlock Text="{x:Static r:Strings.Welcome_TrashHint}" />
+            </StackPanel>
+          </Border>
           <TextBlock DockPanel.Dock="Bottom" Classes="error" Margin="0,6,0,0" Text="{Binding Error}"
                      IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
           <!-- The list sits on a box wallpaper of the selected project's game (2026-11-09, user); rows are white cards. -->
@@ -256,22 +377,17 @@
                        ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ListBox.ItemTemplate>
                   <DataTemplate x:DataType="vm:RecentProjectItem">
-                    <Border Classes="project-card">
-                      <DockPanel>
-                        <Border DockPanel.Dock="Left" Width="4" Margin="0,0,8,0" Background="{Binding GameBrush}" />
-                        <Grid ColumnDefinitions="*,Auto">
-                          <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                            <TextBlock Classes="hint" Text="{Binding GameName}" TextTrimming="CharacterEllipsis"
-                                       IsVisible="{Binding GameName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
-                            <TextBlock Classes="hint" Text="{Binding Details}" FontSize="11" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
-                          </StackPanel>
-                          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4" Margin="6,0,0,0" VerticalAlignment="Center">
-                            <Button Content="{x:Static r:Strings.Preview_Open}" Command="{Binding ManageCommand}" ToolTip.Tip="{x:Static r:Strings.Preview_ManageTip}" />
-                            <Button Content="✕" Padding="6,2" Command="{Binding ForgetCommand}" ToolTip.Tip="{x:Static r:Strings.Welcome_RemoveTip}" />
-                          </StackPanel>
-                        </Grid>
-                      </DockPanel>
+                    <Border Classes="project-card" c:ProjectDrag.Enabled="True">
+                      <Grid ColumnDefinitions="*,Auto">
+                        <StackPanel Margin="10,6,8,6" VerticalAlignment="Center">
+                          <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                          <TextBlock Classes="hint" Text="{Binding GameName}" TextTrimming="CharacterEllipsis"
+                                     IsVisible="{Binding GameName, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                          <TextBlock Classes="hint" Text="{Binding Details}" FontSize="11" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
+                        </StackPanel>
+                        <Button Grid.Column="1" Classes="game-open" Background="{Binding GameBrush}" Foreground="{Binding GameInk}"
+                                Content="{x:Static r:Strings.Preview_Open}" Command="{Binding ManageCommand}" ToolTip.Tip="{x:Static r:Strings.Preview_ManageTip}" />
+                      </Grid>
                     </Border>
                   </DataTemplate>
                 </ListBox.ItemTemplate>

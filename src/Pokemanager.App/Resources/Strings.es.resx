@@ -5288,4 +5288,34 @@ Proyecto: {2}</value>
   <data name="Tip_Background" xml:space="preserve">
     <value>Lo que se dibuja detrás de las páginas. Todas las opciones usan el color del juego que estás editando.</value>
   </data>
+  <data name="Welcome_TrashHint" xml:space="preserve">
+    <value>Arrastra aquí un proyecto para borrarlo</value>
+  </data>
+  <data name="Welcome_TrashTip" xml:space="preserve">
+    <value>Suelta aquí un proyecto para borrarlo (su archivo y su historial, después de preguntar). La ROM, los datos del juego y la partida no se tocan.</value>
+  </data>
+  <data name="Panel_Fold" xml:space="preserve">
+    <value>Plegar</value>
+  </data>
+  <data name="Panel_Unfold" xml:space="preserve">
+    <value>Desplegar</value>
+  </data>
+  <data name="Editor_BackTip" xml:space="preserve">
+    <value>Volver a los proyectos</value>
+  </data>
+  <data name="Tab_Detach" xml:space="preserve">
+    <value>Abrir en ventana nueva</value>
+  </data>
+  <data name="Tab_DetachTip" xml:space="preserve">
+    <value>Arrastra una pestaña fuera de la ventana, o haz clic derecho, para abrirla en su propia ventana. Al cerrar esa ventana vuelve a su sitio.</value>
+  </data>
+  <data name="Tip_WelcomeSettings" xml:space="preserve">
+    <value>Tu perfil, la apariencia, el idioma, el emulador y las copias de seguridad.</value>
+  </data>
+  <data name="Tab_Back" xml:space="preserve">
+    <value>Traerla de vuelta</value>
+  </data>
+  <data name="Tab_Detached" xml:space="preserve">
+    <value>Esta pestaña está abierta en su propia ventana.</value>
+  </data>
 </root>

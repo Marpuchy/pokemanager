@@ -27,10 +27,17 @@
 
       <!-- Titled cards of randomizer options, in balanced columns -->
       <DataTemplate x:Key="UprSectionCard" x:DataType="vm:UprOptionSectionViewModel">
-        <Border Classes="card" Margin="0,0,0,12" VerticalAlignment="Top">
+        <Border Classes="card">
           <StackPanel Spacing="2">
             <TextBlock Classes="card-title" Text="{Binding Title}" Margin="0,0,0,4" />
-            <ItemsControl ItemsSource="{Binding Items}" ItemTemplate="{StaticResource UprOption}" />
+            <!-- One column in a narrow card; spread across when the card has a whole row (CardGrid) -->
+            <ItemsControl ItemsSource="{Binding Items}" ItemTemplate="{StaticResource UprOption}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <c:ColumnFlowPanel MinColumnWidth="300" MaxColumns="4" ColumnSpacing="24" />
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+            </ItemsControl>
           </StackPanel>
         </Border>
       </DataTemplate>
@@ -40,7 +47,7 @@
         <ItemsControl Margin="16,10,16,0" ItemsSource="{Binding Sections}" ItemTemplate="{StaticResource UprSectionCard}">
           <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate>
-              <c:ColumnFlowPanel MinColumnWidth="340" MaxColumns="3" ColumnSpacing="12" />
+              <c:CardGrid MinColumnWidth="340" MaxColumns="3" />
             </ItemsPanelTemplate>
           </ItemsControl.ItemsPanel>
         </ItemsControl>
@@ -72,17 +79,10 @@
 
       <!-- This application's cards for the subject of one group (each card shows itself only on its group) -->
       <DataTemplate x:Key="UprGroupOurs" x:DataType="vm:UprOptionGroupViewModel">
-    <WrapPanel Margin="16,0,4,2">
-      <WrapPanel.Styles>
-        <!-- Cards side by side: the same 12 px gap as the randomizer's columns -->
-        <Style Selector="WrapPanel > Border.card">
-          <Setter Property="Margin" Value="0,0,12,12" />
-          <!-- Each card as tall as its content, not as its tallest neighbour -->
-          <Setter Property="VerticalAlignment" Value="Top" />
-        </Style>
-      </WrapPanel.Styles>
+    <!-- Even rows of cards (CardGrid); one card alone loses its frame -->
+    <c:CardGrid Margin="16,0,16,12" MinColumnWidth="420" MaxColumns="3">
       <!-- Items and shops -->
-      <Border Classes="card" Width="470" IsVisible="{Binding HasShops}">
+      <Border Classes="card" IsVisible="{Binding HasShops}">
        <StackPanel DataContext="{Binding Shops}" x:DataType="vm:ShopExtrasViewModel">
         <StackPanel Spacing="4">
           <TextBlock Classes="card-title" Text="{x:Static r:Strings.Shops_BuildTitle}" />
@@ -99,7 +99,7 @@
       </Border>
 
       <!-- Trainers: the options that come once per kind of trainer, as one table -->
-      <Border Classes="card" Width="760" IsVisible="{Binding HasKindTable}">
+      <Border Classes="card" IsVisible="{Binding HasKindTable}">
         <StackPanel Spacing="4" DataContext="{Binding KindTable}" x:DataType="vm:TrainerKindTableViewModel">
           <TextBlock Classes="card-title" Text="{x:Static r:Strings.TrainerKinds_Title}" />
           <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.TrainerKinds_Hint}" />
@@ -151,7 +151,7 @@
       </Border>
 
       <!-- Trainers: the difficulty of the run, which writes over every trainer -->
-      <Border Classes="card" Width="470" IsVisible="{Binding HasDifficulty}">
+      <Border Classes="card" IsVisible="{Binding HasDifficulty}">
         <StackPanel Spacing="4" DataContext="{Binding Difficulty}" x:DataType="vm:DifficultyViewModel"
                     ToolTip.Tip="{x:Static r:Strings.Tip_Difficulty}">
           <TextBlock Classes="card-title" Text="{x:Static r:Strings.Difficulty_Title}" />
@@ -174,7 +174,7 @@
       </Border>
 
       <!-- Trainers: their levels and what they pay (2026-11-09, user: the trainer level % lives with the trainers) -->
-      <Border Classes="card" Width="470" IsVisible="{Binding IsTrainers}">
+      <Border Classes="card" IsVisible="{Binding IsTrainers}">
         <StackPanel Spacing="4">
           <TextBlock Classes="card-title" Text="{x:Static r:Strings.Options_TrainerMoney}" />
           <Grid ColumnDefinitions="200,Auto" Margin="0,2">
@@ -202,7 +202,7 @@
       </Border>
 
       <!-- Levels: the level cap by milestones, with its plan -->
-      <Border Classes="card" Width="470" IsVisible="{Binding IsLevels}">
+      <Border Classes="card" IsVisible="{Binding IsLevels}">
         <Border.Styles>
           <Style Selector="Border.current">
             <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
@@ -237,7 +237,7 @@
       </Border>
 
       <!-- Levels: one value for the whole game, then each kind apart -->
-      <Border Classes="card" Width="470" IsVisible="{Binding IsLevels}">
+      <Border Classes="card" IsVisible="{Binding IsLevels}">
         <StackPanel Spacing="4">
           <TextBlock Classes="card-title" Text="{x:Static r:Strings.Options_LevelsTitle}" />
           <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Game_LevelsHint}" />
@@ -253,7 +253,7 @@
       </Border>
 
       <!-- The personal table of every Pokemon of the game, in one go -->
-      <Border Classes="card" Width="470" IsVisible="{Binding IsPokemon}">
+      <Border Classes="card" IsVisible="{Binding IsPokemon}">
         <StackPanel Spacing="4">
           <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_SweepsTitle}" />
           <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Game_SweepsHint}" />
@@ -295,7 +295,7 @@
       </Border>
 
       <!-- The whole game: shiny -->
-      <Border Classes="card" Width="470" IsVisible="{Binding IsMisc}">
+      <Border Classes="card" IsVisible="{Binding IsMisc}">
         <StackPanel Spacing="4">
           <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_ShinyTitle}" />
           <Grid ColumnDefinitions="200,Auto" Margin="0,2" IsEnabled="{Binding Game.ShinySupported}" ToolTip.Tip="{Binding Game.ShinyTip}">
@@ -317,7 +317,7 @@
         </StackPanel>
       </Border>
 
-    </WrapPanel>
+    </c:CardGrid>
       </DataTemplate>
 
       <!-- A subject's randomizer options: one titled block per group, or a note while they load -->
@@ -333,7 +333,7 @@
                 </DataTemplate>
                 <!-- Items: what can come up at all (this application's, acts when randomizing): the first card of the flow -->
                 <DataTemplate DataType="vm:ShopExtrasViewModel">
-                  <Border Classes="card" Margin="0,0,0,12" VerticalAlignment="Top">
+                  <Border Classes="card" c:CardGrid.Fixed="True">
                     <StackPanel Spacing="2">
                       <TextBlock Classes="card-title" Text="{x:Static r:Strings.Section_ItemPool}" Margin="0,0,0,4" />
                       <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Section_ItemPoolHint}" />
@@ -350,7 +350,7 @@
               </ItemsControl.DataTemplates>
               <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                  <c:ColumnFlowPanel MinColumnWidth="340" MaxColumns="3" ColumnSpacing="12" KeepColumnWidth="True" />
+                  <c:CardGrid MinColumnWidth="340" MaxColumns="3" />
                 </ItemsPanelTemplate>
               </ItemsControl.ItemsPanel>
             </ItemsControl>
