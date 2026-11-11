@@ -202,42 +202,10 @@
                 </Grid>
               </Border>
 
+              <!-- Base stats first, then what each attacking type does to it (abilities are not counted), then the
+                   ROM's data (user, 2026-11-11) -->
               <Grid ColumnDefinitions="*,8,*">
-                <Border Classes="card" ToolTip.Tip="{x:Static r:Strings.Dex_DataHint}">
-                  <StackPanel>
-                    <TextBlock Classes="card-title" Margin="0,0,0,4" Text="{x:Static r:Strings.Dex_DataTitle}" />
-                    <ItemsControl ItemsSource="{Binding Abilities}"
-                                  IsVisible="{Binding $parent[UserControl].((vm:SaveDexViewModel)DataContext).ShowAbilities}">
-                      <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="vm:DexInfoLine">
-                          <Border Classes="info-row">
-                            <Grid ColumnDefinitions="130,*">
-                              <TextBlock Classes="hint" VerticalAlignment="Center" Text="{Binding Label}" />
-                              <TextBlock Grid.Column="1" FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding Value}" />
-                            </Grid>
-                          </Border>
-                        </DataTemplate>
-                      </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                    <Border Classes="info-row"
-                            IsVisible="{Binding !$parent[UserControl].((vm:SaveDexViewModel)DataContext).ShowAbilities}">
-                      <TextBlock Classes="hint" Text="{x:Static r:Strings.Dex_AbilitiesHidden}" VerticalAlignment="Center" />
-                    </Border>
-                    <ItemsControl ItemsSource="{Binding Info}">
-                      <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="vm:DexInfoLine">
-                          <Border Classes="info-row">
-                            <Grid ColumnDefinitions="130,*">
-                              <TextBlock Classes="hint" VerticalAlignment="Center" Text="{Binding Label}" />
-                              <TextBlock Grid.Column="1" FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding Value}" />
-                            </Grid>
-                          </Border>
-                        </DataTemplate>
-                      </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                  </StackPanel>
-                </Border>
-                <Border Grid.Column="2" Classes="card">
+                <Border Classes="card">
                   <StackPanel>
                     <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,4">
                       <TextBlock Classes="card-title" Text="{x:Static r:Strings.Section_BaseStats}" />
@@ -260,27 +228,60 @@
                     </ItemsControl>
                   </StackPanel>
                 </Border>
+                <Border Grid.Column="2" Classes="card" ToolTip.Tip="{x:Static r:Strings.Tip_DexMatchups}">
+                  <StackPanel Spacing="4">
+                    <TextBlock Classes="card-title" Margin="0,0,0,2" Text="{x:Static r:Strings.Dex_MatchupsTitle}" />
+                    <ItemsControl ItemsSource="{Binding Matchups}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:DexMatchupRow">
+                          <Border Classes="info-row">
+                            <Grid ColumnDefinitions="44,*">
+                              <Border Background="{Binding LabelBackground}" CornerRadius="2" Width="36" Height="20" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Label}" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                              </Border>
+                              <ItemsControl Grid.Column="1" ItemsSource="{Binding Types}" VerticalAlignment="Center">
+                                <ItemsControl.ItemsPanel>
+                                  <ItemsPanelTemplate>
+                                    <WrapPanel ItemSpacing="4" LineSpacing="4" />
+                                  </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                              </ItemsControl>
+                            </Grid>
+                          </Border>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </StackPanel>
+                </Border>
               </Grid>
 
-              <!-- What each attacking type does to it, by its types (abilities are not counted) -->
-              <Border Classes="card" ToolTip.Tip="{x:Static r:Strings.Tip_DexMatchups}">
-                <StackPanel Spacing="4">
-                  <TextBlock Classes="card-title" Margin="0,0,0,2" Text="{x:Static r:Strings.Dex_MatchupsTitle}" />
-                  <ItemsControl ItemsSource="{Binding Matchups}">
+              <Border Classes="card" ToolTip.Tip="{x:Static r:Strings.Dex_DataHint}">
+                <StackPanel>
+                  <TextBlock Classes="card-title" Margin="0,0,0,4" Text="{x:Static r:Strings.Dex_DataTitle}" />
+                  <ItemsControl ItemsSource="{Binding Abilities}"
+                                IsVisible="{Binding $parent[UserControl].((vm:SaveDexViewModel)DataContext).ShowAbilities}">
                     <ItemsControl.ItemTemplate>
-                      <DataTemplate x:DataType="vm:DexMatchupRow">
+                      <DataTemplate x:DataType="vm:DexInfoLine">
                         <Border Classes="info-row">
-                          <Grid ColumnDefinitions="44,*">
-                            <Border Background="{Binding LabelBackground}" CornerRadius="2" Width="36" Height="20" HorizontalAlignment="Left" VerticalAlignment="Center">
-                              <TextBlock Text="{Binding Label}" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                            </Border>
-                            <ItemsControl Grid.Column="1" ItemsSource="{Binding Types}" VerticalAlignment="Center">
-                              <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                  <WrapPanel ItemSpacing="4" LineSpacing="4" />
-                                </ItemsPanelTemplate>
-                              </ItemsControl.ItemsPanel>
-                            </ItemsControl>
+                          <Grid ColumnDefinitions="130,*">
+                            <TextBlock Classes="hint" VerticalAlignment="Center" Text="{Binding Label}" />
+                            <TextBlock Grid.Column="1" FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding Value}" />
+                          </Grid>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                  <Border Classes="info-row"
+                          IsVisible="{Binding !$parent[UserControl].((vm:SaveDexViewModel)DataContext).ShowAbilities}">
+                    <TextBlock Classes="hint" Text="{x:Static r:Strings.Dex_AbilitiesHidden}" VerticalAlignment="Center" />
+                  </Border>
+                  <ItemsControl ItemsSource="{Binding Info}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vm:DexInfoLine">
+                        <Border Classes="info-row">
+                          <Grid ColumnDefinitions="130,*">
+                            <TextBlock Classes="hint" VerticalAlignment="Center" Text="{Binding Label}" />
+                            <TextBlock Grid.Column="1" FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center" Text="{Binding Value}" />
                           </Grid>
                         </Border>
                       </DataTemplate>
