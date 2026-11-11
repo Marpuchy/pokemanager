@@ -1,3 +1,64 @@
+## New in 3.0: mods, a Pokédex of the ROM you play, and trainers that fight properly
+
+### Mods
+
+- **The USUM Expansion Mod**: the Pokémon of Generations 8 and 9 in Ultra Sun and Ultra Moon (about 1025 species), with
+  their moves, abilities and items. The app downloads it from the author's own pages, keeps it in your library and builds
+  it into the ROM; the randomizer sees every new species and the 3D models reach the game. Pinned to the author's newest
+  fixes, including the one for a battle AI issue with the new abilities.
+- **Emulator plugins** (`.3gx`), such as the Pokémon Follower mod: installed into Citra/Azahar's plugin folder, never
+  built into the ROM.
+- **Your own mods**: a folder, `Documents\Pokemanager\Mods`, where you drop a LayeredFS folder, a `.zip`/`.7z` or a
+  `.3gx`. Each one gets its card: turn it on, give it a name, description, author, link, games and picture, and put the
+  enabled mods in order — when two bring the same file, the one above wins, and the cards say which files they share.
+
+### Pokédex
+
+- **Every Pokémon and form of your ROM**, mod ones included, as your ROM has them: types, stats, abilities (hidden until
+  you ask), evolution line, moves by level as a timeline, and the game's own entry where there is one.
+- **Damage taken by type**: ×4, ×2, ×1, ×½, ×¼ and ×0 for each Pokémon's types.
+- **Evolution lines drawn as a tree**, with every branch, regional form and mega, each card opening its Pokémon. Split
+  evolutions show both forms (male and female Meowstic, converging on one Mega Meowstic).
+- **Filters**: type, base stat total, megas and legendaries (include, exclude or ignore), forms, seen and caught.
+
+### Trainers and difficulty
+
+- **Megas and Z-crystals by kind of trainer and level**: bosses always mega evolve with their last Pokémon, important
+  trainers may, ordinary ones never; a Z-crystal is never on the last Pokémon and is chosen for the holder's own moves. No
+  battle starts with a mega or totem form.
+- **Challenge and Nightmare never lower a trainer's AI**: every trainer plays at the game's own top level.
+- **Changing difficulty keeps your trainer level percentage** and moves it only by the difference between profiles.
+- **Trainer teams as they will come out**: the advanced editor shows each member as the build writes it, in a party layout.
+
+### Pokémon
+
+- **Evolutions are editable** per Pokémon (method, level, item, form…).
+- **Earlier stages follow an edited Pokémon**: stats, catch rate, types and experience group, on every edit or for the
+  whole project at once.
+- The ROM's original base stats next to the current ones.
+
+### Game and run
+
+- **TM descriptions** describe the move the TM really teaches, in every language (the randomizer only fixed English).
+- **Locke**: in Sun/Moon and Ultra Sun/Ultra Moon a roulette after every trial — a **major** one after the grand trials
+  and the league, a **minor** one after the captains' trials, each with its own prizes — and the league has its cup.
+- **Drag Pokémon** between the party and the boxes.
+- The build keeps the randomization you are playing while the seed and options are the same.
+- The `.rnqs` preset carries every option of the app, and still opens in UPR ZX.
+- Shiny odds as a number (1 in N), starters that match the scene, starting over to the game as it ships.
+
+### The application
+
+- **Three tabs**: *Proyecto*, *Opciones de la ROM* (one subject per page in a side list) and *Partida* (with the Pokédex).
+- A change made in one place is seen in every page that shows it (levels, difficulty, level cap, trainers).
+
+### Fixed
+
+- Abilities past 255 of the Expansion (blank in game) are kept whole in the ROM and the save.
+- The editor read the game without your randomization after an update; abilities and teams show as in your ROM again.
+- Moves with no data are never put in a learnset or a TM.
+- Items the mod adds go in the right pocket of the bag.
+
 ## New in 2.1: difficulty, a level cap that follows your badges, and the app in two halves
 
 - **Difficulty profiles**: one choice in Options → Trainers — **Relaxed, Normal, Challenge, Nightmare** — writes over every
