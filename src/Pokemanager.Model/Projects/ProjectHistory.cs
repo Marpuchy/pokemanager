@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -216,6 +216,7 @@ public sealed class ProjectHistory
           .Append(t.StarterLevelPercent != 0 ? "st" + Percent(t.StarterLevelPercent) + "|" : "")
           .Append(t.OriginalStarters ? "os|" : "")
           .Append(t.ShinyOdds is { } odds ? "sh" + odds + "|" : "")
+          .Append(t.Encounters is { IsEmpty: false } encounters ? "en" + encounters.Fingerprint() + "|" : "")
           .Append(project.Shops.FreeRareCandies).Append('|').Append(project.Shops.MegaStonesOnSale).Append('|');
         // Which mods are on changes the ROM as much as a seed does: a version has to be told apart by them. Only the
         // ones that are *in* the ROM, though: a 3GX plugin is loaded by the emulator and changes no byte of what was

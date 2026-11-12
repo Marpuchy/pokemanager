@@ -153,6 +153,18 @@ public sealed class RomReader : IDisposable
     public byte[]? ReadRomFs(string relative) =>
         FindFile(relative) is { } f ? Bytes(stream, level3 + romfs.FileData + f.Offset, checked((int)f.Size)) : null;
 
+    /// <summary>
+    /// A RomFS file as a stream of its own (a second handle on the ROM), for reading a few parts of a big archive —
+    /// the 483 MB encounter archive of Generation 7 — without loading it. Null when it does not exist.
+    /// </summary>
+    public Stream? OpenRomFs(string relative)
+    {
+        if (FindFile(relative) is not { } f)
+            return null;
+        var file = new FileStream(Path, FileMode.Open, FileAccess.Read, FileShare.Read);
+        return new Data.SubStream(file, level3 + romfs.FileData + f.Offset, f.Size);
+    }
+
     /// <summary>Copies a RomFS file to disk without loading it whole. False when it does not exist.</summary>
     public bool CopyRomFs(string relative, string target)
     {

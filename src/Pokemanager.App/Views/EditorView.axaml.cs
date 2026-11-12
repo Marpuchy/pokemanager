@@ -1,4 +1,4 @@
-﻿using Avalonia.Controls;
+using Avalonia.Controls;
 using Pokemanager.App.ViewModels;
 
 namespace Pokemanager.App.Views;
@@ -15,6 +15,18 @@ public partial class EditorView : UserControl
                 return;
             if (MainTabs.SelectedItem == SaveTab)
                 vm.SaveEditor.EnsureOpen();
+        };
+
+        // The encounters are read when their page is first shown (the routes are one file each of a 483 MB archive).
+        EncountersPage.AttachedToVisualTree += async (_, _) =>
+        {
+            if (DataContext is EditorViewModel vm)
+                await vm.EncounterEditor.LoadAsync();
+        };
+        EncountersPage.PropertyChanged += async (_, e) =>
+        {
+            if (e.Property == IsVisibleProperty && EncountersPage.IsEffectivelyVisible && DataContext is EditorViewModel vm)
+                await vm.EncounterEditor.LoadAsync();
         };
 
         // The randomizer's options are read from UPR ZX (a few seconds) the first time the ROM options are shown.

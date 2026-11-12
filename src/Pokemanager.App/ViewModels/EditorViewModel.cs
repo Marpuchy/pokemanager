@@ -89,6 +89,9 @@ public partial class EditorViewModel : ObservableObject
     /// <summary>Advanced: Game — what the built ROM does differently, beyond a single Pokémon or trainer.</summary>
     public GameTweaksViewModel GameTweaks { get; }
 
+    /// <summary>Encuentros → Todos los encuentros: every route, the starters, gifts, fixed encounters and trades.</summary>
+    public EncounterEditorViewModel EncounterEditor { get; }
+
     /// <summary>The level cap by milestones and the indicator of the cap the save is on.</summary>
     public LevelCapViewModel LevelCap { get; }
 
@@ -239,6 +242,7 @@ public partial class EditorViewModel : ObservableObject
         SaveEditor = new SaveEditorViewModel(this, settings);
         Locke = new LockeViewModel(this);
         GameTweaks = new GameTweaksViewModel(this, session);
+        EncounterEditor = new EncounterEditorViewModel(this, session);
         LevelCap = new LevelCapViewModel(this);
         Mods = new ModsViewModel(this);
 
@@ -386,6 +390,7 @@ public partial class EditorViewModel : ObservableObject
 
     private void LoadLists()
     {
+        EncounterEditor?.Reset(Session);
         string[] personalTables = [GameTables.Personal, GameTables.Learnsets, GameTables.Evolutions];
         var personalIndex = PersonalIndex.Of(Session.Current);
         allSpecies = Enumerable.Range(1, Session.Current.Personal.Length - 1) // entry 0 is an empty placeholder
@@ -763,6 +768,7 @@ public partial class EditorViewModel : ObservableObject
         if (!ready)
             return;
         GameTweaks?.Refresh();
+        EncounterEditor?.Refresh();
         Randomizer?.Shops.Refresh();
         Randomizer?.Difficulty.RefreshApplied();
         LevelCap?.Refresh();

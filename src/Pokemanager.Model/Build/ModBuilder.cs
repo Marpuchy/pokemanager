@@ -1,6 +1,7 @@
-﻿using pk3DS.Core.CTR;
+using pk3DS.Core.CTR;
 using pk3DS.Core.Structures;
 using Pokemanager.Model.Data;
+using Pokemanager.Model.Projects;
 using Pokemanager.Model.Dump;
 using Pokemanager.Model.Editing;
 using Pokemanager.Model.Edits;
@@ -387,11 +388,24 @@ public static class ModBuilder
             }
         }
 
-        if (game.WildLevelPercent != 0 && layout.Wild.Length > 0 && ReadAnywhere(session, layout.Wild) is { } wild)
+        // The encounters tab's changes first (they name the Pokémon the randomization left), then the level percentage.
+        var encounters = game.Encounters ?? new EncounterEdits();
+        bool wildEdits = encounters.Wild.Count > 0 || encounters.WildLevels.Count > 0;
+        if ((game.WildLevelPercent != 0 || wildEdits) && layout.Wild.Length > 0 && ReadAnywhere(session, layout.Wild) is { } wild)
         {
             byte[][] files = wild.Files;
-            if (GameLevels.ScaleWild7(files, game.WildLevelPercent) > 0)
+            int changed = wildEdits ? WildEncounters7.Apply(files, encounters) : 0;
+            changed += GameLevels.ScaleWild7(files, game.WildLevelPercent);
+            if (changed > 0)
                 outputs["romfs/" + layout.Wild] = GARC.PackGARC(files, wild.Version, wild.ContentPadding).Data;
+        }
+
+        if ((encounters.Gifts.Count > 0 || encounters.Statics.Count > 0 || encounters.Trades.Count > 0) && layout.Statics.Length > 0)
+        {
+            var statics = BuiltOrRead(session, outputs, layout.Statics);
+            byte[][] files = statics.Files;
+            if (WildEncounters7.ApplyStatics(files, encounters) > 0)
+                outputs["romfs/" + layout.Statics] = GARC.PackGARC(files, statics.Version, statics.ContentPadding).Data;
         }
 
         if (game.StaticLevelPercent != 0 && layout.Statics.Length > 0)

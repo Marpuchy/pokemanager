@@ -5318,4 +5318,94 @@ Proyecto: {2}</value>
   <data name="Tab_Detached" xml:space="preserve">
     <value>Esta pestaña está abierta en su propia ventana.</value>
   </data>
+  <data name="Enc_Tab" xml:space="preserve">
+    <value>Todos los encuentros</value>
+  </data>
+  <data name="Enc_Loading" xml:space="preserve">
+    <value>Leyendo los encuentros…</value>
+  </data>
+  <data name="Enc_Keep" xml:space="preserve">
+    <value>(dejarlo)</value>
+  </data>
+  <data name="Enc_FromRandomization" xml:space="preserve">
+    <value>{0} zonas, tal como las dejó la randomización. Los cambios se escriben al crear la ROM, sin volver a randomizar.</value>
+  </data>
+  <data name="Enc_FromBase" xml:space="preserve">
+    <value>{0} zonas, de la ROM base. Los cambios se escriben al crear la ROM.</value>
+  </data>
+  <data name="Enc_Failed" xml:space="preserve">
+    <value>No se pudieron leer los encuentros: {0}</value>
+  </data>
+  <data name="Enc_Starters" xml:space="preserve">
+    <value>Iniciales</value>
+  </data>
+  <data name="Enc_Gifts" xml:space="preserve">
+    <value>Regalos</value>
+  </data>
+  <data name="Enc_Statics" xml:space="preserve">
+    <value>Encuentros fijos y dominantes</value>
+  </data>
+  <data name="Enc_Trades" xml:space="preserve">
+    <value>Intercambios</value>
+  </data>
+  <data name="Enc_Level" xml:space="preserve">
+    <value>Nv. {0}</value>
+  </data>
+  <data name="Enc_Levels" xml:space="preserve">
+    <value>Nv. {0}-{1}</value>
+  </data>
+  <data name="Enc_Totem" xml:space="preserve">
+    <value>Dominante</value>
+  </data>
+  <data name="Enc_Area" xml:space="preserve">
+    <value>Zona {0}</value>
+  </data>
+  <data name="Enc_OnlySos" xml:space="preserve">
+    <value>solo por llamadas SOS</value>
+  </data>
+  <data name="Enc_Share" xml:space="preserve">
+    <value>hasta {0} %</value>
+  </data>
+  <data name="Enc_Day" xml:space="preserve">
+    <value>de día</value>
+  </data>
+  <data name="Enc_Night" xml:space="preserve">
+    <value>de noche</value>
+  </data>
+  <data name="Enc_Count" xml:space="preserve">
+    <value>{0} Pokémon</value>
+  </data>
+  <data name="Enc_UndoLevels" xml:space="preserve">
+    <value>Niveles de {0}</value>
+  </data>
+  <data name="Enc_UndoSwap" xml:space="preserve">
+    <value>Pokémon de {0}</value>
+  </data>
+  <data name="Enc_Hidden" xml:space="preserve">
+    <value>Pokémon oculto</value>
+  </data>
+  <data name="Enc_Requests" xml:space="preserve">
+    <value>pide {0}</value>
+  </data>
+  <data name="Enc_Show" xml:space="preserve">
+    <value>Mostrar Pokémon</value>
+  </data>
+  <data name="Enc_ShowTip" xml:space="preserve">
+    <value>La lista es un spoiler de la partida: empieza oculta cada vez que abres el proyecto.</value>
+  </data>
+  <data name="Enc_LevelShift" xml:space="preserve">
+    <value>Niveles (+/−)</value>
+  </data>
+  <data name="Enc_LevelShiftTip" xml:space="preserve">
+    <value>Se suma al nivel mínimo y máximo de todas las tablas de este sitio (1-100). Encima del porcentaje de nivel de los salvajes.</value>
+  </data>
+  <data name="Enc_ChoiceTip" xml:space="preserve">
+    <value>En qué se convierte este Pokémon. En una ruta cambia en todos sus huecos (día, noche, hierba, agua, SOS).</value>
+  </data>
+  <data name="Enc_NotSupported" xml:space="preserve">
+    <value>De momento solo Sol/Luna y Ultrasol/Ultraluna: X/Y y Rubí Omega/Zafiro Alfa guardan sus encuentros en otro formato.</value>
+  </data>
+  <data name="Enc_PlaceHint" xml:space="preserve">
+    <value>El porcentaje es el mayor que tiene el Pokémon en una de las tablas del sitio (hierba, agua, sitios especiales).</value>
+  </data>
 </root>

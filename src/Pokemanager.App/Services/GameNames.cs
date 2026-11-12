@@ -1,4 +1,4 @@
-﻿using pk3DS.Core;
+using pk3DS.Core;
 using pk3DS.Core.CTR;
 using Pokemanager.App.Resources;
 using Pokemanager.Model.Data;
@@ -54,6 +54,22 @@ public sealed class GameNames
     /// <summary>This version's Pokédex entry by species (plain text with line breaks); empty when the game has none.</summary>
     public IReadOnlyList<string> PokedexEntries { get; }
 
+    /// <summary>The game's place names (the met-location list), for the encounters tab; empty when they do not read.</summary>
+    public IReadOnlyList<string> Locations { get; }
+
+    private static string[] Safe(Func<string[]> read)
+    {
+        try
+        {
+            return read();
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or ArgumentException or IndexOutOfRangeException
+                                       or KeyNotFoundException or NullReferenceException)
+        {
+            return [];
+        }
+    }
+
     /// <param name="dump">The imported game: its text is the fallback, and the language to read.</param>
     /// <param name="original">The data being read (the session's base), which says how many of each thing there are.</param>
     /// <param name="layers">
@@ -72,6 +88,7 @@ public sealed class GameNames
         Items = Pad(text.Get(TextName.ItemNames), original.Items.Length, Strings.Names_Item);
         Moves = Pad(text.Get(TextName.MoveNames), original.Moves.Length, Strings.Names_Move);
         TrainerNames = text.Get(TextName.TrainerNames);
+        Locations = Safe(() => text.Get(TextName.metlist_000000));
         TrainerClasses = text.Get(TextName.TrainerClasses);
         Natures = [.. PKHeX.Core.GameInfo.GetStrings(SaveNames.PkhexLanguage(dump.Language)).natures.Take(25)];
         ItemChoices = [Strings.Pkm_None, .. Items.Skip(1)];

@@ -5318,4 +5318,94 @@ Project: {2}</value>
   <data name="Tab_Detached" xml:space="preserve">
     <value>This tab is open in its own window.</value>
   </data>
+  <data name="Enc_Tab" xml:space="preserve">
+    <value>All encounters</value>
+  </data>
+  <data name="Enc_Loading" xml:space="preserve">
+    <value>Reading the encounters…</value>
+  </data>
+  <data name="Enc_Keep" xml:space="preserve">
+    <value>(keep it)</value>
+  </data>
+  <data name="Enc_FromRandomization" xml:space="preserve">
+    <value>{0} areas, as the randomization left them. Changes are written when the ROM is built, without randomizing again.</value>
+  </data>
+  <data name="Enc_FromBase" xml:space="preserve">
+    <value>{0} areas, from the base ROM. Changes are written when the ROM is built.</value>
+  </data>
+  <data name="Enc_Failed" xml:space="preserve">
+    <value>Could not read the encounters: {0}</value>
+  </data>
+  <data name="Enc_Starters" xml:space="preserve">
+    <value>Starters</value>
+  </data>
+  <data name="Enc_Gifts" xml:space="preserve">
+    <value>Gifts</value>
+  </data>
+  <data name="Enc_Statics" xml:space="preserve">
+    <value>Fixed encounters and totems</value>
+  </data>
+  <data name="Enc_Trades" xml:space="preserve">
+    <value>Trades</value>
+  </data>
+  <data name="Enc_Level" xml:space="preserve">
+    <value>Lv. {0}</value>
+  </data>
+  <data name="Enc_Levels" xml:space="preserve">
+    <value>Lv. {0}-{1}</value>
+  </data>
+  <data name="Enc_Totem" xml:space="preserve">
+    <value>Totem</value>
+  </data>
+  <data name="Enc_Area" xml:space="preserve">
+    <value>Area {0}</value>
+  </data>
+  <data name="Enc_OnlySos" xml:space="preserve">
+    <value>only through SOS calls</value>
+  </data>
+  <data name="Enc_Share" xml:space="preserve">
+    <value>up to {0} %</value>
+  </data>
+  <data name="Enc_Day" xml:space="preserve">
+    <value>day</value>
+  </data>
+  <data name="Enc_Night" xml:space="preserve">
+    <value>night</value>
+  </data>
+  <data name="Enc_Count" xml:space="preserve">
+    <value>{0} Pokémon</value>
+  </data>
+  <data name="Enc_UndoLevels" xml:space="preserve">
+    <value>Levels of {0}</value>
+  </data>
+  <data name="Enc_UndoSwap" xml:space="preserve">
+    <value>Pokémon of {0}</value>
+  </data>
+  <data name="Enc_Hidden" xml:space="preserve">
+    <value>Hidden Pokémon</value>
+  </data>
+  <data name="Enc_Requests" xml:space="preserve">
+    <value>asks for {0}</value>
+  </data>
+  <data name="Enc_Show" xml:space="preserve">
+    <value>Show Pokémon</value>
+  </data>
+  <data name="Enc_ShowTip" xml:space="preserve">
+    <value>The list is the run's spoiler: it starts hidden every time the project opens.</value>
+  </data>
+  <data name="Enc_LevelShift" xml:space="preserve">
+    <value>Levels (+/−)</value>
+  </data>
+  <data name="Enc_LevelShiftTip" xml:space="preserve">
+    <value>Added to the minimum and maximum level of every table of this place (1-100). On top of the wild level percentage.</value>
+  </data>
+  <data name="Enc_ChoiceTip" xml:space="preserve">
+    <value>What this Pokémon becomes. In a route, it changes in every slot of the route (day, night, grass, water, SOS).</value>
+  </data>
+  <data name="Enc_NotSupported" xml:space="preserve">
+    <value>For now only Sun/Moon and Ultra Sun/Ultra Moon: X/Y and Omega Ruby/Alpha Sapphire keep their encounters in another format.</value>
+  </data>
+  <data name="Enc_PlaceHint" xml:space="preserve">
+    <value>The share is the biggest the Pokémon has in one of the place's tables (grass, water, special spots).</value>
+  </data>
 </root>

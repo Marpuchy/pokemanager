@@ -1,4 +1,4 @@
-﻿namespace Pokemanager.Model.Projects;
+namespace Pokemanager.Model.Projects;
 
 /// <summary>
 /// Changes to how the game itself behaves, applied when the ROM is built. Like the shops they are part of the project
@@ -108,7 +108,11 @@ public sealed class GameSettings
     public TrainerBattleItems TrainerItems { get; set; } = new();
 
     /// <summary>Whether anything at all has to be done at build time.</summary>
-    public bool IsEmpty => !AlwaysShiny && LevelCap is null && !HasLevelChanges && !OriginalStarters && ShinyOdds is null;
+    /// <summary>What the encounters tab changed: routes, gifts, fixed encounters and trades (Generation 7).</summary>
+    public EncounterEdits Encounters { get; set; } = new();
+
+    public bool IsEmpty => !AlwaysShiny && LevelCap is null && !HasLevelChanges && !OriginalStarters && ShinyOdds is null
+                           && (Encounters?.IsEmpty ?? true);
 
     public GameSettings Clone() => new()
     {
@@ -128,5 +132,6 @@ public sealed class GameSettings
         KeepPreevolutions = KeepPreevolutions,
         ShinyOdds = ShinyOdds,
         TrainerItems = (TrainerItems ?? new()).Clone(),
+        Encounters = (Encounters ?? new()).Clone(),
     };
 }
