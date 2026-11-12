@@ -18,8 +18,15 @@
             <TextBlock Text="{Binding Label}" TextWrapping="Wrap" />
           </CheckBox>
           <TextBlock IsVisible="{Binding !IsBool}" Text="{Binding Label}" TextWrapping="Wrap" Margin="0,4,0,0" />
-          <ComboBox IsVisible="{Binding IsChoice}" ItemsSource="{Binding ChoiceLabels}" SelectedIndex="{Binding ChoiceIndex}"
-                    HorizontalAlignment="Stretch" MaxDropDownHeight="400" />
+          <ComboBox IsVisible="{Binding IsChoice}" ItemsSource="{Binding ChoiceItems}" SelectedIndex="{Binding ChoiceIndex}"
+                    HorizontalAlignment="Stretch" MaxDropDownHeight="400" >
+            <!-- Each entry says what it does on hover (2026-11-12, user) -->
+            <ComboBox.ItemTemplate>
+              <DataTemplate x:DataType="vm:UprChoiceItem">
+                <TextBlock Text="{Binding Label}" ToolTip.Tip="{Binding Tip}" Background="Transparent" HorizontalAlignment="Stretch" TextTrimming="CharacterEllipsis" />
+              </DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
           <NumericUpDown IsVisible="{Binding IsInt}" Value="{Binding IntValue}" Minimum="{Binding Min}" Maximum="{Binding Max}"
                          Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="150" HorizontalAlignment="Left" />
         </StackPanel>
@@ -67,8 +74,15 @@
               <TextBlock Text="{Binding Label}" TextWrapping="Wrap" />
             </CheckBox>
             <TextBlock IsVisible="{Binding !IsBool}" Text="{Binding Label}" TextWrapping="Wrap" Margin="0,4,0,0" />
-            <ComboBox IsVisible="{Binding IsChoice}" ItemsSource="{Binding ChoiceLabels}" SelectedIndex="{Binding ChoiceIndex}"
-                      HorizontalAlignment="Stretch" MaxDropDownHeight="400" />
+            <ComboBox IsVisible="{Binding IsChoice}" ItemsSource="{Binding ChoiceItems}" SelectedIndex="{Binding ChoiceIndex}"
+                      HorizontalAlignment="Stretch" MaxDropDownHeight="400" >
+              <!-- Each entry says what it does on hover (2026-11-12, user) -->
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:UprChoiceItem">
+                  <TextBlock Text="{Binding Label}" ToolTip.Tip="{Binding Tip}" Background="Transparent" HorizontalAlignment="Stretch" TextTrimming="CharacterEllipsis" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
             <NumericUpDown IsVisible="{Binding IsInt}" Value="{Binding IntValue}" Minimum="{Binding Min}" Maximum="{Binding Max}"
                            Increment="1" FormatString="0" ParsingNumberStyle="Integer" Width="150" HorizontalAlignment="Left" />
           </StackPanel>

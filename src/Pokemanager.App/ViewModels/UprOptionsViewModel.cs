@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Pokemanager.App.Resources;
@@ -333,6 +333,9 @@ public partial class UprOptionViewModel : ObservableObject
     public bool IsChoice { get; }
     public IReadOnlyList<string> Choices { get; } = [];
     public IReadOnlyList<string> ChoiceLabels { get; } = [];
+
+    /// <summary>The choices with what each does, for the list's entries (built once: an ItemsSource next to a two-way SelectedIndex).</summary>
+    public IReadOnlyList<UprChoiceItem> ChoiceItems { get; } = [];
     public string? Hint { get; }
 
     /// <summary>What the option does, on hover: UPR ZX's own text for a misc tweak, ours for everything else.</summary>
@@ -361,6 +364,7 @@ public partial class UprOptionViewModel : ObservableObject
                 IsChoice = true;
                 Choices = option.Choices ?? [];
                 ChoiceLabels = Choices.Select(c => UprOptionCatalog.ChoiceLabel(option.Name, c)).ToList();
+                ChoiceItems = Choices.Select(c => new UprChoiceItem(UprOptionCatalog.ChoiceLabel(option.Name, c), UprOptionCatalog.ChoiceTip(option.Name, c))).ToList();
                 choiceIndex = option.Value.ValueKind == JsonValueKind.String ? Math.Max(0, Choices.ToList().IndexOf(option.Value.GetString()!)) : 0;
                 break;
         }
@@ -422,3 +426,9 @@ public partial class UprOptionViewModel : ObservableObject
 
 /// <summary>A titled card of a group's randomizer options.</summary>
 public sealed record UprOptionSectionViewModel(string Title, IReadOnlyList<UprOptionViewModel> Items);
+
+/// <summary>An entry of a randomizer option's list: its name and what it does.</summary>
+public sealed record UprChoiceItem(string Label, string? Tip)
+{
+    public override string ToString() => Label;
+}

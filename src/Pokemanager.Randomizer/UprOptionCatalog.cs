@@ -1,4 +1,4 @@
-﻿using Pokemanager.Randomizer.Resources;
+using Pokemanager.Randomizer.Resources;
 
 namespace Pokemanager.Randomizer;
 
@@ -233,6 +233,13 @@ public static class UprOptionCatalog
     /// <summary>Label of an enum value: specific to the option, then generic, then the raw constant.</summary>
     public static string ChoiceLabel(string option, string choice) =>
         Text($"Choice_{option}_{choice}") ?? Text("Choice_" + choice) ?? choice;
+
+    /// <summary>
+    /// What a choice of a list does, on hover over the entry (2026-11-12, user: "explain the options of the dropdowns
+    /// on hover"): the text for this option's choice, or the shared one (Unchanged, None), or none.
+    /// </summary>
+    public static string? ChoiceTip(string option, string choice) =>
+        Text($"ChoiceTip_{option}_{choice}") ?? Text("ChoiceTip_" + choice);
 
     /// <summary>Label of a misc tweak, falling back to UPR's own (English) name.</summary>
     public static string TweakLabel(string tweak, string fallback) => Text("Tweak_" + tweak) ?? fallback;

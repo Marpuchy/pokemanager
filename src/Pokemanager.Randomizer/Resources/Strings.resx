@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <resheader name="resmimetype">
     <value>text/microsoft-resx</value>
@@ -1052,5 +1052,167 @@
   </data>
   <data name="Group_Levels" xml:space="preserve">
     <value>Levels</value>
+  </data>
+  <data name="ChoiceTip_UNCHANGED" xml:space="preserve">
+    <value>Leaves what the ROM already has.</value>
+  </data>
+  <data name="ChoiceTip_NONE" xml:space="preserve">
+    <value>No restriction.</value>
+  </data>
+  <data name="ChoiceTip_BaseStatisticsMod_SHUFFLE" xml:space="preserve">
+    <value>Each Pokémon keeps its six base stats but in a different order (its total does not change).</value>
+  </data>
+  <data name="ChoiceTip_BaseStatisticsMod_RANDOM" xml:space="preserve">
+    <value>New base stats for each Pokémon, keeping its total.</value>
+  </data>
+  <data name="ChoiceTip_TypesMod_RANDOM_FOLLOW_EVOLUTIONS" xml:space="preserve">
+    <value>New random types, and the evolutions of a Pokémon keep the types of its line.</value>
+  </data>
+  <data name="ChoiceTip_TypesMod_COMPLETELY_RANDOM" xml:space="preserve">
+    <value>New random types for every Pokémon, each on its own: an evolution can change type.</value>
+  </data>
+  <data name="ChoiceTip_AbilitiesMod_RANDOMIZE" xml:space="preserve">
+    <value>Each Pokémon gets random abilities.</value>
+  </data>
+  <data name="ChoiceTip_EvolutionsMod_RANDOM" xml:space="preserve">
+    <value>Each Pokémon evolves into another random Pokémon, at the same moment it evolved before.</value>
+  </data>
+  <data name="ChoiceTip_EvolutionsMod_RANDOM_EVERY_LEVEL" xml:space="preserve">
+    <value>Every Pokémon evolves into a random one each time it levels up.</value>
+  </data>
+  <data name="ChoiceTip_ExpCurveMod_LEGENDARIES" xml:space="preserve">
+    <value>The standard curve for everything except legendaries, which keep theirs.</value>
+  </data>
+  <data name="ChoiceTip_ExpCurveMod_STRONG_LEGENDARIES" xml:space="preserve">
+    <value>The standard curve for everything except the strongest legendaries.</value>
+  </data>
+  <data name="ChoiceTip_ExpCurveMod_ALL" xml:space="preserve">
+    <value>The standard curve for every Pokémon.</value>
+  </data>
+  <data name="ChoiceTip_StartersMod_CUSTOM" xml:space="preserve">
+    <value>The three starters chosen in the preset.</value>
+  </data>
+  <data name="ChoiceTip_StartersMod_COMPLETELY_RANDOM" xml:space="preserve">
+    <value>Any three Pokémon, evolved or not.</value>
+  </data>
+  <data name="ChoiceTip_StartersMod_RANDOM_WITH_TWO_EVOLUTIONS" xml:space="preserve">
+    <value>Three random Pokémon that start a line of three stages, like real starters.</value>
+  </data>
+  <data name="ChoiceTip_StaticPokemonMod_RANDOM_MATCHING" xml:space="preserve">
+    <value>Gifts and fixed encounters become random Pokémon: a legendary becomes another legendary and the rest another non-legendary.</value>
+  </data>
+  <data name="ChoiceTip_StaticPokemonMod_COMPLETELY_RANDOM" xml:space="preserve">
+    <value>Gifts and fixed encounters become any random Pokémon.</value>
+  </data>
+  <data name="ChoiceTip_StaticPokemonMod_SIMILAR_STRENGTH" xml:space="preserve">
+    <value>Gifts and fixed encounters become random Pokémon of a similar strength.</value>
+  </data>
+  <data name="ChoiceTip_TotemPokemonMod_RANDOM" xml:space="preserve">
+    <value>Each totem becomes a random Pokémon.</value>
+  </data>
+  <data name="ChoiceTip_TotemPokemonMod_SIMILAR_STRENGTH" xml:space="preserve">
+    <value>Each totem becomes a random Pokémon of a similar strength.</value>
+  </data>
+  <data name="ChoiceTip_AllyPokemonMod_RANDOM" xml:space="preserve">
+    <value>The totems' allies become random Pokémon.</value>
+  </data>
+  <data name="ChoiceTip_AllyPokemonMod_SIMILAR_STRENGTH" xml:space="preserve">
+    <value>The totems' allies become random Pokémon of a similar strength.</value>
+  </data>
+  <data name="ChoiceTip_AuraMod_RANDOM" xml:space="preserve">
+    <value>The totems' aura raises random stats.</value>
+  </data>
+  <data name="ChoiceTip_AuraMod_SAME_STRENGTH" xml:space="preserve">
+    <value>The aura raises random stats by as many stages as before.</value>
+  </data>
+  <data name="ChoiceTip_InGameTradesMod_RANDOMIZE_GIVEN" xml:space="preserve">
+    <value>The Pokémon you receive in trades is random; the one asked for stays.</value>
+  </data>
+  <data name="ChoiceTip_InGameTradesMod_RANDOMIZE_GIVEN_AND_REQUESTED" xml:space="preserve">
+    <value>Both the Pokémon you receive and the one asked for are random.</value>
+  </data>
+  <data name="ChoiceTip_MovesetsMod_RANDOM_PREFER_SAME_TYPE" xml:space="preserve">
+    <value>Random level-up moves, mostly of the Pokémon's own type.</value>
+  </data>
+  <data name="ChoiceTip_MovesetsMod_COMPLETELY_RANDOM" xml:space="preserve">
+    <value>Random level-up moves of any type.</value>
+  </data>
+  <data name="ChoiceTip_MovesetsMod_METRONOME_ONLY" xml:space="preserve">
+    <value>Every Pokémon knows only Metronome.</value>
+  </data>
+  <data name="ChoiceTip_TMsMod_RANDOM" xml:space="preserve">
+    <value>Each TM teaches a random move.</value>
+  </data>
+  <data name="ChoiceTip_MoveTutorMovesMod_RANDOM" xml:space="preserve">
+    <value>Each move tutor teaches a random move.</value>
+  </data>
+  <data name="ChoiceTip_TMsHMsCompatibilityMod_RANDOM_PREFER_TYPE" xml:space="preserve">
+    <value>Which Pokémon can learn each TM is random, more likely when the move is of their type.</value>
+  </data>
+  <data name="ChoiceTip_TMsHMsCompatibilityMod_COMPLETELY_RANDOM" xml:space="preserve">
+    <value>Which Pokémon can learn each TM is completely random.</value>
+  </data>
+  <data name="ChoiceTip_TMsHMsCompatibilityMod_FULL" xml:space="preserve">
+    <value>Every Pokémon can learn every TM.</value>
+  </data>
+  <data name="ChoiceTip_MoveTutorsCompatibilityMod_RANDOM_PREFER_TYPE" xml:space="preserve">
+    <value>Which Pokémon can learn each tutor move is random, more likely when the move is of their type.</value>
+  </data>
+  <data name="ChoiceTip_MoveTutorsCompatibilityMod_COMPLETELY_RANDOM" xml:space="preserve">
+    <value>Which Pokémon can learn each tutor move is completely random.</value>
+  </data>
+  <data name="ChoiceTip_MoveTutorsCompatibilityMod_FULL" xml:space="preserve">
+    <value>Every Pokémon can learn every tutor move.</value>
+  </data>
+  <data name="ChoiceTip_TrainersMod_RANDOM" xml:space="preserve">
+    <value>Every trainer's Pokémon are random.</value>
+  </data>
+  <data name="ChoiceTip_TrainersMod_DISTRIBUTED" xml:space="preserve">
+    <value>Random, spread so that as many different Pokémon as possible appear across all trainers.</value>
+  </data>
+  <data name="ChoiceTip_TrainersMod_MAINPLAYTHROUGH" xml:space="preserve">
+    <value>Like the spread one, but only counting the trainers of the main story.</value>
+  </data>
+  <data name="ChoiceTip_TrainersMod_TYPE_THEMED" xml:space="preserve">
+    <value>Each trainer gets random Pokémon sharing one type.</value>
+  </data>
+  <data name="ChoiceTip_TrainersMod_TYPE_THEMED_ELITE4_GYMS" xml:space="preserve">
+    <value>Only the gyms and the Elite Four get a shared type; the rest are random.</value>
+  </data>
+  <data name="ChoiceTip_WildPokemonMod_RANDOM" xml:space="preserve">
+    <value>Every encounter slot gets its own random Pokémon: a route can end up with many more different Pokémon than it had.</value>
+  </data>
+  <data name="ChoiceTip_WildPokemonMod_AREA_MAPPING" xml:space="preserve">
+    <value>In each route, each Pokémon that appeared there is swapped for one random Pokémon: a route with 4 Pokémon still has 4, with the same chances.</value>
+  </data>
+  <data name="ChoiceTip_WildPokemonMod_GLOBAL_MAPPING" xml:space="preserve">
+    <value>Each Pokémon is swapped for the same random Pokémon in the whole game: wherever Pidgey appeared, now the same one appears.</value>
+  </data>
+  <data name="ChoiceTip_WildPokemonRestrictionMod_SIMILAR_STRENGTH" xml:space="preserve">
+    <value>Each wild Pokémon is replaced by one of a similar strength.</value>
+  </data>
+  <data name="ChoiceTip_WildPokemonRestrictionMod_CATCH_EM_ALL" xml:space="preserve">
+    <value>Tries to make every Pokémon appear somewhere in the wild.</value>
+  </data>
+  <data name="ChoiceTip_WildPokemonRestrictionMod_TYPE_THEME_AREAS" xml:space="preserve">
+    <value>Each area gets Pokémon sharing one type.</value>
+  </data>
+  <data name="ChoiceTip_FieldItemsMod_SHUFFLE" xml:space="preserve">
+    <value>The items on the ground are the game's, in different places.</value>
+  </data>
+  <data name="ChoiceTip_FieldItemsMod_RANDOM" xml:space="preserve">
+    <value>Random items on the ground.</value>
+  </data>
+  <data name="ChoiceTip_FieldItemsMod_RANDOM_EVEN" xml:space="preserve">
+    <value>Random items on the ground, spread so that the same item does not repeat much.</value>
+  </data>
+  <data name="ChoiceTip_ShopItemsMod_SHUFFLE" xml:space="preserve">
+    <value>The shops sell the game's items, in other shops.</value>
+  </data>
+  <data name="ChoiceTip_ShopItemsMod_RANDOM" xml:space="preserve">
+    <value>The shops sell random items.</value>
+  </data>
+  <data name="ChoiceTip_PickupItemsMod_RANDOM" xml:space="preserve">
+    <value>The items Pickup finds are random.</value>
   </data>
 </root>
