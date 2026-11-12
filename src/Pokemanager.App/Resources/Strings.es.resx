@@ -5343,7 +5343,7 @@ Proyecto: {2}</value>
     <value>Regalos</value>
   </data>
   <data name="Enc_Statics" xml:space="preserve">
-    <value>Encuentros fijos y dominantes</value>
+    <value>Encuentros fijos</value>
   </data>
   <data name="Enc_Trades" xml:space="preserve">
     <value>Intercambios</value>
@@ -5407,5 +5407,14 @@ Proyecto: {2}</value>
   </data>
   <data name="Enc_PlaceHint" xml:space="preserve">
     <value>El porcentaje es el mayor que tiene el Pokémon en una de las tablas del sitio (hierba, agua, sitios especiales).</value>
+  </data>
+  <data name="Enc_Totems" xml:space="preserve">
+    <value>Dominantes</value>
+  </data>
+  <data name="Enc_CountSos" xml:space="preserve">
+    <value>{0} Pokémon (+{1} solo por SOS)</value>
+  </data>
+  <data name="Enc_Replaces" xml:space="preserve">
+    <value>en lugar de {0}</value>
   </data>
 </root>

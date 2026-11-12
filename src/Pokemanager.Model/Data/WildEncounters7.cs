@@ -139,9 +139,18 @@ public static class WildEncounters7
     /// in its first part, third section, the (zone, area) pairs. An area with several zones of different names gets
     /// them all.
     /// </summary>
-    public static Dictionary<int, string> AreaNames(byte[] zones, byte[] zoneWorlds, Func<int, byte[]> world, IReadOnlyList<string> locations)
+    public static Dictionary<int, string> AreaNames(byte[] zones, byte[] zoneWorlds, Func<int, byte[]> world, IReadOnlyList<string> locations) =>
+        AreaPlaces(zones, zoneWorlds, world, locations).ToDictionary(p => p.Key, p => p.Value.Name);
+
+    /// <summary>
+    /// The name of each area and where it comes in the story (2026-11-12, user: "order the routes as they come in the
+    /// story"): the game's location list runs island by island in story order (Route 1, Hau'oli, … Poni), so an area
+    /// goes where its first-listed location is.
+    /// </summary>
+    public static Dictionary<int, (string Name, int Order)> AreaPlaces(byte[] zones, byte[] zoneWorlds, Func<int, byte[]> world, IReadOnlyList<string> locations)
     {
         var names = new Dictionary<int, List<string>>();
+        var order = new Dictionary<int, int>();
         byte[] data = zones.Length > 0 && zones[0] == 0x11 ? LZSS.Decompress(zones) : zones;
         int count = Math.Min(data.Length / 0x54, zoneWorlds.Length / 2);
         var zoneArea = new Dictionary<int, int>();
@@ -169,8 +178,9 @@ public static class WildEncounters7
                 names[area] = list = [];
             if (!list.Contains(locations[location]))
                 list.Add(locations[location]);
+            order[area] = Math.Min(order.GetValueOrDefault(area, int.MaxValue), location);
         }
-        return names.ToDictionary(p => p.Key, p => string.Join(" · ", p.Value));
+        return names.ToDictionary(p => p.Key, p => (string.Join(" · ", p.Value), order[p.Key]));
     }
 
     // ------------------------------------------------------------------ static archive: gifts, fixed, trades

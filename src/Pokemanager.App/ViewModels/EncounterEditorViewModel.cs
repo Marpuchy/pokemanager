@@ -131,8 +131,9 @@ public sealed partial class EncounterEditorViewModel : ObservableObject
 
     // ------------------------------------------------------------------ reading (off the UI thread)
 
-    internal sealed record PlaceData(EncounterPlaceKind Kind, int Index, string Name, List<RowData> Rows);
-    internal sealed record RowData(int Index, int Species, int Form, string Detail, int Requested = 0);
+    internal sealed record PlaceData(EncounterPlaceKind Kind, int Index, string Name, List<RowData> Rows, int Order = 0);
+    internal sealed record RowData(int Index, int Species, int Form, string Detail, int Requested = 0, bool Sos = false,
+        int OriginalSpecies = 0, int OriginalForm = 0);
     private sealed record ReadResult(List<PlaceData> Places, bool FromRandomization);
 
     private static ReadResult Read(EditorSession session, IReadOnlyList<string> locations)
@@ -144,16 +145,33 @@ public sealed partial class EncounterEditorViewModel : ObservableObject
         if (layout.Statics.Length > 0 && session.Layers.TryResolve(layout.Statics) is { } staticsPath)
         {
             var files = new GARC.MemGARC(File.ReadAllBytes(staticsPath)).Files;
+            // The game as imported, before the randomization: what each entry was, and so which of the fixed encounters
+            // are the totems (they come in a totem form; the randomization keeps the entry but not the form). Measured
+            // on the user's Ultra Sun: the other entries with an aura are the Ultra Beasts and Necrozma.
+            string own = Path.Combine(session.Project.DumpDirectory, "romfs", layout.Statics.Replace('/', Path.DirectorySeparatorChar));
+            var original = File.Exists(own) ? new GARC.MemGARC(File.ReadAllBytes(own)).Files : files;
+            var originalGifts = WildEncounters7.Gifts(original).ToDictionary(g => g.Index);
+            var originalStatics = WildEncounters7.Statics(original).ToDictionary(g => g.Index);
+            var originalTrades = WildEncounters7.Trades(original).ToDictionary(g => g.Index);
+            RowData Row(WildEncounters7.StaticEntry e, Dictionary<int, WildEncounters7.StaticEntry> was, int requested = 0) =>
+                new(e.Index, e.Species, e.Form, string.Format(Strings.Enc_Level, e.Level), requested,
+                    OriginalSpecies: was.TryGetValue(e.Index, out var o) ? o.Species : 0, OriginalForm: o?.Form ?? 0);
+            bool Totem(WildEncounters7.StaticEntry e) =>
+                originalStatics.TryGetValue(e.Index, out var o) && BattleSafety.IsTotem(o.Species, o.Form);
             var gifts = WildEncounters7.Gifts(files);
-            places.Add(new(EncounterPlaceKind.Starters, -1, Strings.Enc_Starters,
-                [.. gifts.Take(3).Select(g => new RowData(g.Index, g.Species, g.Form, string.Format(Strings.Enc_Level, g.Level)))]));
+            places.Add(new(EncounterPlaceKind.Starters, -1, Strings.Enc_Starters, [.. gifts.Take(3).Select(g => Row(g, originalGifts))]));
+            // These carry no place, but their level rises with the story (2026-11-12, user: "in story order, the totems
+            // and everything"): the gifts, fixed encounters and trades go by level, the game's order between equals.
             places.Add(new(EncounterPlaceKind.Gifts, -1, Strings.Enc_Gifts,
-                [.. gifts.Skip(3).Where(g => g.Species > 0).Select(g => new RowData(g.Index, g.Species, g.Form, string.Format(Strings.Enc_Level, g.Level)))]));
+                [.. gifts.Skip(3).Where(g => g.Species > 0).OrderBy(g => g.Level).ThenBy(g => g.Index).Select(g => Row(g, originalGifts))]));
+            var statics = WildEncounters7.Statics(files).Where(g => g.Species > 0).OrderBy(g => g.Level).ThenBy(g => g.Index).ToList();
+            places.Add(new(EncounterPlaceKind.Statics, -1, Strings.Enc_Totems,
+                [.. statics.Where(Totem).Select(g => Row(g, originalStatics))]));
             places.Add(new(EncounterPlaceKind.Statics, -1, Strings.Enc_Statics,
-                [.. WildEncounters7.Statics(files).Where(g => g.Species > 0).Select(g => new RowData(g.Index, g.Species, g.Form,
-                    (BattleSafety.IsTotem(g.Species, g.Form) ? Strings.Enc_Totem + " · " : "") + string.Format(Strings.Enc_Level, g.Level)))]));
+                [.. statics.Where(g => !Totem(g)).Select(g => Row(g, originalStatics))]));
             places.Add(new(EncounterPlaceKind.Trades, -1, Strings.Enc_Trades,
-                [.. WildEncounters7.Trades(files).Select(t => new RowData(t.Index, t.Species, t.Form, string.Format(Strings.Enc_Level, t.Level), t.Requested))]));
+                [.. WildEncounters7.Trades(files).OrderBy(t => t.Level).ThenBy(t => t.Index)
+                    .Select(t => Row(t, originalTrades, t.Requested))]));
         }
 
         // The routes: the randomization's copy of the encounter archive when the session has one, else the base ROM.
@@ -161,7 +179,7 @@ public sealed partial class EncounterEditorViewModel : ObservableObject
         using var wild = OpenWild(session, layout.Wild);
         if (wild is null)
             return new(places, false);
-        var names = AreaNames(session, locations);
+        var names = AreaPlaces(session, locations);
         for (int file = WildEncounters7.FirstArea; file < wild.Count; file += WildEncounters7.AreaStride)
         {
             byte[] data = wild.File(file);
@@ -169,14 +187,19 @@ public sealed partial class EncounterEditorViewModel : ObservableObject
             if (mons.Count == 0)
                 continue;
             int area = WildEncounters7.AreaOfFile(file);
-            string name = names.GetValueOrDefault(area) is { Length: > 0 } n ? n : string.Format(Strings.Enc_Area, area);
-            places.Add(new(EncounterPlaceKind.Area, area, name, [.. mons.Select(m => new RowData(0, m.Species, m.Form, Detail(m)))]));
+            var known = names.TryGetValue(area, out var p) && p.Name.Length > 0;
+            string name = known ? p.Name : string.Format(Strings.Enc_Area, area);
+            // An area without a name goes after the named ones, in the archive's order.
+            places.Add(new(EncounterPlaceKind.Area, area, name, [.. mons.Select(m => new RowData(0, m.Species, m.Form, Detail(m), Sos: m.OnlySos))],
+                known ? p.Order : int.MaxValue));
         }
-        // Starters and the rest first, then the routes by name; several areas with the same name are numbered.
+        // Starters, gifts, totems, fixed and trades first, then the routes in story order (the game's location list
+        // runs island by island); several areas with the same name are numbered in that order.
         var fixedPlaces = places.Where(p => p.Kind != EncounterPlaceKind.Area);
-        var areas = places.Where(p => p.Kind == EncounterPlaceKind.Area).GroupBy(p => p.Name)
-            .SelectMany(g => g.Count() == 1 ? [.. g] : g.OrderBy(p => p.Index).Select((p, i) => p with { Name = $"{p.Name} ({i + 1})" }))
-            .OrderBy(p => p.Name, StringComparer.CurrentCulture);
+        var areas = places.Where(p => p.Kind == EncounterPlaceKind.Area).OrderBy(p => p.Order).ThenBy(p => p.Index).ToList();
+        var counts = areas.GroupBy(p => p.Name).ToDictionary(g => g.Key, g => g.Count());
+        var seen = new Dictionary<string, int>();
+        areas = [.. areas.Select(p => counts[p.Name] == 1 ? p : p with { Name = $"{p.Name} ({seen[p.Name] = seen.GetValueOrDefault(p.Name) + 1})" })];
         return new([.. fixedPlaces, .. areas], fromRandomization);
     }
 
@@ -203,7 +226,7 @@ public sealed partial class EncounterEditorViewModel : ObservableObject
     /// <summary>Zone and world archives (measured on Ultra Sun; Sun/Moon assumed the same, a name missing is only a number).</summary>
     private const string ZoneData = "a/0/7/7", WorldData = "a/0/9/1";
 
-    private static Dictionary<int, string> AreaNames(EditorSession session, IReadOnlyList<string> locations)
+    private static Dictionary<int, (string Name, int Order)> AreaPlaces(EditorSession session, IReadOnlyList<string> locations)
     {
         try
         {
@@ -220,7 +243,7 @@ public sealed partial class EncounterEditorViewModel : ObservableObject
                 return [];
             var zoneFiles = new GARC.MemGARC(zones).Files;
             var worldFiles = new GARC.MemGARC(worlds).Files;
-            return zoneFiles.Length < 2 ? [] : WildEncounters7.AreaNames(zoneFiles[0], zoneFiles[1],
+            return zoneFiles.Length < 2 ? [] : WildEncounters7.AreaPlaces(zoneFiles[0], zoneFiles[1],
                 w => w < worldFiles.Length ? worldFiles[w] : [], locations);
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or ArgumentException or IndexOutOfRangeException
@@ -252,7 +275,10 @@ public sealed partial class EncounterPlaceViewModel : ObservableObject
     public string Name { get; }
     public IReadOnlyList<EncounterRowViewModel> Rows { get; }
     public bool IsArea => Kind == EncounterPlaceKind.Area;
-    public string CountText => string.Format(Strings.Enc_Count, Rows.Count);
+    /// <summary>The Pokémon of the normal encounters, and apart those that only answer SOS calls (2026-11-12, user: "54 in a route is too many").</summary>
+    public string CountText => Rows.Count(r => r.Sos) is var sos and > 0
+        ? string.Format(Strings.Enc_CountSos, Rows.Count - sos, sos)
+        : string.Format(Strings.Enc_Count, Rows.Count);
 
     public bool IsModified => Rows.Any(r => r.IsModified) || LevelShift != 0;
 
@@ -304,8 +330,13 @@ public sealed partial class EncounterRowViewModel : ObservableObject
 
     public Bitmap? Icon => Shown ? owner.Icon(data.Species, data.Form) : null;
     public string Name => Shown ? owner.SpeciesName(data.Species, data.Form) : Strings.Enc_Hidden;
-    public string Detail => data.Detail + (place.Kind == EncounterPlaceKind.Trades && Shown && data.Requested > 0
-        ? " · " + string.Format(Strings.Enc_Requests, owner.SpeciesName(data.Requested, 0)) : "");
+    public string Detail => data.Detail
+        + (place.Kind == EncounterPlaceKind.Trades && Shown && data.Requested > 0 ? " · " + string.Format(Strings.Enc_Requests, owner.SpeciesName(data.Requested, 0)) : "")
+        // What it replaces, from the game before the randomization (user: "say which totem they replace").
+        + (Shown && data.OriginalSpecies > 0 && (data.OriginalSpecies, data.OriginalForm) != (data.Species, data.Form)
+            ? " · " + string.Format(Strings.Enc_Replaces, owner.SpeciesName(data.OriginalSpecies, data.OriginalForm)) : "");
+
+    public bool Sos => data.Sos;
 
     public IReadOnlyList<string> Choices => owner.SpeciesChoices;
 

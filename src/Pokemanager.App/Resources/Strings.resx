@@ -5343,7 +5343,7 @@ Project: {2}</value>
     <value>Gifts</value>
   </data>
   <data name="Enc_Statics" xml:space="preserve">
-    <value>Fixed encounters and totems</value>
+    <value>Fixed encounters</value>
   </data>
   <data name="Enc_Trades" xml:space="preserve">
     <value>Trades</value>
@@ -5407,5 +5407,14 @@ Project: {2}</value>
   </data>
   <data name="Enc_PlaceHint" xml:space="preserve">
     <value>The share is the biggest the Pokémon has in one of the place's tables (grass, water, special spots).</value>
+  </data>
+  <data name="Enc_Totems" xml:space="preserve">
+    <value>Totems</value>
+  </data>
+  <data name="Enc_CountSos" xml:space="preserve">
+    <value>{0} Pokémon (+{1} only by SOS)</value>
+  </data>
+  <data name="Enc_Replaces" xml:space="preserve">
+    <value>instead of {0}</value>
   </data>
 </root>

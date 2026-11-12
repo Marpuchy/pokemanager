@@ -687,74 +687,6 @@
           <!-- ================= Encounters: one sub-tab per kind, the randomizer's options and the level beside them ================= -->
           <TabItem Header="{x:Static r:Strings.Tab_Encounters}">
             <TabControl Padding="0">
-              <!-- Every route, the starters, gifts, fixed encounters and trades, editable (2026-11-12, user) -->
-              <TabItem Header="{x:Static r:Strings.Enc_Tab}">
-                <DockPanel x:Name="EncountersPage" DataContext="{Binding EncounterEditor}" x:DataType="vm:EncounterEditorViewModel">
-                  <Border DockPanel.Dock="Top" Padding="8,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource LineBrush}">
-                    <Grid ColumnDefinitions="*,Auto">
-                      <TextBlock Classes="hint" Margin="6,0,12,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Status}"
-                                 ToolTip.Tip="{Binding Status}" />
-                      <CheckBox Grid.Column="1" IsChecked="{Binding ShowPokemon}" Content="{x:Static r:Strings.Enc_Show}"
-                                ToolTip.Tip="{x:Static r:Strings.Enc_ShowTip}" />
-                    </Grid>
-                  </Border>
-                  <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="16,12" TextWrapping="Wrap" Text="{x:Static r:Strings.Enc_NotSupported}"
-                             IsVisible="{Binding NotSupported}" />
-                  <Grid ColumnDefinitions="300,*" IsVisible="{Binding Supported}">
-                    <ListBox Margin="8" ItemsSource="{Binding Places}" SelectedItem="{Binding SelectedPlace}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                      <ListBox.ItemTemplate>
-                        <DataTemplate x:DataType="vm:EncounterPlaceViewModel">
-                          <Border Classes="entry" Classes.modified="{Binding IsModified}" Margin="-6,-2,10,-2" Padding="6,4">
-                            <StackPanel>
-                              <TextBlock Classes="entry-name" Text="{Binding Name}" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Name}" />
-                              <TextBlock Classes="hint" FontSize="11" Text="{Binding CountText}" />
-                            </StackPanel>
-                          </Border>
-                        </DataTemplate>
-                      </ListBox.ItemTemplate>
-                    </ListBox>
-                    <ContentControl Grid.Column="1" Content="{Binding SelectedPlace}">
-                      <ContentControl.ContentTemplate>
-                        <DataTemplate x:DataType="vm:EncounterPlaceViewModel">
-                          <DockPanel Margin="8,8,12,8">
-                            <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,4">
-                              <TextBlock Classes="card-title" FontSize="15" VerticalAlignment="Center" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
-                              <TextBlock Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center" Text="{x:Static r:Strings.Enc_LevelShift}" IsVisible="{Binding IsArea}" />
-                              <NumericUpDown Grid.Column="2" Width="120" Value="{Binding LevelShift}" Minimum="-50" Maximum="50" Increment="1" FormatString="+0;-0;0"
-                                             ParsingNumberStyle="Integer" IsVisible="{Binding IsArea}" ToolTip.Tip="{x:Static r:Strings.Enc_LevelShiftTip}" />
-                            </Grid>
-                            <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="0,0,0,8" TextWrapping="Wrap" Text="{x:Static r:Strings.Enc_PlaceHint}" IsVisible="{Binding IsArea}" />
-                            <ScrollViewer HorizontalScrollBarVisibility="Disabled">
-                              <ItemsControl ItemsSource="{Binding Rows}">
-                                <ItemsControl.ItemsPanel>
-                                  <ItemsPanelTemplate>
-                                    <c:CardGrid MinColumnWidth="460" MaxColumns="2" Spacing="6" FillLastRow="False" />
-                                  </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                  <DataTemplate x:DataType="vm:EncounterRowViewModel">
-                                    <Border Classes="card field" Classes.modified="{Binding IsModified}" Padding="8,6" Margin="0">
-                                      <Grid ColumnDefinitions="56,*,220">
-                                        <Image Classes="sprite" Source="{Binding Icon}" Width="48" Height="36" RenderOptions.BitmapInterpolationMode="None" />
-                                        <StackPanel Grid.Column="1" Margin="6,0" VerticalAlignment="Center">
-                                          <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                          <TextBlock Classes="hint" FontSize="11" Text="{Binding Detail}" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Detail}" />
-                                        </StackPanel>
-                                        <ComboBox Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" ItemsSource="{Binding Choices}"
-                                                  SelectedIndex="{Binding Choice}" MaxDropDownHeight="400" ToolTip.Tip="{x:Static r:Strings.Enc_ChoiceTip}" />
-                                      </Grid>
-                                    </Border>
-                                  </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                              </ItemsControl>
-                            </ScrollViewer>
-                          </DockPanel>
-                        </DataTemplate>
-                      </ContentControl.ContentTemplate>
-                    </ContentControl>
-                  </Grid>
-                </DockPanel>
-              </TabItem>
               <TabItem Header="{x:Static r:Strings.Encounter_Wild}">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled">
                   <c:CardGrid Margin="16,12,16,12" MinColumnWidth="380" MaxColumns="3" Spacing="8">
@@ -868,6 +800,74 @@
                     </Border>
                   </c:CardGrid>
                 </ScrollViewer>
+              </TabItem>
+              <!-- Every route, the starters, gifts, fixed encounters and trades, editable (2026-11-12, user) -->
+              <TabItem Header="{x:Static r:Strings.Enc_Tab}">
+                <DockPanel x:Name="EncountersPage" DataContext="{Binding EncounterEditor}" x:DataType="vm:EncounterEditorViewModel">
+                  <Border DockPanel.Dock="Top" Padding="8,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource LineBrush}">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <TextBlock Classes="hint" Margin="6,0,12,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Status}"
+                                 ToolTip.Tip="{Binding Status}" />
+                      <CheckBox Grid.Column="1" IsChecked="{Binding ShowPokemon}" Content="{x:Static r:Strings.Enc_Show}"
+                                ToolTip.Tip="{x:Static r:Strings.Enc_ShowTip}" />
+                    </Grid>
+                  </Border>
+                  <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="16,12" TextWrapping="Wrap" Text="{x:Static r:Strings.Enc_NotSupported}"
+                             IsVisible="{Binding NotSupported}" />
+                  <Grid ColumnDefinitions="300,*" IsVisible="{Binding Supported}">
+                    <ListBox Margin="8" ItemsSource="{Binding Places}" SelectedItem="{Binding SelectedPlace}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                      <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:EncounterPlaceViewModel">
+                          <Border Classes="entry" Classes.modified="{Binding IsModified}" Margin="-6,-2,10,-2" Padding="6,4">
+                            <StackPanel>
+                              <TextBlock Classes="entry-name" Text="{Binding Name}" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Name}" />
+                              <TextBlock Classes="hint" FontSize="11" Text="{Binding CountText}" />
+                            </StackPanel>
+                          </Border>
+                        </DataTemplate>
+                      </ListBox.ItemTemplate>
+                    </ListBox>
+                    <ContentControl Grid.Column="1" Content="{Binding SelectedPlace}">
+                      <ContentControl.ContentTemplate>
+                        <DataTemplate x:DataType="vm:EncounterPlaceViewModel">
+                          <DockPanel Margin="8,8,12,8">
+                            <Grid DockPanel.Dock="Top" ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,4">
+                              <TextBlock Classes="card-title" FontSize="15" VerticalAlignment="Center" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                              <TextBlock Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center" Text="{x:Static r:Strings.Enc_LevelShift}" IsVisible="{Binding IsArea}" />
+                              <NumericUpDown Grid.Column="2" Width="120" Value="{Binding LevelShift}" Minimum="-50" Maximum="50" Increment="1" FormatString="+0;-0;0"
+                                             ParsingNumberStyle="Integer" IsVisible="{Binding IsArea}" ToolTip.Tip="{x:Static r:Strings.Enc_LevelShiftTip}" />
+                            </Grid>
+                            <TextBlock DockPanel.Dock="Top" Classes="hint" Margin="0,0,0,8" TextWrapping="Wrap" Text="{x:Static r:Strings.Enc_PlaceHint}" IsVisible="{Binding IsArea}" />
+                            <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                              <ItemsControl ItemsSource="{Binding Rows}">
+                                <ItemsControl.ItemsPanel>
+                                  <ItemsPanelTemplate>
+                                    <c:CardGrid MinColumnWidth="460" MaxColumns="2" Spacing="6" FillLastRow="False" />
+                                  </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                  <DataTemplate x:DataType="vm:EncounterRowViewModel">
+                                    <Border Classes="card field" Classes.modified="{Binding IsModified}" Padding="8,6" Margin="0">
+                                      <Grid ColumnDefinitions="56,*,220">
+                                        <Image Classes="sprite" Source="{Binding Icon}" Width="48" Height="36" RenderOptions.BitmapInterpolationMode="None" />
+                                        <StackPanel Grid.Column="1" Margin="6,0" VerticalAlignment="Center">
+                                          <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                          <TextBlock Classes="hint" FontSize="11" Text="{Binding Detail}" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Detail}" />
+                                        </StackPanel>
+                                        <ComboBox Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" ItemsSource="{Binding Choices}"
+                                                  SelectedIndex="{Binding Choice}" MaxDropDownHeight="400" ToolTip.Tip="{x:Static r:Strings.Enc_ChoiceTip}" />
+                                      </Grid>
+                                    </Border>
+                                  </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                              </ItemsControl>
+                            </ScrollViewer>
+                          </DockPanel>
+                        </DataTemplate>
+                      </ContentControl.ContentTemplate>
+                    </ContentControl>
+                  </Grid>
+                </DockPanel>
               </TabItem>
             </TabControl>
           </TabItem>
