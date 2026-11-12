@@ -1,4 +1,4 @@
-﻿using Pokemanager.Model.Data;
+using Pokemanager.Model.Data;
 
 namespace Pokemanager.Tests.Editing;
 
@@ -101,6 +101,24 @@ public class GameCodeTests
     [InlineData(4096, 1)]
     [InlineData(1024, 4)]
     [InlineData(256, 16)]
-    [InlineData(2, 255)]
+    [InlineData(2, 2832)]
+    [InlineData(16, 264)]
     public void TheOddsBecomeRolls(int odds, int rolls) => Assert.Equal(rolls, GameCode.RollsFor(odds));
+
+    [Fact]
+    public void OneInTwo_IsAboutHalf_AndFitsOneInstruction()
+    {
+        int rolls = GameCode.RollsFor(2);
+        Assert.Equal(2, GameCode.OddsFor(rolls));
+        byte[] code = Code(0x120);
+        BitConverter.TryWriteBytes(code.AsSpan(0x120 + 0x1E, 4), 0xE5D40023u);
+        BitConverter.TryWriteBytes(code.AsSpan(0x120 + 0xA2, 4), 0xE5D40023u);
+        Assert.True(GameCode.SetShinyRolls(code, rolls));
+        // MOV R0, #0xB10 = 0xB1 rotated right by 28.
+        Assert.Equal(0xE3A00EB1u, BitConverter.ToUInt32(code, 0x120 + 0x1E));
+        Assert.Equal(0xE3A00EB1u, BitConverter.ToUInt32(code, 0x120 + 0xA2));
+        Assert.True(GameCode.CanSetShinyRolls(code)); // and it can be changed again
+        Assert.True(GameCode.SetShinyRolls(code, 16));
+        Assert.Equal(0xE3A00010u, BitConverter.ToUInt32(code, 0x120 + 0x1E));
+    }
 }

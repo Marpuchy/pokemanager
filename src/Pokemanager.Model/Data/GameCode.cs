@@ -1,4 +1,4 @@
-﻿namespace Pokemanager.Model.Data;
+namespace Pokemanager.Model.Data;
 
 /// <summary>
 /// Small changes to the game's executable that are not a table anyone can read: they are found by the bytes around
@@ -47,17 +47,50 @@ public static class GameCode
 
     private const uint LoadRollCount = 0xE5D40023;
 
-    /// <summary><c>MOV R0, #n</c> for 0 ≤ n ≤ 255.</summary>
+    /// <summary><c>MOV R0, #imm</c>: the immediate is 8 bits rotated right by an even amount (bits 0-11).</summary>
     private const uint MoveR0 = 0xE3A00000;
 
-    /// <summary>The most rolls written: what <c>MOV</c> takes without a rotation, about 1 in 16.</summary>
-    public const int MostRolls = 255;
+    /// <summary>
+    /// The most rolls written. The loop is the game's (disassembled in the Expansion's executable: up to that many
+    /// times, a new identity and the game's own shiny test, out at the first shiny), so more rolls only cost a few more
+    /// random numbers at an encounter; the shiny rule itself — the IDs' xor under 16 — is left alone, so the game, the
+    /// save and PKHeX all agree on which Pokémon are shiny.
+    /// </summary>
+    public const int MostRolls = 16384;
 
     /// <summary>The game's own odds.</summary>
     public const int GameOdds = 4096;
 
-    /// <summary>How many rolls give odds of about one in <paramref name="odds"/>: 4096 / odds, between 1 and 255.</summary>
-    public static int RollsFor(int odds) => Math.Clamp((int)Math.Round(GameOdds / (double)Math.Max(1, odds)), 1, MostRolls);
+    /// <summary>
+    /// How many rolls give odds of about one in <paramref name="odds"/>: 1 − (4095/4096)^rolls = 1/odds, rounded to the
+    /// nearest count one <c>MOV</c> can hold (2026-11-12, user: "1 in 2 and no shinies" — 255 was the cap then, about 1
+    /// in 16; 1 in 2 is 2832 rolls now).
+    /// </summary>
+    public static int RollsFor(int odds)
+    {
+        if (odds <= 1)
+            return MostRolls;
+        double exact = Math.Log(1 - 1.0 / odds) / Math.Log((GameOdds - 1) / (double)GameOdds);
+        return Encodable().MinBy(n => Math.Abs(n - exact));
+    }
+
+    /// <summary>Every roll count from 1 to <see cref="MostRolls"/> that one <c>MOV</c> can hold.</summary>
+    private static IEnumerable<int> Encodable() =>
+        Enumerable.Range(0, 16).SelectMany(rot => Enumerable.Range(1, 255).Select(imm => (long)imm << ((32 - 2 * rot) % 32)))
+            .Where(n => n is >= 1 and <= MostRolls).Select(n => (int)n).Distinct().Order();
+
+    /// <summary>The <c>MOV R0, #n</c> instruction for a count <see cref="Encodable"/> lists.</summary>
+    private static uint MoveR0Of(int n)
+    {
+        for (int rot = 0; rot < 16; rot++)
+        {
+            uint value = (uint)n;
+            uint imm = (value << (2 * rot)) | (rot == 0 ? 0 : value >> (32 - 2 * rot));
+            if (imm <= 0xFF)
+                return MoveR0 | (uint)(rot << 8) | imm;
+        }
+        throw new ArgumentOutOfRangeException(nameof(n), n, "Not a MOV immediate.");
+    }
 
     /// <summary>The odds those rolls really give: one in 1 / (1 − (4095/4096)^rolls).</summary>
     public static int OddsFor(int rolls) => (int)Math.Round(1 / (1 - Math.Pow((GameOdds - 1) / (double)GameOdds, rolls)));
@@ -65,11 +98,11 @@ public static class GameCode
     /// <summary>Whether this executable has the two reads where the number of rolls can be written.</summary>
     public static bool CanSetShinyRolls(byte[] code) =>
         FindShiny(code) is { } at && RollReads.All(d => at + d + 4 <= code.Length
-            && (BitConverter.ToUInt32(code, at + d) == LoadRollCount || (BitConverter.ToUInt32(code, at + d) & 0xFFFFFF00) == MoveR0));
+            && (BitConverter.ToUInt32(code, at + d) == LoadRollCount || (BitConverter.ToUInt32(code, at + d) & 0xFFFFF000) == MoveR0));
 
     /// <summary>
-    /// Makes the game roll a Pokémon's identity <paramref name="rolls"/> times looking for a shiny one, instead of 1
-    /// (3 with the Shiny Charm, which this then overrides): the chance is about rolls in 4096. Nothing is written
+    /// Makes the game roll a Pokémon's identity <paramref name="rolls"/> times (the nearest count a <c>MOV</c> holds)
+    /// looking for a shiny one, instead of 1 (3 with the Shiny Charm, which this then overrides). Nothing is written
     /// unless both reads are where they were measured.
     /// </summary>
     /// <returns>Whether the game was changed.</returns>
@@ -77,7 +110,8 @@ public static class GameCode
     {
         if (!CanSetShinyRolls(code) || FindShiny(code) is not { } at)
             return false;
-        uint instruction = MoveR0 | (uint)Math.Clamp(rolls, 1, MostRolls);
+        int count = Encodable().MinBy(n => Math.Abs(n - Math.Clamp(rolls, 1, MostRolls)));
+        uint instruction = MoveR0Of(count);
         bool changed = false;
         foreach (int d in RollReads)
         {
