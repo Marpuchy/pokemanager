@@ -59,6 +59,7 @@ public static class ModBuilder
         BuildGameSettings(session, randomizedTitleDirectory, outputs);
         BuildStarterText(session, outputs);
         BuildMachineDescriptions(session, randomizedTitleDirectory, outputs);
+        BuildItemTexts(session, outputs);
         BuildBattleSafety(session, outputs);
         return outputs;
     }
@@ -188,6 +189,43 @@ public static class ModBuilder
             if (!changed)
                 continue;
             files[itemFile] = GameText.Write(title, items);
+            outputs["romfs/" + path] = GARC.PackGARC(files, garc.Version, garc.ContentPadding).Data;
+        }
+    }
+
+    /// <summary>
+    /// Edited item names and descriptions go to the text archive of every language, over what this build already wrote
+    /// there (move descriptions, the TM descriptions), so a hand-edited text wins.
+    /// </summary>
+    private static void BuildItemTexts(EditorSession session, Dictionary<string, byte[]> outputs)
+    {
+        var edits = session.Project.Edits.All.Where(e => e.Table == GameTables.ItemTexts).ToList();
+        if (edits.Count == 0)
+            return;
+        var title = session.Current.Title;
+        int nameFile = GameText.FileIndex(title, pk3DS.Core.TextName.ItemNames);
+        int descriptionFile = GameText.FileIndex(title, pk3DS.Core.TextName.ItemFlavor);
+        for (int language = 0; language < title.Layout().LanguageCount; language++)
+        {
+            string path = GameText.Archive(title, language);
+            var garc = outputs.TryGetValue("romfs/" + path, out var written) ? new GARC.MemGARC(written) : ReadAnywhere(session, path);
+            if (garc is null)
+                continue;
+            byte[][] files = garc.Files;
+            if (Math.Max(nameFile, descriptionFile) >= files.Length)
+                continue;
+            string[] names = GameText.Read(title, files[nameFile]);
+            string[] descriptions = GameText.Read(title, files[descriptionFile]);
+            foreach (var edit in edits)
+            {
+                bool name = edit.Field == "name";
+                var lines = name ? names : descriptions;
+                var source = name ? session.Current.ItemNames : session.Current.ItemDescriptions;
+                if (edit.Id < lines.Length && edit.Id < source.Length)
+                    lines[edit.Id] = GameText.FromEditable(source[edit.Id]);
+            }
+            files[nameFile] = GameText.Write(title, names);
+            files[descriptionFile] = GameText.Write(title, descriptions);
             outputs["romfs/" + path] = GARC.PackGARC(files, garc.Version, garc.ContentPadding).Data;
         }
     }

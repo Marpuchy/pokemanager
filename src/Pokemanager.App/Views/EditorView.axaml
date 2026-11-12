@@ -848,7 +848,7 @@
                                 <ItemsControl.ItemTemplate>
                                   <DataTemplate x:DataType="vm:EncounterRowViewModel">
                                     <Border Classes="card field" Classes.modified="{Binding IsModified}" Padding="8,6" Margin="0">
-                                      <Grid ColumnDefinitions="56,*,220">
+                                      <Grid ColumnDefinitions="56,*,200,Auto" RowDefinitions="Auto,Auto">
                                         <Image Classes="sprite" Source="{Binding Icon}" Width="48" Height="36" RenderOptions.BitmapInterpolationMode="None" />
                                         <StackPanel Grid.Column="1" Margin="6,0" VerticalAlignment="Center">
                                           <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
@@ -856,6 +856,27 @@
                                         </StackPanel>
                                         <ComboBox Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" ItemsSource="{Binding Choices}"
                                                   SelectedIndex="{Binding Choice}" MaxDropDownHeight="400" ToolTip.Tip="{x:Static r:Strings.Enc_ChoiceTip}" />
+                                        <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" Margin="4,0,0,0" VerticalAlignment="Center">
+                                          <Button Content="{x:Static r:Strings.Enc_Reroll}" Command="{Binding RerollCommand}" ToolTip.Tip="{x:Static r:Strings.Enc_RerollTip}" />
+                                          <ToggleButton Content="{x:Static r:Strings.Enc_More}" IsChecked="{Binding IsExpanded}" ToolTip.Tip="{x:Static r:Strings.Enc_MoreTip}" />
+                                        </StackPanel>
+                                        <Grid Grid.Row="1" Grid.ColumnSpan="4" Margin="0,6,0,0" ColumnDefinitions="130,*" RowDefinitions="Auto,Auto,Auto,Auto"
+                                              IsVisible="{Binding IsExpanded}">
+                                          <TextBlock Classes="hint" Text="{x:Static r:Strings.Enc_LevelsLabel}" />
+                                          <TextBlock Grid.Column="1" Text="{Binding LevelsText}" TextWrapping="Wrap" />
+                                          <TextBlock Grid.Row="1" Classes="hint" Text="{x:Static r:Strings.Enc_AbilitiesLabel}" />
+                                          <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding AbilitiesText}" TextWrapping="Wrap" />
+                                          <TextBlock Grid.Row="2" Classes="hint" Text="{x:Static r:Strings.Enc_ItemsLabel}" />
+                                          <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding ItemsText}" TextWrapping="Wrap" />
+                                          <TextBlock Grid.Row="3" Classes="hint" Text="{x:Static r:Strings.Enc_MovesLabel}" />
+                                          <ItemsControl Grid.Row="3" Grid.Column="1" ItemsSource="{Binding MovesText}">
+                                            <ItemsControl.ItemTemplate>
+                                              <DataTemplate x:DataType="x:String">
+                                                <TextBlock Text="{Binding}" TextWrapping="Wrap" />
+                                              </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                          </ItemsControl>
+                                        </Grid>
                                       </Grid>
                                     </Border>
                                   </DataTemplate>

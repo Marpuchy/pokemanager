@@ -129,11 +129,93 @@ public sealed partial class EncounterEditorViewModel : ObservableObject
 
     internal Bitmap? Icon(int species, int form) => editor.Sprites.For(species, form);
 
+    // ------------------------------------------------------------------ what a Pokémon brings (2026-11-12, user)
+
+    private GameData Data => editor.Session.Current;
+
+    /// <summary>The personal row of a species and form (a form past the ones the species has is its first row).</summary>
+    internal int Row(int species, int form)
+    {
+        var personal = Data.Personal;
+        if (species <= 0 || species >= personal.Length)
+            return 0;
+        var p = personal[species];
+        return form > 0 && form < p.FormeCount && p.FormStatsIndex > 0 && p.FormStatsIndex + form - 1 < personal.Length
+            ? p.FormStatsIndex + form - 1 : species;
+    }
+
+    private string Named(IReadOnlyList<string> list, int id) => id > 0 && id < list.Count ? list[id] : $"#{id}";
+
+    internal string AbilitiesOf(int species, int form)
+    {
+        var a = Data.Personal[Row(species, form)].Abilities;
+        string normal = a[0] == a[1] ? Named(editor.Names.Abilities, a[0]) : $"{Named(editor.Names.Abilities, a[0])} / {Named(editor.Names.Abilities, a[1])}";
+        return a.Length > 2 && a[2] > 0 && a[2] != a[0] && a[2] != a[1]
+            ? string.Format(Strings.Enc_AbilitiesHidden, normal, Named(editor.Names.Abilities, a[2]))
+            : normal;
+    }
+
+    /// <summary>What a wild one can hold: the first item half the time, the second 5 %, the third 1 % (all three the same: always).</summary>
+    internal string ItemsOf(int species, int form)
+    {
+        var items = Data.Personal[Row(species, form)].Items;
+        if (items.All(i => i <= 0))
+            return Strings.Enc_NoItems;
+        if (items.Distinct().Count() == 1)
+            return string.Format(Strings.Enc_ItemAlways, Named(editor.Names.Items, items[0]));
+        int[] chance = [50, 5, 1];
+        return string.Join(", ", items.Select((item, i) => (item, i)).Where(x => x.item > 0)
+            .Select(x => $"{Named(editor.Names.Items, x.item)} ({chance[Math.Min(x.i, 2)]} %)"));
+    }
+
+    /// <summary>The moves a wild one has at that level: the last four it learned, as the game gives them.</summary>
+    internal string MovesOf(int species, int form, int level)
+    {
+        int row = Row(species, form);
+        var learnsets = Data.Learnsets;
+        if (row >= learnsets.Length || level <= 0)
+            return "";
+        var moves = learnsets[row].GetEncounterMoves(level).Where(m => m > 0).Select(m => Named(editor.Names.Moves, m)).ToList();
+        return moves.Count == 0 ? "—" : string.Join(", ", moves);
+    }
+
+    private UprOptionViewModel? Option(string name) => editor.Randomizer.Options.Option(name);
+
+    /// <summary>
+    /// A Pokémon picked at random for a row, by the rules of the randomizer's wild options (2026-11-12, user: "any one,
+    /// respecting the application's options"): no legendaries when they are blocked, of similar strength when that is
+    /// the restriction, and none already in that place.
+    /// </summary>
+    internal int RandomSpecies(int species, int form, IEnumerable<int> taken)
+    {
+        var data = Data;
+        int last = Math.Min(data.LastSpecies, editor.Names.Species.Count - 1);
+        bool noLegendaries = Option("BlockWildLegendaries")?.BoolValue ?? false;
+        bool similar = Option("WildPokemonRestrictionMod") is { IsChoice: true } r && r.SerializedValue == "SIMILAR_STRENGTH";
+        var skip = taken.ToHashSet();
+        var pool = Enumerable.Range(1, Math.Max(0, last)).Where(s => s != species && !skip.Contains(s)
+            && !(noLegendaries && Legendaries.Contains(s)) && data.Personal[s].BST > 0).ToList();
+        if (similar && species > 0)
+        {
+            int bst = data.Personal[Row(species, form)].BST;
+            for (double margin = 0.1; margin < 1; margin += 0.05)
+            {
+                var near = pool.Where(s => Math.Abs(data.Personal[s].BST - bst) <= bst * margin).ToList();
+                if (near.Count >= 3)
+                {
+                    pool = near;
+                    break;
+                }
+            }
+        }
+        return pool.Count == 0 ? 0 : pool[Random.Shared.Next(pool.Count)];
+    }
+
     // ------------------------------------------------------------------ reading (off the UI thread)
 
     internal sealed record PlaceData(EncounterPlaceKind Kind, int Index, string Name, List<RowData> Rows, int Order = 0);
     internal sealed record RowData(int Index, int Species, int Form, string Detail, int Requested = 0, bool Sos = false,
-        int OriginalSpecies = 0, int OriginalForm = 0);
+        int OriginalSpecies = 0, int OriginalForm = 0, int MinLevel = 0, int MaxLevel = 0);
     private sealed record ReadResult(List<PlaceData> Places, bool FromRandomization);
 
     private static ReadResult Read(EditorSession session, IReadOnlyList<string> locations)
@@ -155,7 +237,8 @@ public sealed partial class EncounterEditorViewModel : ObservableObject
             var originalTrades = WildEncounters7.Trades(original).ToDictionary(g => g.Index);
             RowData Row(WildEncounters7.StaticEntry e, Dictionary<int, WildEncounters7.StaticEntry> was, int requested = 0) =>
                 new(e.Index, e.Species, e.Form, string.Format(Strings.Enc_Level, e.Level), requested,
-                    OriginalSpecies: was.TryGetValue(e.Index, out var o) ? o.Species : 0, OriginalForm: o?.Form ?? 0);
+                    OriginalSpecies: was.TryGetValue(e.Index, out var o) ? o.Species : 0, OriginalForm: o?.Form ?? 0,
+                    MinLevel: e.Level, MaxLevel: e.Level);
             bool Totem(WildEncounters7.StaticEntry e) =>
                 originalStatics.TryGetValue(e.Index, out var o) && BattleSafety.IsTotem(o.Species, o.Form);
             var gifts = WildEncounters7.Gifts(files);
@@ -190,7 +273,7 @@ public sealed partial class EncounterEditorViewModel : ObservableObject
             var known = names.TryGetValue(area, out var p) && p.Name.Length > 0;
             string name = known ? p.Name : string.Format(Strings.Enc_Area, area);
             // An area without a name goes after the named ones, in the archive's order.
-            places.Add(new(EncounterPlaceKind.Area, area, name, [.. mons.Select(m => new RowData(0, m.Species, m.Form, Detail(m), Sos: m.OnlySos))],
+            places.Add(new(EncounterPlaceKind.Area, area, name, [.. mons.Select(m => new RowData(0, m.Species, m.Form, Detail(m), Sos: m.OnlySos, MinLevel: m.MinLevel, MaxLevel: m.MaxLevel))],
                 known ? p.Order : int.MaxValue));
         }
         // Starters, gifts, totems, fixed and trades first, then the routes in story order (the game's location list
@@ -380,7 +463,47 @@ public sealed partial class EncounterRowViewModel : ObservableObject
         }
         owner.Editor.MarkDirty(string.Format(Strings.Enc_UndoSwap, place.Name));
         OnPropertyChanged(nameof(IsModified));
+        RefreshDetails();
         place.Changed();
+    }
+
+    /// <summary>The Pokémon this row has now: the chosen one, or what the ROM has there.</summary>
+    private (int Species, int Form) Current => Choice > 0 ? (Choice, 0) : (data.Species, data.Form);
+
+    /// <summary>Opened to show its abilities, held items and moves.</summary>
+    [ObservableProperty]
+    public partial bool IsExpanded { get; set; }
+
+    partial void OnIsExpandedChanged(bool value) => RefreshDetails();
+
+    public string LevelsText => data.MinLevel == data.MaxLevel
+        ? string.Format(Strings.Enc_Level, data.MinLevel) : string.Format(Strings.Enc_Levels, data.MinLevel, data.MaxLevel);
+    public string AbilitiesText => IsExpanded && Shown ? owner.AbilitiesOf(Current.Species, Current.Form) : Strings.Enc_Hidden;
+    public string ItemsText => IsExpanded && Shown ? owner.ItemsOf(Current.Species, Current.Form) : Strings.Enc_Hidden;
+
+    /// <summary>The moves at the lowest and at the highest level it can appear at.</summary>
+    public IReadOnlyList<string> MovesText => !IsExpanded || !Shown
+        ? [Strings.Enc_Hidden]
+        : data.MinLevel == data.MaxLevel
+            ? [string.Format(Strings.Enc_MovesAt, data.MinLevel, owner.MovesOf(Current.Species, Current.Form, data.MinLevel))]
+            : [string.Format(Strings.Enc_MovesAt, data.MinLevel, owner.MovesOf(Current.Species, Current.Form, data.MinLevel)),
+               string.Format(Strings.Enc_MovesAt, data.MaxLevel, owner.MovesOf(Current.Species, Current.Form, data.MaxLevel))];
+
+    private void RefreshDetails()
+    {
+        OnPropertyChanged(nameof(AbilitiesText));
+        OnPropertyChanged(nameof(ItemsText));
+        OnPropertyChanged(nameof(MovesText));
+    }
+
+    /// <summary>Another Pokémon at random for this row, with what the ROM gives it (its moves, abilities and items).</summary>
+    [RelayCommand]
+    private void Reroll()
+    {
+        var taken = place.Rows.Where(r => r != this).Select(r => r.Current.Species);
+        int pick = owner.RandomSpecies(data.Species, data.Form, taken);
+        if (pick > 0)
+            Choice = pick;
     }
 
     /// <summary>The choice stored in the project for this row.</summary>
@@ -405,5 +528,6 @@ public sealed partial class EncounterRowViewModel : ObservableObject
         OnPropertyChanged(nameof(Icon));
         OnPropertyChanged(nameof(Name));
         OnPropertyChanged(nameof(Detail));
+        RefreshDetails();
     }
 }

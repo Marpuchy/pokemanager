@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Nodes;
+using System.Text.Json.Nodes;
 using pk3DS.Core.Structures;
 using pk3DS.Core.Structures.PersonalInfo;
 using Pokemanager.Model.Data;
@@ -24,6 +24,7 @@ public static class GameTables
 
     /// <summary>Move texts: <see cref="Description"/> (a string; English base, written to every language of the game).</summary>
     public const string MoveTexts = "movetext";
+    public const string ItemTexts = "itemtext";
 
     /// <summary>
     /// Trainers: the record and its team. Team fields are prefixed with the slot, <c>p1.</c> … <c>p6.</c>; writing one of
@@ -129,7 +130,9 @@ public static class GameTables
 
     public static readonly ITable EvolutionTable = new EvolutionTableImpl();
 
-    public static IReadOnlyList<ITable> All { get; } = [PersonalTable, MoveTable, LearnsetTable, MoveTextTable, TrainerTable, ItemTable, EvolutionTable];
+    public static readonly ITable ItemTextTable = new ItemTextTableImpl();
+
+    public static IReadOnlyList<ITable> All { get; } = [PersonalTable, MoveTable, LearnsetTable, MoveTextTable, TrainerTable, ItemTable, EvolutionTable, ItemTextTable];
 
     /// <summary>"e3.level" of the evolution table.</summary>
     public static string EvolutionField(int slot, string field) => $"e{slot + 1}.{field}";
@@ -413,6 +416,32 @@ public static class GameTables
             return id;
         }
     }
+    /// <summary>The name and description of each item (<see cref="GameData.ItemNames"/>).</summary>
+    private sealed class ItemTextTableImpl : ITable
+    {
+        public string Name => ItemTexts;
+        public IReadOnlyList<string> Fields { get; } = ["name", Description];
+        public int Count(GameData data) => data.ItemNames.Length;
+
+        public JsonNode Get(GameData data, int id, string field) => JsonValue.Create(Lines(data, id, field)[id]);
+
+        public void Set(GameData data, int id, string field, JsonNode value) =>
+            Lines(data, id, field)[id] = value.GetValue<string>().Replace("\r\n", "\n").Replace('\r', '\n').TrimEnd();
+
+        private static string[] Lines(GameData data, int id, string field)
+        {
+            var lines = field switch
+            {
+                "name" => data.ItemNames,
+                Description => data.ItemDescriptions,
+                _ => throw new ArgumentException(string.Format(Strings.Tables_UnknownField, ItemTexts, field), nameof(field)),
+            };
+            if ((uint)id >= lines.Length)
+                throw new ArgumentOutOfRangeException(nameof(id), id, string.Format(Strings.Tables_OutOfRange, ItemTexts, lines.Length));
+            return lines;
+        }
+    }
+
     private sealed class EvolutionTableImpl : ITable
     {
         private static readonly string[] SlotFields = ["method", "species", "argument", "form", "level"];

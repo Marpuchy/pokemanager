@@ -5417,4 +5417,85 @@ Project: {2}</value>
   <data name="Enc_Replaces" xml:space="preserve">
     <value>instead of {0}</value>
   </data>
+  <data name="Enc_AbilitiesHidden" xml:space="preserve">
+    <value>{0} · hidden: {1}</value>
+  </data>
+  <data name="Enc_NoItems" xml:space="preserve">
+    <value>Holds nothing</value>
+  </data>
+  <data name="Enc_ItemAlways" xml:space="preserve">
+    <value>Always holds {0}</value>
+  </data>
+  <data name="Enc_MovesAt" xml:space="preserve">
+    <value>Lv. {0}: {1}</value>
+  </data>
+  <data name="Enc_AbilitiesLabel" xml:space="preserve">
+    <value>Abilities</value>
+  </data>
+  <data name="Enc_ItemsLabel" xml:space="preserve">
+    <value>Held items</value>
+  </data>
+  <data name="Enc_MovesLabel" xml:space="preserve">
+    <value>Moves</value>
+  </data>
+  <data name="Enc_LevelsLabel" xml:space="preserve">
+    <value>Levels</value>
+  </data>
+  <data name="Enc_More" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="Enc_MoreTip" xml:space="preserve">
+    <value>Its abilities, the items it can hold and its moves at the levels it appears at, as this ROM gives them.</value>
+  </data>
+  <data name="Enc_Reroll" xml:space="preserve">
+    <value>Random</value>
+  </data>
+  <data name="Enc_RerollTip" xml:space="preserve">
+    <value>Another Pokémon at random, by the randomizer's wild options (no legendaries if they are blocked, similar strength if that is the restriction). It brings the moves, abilities and items this ROM gives it.</value>
+  </data>
+  <data name="Tip_Field_itemtext_name" xml:space="preserve">
+    <value>The item's name. Edited here, it is written in every language of the game.</value>
+  </data>
+  <data name="Tip_Field_itemtext_description" xml:space="preserve">
+    <value>The item's description in the bag. Edited here, it is written in every language of the game.</value>
+  </data>
+  <data name="ItemEdit_Title" xml:space="preserve">
+    <value>Edit an item</value>
+  </data>
+  <data name="ItemEdit_Hint" xml:space="preserve">
+    <value>Its name, description and price. Name and description start from the game's English text and are written in every language when the ROM is built.</value>
+  </data>
+  <data name="ItemEdit_Unsupported" xml:space="preserve">
+    <value>This game folder does not have the item table or its text.</value>
+  </data>
+  <data name="ItemEdit_Search" xml:space="preserve">
+    <value>Search an item…</value>
+  </data>
+  <data name="ItemEdit_SearchTip" xml:space="preserve">
+    <value>Narrows the list by name (without accents or case) or by number.</value>
+  </data>
+  <data name="ItemEdit_PickTip" xml:space="preserve">
+    <value>The item to edit.</value>
+  </data>
+  <data name="ItemEdit_Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="ItemEdit_Price" xml:space="preserve">
+    <value>Price (₽)</value>
+  </data>
+  <data name="ItemEdit_PriceTip" xml:space="preserve">
+    <value>What a shop charges for one. The game keeps a tenth of it, so it goes in steps of 10, and it pays half when you sell it.</value>
+  </data>
+  <data name="ItemEdit_Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="ItemEdit_Original" xml:space="preserve">
+    <value>In the game: {0} · ₽{1}</value>
+  </data>
+  <data name="ItemEdit_Revert" xml:space="preserve">
+    <value>Put this item back</value>
+  </data>
+  <data name="ItemEdit_RevertTip" xml:space="preserve">
+    <value>Its name, description and price as the game has them.</value>
+  </data>
 </root>

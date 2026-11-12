@@ -1366,13 +1366,53 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
         return Arrays.asList(moves);
     }
 
+    /**
+     * Pokemanager (2026-11-12, user): "one to one in each area" maps per encounter table, and a route has several (grass,
+     * day/night, SOS...), so Route 2 went from 10 Pokemon to 38. While it runs, the tables of each area are handed over
+     * as one set (the encounters are the same objects, changed in place) and written back as they were read.
+     */
+    private boolean collapseAreas;
+    private List<EncounterSet> uncollapsedEncounters;
+
+    @Override
+    public void area1to1Encounters(Settings settings) {
+        collapseAreas = true;
+        try {
+            super.area1to1Encounters(settings);
+        } finally {
+            collapseAreas = false;
+            uncollapsedEncounters = null;
+        }
+    }
+
     @Override
     public List<EncounterSet> getEncounters(boolean useTimeOfDay) {
         List<EncounterSet> encounters = new ArrayList<>();
+        List<EncounterSet> collapsed = new ArrayList<>();
         for (AreaData areaData : areaDataList) {
             if (!areaData.hasTables) {
                 continue;
             }
+            int first = encounters.size();
+            readAreaEncounters(areaData, useTimeOfDay, encounters);
+            EncounterSet whole = new EncounterSet();
+            whole.rate = 1;
+            whole.displayName = areaData.name;
+            for (EncounterSet table : encounters.subList(first, encounters.size())) {
+                whole.encounters.addAll(table.encounters);
+                whole.bannedPokemon.addAll(table.bannedPokemon);
+            }
+            collapsed.add(whole);
+        }
+        if (collapseAreas) {
+            uncollapsedEncounters = encounters;
+            return collapsed;
+        }
+        return encounters;
+    }
+
+    private void readAreaEncounters(AreaData areaData, boolean useTimeOfDay, List<EncounterSet> encounters) {
+        {
             for (int i = 0; i < areaData.encounterTables.size(); i++) {
                 byte[] encounterTable = areaData.encounterTables.get(i);
                 byte[] dayTable = new byte[0x164];
@@ -1392,7 +1432,6 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
                 }
             }
         }
-        return encounters;
     }
 
     private EncounterSet readEncounterTable(byte[] encounterTable) {
@@ -1475,6 +1514,9 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
 
     @Override
     public void setEncounters(boolean useTimeOfDay, List<EncounterSet> encountersList) {
+        if (collapseAreas && uncollapsedEncounters != null) {
+            encountersList = uncollapsedEncounters;
+        }
         Iterator<EncounterSet> encounters = encountersList.iterator();
         for (AreaData areaData : areaDataList) {
             if (!areaData.hasTables) {

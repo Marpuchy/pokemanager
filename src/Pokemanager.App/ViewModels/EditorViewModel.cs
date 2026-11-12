@@ -391,6 +391,7 @@ public partial class EditorViewModel : ObservableObject
     private void LoadLists()
     {
         EncounterEditor?.Reset(Session);
+        Randomizer?.ItemEditor.Refresh();
         string[] personalTables = [GameTables.Personal, GameTables.Learnsets, GameTables.Evolutions];
         var personalIndex = PersonalIndex.Of(Session.Current);
         allSpecies = Enumerable.Range(1, Session.Current.Personal.Length - 1) // entry 0 is an empty placeholder
@@ -770,6 +771,7 @@ public partial class EditorViewModel : ObservableObject
         GameTweaks?.Refresh();
         EncounterEditor?.Refresh();
         Randomizer?.Shops.Refresh();
+        Randomizer?.ItemEditor.Refresh();
         Randomizer?.Difficulty.RefreshApplied();
         LevelCap?.Refresh();
         builtTrainers = null;

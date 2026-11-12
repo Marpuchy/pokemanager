@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Pokemanager.App.Resources;
@@ -35,6 +35,8 @@ public partial class RandomizerViewModel : ObservableObject
     private static string AllSections => Strings.Log_All;
 
     public UprOptionsViewModel Options { get; }
+
+    public ItemEditorViewModel ItemEditor { get; }
 
     /// <summary>Pokémon (.pkdata) and move (.mvdata) data files, the counterpart of the .rnqs for base stats, types and the rest.</summary>
     public IAsyncRelayCommand ImportPokemonDataCommand => editor.ImportPokemonDataCommand;
@@ -125,7 +127,8 @@ public partial class RandomizerViewModel : ObservableObject
         this.settings = settings;
         Shops = new ShopExtrasViewModel(editor);
         Difficulty = new DifficultyViewModel(editor, editor.Session);
-        Options = new UprOptionsViewModel(editor.MarkDirty, Shops, () => editor.GameTweaks, Difficulty);
+        ItemEditor = new ItemEditorViewModel(editor);
+        Options = new UprOptionsViewModel(editor.MarkDirty, Shops, () => editor.GameTweaks, Difficulty, ItemEditor);
         // One page per subject (2026-11-09, user): the randomizer's groups (Aleatorio) and our cards (Ajustes).
         PokemonSubject = new(Options, [UprOptionCatalog.Traits, UprOptionCatalog.Evolutions], [UprOptionCatalog.Traits]);
         MovesSubject = new(Options, [UprOptionCatalog.Moves, UprOptionCatalog.TmsTutors], []);

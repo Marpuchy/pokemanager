@@ -1,4 +1,4 @@
-﻿using pk3DS.Core.CTR;
+using pk3DS.Core.CTR;
 using Pokemanager.Model.Dump;
 using pk3DS.Core.Structures;
 using pk3DS.Core.Structures.PersonalInfo;
@@ -58,6 +58,15 @@ public sealed class GameData
     /// text, whatever language the app or the game uses; an edited description goes to every language of the game.
     /// </summary>
     public string[] MoveDescriptions { get; }
+
+    /// <summary>
+    /// The name and description of each item as edited in the app (2026-11-12, user: "edit price, name and description"),
+    /// in the same editable form and with the same rule as <see cref="MoveDescriptions"/>: the base is the game's English
+    /// text and an edit goes to every language. Empty when the text is not in the dump.
+    /// </summary>
+    public string[] ItemNames { get; private set; } = [];
+
+    public string[] ItemDescriptions { get; private set; } = [];
 
     /// <summary>
     /// Every trainer of the game, in <c>trdata</c> order. Empty when the game folder was imported before 3.0 and does
@@ -153,7 +162,25 @@ public sealed class GameData
             TrainerArchive.Read(layers, title),
             ReadItems(layers, title),
             ReadMegaStoneTable(layers, title),
-            ReadEvolutions(layers, title));
+            ReadEvolutions(layers, title))
+        {
+            ItemNames = ReadEnglishText(layers, title, pk3DS.Core.TextName.ItemNames),
+            ItemDescriptions = ReadEnglishText(layers, title, pk3DS.Core.TextName.ItemFlavor),
+        };
+    }
+
+    /// <summary>One English text file of the game, in editable form (empty when the dump does not have it).</summary>
+    private static string[] ReadEnglishText(RomFsLayers layers, GameTitle title, pk3DS.Core.TextName name)
+    {
+        try
+        {
+            string garc = GameText.Archive(title, GameLanguage.English);
+            return [.. GameText.Read(title, ReadFiles(layers, garc)[GameText.FileIndex(title, name)]).Select(l => GameText.ToEditable(l).TrimEnd())];
+        }
+        catch (Exception ex) when (ex is FileNotFoundException or IndexOutOfRangeException or InvalidDataException or InvalidOperationException)
+        {
+            return [];
+        }
     }
 
     private static EvolutionSlots[] ReadEvolutions(RomFsLayers layers, GameTitle title)

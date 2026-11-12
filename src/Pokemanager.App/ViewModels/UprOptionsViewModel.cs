@@ -11,6 +11,7 @@ public partial class UprOptionsViewModel : ObservableObject
 {
     private readonly Action markDirty;
     private readonly Dictionary<string, UprOptionViewModel> byName = [];
+    private readonly ItemEditorViewModel? items;
 
     public ObservableCollection<UprOptionGroupViewModel> Groups { get; } = [];
 
@@ -38,8 +39,9 @@ public partial class UprOptionsViewModel : ObservableObject
     /// </param>
     /// <param name="difficulty">The difficulty of the run, shown with the trainer options. Null in the tests.</param>
     public UprOptionsViewModel(Action markDirty, ShopExtrasViewModel? shops = null, Func<GameTweaksViewModel?>? game = null,
-        DifficultyViewModel? difficulty = null)
+        DifficultyViewModel? difficulty = null, ItemEditorViewModel? items = null)
     {
+        this.items = items;
         this.markDirty = markDirty;
         this.shops = shops;
         this.game = game;
@@ -53,6 +55,7 @@ public partial class UprOptionsViewModel : ObservableObject
         var groups = UprOptionCatalog.Groups.ToDictionary(g => g, g => new UprOptionGroupViewModel(g));
         groupsById = groups;
         groups[UprOptionCatalog.Items].Shops = shops;
+        groups[UprOptionCatalog.Items].ItemEditor = items;
         groups[UprOptionCatalog.Trainers].Difficulty = difficulty;
         if (game?.Invoke() is { } tweaks)
         {
@@ -208,6 +211,9 @@ public partial class UprOptionsViewModel : ObservableObject
 
     private Dictionary<string, UprOptionGroupViewModel> groupsById = [];
 
+    /// <summary>A loaded option by its name (null before the options load or when the game has no such option).</summary>
+    public UprOptionViewModel? Option(string name) => IsLoaded ? byName.GetValueOrDefault(name) : null;
+
     /// <summary>The loaded options with these names that have a control (hidden ones are left out), in that order.</summary>
     public IReadOnlyList<UprOptionViewModel> Shown(IEnumerable<string> names) => !IsLoaded
         ? []
@@ -282,6 +288,11 @@ public sealed class UprOptionGroupViewModel(string id)
     public ShopExtrasViewModel? Shops { get; set; }
 
     public bool HasShops => Shops is not null;
+
+    /// <summary>Editing an item's price, name and description, on the group that holds the item options.</summary>
+    public ItemEditorViewModel? ItemEditor { get; set; }
+
+    public bool HasItemEditor => ItemEditor is not null;
 
     /// <summary>The difficulty of the run, on the group that holds the trainer options.</summary>
     public DifficultyViewModel? Difficulty { get; set; }
