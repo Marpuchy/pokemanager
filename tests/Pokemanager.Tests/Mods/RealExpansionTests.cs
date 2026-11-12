@@ -1,4 +1,4 @@
-﻿using PKHeX.Core;
+using PKHeX.Core;
 using GameLanguage = Pokemanager.Model.Dump.GameLanguage;
 using Pokemanager.App.Services;
 using Pokemanager.Save;
@@ -209,6 +209,70 @@ public sealed class RealExpansionTests
     /// ordinary forms, so the randomizer can hand a trainer Mega Staraptor itself. The build sends it out as Staraptor
     /// holding its stone, as the last Pokémon, so it mega evolves in battle; the Z-crystal stays on another one.
     /// </summary>
+    [Fact]
+    public void BattleSafety_TheRivalsStarterIsTheMega_WhenItCanMegaEvolve()
+    {
+        Assert.SkipWhen(Paths() is null, "POKEMANAGER_USUM_DUMP / POKEMANAGER_MOD_LIBRARY are not set.");
+        var (_, session) = Open(withMod: true);
+        var data = session.Current;
+        byte[][] records = [.. Pokemanager.Model.Data.GameData.ReadFiles(session.Layers, data.Layout.TrainerData)];
+        byte[][] teams = [.. Pokemanager.Model.Data.GameData.ReadFiles(session.Layers, data.Layout.TrainerPokemon)];
+
+        // Hau's line is in every one of his battles, whatever the randomizer made of it.
+        var lines = Pokemanager.Model.Data.BattleSafety.StarterFamilies(data, data.Title, records, teams);
+        var roles = Pokemanager.Model.Data.TrainerRoles.Of(data.Title);
+        var hau = roles.Where(r => r.Value.StartsWith("FRIEND") && r.Value.EndsWith("-0")).Select(r => r.Key).ToList();
+        Assert.NotEmpty(hau);
+        Assert.All(hau, id => Assert.True(lines.ContainsKey(id)));
+
+        // Put a Pokémon that can mega evolve of that line in the middle of his last battle and Charizard (another mega,
+        // holding its stone) last: the starter takes the mega and the last slot.
+        int line = lines[hau[0]];
+        var first = Pokemanager.Model.Data.BattleSafety.FirstStages(data);
+        var megaSpecies = data.MegaStoneByForm.Where(p => p.Value != 0).Select(p => p.Key.Species).ToHashSet();
+        int? starter = megaSpecies.Where(s => first.GetValueOrDefault(s) == line).Cast<int?>().FirstOrDefault();
+        int lastFight = hau.OrderByDescending(id => Trainer.Read(data.Title, records[id], teams[id]).Team.Last().Level).First();
+        var trainer = Trainer.Read(data.Title, records[lastFight], teams[lastFight]);
+        var team = trainer.Team.ToList();
+        Assert.True(team.Count >= 3);
+        // The line of this dump may have no mega: give the test one by using a line that has.
+        if (starter is null)
+        {
+            starter = 6; // Charizard
+            foreach (int id in hau)
+            {
+                var t = Trainer.Read(data.Title, records[id], teams[id]);
+                var m = t.Team.First(x => first.GetValueOrDefault(x.Species) == line);
+                m.Species = 6;
+                m.Form = 0;
+                records[id] = t.WriteData().ToArray();
+                teams[id] = t.WriteTeam().ToArray();
+            }
+            trainer = Trainer.Read(data.Title, records[lastFight], teams[lastFight]);
+            team = trainer.Team.ToList();
+            // Venusaur holding its own stone, somewhere else: the mega the usual rule would have kept.
+            var other = team.First(m => m.Species != 6);
+            other.Species = 3;
+            other.Form = 0;
+            other.Item = data.MegaStoneByForm[(3, 1)];
+        }
+        else
+        {
+            team[1].Species = starter.Value;
+            team[1].Form = 0;
+            team[^1].Species = 6;
+            team[^1].Item = data.MegaStoneByForm[(6, 1)];
+        }
+        records[lastFight] = trainer.WriteData().ToArray();
+        teams[lastFight] = trainer.WriteTeam().ToArray();
+
+        Pokemanager.Model.Data.BattleSafety.FixTrainers(data, data.Title, records, teams, new TrainerBattleItems());
+        var fixedTeam = Trainer.Read(data.Title, records[lastFight], teams[lastFight]).Team.ToList();
+        Assert.True(starter == fixedTeam[^1].Species, $"line {line} starter {starter} fight {lastFight} lv {fixedTeam[^1].Level}: {string.Join(", ", fixedTeam.Select(m => $"{m.Species}[{m.Item}]"))}");
+        Assert.Contains(data.MegaStoneByForm.Where(p => p.Key.Species == starter && p.Value != 0).Select(p => p.Value), s => s == fixedTeam[^1].Item);
+        Assert.Single(fixedTeam, m => data.MegaStones.Contains(m.Item));
+    }
+
     [Fact]
     public void BattleSafety_MegaLastAndAsItself_ZCrystalNeverLast()
     {

@@ -1,4 +1,4 @@
-﻿using Pokemanager.Model.Dump;
+using Pokemanager.Model.Dump;
 
 namespace Pokemanager.Model.Data;
 
@@ -101,13 +101,14 @@ public static class BattleSafety
         var ownStones = data.MegaStoneByForm.Where(p => p.Value != 0)
             .GroupBy(p => p.Key.Species).ToDictionary(g => g.Key, g => g.Select(p => p.Value).ToHashSet());
         int changed = 0;
+        var starters = StarterFamilies(data, title, dataFiles, teamFiles);
         for (int id = 0; id < Math.Min(dataFiles.Length, teamFiles.Length); id++)
         {
             var trainer = Trainer.Read(title, dataFiles[id], teamFiles[id]);
             if (trainer.Unreadable || trainer.Count == 0)
                 continue;
             int touched = FixTeam(data, trainer, stones, ownStones, rules.For(TrainerRoles.DifficultyOf(title, id)), id,
-                handEdited?.Invoke(id) == true);
+                handEdited?.Invoke(id) == true, starters.TryGetValue(id, out int family) ? family : null);
             if (touched == 0)
                 continue;
             changed += touched;
@@ -117,8 +118,66 @@ public static class BattleSafety
         return changed;
     }
 
+    /// <summary>
+    /// The first stage of each species, from the evolution table: species → the species its line starts with.
+    /// </summary>
+    internal static Dictionary<int, int> FirstStages(GameData data)
+    {
+        var parent = new Dictionary<int, int>();
+        for (int row = 1; row < Math.Min(data.SpeciesCount, data.Evolutions.Length); row++)
+            foreach (var (_, evolution) in data.Evolutions[row].InUse())
+                if (evolution.Species > 0 && evolution.Species != row)
+                    parent.TryAdd(evolution.Species, row);
+        var first = new Dictionary<int, int>();
+        for (int species = 1; species < data.SpeciesCount; species++)
+        {
+            int at = species;
+            for (int guard = 0; guard < 8 && parent.TryGetValue(at, out int up); guard++)
+                at = up;
+            first[species] = at;
+        }
+        return first;
+    }
+
+    /// <summary>
+    /// The rivals' and friends' starter (2026-11-12, user: "for the rival, in every game, if the starter has a mega it is
+    /// always the one that mega evolves in the fight"): trainer id → the first stage of the line that is in <b>every</b>
+    /// battle of that character with that starter (the tags <c>RIVALn-k</c> / <c>FRIENDn-k</c>: same character and k,
+    /// any n). That is the starter whatever the randomizer made of it, so no table of the ROM's starters is needed (in
+    /// Generation 6 they live in a CRO module). A character with one battle, or no line in all of them, gets none.
+    /// </summary>
+    internal static Dictionary<int, int> StarterFamilies(GameData data, GameTitle title, byte[][] dataFiles, byte[][] teamFiles)
+    {
+        var first = FirstStages(data);
+        var groups = new Dictionary<string, List<(int Id, HashSet<int> Lines)>>();
+        foreach (var (id, tag) in TrainerRoles.Of(title))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(tag, @"^(RIVAL|FRIEND)\d+-(\d+)$");
+            if (!match.Success || id >= dataFiles.Length || id >= teamFiles.Length)
+                continue;
+            var trainer = Trainer.Read(title, dataFiles[id], teamFiles[id]);
+            if (trainer.Unreadable || trainer.Count == 0)
+                continue;
+            var lines = trainer.Team.Select(m => first.GetValueOrDefault(m.Species, m.Species)).ToHashSet();
+            string key = match.Groups[1].Value + "-" + match.Groups[2].Value;
+            if (!groups.TryGetValue(key, out var list))
+                groups[key] = list = [];
+            list.Add((id, lines));
+        }
+        var result = new Dictionary<int, int>();
+        foreach (var battles in groups.Values.Where(b => b.Count >= 2))
+        {
+            var common = battles.Skip(1).Aggregate(new HashSet<int>(battles[0].Lines), (all, b) => { all.IntersectWith(b.Lines); return all; });
+            if (common.Count != 1)
+                continue; // none, or two lines in every battle: not telling which is the starter
+            foreach (var (id, _) in battles)
+                result[id] = common.First();
+        }
+        return result;
+    }
+
     private static int FixTeam(GameData data, Trainer trainer, HashSet<int> stones, Dictionary<int, HashSet<int>> ownStones,
-        Projects.TrainerItemRule rule, int id, bool byHand = false)
+        Projects.TrainerItemRule rule, int id, bool byHand = false, int? starterLine = null)
     {
         int touched = 0;
         List<TrainerMon> Team() => trainer.Team.ToList();
@@ -146,6 +205,21 @@ public static class BattleSafety
         bool OwnStone(TrainerMon m) => ownStones.TryGetValue(m.Species, out var own) && own.Contains(m.Item);
         var team = Team();
         int megaSlot = mega ? team.FindLastIndex(OwnStone) : -1;
+        // A rival's or a friend's starter that can mega evolve is the mega, over anyone else holding a stone.
+        if (mega && starterLine is { } line)
+        {
+            var first = FirstStages(data);
+            int starter = team.FindIndex(m => first.GetValueOrDefault(m.Species, m.Species) == line && ownStones.ContainsKey(m.Species));
+            if (starter >= 0)
+            {
+                if (!OwnStone(team[starter]))
+                {
+                    team[starter].Item = ownStones[team[starter].Species].Min();
+                    touched++;
+                }
+                megaSlot = starter;
+            }
+        }
         if (mega && megaSlot < 0)
         {
             megaSlot = team.FindLastIndex(m => ownStones.ContainsKey(m.Species) && !Legendaries.Contains(m.Species));
