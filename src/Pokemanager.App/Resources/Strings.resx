@@ -5498,4 +5498,19 @@ Project: {2}</value>
   <data name="ItemEdit_RevertTip" xml:space="preserve">
     <value>Its name, description and price as the game has them.</value>
   </data>
+  <data name="Rnd_Rerandomize" xml:space="preserve">
+    <value>Randomize again with the current randomizer</value>
+  </data>
+  <data name="Rnd_RerandomizeTip" xml:space="preserve">
+    <value>Your ROM's randomization was made by an earlier version of the randomizer, and building keeps it while the seed and options are the same, so a run in progress does not change with an update. This randomizes again with the same seed and options and builds the ROM.</value>
+  </data>
+  <data name="Rnd_RerandomizeTitle" xml:space="preserve">
+    <value>Randomize again?</value>
+  </data>
+  <data name="Rnd_RerandomizeMessage" xml:space="preserve">
+    <value>The same seed and options, with the current randomizer. What it changed since your ROM was made comes in now (for example the wild Pokémon per route), and with it everything drawn after that: wild Pokémon, trades, field items and shops can change. Trainers, starters and fixed encounters stay the same. Your save is adapted as in any build.</value>
+  </data>
+  <data name="Rnd_RerandomizeConfirm" xml:space="preserve">
+    <value>Randomize and build</value>
+  </data>
 </root>

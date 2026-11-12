@@ -16,6 +16,8 @@
                 <TextBlock Text="{Binding ToolsStatus}" TextWrapping="Wrap" Classes="hint" Classes.error="{Binding !ToolsReady}" />
               </StackPanel>
               <WrapPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                <Button Margin="4" Content="{x:Static r:Strings.Rnd_Rerandomize}" Command="{Binding Editor.RerandomizeCommand}"
+                        IsVisible="{Binding Editor.OutdatedRandomization}" ToolTip.Tip="{x:Static r:Strings.Rnd_RerandomizeTip}" />
                 <Button Margin="4" Content="{x:Static r:Strings.Log_ShowButton}" Command="{Binding ShowLogCommand}"
                         IsEnabled="{Binding HasLog}" ToolTip.Tip="{x:Static r:Strings.Log_ShowTip}" />
               </WrapPanel>

@@ -22,6 +22,9 @@ public partial class RandomizerViewModel : ObservableObject
     private const int MaxLogLines = 3000;
 
     private readonly EditorViewModel editor;
+
+    /// <summary>The editor, for what the page shows of the build (randomizing again with the current randomizer).</summary>
+    public EditorViewModel Editor => editor;
     private readonly IDialogs dialogs;
     private readonly UprService upr;
     private readonly AppSettings settings;

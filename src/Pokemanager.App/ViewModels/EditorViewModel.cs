@@ -870,6 +870,33 @@ public partial class EditorViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanBuild))]
     private Task BuildRom() => BuildRomAsync(confirmRandomizationChange: true);
 
+    /// <summary>
+    /// The installed ROM's randomization was made by an earlier version of the randomizer, and the build keeps it while
+    /// the seed and the options are the same, so a run in progress is not changed by an update (2026-11-10, user).
+    /// </summary>
+    public bool OutdatedRandomization => Session.FromEarlierRandomization && Session.Project.Randomization.Enabled;
+
+    /// <summary>
+    /// Randomizes again with the current randomizer, same seed and options, and builds (2026-11-12, user: the wild
+    /// Pokémon per route needed it, and the build went on reusing the earlier randomization).
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(CanBuild))]
+    private async Task Rerandomize()
+    {
+        var question = new QuestionViewModel(Strings.Rnd_RerandomizeTitle, Strings.Rnd_RerandomizeMessage,
+            Strings.Rnd_RerandomizeConfirm, Strings.Common_Cancel, []);
+        if (!await dialogs.AskAsync(question))
+            return;
+        var r = Session.Project.Randomization;
+        var (seed, key, stamp) = (r.InstalledSeed, r.InstalledRandomization, r.InstalledRandomizationStamp);
+        (r.InstalledSeed, r.InstalledRandomization, r.InstalledRandomizationStamp) = (null, null, null);
+        Session.FromEarlierRandomization = false;
+        await BuildRomAsync(confirmRandomizationChange: false);
+        if (r.InstalledSeed is null)
+            (r.InstalledSeed, r.InstalledRandomization, r.InstalledRandomizationStamp) = (seed, key, stamp); // the build did not finish
+        OnPropertyChanged(nameof(OutdatedRandomization));
+    }
+
     /// <param name="confirmRandomizationChange">Ask before changing the randomization of a game in progress.</param>
     private async Task BuildRomAsync(bool confirmRandomizationChange)
     {
@@ -1125,6 +1152,7 @@ public partial class EditorViewModel : ObservableObject
         Session.Changed -= OnSessionChanged;
         Session = EditorSession.Open(project, randomRomFs, upr.Mods);
         Session.FromEarlierRandomization = cached?.Earlier == true;
+        OnPropertyChanged(nameof(OutdatedRandomization));
         Names = new GameNames(Dump, Session.Original, Session.Layers);
         PkhexImages.RomMegaStones = Session.Original.MegaStones.ToHashSet();
         // Restoring a version brings its mods back too (ProjectHistory.RestoreInto), and a mod ships the icon archive.
@@ -1425,6 +1453,7 @@ public partial class EditorViewModel : ObservableObject
                           && string.Equals(wanted, Session.RandomizedRomFs, StringComparison.OrdinalIgnoreCase);
         Session = EditorSession.Open(Session.Project, wanted, upr.Mods);
         Session.FromEarlierRandomization = earlier || wasEarlier;
+        OnPropertyChanged(nameof(OutdatedRandomization));
         Names = new GameNames(Dump, Session.Original, Session.Layers);
         PkhexImages.RomMegaStones = Session.Original.MegaStones.ToHashSet();
         // The icons come from the new stack too: a species-expansion mod ships the icon archive and the executable

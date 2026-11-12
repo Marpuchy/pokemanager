@@ -5498,4 +5498,19 @@ Proyecto: {2}</value>
   <data name="ItemEdit_RevertTip" xml:space="preserve">
     <value>Su nombre, descripción y precio como los tiene el juego.</value>
   </data>
+  <data name="Rnd_Rerandomize" xml:space="preserve">
+    <value>Randomizar de nuevo con el randomizador actual</value>
+  </data>
+  <data name="Rnd_RerandomizeTip" xml:space="preserve">
+    <value>La randomización de tu ROM se hizo con una versión anterior del randomizador. Al crear la ROM se mantiene mientras no cambien la semilla ni las opciones, para que una actualización no cambie una partida empezada. Esto vuelve a randomizar con la misma semilla y opciones y crea la ROM.</value>
+  </data>
+  <data name="Rnd_RerandomizeTitle" xml:space="preserve">
+    <value>¿Randomizar de nuevo?</value>
+  </data>
+  <data name="Rnd_RerandomizeMessage" xml:space="preserve">
+    <value>Misma semilla y opciones, con el randomizador actual. Entra lo que ha cambiado desde que se hizo tu ROM (por ejemplo, los salvajes por ruta), y con ello todo lo que se sortea después: pueden cambiar los salvajes, los intercambios, los objetos del suelo y las tiendas. Los entrenadores, los iniciales y los encuentros fijos se quedan igual. La partida se adapta como en cualquier creación de ROM.</value>
+  </data>
+  <data name="Rnd_RerandomizeConfirm" xml:space="preserve">
+    <value>Randomizar y crear ROM</value>
+  </data>
 </root>
