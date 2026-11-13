@@ -9,6 +9,7 @@ using Pokemanager.App.Services;
 using Pokemanager.Model.Data;
 using Pokemanager.Model.Dump;
 using Pokemanager.Model.Editing;
+using Pokemanager.Model.Edits;
 using Pokemanager.Model.Projects;
 
 namespace Pokemanager.App.ViewModels;
@@ -104,6 +105,7 @@ public sealed partial class EncounterEditorViewModel : ObservableObject
             // Every species of the ROM, the one a row has now selected (2026-11-13, user: no "(dejarlo)", the name instead).
             SpeciesChoices = [.. Enumerable.Range(1, Math.Max(0, names.Species.Count - 1)).Select(i => $"#{i:000} {names.Species[i]}")];
             OnPropertyChanged(nameof(SpeciesChoices));
+            BuildChoices();
             Places.Clear();
             foreach (var place in data.Places)
                 Places.Add(new EncounterPlaceViewModel(this, place));
@@ -179,6 +181,96 @@ public sealed partial class EncounterEditorViewModel : ObservableObject
             return "";
         var moves = learnsets[row].GetEncounterMoves(level).Where(m => m > 0).Select(m => Named(editor.Names.Moves, m)).ToList();
         return moves.Count == 0 ? "—" : string.Join(", ", moves);
+    }
+
+    // ------------------------------------------------------------------ the editable details (2026-11-13, user)
+
+    /// <summary>Fixed lists for the details' choices, built once with the species list.</summary>
+    public IReadOnlyList<string> ItemChoices { get; private set; } = [];
+    public IReadOnlyList<string> MoveChoices { get; private set; } = [];
+    public IReadOnlyList<string> NatureChoices { get; private set; } = [];
+    public IReadOnlyList<string> AbilityChoices { get; private set; } = [];
+    public IReadOnlyList<string> AbilitySlotChoices { get; private set; } = [];
+
+    private void BuildChoices()
+    {
+        var names = editor.Names;
+        static string Numbered(IReadOnlyList<string> list, int i) => $"#{i:000} {list[i]}";
+        ItemChoices = [Strings.Enc_NoItem, .. Enumerable.Range(1, Math.Max(0, names.Items.Count - 1)).Select(i => Numbered(names.Items, i))];
+        MoveChoices = [Strings.Enc_LevelMoves, .. Enumerable.Range(1, Math.Max(0, names.Moves.Count - 1)).Select(i => Numbered(names.Moves, i))];
+        NatureChoices = [Strings.Enc_Random, .. names.Natures];
+        AbilityChoices = ["—", .. Enumerable.Range(1, Math.Max(0, names.Abilities.Count - 1)).Select(i => Numbered(names.Abilities, i))];
+        AbilitySlotChoices = [Strings.Enc_AbilityRandom, Strings.Enc_Ability1, Strings.Enc_Ability2, Strings.Enc_AbilityHidden];
+    }
+
+    internal IReadOnlyList<EncounterFieldViewModel> MainFieldsOf(EncounterRowViewModel row)
+    {
+        var list = new List<EncounterFieldViewModel>();
+        void Combo(string label, IReadOnlyList<string> choices, Func<int> get, Action<int> set, int offset = 0, Func<string>? note = null) =>
+            list.Add(new EncounterFieldViewModel(label, choices, get, set, offset, note: note));
+        void Number(string label, int min, int max, Func<int> get, Action<int> set) =>
+            list.Add(new EncounterFieldViewModel(label, null, get, set, min: min, max: max));
+
+        if (row.Fixed is { } kind)
+        {
+            Combo(Strings.Pkm_Species, SpeciesChoices, () => row.FieldValue("species"), v => row.SetField("species", v), -1);
+            Number(Strings.Enc_Form, 0, 31, () => row.FieldValue("form"), v => row.SetField("form", v));
+            Number(Strings.Enc_LevelLabel, 1, 100, () => row.FieldValue("level"), v => row.SetField("level", v));
+            Combo(Strings.Pkm_Nature, NatureChoices, () => row.FieldValue("nature"), v => row.SetField("nature", v), 1);
+            Combo(Strings.Pkm_AbilityLabel, AbilitySlotChoices, () => row.FieldValue("ability"), v => row.SetField("ability", v), 1,
+                () => AbilitiesOf(row.Current.Species, row.Current.Form));
+            Combo(Strings.Pkm_HeldItem, ItemChoices, () => row.FieldValue("item"), v => row.SetField("item", v));
+            if (kind == FixedKind.Trade)
+                Combo(Strings.Enc_RequestsLabel, SpeciesChoices, () => row.FieldValue("requested"), v => row.SetField("requested", v), -1);
+            return list;
+        }
+
+        // A wild one: the route's Pokémon, and the data of that Pokémon (the whole game's).
+        Combo(Strings.Pkm_Species, SpeciesChoices, () => row.Current.Species, v => row.Picked = v - 1, -1);
+        int Row() => this.Row(row.Current.Species, row.Current.Form);
+        string[] items = ["item1", "item2", "item3"], abilities = ["ability1", "ability2", "abilityHidden"];
+        string[] itemLabels = [Strings.Enc_Item50, Strings.Enc_Item5, Strings.Enc_Item1];
+        string[] abilityLabels = [Strings.Enc_Ability1, Strings.Enc_Ability2, Strings.Enc_AbilityHidden];
+        for (int i = 0; i < 3; i++)
+        {
+            string field = abilities[i];
+            Combo(abilityLabels[i], AbilityChoices, () => session.GetInt(GameTables.Personal, Row(), field),
+                v => SetPersonal(row, field, v));
+        }
+        for (int i = 0; i < 3; i++)
+        {
+            string field = items[i];
+            Combo(itemLabels[i], ItemChoices, () => session.GetInt(GameTables.Personal, Row(), field),
+                v => SetPersonal(row, field, v));
+        }
+        return list;
+    }
+
+    private void SetPersonal(EncounterRowViewModel row, string field, int value)
+    {
+        int personalRow = Row(row.Current.Species, row.Current.Form);
+        if (session.GetInt(GameTables.Personal, personalRow, field) == value)
+            return;
+        session.SetInt(GameTables.Personal, personalRow, field, value);
+        row.Refresh();
+    }
+
+    internal IReadOnlyList<EncounterFieldViewModel> MoveFieldsOf(EncounterRowViewModel row) =>
+        row.Fixed == FixedKind.Static
+            ? [.. FixedEncounters7.MoveFields.Select((field, i) => new EncounterFieldViewModel(string.Format(Strings.Enc_MoveN, i + 1),
+                MoveChoices, () => row.FieldValue(field), v => row.SetField(field, v)))]
+            : [];
+
+    internal IReadOnlyList<EncounterFieldViewModel> TrainingFieldsOf(EncounterRowViewModel row, string[] fields)
+    {
+        if (row.Fixed is not { } kind || !FixedEncounters7.Has(kind, fields[0]))
+            return [];
+        bool ivs = fields == FixedEncounters7.Ivs;
+        // Stored HP, Atk, Def, Spe, SpA, SpD; shown in the app's order HP, Atk, Def, SpA, SpD, Spe.
+        int[] order = [0, 1, 2, 4, 5, 3];
+        string[] labels = [Strings.Stat_HP, Strings.Stat_Atk, Strings.Stat_Def, Strings.Stat_SpA, Strings.Stat_SpD, Strings.Stat_Spe];
+        return [.. order.Select((stored, i) => new EncounterFieldViewModel(labels[i], null, () => row.FieldValue(fields[stored]),
+            v => row.SetField(fields[stored], v), min: ivs ? -1 : 0, max: ivs ? 31 : 252))];
     }
 
     internal int[] TypesOf(int species, int form)
@@ -555,12 +647,7 @@ public sealed partial class EncounterRowViewModel : ObservableObject, IMonCard
     public string Tooltip => Name;
 
     /// <summary>The item it is given with (gifts, fixed encounters, trades); a wild one's chances are in the details.</summary>
-    private int FixedItem => data.Raw is not { } raw ? 0 : place.Kind switch
-    {
-        EncounterPlaceKind.Trades => Math.Max(0, (int)BitConverter.ToInt16(raw, 0x14)),
-        EncounterPlaceKind.Statics => Math.Max(0, (int)BitConverter.ToInt16(raw, 0x4)),
-        _ => BitConverter.ToUInt16(raw, 0x8) is var i && i != 0xFFFF ? i : 0,
-    };
+    private int FixedItem => Fixed is { } kind && EffectiveRaw is { } raw ? FixedEncounters7.Get(kind, raw, "item") : 0;
 
     public bool HasItem => Shown && FixedItem > 0;
     internal int FixedItemId => FixedItem;
@@ -576,10 +663,10 @@ public sealed partial class EncounterRowViewModel : ObservableObject, IMonCard
     private void Select() => IsExpanded = !IsExpanded;
 
     public string Detail => data.Detail
-        + (Shown && Choice > 0 ? " · " + string.Format(Strings.Enc_Replaces, owner.SpeciesName(data.Species, data.Form)) : "")
-        + (place.Kind == EncounterPlaceKind.Trades && Shown && data.Requested > 0 ? " · " + string.Format(Strings.Enc_Requests, owner.SpeciesName(data.Requested, 0)) : "")
+        + (Shown && Current != (data.Species, data.Form) ? " · " + string.Format(Strings.Enc_Replaces, owner.SpeciesName(data.Species, data.Form)) : "")
+        + (place.Kind == EncounterPlaceKind.Trades && Shown && FieldValue("requested") > 0 ? " · " + string.Format(Strings.Enc_Requests, owner.SpeciesName(FieldValue("requested"), 0)) : "")
         // What it replaces, from the game before the randomization (user: "say which totem they replace").
-        + (Shown && Choice == 0 && data.OriginalSpecies > 0 && (data.OriginalSpecies, data.OriginalForm) != (data.Species, data.Form)
+        + (Shown && Current == (data.Species, data.Form) && data.OriginalSpecies > 0 && (data.OriginalSpecies, data.OriginalForm) != (data.Species, data.Form)
             ? " · " + string.Format(Strings.Enc_Replaces, owner.SpeciesName(data.OriginalSpecies, data.OriginalForm)) : "");
 
     public bool Sos => data.Sos;
@@ -601,19 +688,119 @@ public sealed partial class EncounterRowViewModel : ObservableObject, IMonCard
             if (value < 0 || value + 1 == Current.Species)
                 return;
             int species = value + 1;
+            if (Fixed is not null)
+            {
+                SetField("species", species);
+                if (FieldValue("form") != 0)
+                    SetField("form", 0);
+                return;
+            }
             Choice = species == data.Species ? 0 : species;
         }
     }
 
-    /// <summary>Puts back the Pokémon the ROM has there.</summary>
+    /// <summary>Puts back the Pokémon the ROM has there, with everything changed in its details.</summary>
     [RelayCommand]
-    private void Restore() => Choice = 0;
+    private void Restore()
+    {
+        if (Fixed is not null && owner.Edits.Fields.Remove(FieldKey))
+        {
+            owner.Editor.MarkDirty(string.Format(Strings.Enc_UndoSwap, place.Name));
+            Refresh();
+            place.Changed();
+        }
+        Choice = 0;
+        OnPropertyChanged(nameof(IsModified));
+    }
+
+    // ------------------------------------------------------------------ editing a gift, fixed encounter or trade
+
+    /// <summary>Which list of the static archive the row is in; null for a wild Pokémon.</summary>
+    internal FixedKind? Fixed => data.Raw is null ? null : place.Kind switch
+    {
+        EncounterPlaceKind.Statics => FixedKind.Static,
+        EncounterPlaceKind.Trades => FixedKind.Trade,
+        EncounterPlaceKind.Area => null,
+        _ => FixedKind.Gift,
+    };
+
+    private string FieldKey => FixedEncounters7.Key(Fixed ?? FixedKind.Gift, data.Index);
+
+    private Dictionary<string, int>? Overrides => owner.Edits.Fields.GetValueOrDefault(FieldKey);
+
+    /// <summary>The entry as the build will write it: the ROM's, the old species choice, then the field edits.</summary>
+    internal byte[]? EffectiveRaw
+    {
+        get
+        {
+            if (Fixed is not { } kind || data.Raw is null)
+                return null;
+            byte[] raw = (byte[])data.Raw.Clone();
+            if (Choice > 0)
+            {
+                FixedEncounters7.Set(kind, raw, "species", Choice);
+                FixedEncounters7.Set(kind, raw, "form", 0);
+            }
+            foreach (var (name, value) in Overrides ?? [])
+                FixedEncounters7.Set(kind, raw, name, value);
+            return raw;
+        }
+    }
+
+    internal int FieldValue(string field) => Fixed is { } kind && EffectiveRaw is { } raw ? FixedEncounters7.Get(kind, raw, field) : 0;
+
+    private int RomFieldValue(string field)
+    {
+        if (Fixed is not { } kind || data.Raw is null)
+            return 0;
+        byte[] raw = (byte[])data.Raw.Clone();
+        if (Choice > 0)
+        {
+            FixedEncounters7.Set(kind, raw, "species", Choice);
+            FixedEncounters7.Set(kind, raw, "form", 0);
+        }
+        return FixedEncounters7.Get(kind, raw, field);
+    }
+
+    internal void SetField(string field, int value)
+    {
+        if (Fixed is null || FieldValue(field) == value)
+            return;
+        var fields = owner.Edits.Fields;
+        if (!fields.TryGetValue(FieldKey, out var values))
+            fields[FieldKey] = values = [];
+        if (value == RomFieldValue(field))
+            values.Remove(field);
+        else
+            values[field] = value;
+        if (values.Count == 0)
+            fields.Remove(FieldKey);
+        owner.Editor.MarkDirty(string.Format(Strings.Enc_UndoSwap, place.Name));
+        Refresh();
+        place.Changed();
+    }
+
+    /// <summary>What can be changed in the details, built when they are first opened (the lists are fixed: no list changes under a choice).</summary>
+    public IReadOnlyList<EncounterFieldViewModel> MainFields => mainFields ??= owner.MainFieldsOf(this);
+    public IReadOnlyList<EncounterFieldViewModel> MoveFields => moveFields ??= owner.MoveFieldsOf(this);
+    public IReadOnlyList<EncounterFieldViewModel> IvFields => ivFields ??= owner.TrainingFieldsOf(this, FixedEncounters7.Ivs);
+    public IReadOnlyList<EncounterFieldViewModel> EvFields => evFields ??= owner.TrainingFieldsOf(this, FixedEncounters7.Evs);
+    private IReadOnlyList<EncounterFieldViewModel>? mainFields, moveFields, ivFields, evFields;
+
+    public bool HasMoveFields => MoveFields.Count > 0;
+    public bool HasIvFields => IvFields.Count > 0;
+    public bool HasEvFields => EvFields.Count > 0;
+    public bool IsWild => Fixed is null;
+    public string EditNote => Fixed is null ? Strings.Enc_WildEditNote : Strings.Enc_FixedEditNote;
+
+    internal EncounterPlaceViewModel Place => place;
+    internal EncounterEditorViewModel.RowData Data => data;
 
     /// <summary>0 keeps the Pokémon; otherwise the species it becomes (form 0).</summary>
     [ObservableProperty]
     public partial int Choice { get; set; }
 
-    public bool IsModified => Choice > 0;
+    public bool IsModified => Choice > 0 || (Fixed is not null && Overrides is { Count: > 0 });
 
     partial void OnChoiceChanged(int value)
     {
@@ -654,7 +841,8 @@ public sealed partial class EncounterRowViewModel : ObservableObject, IMonCard
     }
 
     /// <summary>The Pokémon this row has now: the chosen one, or what the ROM has there.</summary>
-    private (int Species, int Form) Current => Choice > 0 ? (Choice, 0) : (data.Species, data.Form);
+    internal (int Species, int Form) Current => Fixed is not null ? (FieldValue("species"), FieldValue("form"))
+        : Choice > 0 ? (Choice, 0) : (data.Species, data.Form);
 
     /// <summary>Opened to show its abilities, held items and moves.</summary>
     [ObservableProperty]
@@ -667,11 +855,16 @@ public sealed partial class EncounterRowViewModel : ObservableObject, IMonCard
     }
 
     /// <summary>The Pokémon laid out as everywhere else in the app (the shared <c>MonSheet</c>), built when it is opened.</summary>
-    public MonSheet? Sheet => IsExpanded && Shown ? owner.SheetOf(this, place.Kind, Current.Species, Current.Form, data) : null;
+    public MonSheet? Sheet => IsExpanded && Shown
+        ? owner.SheetOf(this, place.Kind, Current.Species, Current.Form,
+            EffectiveRaw is { } raw ? data with { Species = Current.Species, Form = Current.Form, Raw = raw,
+                MinLevel = FieldValue("level"), MaxLevel = FieldValue("level"), Requested = Fixed == FixedKind.Trade ? FieldValue("requested") : data.Requested } : data)
+        : null;
 
     public bool ShowsHiddenNote => IsExpanded && !Shown;
 
-    public string LevelsText => data.MinLevel == data.MaxLevel
+    public string LevelsText => Fixed is not null ? string.Format(Strings.Enc_Level, FieldValue("level"))
+        : data.MinLevel == data.MaxLevel
         ? string.Format(Strings.Enc_Level, data.MinLevel) : string.Format(Strings.Enc_Levels, data.MinLevel, data.MaxLevel);
     public string AbilitiesText => IsExpanded && Shown ? owner.AbilitiesOf(Current.Species, Current.Form) : Strings.Enc_Hidden;
     public string ItemsText => IsExpanded && Shown ? owner.ItemsOf(Current.Species, Current.Form) : Strings.Enc_Hidden;
@@ -686,6 +879,11 @@ public sealed partial class EncounterRowViewModel : ObservableObject, IMonCard
 
     private void RefreshDetails()
     {
+        foreach (var field in (IEnumerable<EncounterFieldViewModel>?)mainFields ?? [])
+            field.Refresh();
+        foreach (var field in (moveFields ?? []).Concat(ivFields ?? []).Concat(evFields ?? []))
+            field.Refresh();
+        OnPropertyChanged(nameof(LevelsText));
         OnPropertyChanged(nameof(Sheet));
         OnPropertyChanged(nameof(ShowsHiddenNote));
         OnPropertyChanged(nameof(AbilitiesText));
@@ -700,7 +898,7 @@ public sealed partial class EncounterRowViewModel : ObservableObject, IMonCard
         var taken = place.Rows.Where(r => r != this).Select(r => r.Current.Species);
         int pick = owner.RandomSpecies(data.Species, data.Form, taken);
         if (pick > 0)
-            Choice = pick;
+            Picked = pick - 1;
     }
 
     /// <summary>The choice stored in the project for this row.</summary>
@@ -735,5 +933,52 @@ public sealed partial class EncounterRowViewModel : ObservableObject, IMonCard
         OnPropertyChanged(nameof(HasItem));
         OnPropertyChanged(nameof(ItemIcon));
         RefreshDetails();
+    }
+}
+
+/// <summary>
+/// One editable value of an encounter's details: a choice from a fixed list (its index is the value plus
+/// <c>offset</c>) or a number. The list never changes, so a combo box's selection is never pushed back (the ItemsSource
+/// rule of CLAUDE.md).
+/// </summary>
+public sealed class EncounterFieldViewModel(string label, IReadOnlyList<string>? choices, Func<int> get, Action<int> set, int offset = 0,
+    int min = 0, int max = 999, Func<string>? note = null) : ObservableObject
+{
+    public string Label { get; } = label;
+    public IReadOnlyList<string> Choices { get; } = choices ?? [];
+    public bool IsChoice => choices is not null;
+    public bool IsNumber => choices is null;
+    public decimal Minimum { get; } = min;
+    public decimal Maximum { get; } = max;
+    public string Note => note?.Invoke() ?? "";
+    public bool HasNote => note is not null;
+
+    public int Index
+    {
+        get => get() + offset;
+        set
+        {
+            if (value < 0 || value >= Choices.Count || value - offset == get())
+                return;
+            set(value - offset);
+        }
+    }
+
+    public decimal? Number
+    {
+        get => get();
+        set
+        {
+            if (value is not { } v || (int)v == get())
+                return;
+            set((int)Math.Clamp(v, Minimum, Maximum));
+        }
+    }
+
+    public void Refresh()
+    {
+        OnPropertyChanged(nameof(Index));
+        OnPropertyChanged(nameof(Number));
+        OnPropertyChanged(nameof(Note));
     }
 }

@@ -22,7 +22,14 @@ public sealed class EncounterEdits
     /// <summary>In-game trade → the Pokémon received.</summary>
     public Dictionary<int, string> Trades { get; set; } = [];
 
-    public bool IsEmpty => Wild.Count == 0 && WildLevels.Count == 0 && Gifts.Count == 0 && Statics.Count == 0 && Trades.Count == 0;
+    /// <summary>
+    /// Every field of a gift, fixed encounter or trade edited in its details (2026-11-13): entry key (<c>g12</c>,
+    /// <c>s5</c>, <c>t3</c>, <see cref="Data.FixedEncounters7.Key"/>) → field → value. Applied after the species maps above.
+    /// </summary>
+    public Dictionary<string, Dictionary<string, int>> Fields { get; set; } = [];
+
+    public bool IsEmpty => Wild.Count == 0 && WildLevels.Count == 0 && Gifts.Count == 0 && Statics.Count == 0 && Trades.Count == 0
+                           && (Fields?.Count ?? 0) == 0;
 
     public static string Key(int species, int form) => $"{species}:{form}";
 
@@ -39,6 +46,7 @@ public sealed class EncounterEdits
         Gifts = new(Gifts),
         Statics = new(Statics),
         Trades = new(Trades),
+        Fields = (Fields ?? []).ToDictionary(p => p.Key, p => new Dictionary<string, int>(p.Value)),
     };
 
     /// <summary>A stable text of every change, for the history's fingerprint.</summary>
@@ -47,5 +55,7 @@ public sealed class EncounterEdits
         + "|" + string.Join(';', WildLevels.OrderBy(p => p.Key).Select(p => $"l{p.Key}:{p.Value}"))
         + "|" + string.Join(';', Gifts.OrderBy(p => p.Key).Select(p => $"g{p.Key}:{p.Value}"))
         + "|" + string.Join(';', Statics.OrderBy(p => p.Key).Select(p => $"s{p.Key}:{p.Value}"))
-        + "|" + string.Join(';', Trades.OrderBy(p => p.Key).Select(p => $"t{p.Key}:{p.Value}"));
+        + "|" + string.Join(';', Trades.OrderBy(p => p.Key).Select(p => $"t{p.Key}:{p.Value}"))
+        + "|" + string.Join(';', (Fields ?? []).OrderBy(p => p.Key, StringComparer.Ordinal)
+            .SelectMany(p => p.Value.OrderBy(v => v.Key, StringComparer.Ordinal).Select(v => $"f{p.Key}.{v.Key}={v.Value}")));
 }

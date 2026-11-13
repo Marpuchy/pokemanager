@@ -5579,4 +5579,58 @@ Proyecto: {2}</value>
   <data name="Trades_AnyUndo" xml:space="preserve">
     <value>Intercambios con cualquier Pokémon</value>
   </data>
+  <data name="Enc_NoItem" xml:space="preserve">
+    <value>(ninguno)</value>
+  </data>
+  <data name="Enc_LevelMoves" xml:space="preserve">
+    <value>(los de su nivel)</value>
+  </data>
+  <data name="Enc_AbilityRandom" xml:space="preserve">
+    <value>1 o 2 al azar</value>
+  </data>
+  <data name="Enc_Ability1" xml:space="preserve">
+    <value>Habilidad 1</value>
+  </data>
+  <data name="Enc_Ability2" xml:space="preserve">
+    <value>Habilidad 2</value>
+  </data>
+  <data name="Enc_AbilityHidden" xml:space="preserve">
+    <value>Habilidad oculta</value>
+  </data>
+  <data name="Enc_Form" xml:space="preserve">
+    <value>Forma</value>
+  </data>
+  <data name="Enc_Item50" xml:space="preserve">
+    <value>Objeto (50 %)</value>
+  </data>
+  <data name="Enc_Item5" xml:space="preserve">
+    <value>Objeto (5 %)</value>
+  </data>
+  <data name="Enc_Item1" xml:space="preserve">
+    <value>Objeto (1 %)</value>
+  </data>
+  <data name="Enc_MoveN" xml:space="preserve">
+    <value>Movimiento {0}</value>
+  </data>
+  <data name="Enc_EditTitle" xml:space="preserve">
+    <value>Editar</value>
+  </data>
+  <data name="Enc_IvTitle" xml:space="preserve">
+    <value>IV (−1 = al azar)</value>
+  </data>
+  <data name="Enc_EvTitle" xml:space="preserve">
+    <value>EV</value>
+  </data>
+  <data name="Enc_PreviewTitle" xml:space="preserve">
+    <value>Cómo queda</value>
+  </data>
+  <data name="Enc_WildEditNote" xml:space="preserve">
+    <value>El Pokémon de esta ruta y sus propios datos: cambiar habilidades u objetos lo cambia en todo el juego (sus movimientos por nivel están en Opciones → Pokémon → Editor avanzado). La naturaleza y los IV se sortean en cada encuentro.</value>
+  </data>
+  <data name="Enc_FixedEditNote" xml:space="preserve">
+    <value>Lo que da esta entrada; se escribe al crear la ROM.</value>
+  </data>
+  <data name="Enc_LevelLabel" xml:space="preserve">
+    <value>Nivel</value>
+  </data>
 </root>

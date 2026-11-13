@@ -5579,4 +5579,58 @@ Project: {2}</value>
   <data name="Trades_AnyUndo" xml:space="preserve">
     <value>Trades accept any Pokémon</value>
   </data>
+  <data name="Enc_NoItem" xml:space="preserve">
+    <value>(none)</value>
+  </data>
+  <data name="Enc_LevelMoves" xml:space="preserve">
+    <value>(those of its level)</value>
+  </data>
+  <data name="Enc_AbilityRandom" xml:space="preserve">
+    <value>1 or 2 at random</value>
+  </data>
+  <data name="Enc_Ability1" xml:space="preserve">
+    <value>Ability 1</value>
+  </data>
+  <data name="Enc_Ability2" xml:space="preserve">
+    <value>Ability 2</value>
+  </data>
+  <data name="Enc_AbilityHidden" xml:space="preserve">
+    <value>Hidden ability</value>
+  </data>
+  <data name="Enc_Form" xml:space="preserve">
+    <value>Form</value>
+  </data>
+  <data name="Enc_Item50" xml:space="preserve">
+    <value>Item (50 %)</value>
+  </data>
+  <data name="Enc_Item5" xml:space="preserve">
+    <value>Item (5 %)</value>
+  </data>
+  <data name="Enc_Item1" xml:space="preserve">
+    <value>Item (1 %)</value>
+  </data>
+  <data name="Enc_MoveN" xml:space="preserve">
+    <value>Move {0}</value>
+  </data>
+  <data name="Enc_EditTitle" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Enc_IvTitle" xml:space="preserve">
+    <value>IVs (−1 = random)</value>
+  </data>
+  <data name="Enc_EvTitle" xml:space="preserve">
+    <value>EVs</value>
+  </data>
+  <data name="Enc_PreviewTitle" xml:space="preserve">
+    <value>As it will be</value>
+  </data>
+  <data name="Enc_WildEditNote" xml:space="preserve">
+    <value>The Pokémon of this route, and its own data: abilities and held items change it in the whole game (its moves by level are in Options → Pokémon → Advanced editor). Nature and IVs are drawn at every encounter.</value>
+  </data>
+  <data name="Enc_FixedEditNote" xml:space="preserve">
+    <value>What this entry gives, written when the ROM is built.</value>
+  </data>
+  <data name="Enc_LevelLabel" xml:space="preserve">
+    <value>Level</value>
+  </data>
 </root>

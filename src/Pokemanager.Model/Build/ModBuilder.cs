@@ -456,11 +456,12 @@ public static class ModBuilder
                 outputs["romfs/" + layout.Wild] = GARC.PackGARC(files, wild.Version, wild.ContentPadding).Data;
         }
 
-        if ((encounters.Gifts.Count > 0 || encounters.Statics.Count > 0 || encounters.Trades.Count > 0) && layout.Statics.Length > 0)
+        if ((encounters.Gifts.Count > 0 || encounters.Statics.Count > 0 || encounters.Trades.Count > 0 || (encounters.Fields?.Count ?? 0) > 0)
+            && layout.Statics.Length > 0)
         {
             var statics = BuiltOrRead(session, outputs, layout.Statics);
             byte[][] files = statics.Files;
-            if (WildEncounters7.ApplyStatics(files, encounters) > 0)
+            if (WildEncounters7.ApplyStatics(files, encounters) + FixedEncounters7.Apply(files, encounters.Fields ?? []) > 0)
                 outputs["romfs/" + layout.Statics] = GARC.PackGARC(files, statics.Version, statics.ContentPadding).Data;
         }
 

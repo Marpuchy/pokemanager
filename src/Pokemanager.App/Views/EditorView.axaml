@@ -14,6 +14,19 @@
     <KeyBinding Gesture="Ctrl+Shift+Z" Command="{Binding RedoCommand}" />
   </UserControl.KeyBindings>
 
+  <UserControl.Resources>
+    <!-- A value of an encounter's details: label, then a list or a number -->
+    <DataTemplate x:Key="EncounterField" x:DataType="vm:EncounterFieldViewModel">
+      <Grid ColumnDefinitions="130,*" Margin="0,1">
+        <TextBlock Classes="row-label" VerticalAlignment="Center" Text="{Binding Label}" TextTrimming="CharacterEllipsis" />
+        <ComboBox Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{Binding Choices}" SelectedIndex="{Binding Index}"
+                  MaxDropDownHeight="400" IsVisible="{Binding IsChoice}" ToolTip.Tip="{Binding Note}" />
+        <NumericUpDown Grid.Column="1" HorizontalAlignment="Left" Width="130" Value="{Binding Number}" Minimum="{Binding Minimum}"
+                       Maximum="{Binding Maximum}" Increment="1" FormatString="0" ParsingNumberStyle="Integer" IsVisible="{Binding IsNumber}" />
+      </Grid>
+    </DataTemplate>
+  </UserControl.Resources>
+
   <UserControl.DataTemplates>
     <!-- Numeric field: label + NumericUpDown; a bar and the label in the game's colour when it differs from the base -->
     <DataTemplate DataType="vm:IntFieldViewModel">
@@ -867,13 +880,10 @@
                                   <DataTemplate x:DataType="vm:EncounterRowViewModel">
                                     <Border Classes="card field" Classes.modified="{Binding IsModified}" Padding="8,6" Margin="0,0,10,0">
                                       <StackPanel Spacing="6">
-                                        <Grid ColumnDefinitions="280,*,220,Auto,Auto">
+                                        <Grid ColumnDefinitions="280,*,Auto,Auto,Auto">
                                           <ContentControl Content="{Binding}" ContentTemplate="{StaticResource PartyCard}" />
                                           <TextBlock Grid.Column="1" Classes="hint" Margin="10,0" VerticalAlignment="Center" TextWrapping="Wrap"
                                                      Text="{Binding Detail}" ToolTip.Tip="{Binding Detail}" />
-                                          <ComboBox Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" ItemsSource="{Binding Choices}"
-                                                    SelectedIndex="{Binding Picked}" MaxDropDownHeight="400" IsVisible="{Binding IsShown}"
-                                                    ToolTip.Tip="{x:Static r:Strings.Enc_ChoiceTip}" />
                                           <Button Grid.Column="3" Margin="6,0,0,0" VerticalAlignment="Center" Content="{x:Static r:Strings.Enc_Restore}"
                                                   Command="{Binding RestoreCommand}" IsVisible="{Binding IsModified}" ToolTip.Tip="{x:Static r:Strings.Enc_RestoreTip}" />
                                           <!-- Details: just an arrow at the right of the row (2026-11-13, user) -->
@@ -882,13 +892,43 @@
                                             <Path Classes="chevron" Data="M 0,0 L 6,6 L 12,0" Width="12" Height="7" Stretch="Uniform" />
                                           </ToggleButton>
                                         </Grid>
-                                        <StackPanel Spacing="6" IsVisible="{Binding IsExpanded}">
-                                          <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <Button Content="{x:Static r:Strings.Enc_Reroll}" Command="{Binding RerollCommand}"
-                                                    ToolTip.Tip="{x:Static r:Strings.Enc_RerollTip}" />
-                                            <TextBlock Classes="hint" VerticalAlignment="Center" Text="{x:Static r:Strings.Enc_HiddenDetails}"
-                                                       IsVisible="{Binding ShowsHiddenNote}" />
-                                          </StackPanel>
+                                        <StackPanel Spacing="8" IsVisible="{Binding IsExpanded}">
+                                          <TextBlock Classes="hint" Text="{x:Static r:Strings.Enc_HiddenDetails}" IsVisible="{Binding ShowsHiddenNote}" />
+                                          <!-- Everything this entry fixes, editable as in Partida (2026-11-13, user) -->
+                                          <c:CardGrid MinColumnWidth="340" MaxColumns="3" Spacing="8" IsVisible="{Binding IsShown}">
+                                            <Border Classes="card" VerticalAlignment="Stretch">
+                                              <StackPanel Spacing="4">
+                                                <Grid ColumnDefinitions="*,Auto">
+                                                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Enc_EditTitle}" />
+                                                  <Button Grid.Column="1" Content="{x:Static r:Strings.Enc_Reroll}" Command="{Binding RerollCommand}"
+                                                          ToolTip.Tip="{x:Static r:Strings.Enc_RerollTip}" />
+                                                </Grid>
+                                                <ItemsControl ItemsSource="{Binding MainFields}" ItemTemplate="{StaticResource EncounterField}" />
+                                                <TextBlock Classes="hint" TextWrapping="Wrap" Text="{Binding EditNote}" />
+                                              </StackPanel>
+                                            </Border>
+                                            <Border Classes="card" VerticalAlignment="Stretch" IsVisible="{Binding HasMoveFields}">
+                                              <StackPanel Spacing="4">
+                                                <TextBlock Classes="card-title" Text="{x:Static r:Strings.Pkm_Moves}" />
+                                                <ItemsControl ItemsSource="{Binding MoveFields}" ItemTemplate="{StaticResource EncounterField}" />
+                                              </StackPanel>
+                                            </Border>
+                                            <StackPanel Spacing="8" IsVisible="{Binding HasIvFields}">
+                                              <Border Classes="card" IsVisible="{Binding HasIvFields}">
+                                                <StackPanel Spacing="4">
+                                                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Enc_IvTitle}" />
+                                                  <ItemsControl ItemsSource="{Binding IvFields}" ItemTemplate="{StaticResource EncounterField}" />
+                                                </StackPanel>
+                                              </Border>
+                                              <Border Classes="card" IsVisible="{Binding HasEvFields}">
+                                                <StackPanel Spacing="4">
+                                                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Enc_EvTitle}" />
+                                                  <ItemsControl ItemsSource="{Binding EvFields}" ItemTemplate="{StaticResource EncounterField}" />
+                                                </StackPanel>
+                                              </Border>
+                                            </StackPanel>
+                                          </c:CardGrid>
+                                          <TextBlock Classes="card-title" Margin="2,4,0,0" Text="{x:Static r:Strings.Enc_PreviewTitle}" IsVisible="{Binding IsShown}" />
                                           <ContentControl Content="{Binding Sheet}" ContentTemplate="{StaticResource MonSheet}"
                                                           IsVisible="{Binding Sheet, Converter={x:Static ObjectConverters.IsNotNull}}" />
                                         </StackPanel>
