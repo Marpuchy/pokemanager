@@ -50,17 +50,5 @@ public partial class EditorView : UserControl
                 vm.History.Refresh();
         };
 
-        // Opened from the project preview on a Pokémon of the save: go straight to it.
-        DataContextChanged += (_, _) =>
-        {
-            if (DataContext is EditorViewModel { PendingSaveSlot: { } slot } vm)
-            {
-                vm.PendingSaveSlot = null;
-                MainTabs.SelectedItem = SaveTab;
-                vm.SaveEditor.EnsureOpen();
-                vm.SaveEditor.SelectSlot(slot);
-            }
-
-        };
     }
 }

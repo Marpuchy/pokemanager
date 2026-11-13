@@ -44,10 +44,18 @@ public partial class EditorViewModel : ObservableObject
     /// </summary>
     public PokemonSprites Sprites { get; private set; }
 
-    /// <summary>Pokémon of the save to show when the view appears (opened from the project preview).</summary>
-    public SaveSlot? PendingSaveSlot { get; set; }
-
-    public void ShowSavePokemon(SaveSlot slot) => PendingSaveSlot = slot;
+    /// <summary>
+    /// Opens on a Pokémon of the save (the preview's "Manage this Pokémon"). Done on the view model's tabs, like
+    /// <see cref="ShowSaveDex"/>: set from the view, the tab's bound index put the editor back on its first page
+    /// (2026-11-13, user: it opened the general options instead of the Pokémon).
+    /// </summary>
+    public void ShowSavePokemon(SaveSlot slot)
+    {
+        SelectedTab = SaveTabIndex;
+        SaveEditor.EnsureOpen();
+        SaveEditor.SelectedTab = 0;
+        SaveEditor.SelectSlot(slot);
+    }
 
     /// <summary>Opens on the save's Pokédex (the shortcut of the project preview).</summary>
     public void ShowSaveDex()
