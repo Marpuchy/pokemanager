@@ -851,14 +851,17 @@
                                   <DataTemplate x:DataType="vm:EncounterRowViewModel">
                                     <Border Classes="card field" Classes.modified="{Binding IsModified}" Padding="8,6" Margin="0,0,10,0">
                                       <StackPanel Spacing="6">
-                                        <Grid ColumnDefinitions="280,*,220,Auto">
+                                        <Grid ColumnDefinitions="280,*,220,Auto,Auto">
                                           <ContentControl Content="{Binding}" ContentTemplate="{StaticResource PartyCard}" />
                                           <TextBlock Grid.Column="1" Classes="hint" Margin="10,0" VerticalAlignment="Center" TextWrapping="Wrap"
                                                      Text="{Binding Detail}" ToolTip.Tip="{Binding Detail}" />
                                           <ComboBox Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" ItemsSource="{Binding Choices}"
-                                                    SelectedIndex="{Binding Choice}" MaxDropDownHeight="400" ToolTip.Tip="{x:Static r:Strings.Enc_ChoiceTip}" />
+                                                    SelectedIndex="{Binding Picked}" MaxDropDownHeight="400" IsVisible="{Binding IsShown}"
+                                                    ToolTip.Tip="{x:Static r:Strings.Enc_ChoiceTip}" />
                                           <Button Grid.Column="3" Margin="6,0,0,0" VerticalAlignment="Center" Content="{x:Static r:Strings.Enc_Reroll}"
                                                   Command="{Binding RerollCommand}" ToolTip.Tip="{x:Static r:Strings.Enc_RerollTip}" />
+                                          <Button Grid.Column="4" Margin="6,0,0,0" VerticalAlignment="Center" Content="{x:Static r:Strings.Enc_Restore}"
+                                                  Command="{Binding RestoreCommand}" IsVisible="{Binding IsModified}" ToolTip.Tip="{x:Static r:Strings.Enc_RestoreTip}" />
                                         </Grid>
                                         <Expander Header="{x:Static r:Strings.Enc_More}" IsExpanded="{Binding IsExpanded}" HorizontalAlignment="Stretch"
                                                   ToolTip.Tip="{x:Static r:Strings.Enc_MoreTip}">

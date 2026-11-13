@@ -5543,4 +5543,10 @@ Project: {2}</value>
   <data name="Enc_HiddenDetails" xml:space="preserve">
     <value>Tick «Show Pokémon» to see it.</value>
   </data>
+  <data name="Enc_Restore" xml:space="preserve">
+    <value>Put back</value>
+  </data>
+  <data name="Enc_RestoreTip" xml:space="preserve">
+    <value>The Pokémon the ROM has here.</value>
+  </data>
 </root>

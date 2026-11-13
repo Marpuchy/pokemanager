@@ -61,7 +61,7 @@ public sealed partial class EncounterEditorViewModel : ObservableObject
     [ObservableProperty]
     public partial EncounterPlaceViewModel? SelectedPlace { get; set; }
 
-    /// <summary>"Keep it" first, then every species of the ROM — built once (an ItemsSource next to a two-way SelectedIndex).</summary>
+    /// <summary>Every species of the ROM, from #001 — built once (an ItemsSource next to a two-way SelectedIndex).</summary>
     public IReadOnlyList<string> SpeciesChoices { get; private set; } = [];
 
     internal EncounterEdits Edits => session.Project.Tweaks.Encounters ??= new EncounterEdits();
@@ -101,7 +101,8 @@ public sealed partial class EncounterEditorViewModel : ObservableObject
         try
         {
             var data = await Task.Run(() => Read(s, names.Locations));
-            SpeciesChoices = [Strings.Enc_Keep, .. Enumerable.Range(1, Math.Max(0, names.Species.Count - 1)).Select(i => $"#{i:000} {names.Species[i]}")];
+            // Every species of the ROM, the one a row has now selected (2026-11-13, user: no "(dejarlo)", the name instead).
+            SpeciesChoices = [.. Enumerable.Range(1, Math.Max(0, names.Species.Count - 1)).Select(i => $"#{i:000} {names.Species[i]}")];
             OnPropertyChanged(nameof(SpeciesChoices));
             Places.Clear();
             foreach (var place in data.Places)
@@ -585,6 +586,29 @@ public sealed partial class EncounterRowViewModel : ObservableObject, IMonCard
 
     public IReadOnlyList<string> Choices => owner.SpeciesChoices;
 
+    /// <summary>Spoilers off: the list would name the Pokémon, so it is not shown.</summary>
+    public bool IsShown => Shown;
+
+    /// <summary>
+    /// The species the row has now, as an index of <see cref="Choices"/> (#001 is 0): picking the Pokémon the ROM has
+    /// there takes the change back.
+    /// </summary>
+    public int Picked
+    {
+        get => Current.Species - 1;
+        set
+        {
+            if (value < 0 || value + 1 == Current.Species)
+                return;
+            int species = value + 1;
+            Choice = species == data.Species ? 0 : species;
+        }
+    }
+
+    /// <summary>Puts back the Pokémon the ROM has there.</summary>
+    [RelayCommand]
+    private void Restore() => Choice = 0;
+
     /// <summary>0 keeps the Pokémon; otherwise the species it becomes (form 0).</summary>
     [ObservableProperty]
     public partial int Choice { get; set; }
@@ -703,6 +727,8 @@ public sealed partial class EncounterRowViewModel : ObservableObject, IMonCard
         OnPropertyChanged(nameof(Name));
         OnPropertyChanged(nameof(Detail));
         OnPropertyChanged(nameof(Tooltip));
+        OnPropertyChanged(nameof(IsShown));
+        OnPropertyChanged(nameof(Picked));
         OnPropertyChanged(nameof(TypeBackground));
         OnPropertyChanged(nameof(TypeForeground));
         OnPropertyChanged(nameof(TypeChips));
