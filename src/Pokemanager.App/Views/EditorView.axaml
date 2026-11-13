@@ -842,42 +842,33 @@
                               <ItemsControl ItemsSource="{Binding Rows}">
                                 <ItemsControl.ItemsPanel>
                                   <ItemsPanelTemplate>
-                                    <c:CardGrid MinColumnWidth="460" MaxColumns="2" Spacing="6" FillLastRow="False" />
+                                    <StackPanel Spacing="6" />
                                   </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
+                                  <!-- The Pokémon as a party card (type colours, item, level), what it becomes, and its
+                                       sheet as everywhere else in the app behind a fold-out (2026-11-13, user) -->
                                   <DataTemplate x:DataType="vm:EncounterRowViewModel">
-                                    <Border Classes="card field" Classes.modified="{Binding IsModified}" Padding="8,6" Margin="0">
-                                      <Grid ColumnDefinitions="56,*,200,Auto" RowDefinitions="Auto,Auto">
-                                        <Image Classes="sprite" Source="{Binding Icon}" Width="48" Height="36" RenderOptions.BitmapInterpolationMode="None" />
-                                        <StackPanel Grid.Column="1" Margin="6,0" VerticalAlignment="Center">
-                                          <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
-                                          <TextBlock Classes="hint" FontSize="11" Text="{Binding Detail}" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Detail}" />
-                                        </StackPanel>
-                                        <ComboBox Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" ItemsSource="{Binding Choices}"
-                                                  SelectedIndex="{Binding Choice}" MaxDropDownHeight="400" ToolTip.Tip="{x:Static r:Strings.Enc_ChoiceTip}" />
-                                        <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" Margin="4,0,0,0" VerticalAlignment="Center">
-                                          <Button Content="{x:Static r:Strings.Enc_Reroll}" Command="{Binding RerollCommand}" ToolTip.Tip="{x:Static r:Strings.Enc_RerollTip}" />
-                                          <ToggleButton Content="{x:Static r:Strings.Enc_More}" IsChecked="{Binding IsExpanded}" ToolTip.Tip="{x:Static r:Strings.Enc_MoreTip}" />
-                                        </StackPanel>
-                                        <Grid Grid.Row="1" Grid.ColumnSpan="4" Margin="0,6,0,0" ColumnDefinitions="130,*" RowDefinitions="Auto,Auto,Auto,Auto"
-                                              IsVisible="{Binding IsExpanded}">
-                                          <TextBlock Classes="hint" Text="{x:Static r:Strings.Enc_LevelsLabel}" />
-                                          <TextBlock Grid.Column="1" Text="{Binding LevelsText}" TextWrapping="Wrap" />
-                                          <TextBlock Grid.Row="1" Classes="hint" Text="{x:Static r:Strings.Enc_AbilitiesLabel}" />
-                                          <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding AbilitiesText}" TextWrapping="Wrap" />
-                                          <TextBlock Grid.Row="2" Classes="hint" Text="{x:Static r:Strings.Enc_ItemsLabel}" />
-                                          <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding ItemsText}" TextWrapping="Wrap" />
-                                          <TextBlock Grid.Row="3" Classes="hint" Text="{x:Static r:Strings.Enc_MovesLabel}" />
-                                          <ItemsControl Grid.Row="3" Grid.Column="1" ItemsSource="{Binding MovesText}">
-                                            <ItemsControl.ItemTemplate>
-                                              <DataTemplate x:DataType="x:String">
-                                                <TextBlock Text="{Binding}" TextWrapping="Wrap" />
-                                              </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                          </ItemsControl>
+                                    <Border Classes="card field" Classes.modified="{Binding IsModified}" Padding="8,6" Margin="0,0,10,0">
+                                      <StackPanel Spacing="6">
+                                        <Grid ColumnDefinitions="280,*,220,Auto">
+                                          <ContentControl Content="{Binding}" ContentTemplate="{StaticResource PartyCard}" />
+                                          <TextBlock Grid.Column="1" Classes="hint" Margin="10,0" VerticalAlignment="Center" TextWrapping="Wrap"
+                                                     Text="{Binding Detail}" ToolTip.Tip="{Binding Detail}" />
+                                          <ComboBox Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" ItemsSource="{Binding Choices}"
+                                                    SelectedIndex="{Binding Choice}" MaxDropDownHeight="400" ToolTip.Tip="{x:Static r:Strings.Enc_ChoiceTip}" />
+                                          <Button Grid.Column="3" Margin="6,0,0,0" VerticalAlignment="Center" Content="{x:Static r:Strings.Enc_Reroll}"
+                                                  Command="{Binding RerollCommand}" ToolTip.Tip="{x:Static r:Strings.Enc_RerollTip}" />
                                         </Grid>
-                                      </Grid>
+                                        <Expander Header="{x:Static r:Strings.Enc_More}" IsExpanded="{Binding IsExpanded}" HorizontalAlignment="Stretch"
+                                                  ToolTip.Tip="{x:Static r:Strings.Enc_MoreTip}">
+                                          <StackPanel>
+                                            <TextBlock Classes="hint" Text="{x:Static r:Strings.Enc_HiddenDetails}" IsVisible="{Binding ShowsHiddenNote}" />
+                                            <ContentControl Content="{Binding Sheet}" ContentTemplate="{StaticResource MonSheet}"
+                                                            IsVisible="{Binding Sheet, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                                          </StackPanel>
+                                        </Expander>
+                                      </StackPanel>
                                     </Border>
                                   </DataTemplate>
                                 </ItemsControl.ItemTemplate>

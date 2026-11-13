@@ -68,7 +68,9 @@ public static class StatBars
 /// <summary>A stat in a read-only sheet: the value, and base/IV/EV when the viewer knows them.</summary>
 /// <param name="ScaleMax">Without the base stat: the highest stat of the Pokémon, which fills the bar.</param>
 /// <param name="Nature">+1 raised by the nature (red label ▲), -1 lowered (blue ▼), as the save editor.</param>
-public sealed record SheetStat(string Label, int Value, int? Base = null, int? Iv = null, int? Ev = null, int ScaleMax = 0, int Nature = 0)
+/// <param name="IvShown">The IV as text when it is not a number (an encounter's "?" for an IV drawn at random).</param>
+public sealed record SheetStat(string Label, int Value, int? Base = null, int? Iv = null, int? Ev = null, int ScaleMax = 0, int Nature = 0,
+    string? IvShown = null)
 {
     public IBrush LabelBrush => Nature > 0 ? Raised : Nature < 0 ? Lowered : Plain;
     public string NatureMark => Nature > 0 ? "▲" : Nature < 0 ? "▼" : "";
@@ -78,10 +80,10 @@ public sealed record SheetStat(string Label, int Value, int? Base = null, int? I
     private static IBrush Plain => Pokemanager.App.Services.Tokens.Text;
 
     public bool HasBase => Base is not null;
-    public bool HasTraining => Iv is not null;
+    public bool HasTraining => Iv is not null || IvShown is not null;
     public string BaseText => Base?.ToString() ?? "";
-    public string IvText => Iv?.ToString() ?? "";
-    public string EvText => Ev?.ToString() ?? "";
+    public string IvText => IvShown ?? Iv?.ToString() ?? "";
+    public string EvText => Ev?.ToString() ?? (IvShown is not null ? "0" : "");
 
     /// <summary>The bar shows the base stat (Showdown's colors) when known, else the stat against the highest one, in a neutral color.</summary>
     public double BarWidth => Base is { } b ? StatBars.Width(b, 110) : Math.Max(2, (double)Value / Math.Max(1, ScaleMax) * 110);

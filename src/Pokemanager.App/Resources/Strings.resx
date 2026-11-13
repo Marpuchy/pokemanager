@@ -5513,4 +5513,34 @@ Project: {2}</value>
   <data name="Rnd_RerandomizeConfirm" xml:space="preserve">
     <value>Randomize and build</value>
   </data>
+  <data name="Enc_Random" xml:space="preserve">
+    <value>Random</value>
+  </data>
+  <data name="Enc_RequestsLabel" xml:space="preserve">
+    <value>Asks for</value>
+  </data>
+  <data name="Enc_ShinyLabel" xml:space="preserve">
+    <value>Shiny</value>
+  </data>
+  <data name="Enc_ShinyLocked" xml:space="preserve">
+    <value>Never (locked)</value>
+  </data>
+  <data name="Enc_InsteadLabel" xml:space="preserve">
+    <value>Instead of</value>
+  </data>
+  <data name="Enc_StatsNote" xml:space="preserve">
+    <value>Values at Lv. {0}; an IV shown as ? is drawn at random and counted as 31.</value>
+  </data>
+  <data name="Enc_PerfectIvs" xml:space="preserve">
+    <value>{0} of its IVs are always 31.</value>
+  </data>
+  <data name="Enc_WildNote" xml:space="preserve">
+    <value>Wild ones have random IVs and no EVs.</value>
+  </data>
+  <data name="Enc_PP" xml:space="preserve">
+    <value>PP {0}</value>
+  </data>
+  <data name="Enc_HiddenDetails" xml:space="preserve">
+    <value>Tick «Show Pokémon» to see it.</value>
+  </data>
 </root>

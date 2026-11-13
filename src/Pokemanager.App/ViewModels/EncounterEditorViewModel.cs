@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using pk3DS.Core.CTR;
 using Pokemanager.App.Resources;
+using Pokemanager.App.Services;
 using Pokemanager.Model.Data;
 using Pokemanager.Model.Dump;
 using Pokemanager.Model.Editing;
@@ -179,6 +180,134 @@ public sealed partial class EncounterEditorViewModel : ObservableObject
         return moves.Count == 0 ? "—" : string.Join(", ", moves);
     }
 
+    internal int[] TypesOf(int species, int form)
+    {
+        var types = Data.Personal[Row(species, form)].Types;
+        return types.Length >= 2 ? [types[0], types[1]] : [0, 0];
+    }
+
+    internal TypeChip TypeChipOf(int type) => new(type >= 0 && type < editor.Names.Types.Count ? editor.Names.Types[type] : "?",
+        TypeColors.Background(type), TypeColors.Foreground(type));
+
+    /// <summary>
+    /// A Pokémon of the tab as the shared sheet: base stats with the values it has at its level (the IVs and EVs the
+    /// entry fixes, "?" for those drawn at random, which count as 31), the moves it comes with, and its data. What each
+    /// entry fixes was read on the user's Ultra Sun: IVs -1 random and -4 "three at 31"; a fixed encounter's nature 0 is
+    /// random and otherwise the nature + 1; abilities by slot.
+    /// </summary>
+    internal MonSheet SheetOf(EncounterRowViewModel card, EncounterPlaceKind kind, int species, int form, RowData row)
+    {
+        var data = Data;
+        var names = editor.Names;
+        var p = data.Personal[Row(species, form)];
+        int level = row.MaxLevel > 0 ? row.MaxLevel : 1;
+        var raw = row.Raw;
+        bool changed = species != row.Species || form != row.Form; // what the entry fixes was meant for the original
+
+        // IVs and EVs: HP, Atk, Def, Spe, SpA, SpD as the game stores them.
+        int[] ivs = [-1, -1, -1, -1, -1, -1];
+        int[] evs = new int[6];
+        int nature = -1, abilitySlot = -1, perfect = 0;
+        int[] relearn = [];
+        if (raw is not null)
+        {
+            switch (kind)
+            {
+                case EncounterPlaceKind.Statics:
+                    ivs = [.. raw.AsSpan(0x15, 6).ToArray().Select(b => (int)(sbyte)b)];
+                    evs = [.. raw.AsSpan(0x1B, 6).ToArray().Select(b => (int)b)];
+                    nature = raw[0x14] - 1;
+                    abilitySlot = ((raw[6] >> 4) & 7) switch { 1 => 0, 2 => 1, 3 or 4 => 2, _ => -1 };
+                    relearn = [.. Enumerable.Range(0, 4).Select(i => (int)BitConverter.ToUInt16(raw, 0xC + 2 * i)).Where(m => m > 0)];
+                    break;
+                case EncounterPlaceKind.Trades:
+                    ivs = [.. raw.AsSpan(0x6, 6).ToArray().Select(b => (int)(sbyte)b)];
+                    nature = raw[0xD] < 25 ? raw[0xD] : -1;
+                    abilitySlot = raw[0xC] <= 2 ? raw[0xC] : -1;
+                    break;
+                default:
+                    nature = (sbyte)raw[0x7];
+                    abilitySlot = (sbyte)raw[0x6] is >= 0 and <= 2 and var a ? a : -1;
+                    if ((sbyte)raw[0xE] == -4)
+                        perfect = 3;
+                    break;
+            }
+        }
+        if (ivs[0] == -4)
+            (perfect, ivs[0]) = (3, -1);
+
+        int Stat(int baseStat, int iv, int ev, bool hp, int natureEffect)
+        {
+            int value = (2 * baseStat + (iv < 0 ? 31 : iv) + ev / 4) * level / 100;
+            if (hp)
+                return value + level + 10;
+            value += 5;
+            return natureEffect > 0 ? value * 110 / 100 : natureEffect < 0 ? value * 90 / 100 : value;
+        }
+        string? IvText(int iv) => iv < 0 ? "?" : null;
+        // Display order HP, Atk, Def, SpA, SpD, Spe; stored order HP, Atk, Def, Spe, SpA, SpD.
+        (string Label, int Base, int Stored)[] order =
+        [
+            (Strings.Stat_HP, p.HP, 0), (Strings.Stat_Atk, p.ATK, 1), (Strings.Stat_Def, p.DEF, 2),
+            (Strings.Stat_SpA, p.SPA, 4), (Strings.Stat_SpD, p.SPD, 5), (Strings.Stat_Spe, p.SPE, 3),
+        ];
+        var stats = order.Select((o, i) =>
+        {
+            int effect = nature >= 0 ? StatBars.NatureEffect(nature, i) : 0;
+            int iv = ivs[o.Stored];
+            return new SheetStat(o.Label, Stat(o.Base, iv, evs[o.Stored], i == 0, effect), o.Base, iv < 0 ? null : iv, evs[o.Stored],
+                Nature: effect, IvShown: IvText(iv));
+        }).ToList();
+
+        // Moves: what a fixed encounter brings, else the last four it learned by its level (as the game gives them).
+        int learnRow = Row(species, form);
+        int[] moves = !changed && relearn.Length > 0 ? relearn
+            : learnRow < data.Learnsets.Length ? [.. data.Learnsets[learnRow].GetEncounterMoves(level).Where(m => m > 0)] : [];
+        var moveLines = Enumerable.Range(0, 4).Select(i => i < moves.Length ? MoveOf(moves[i]) : ViewModels.MoveLine.Empty).ToList();
+
+        var a3 = p.Abilities;
+        string ability = abilitySlot >= 0 && abilitySlot < a3.Length && !changed
+            ? Named(names.Abilities, a3[abilitySlot]) + (abilitySlot == 2 ? $" ({Strings.Preview_Hidden})" : "")
+            : AbilitiesOf(species, form);
+        string natureText = nature >= 0 && nature < names.Natures.Count && !changed ? names.Natures[nature] : Strings.Enc_Random;
+        int item = card.HasItem ? card.FixedItemId : 0;
+        string itemText = kind == EncounterPlaceKind.Area ? ItemsOf(species, form)
+            : item > 0 ? Named(names.Items, item) : Strings.Preview_NoItem;
+        var info = new List<RoomInfoLine>
+        {
+            new(Strings.Pkm_Species, SpeciesName(species, form)),
+            new(Strings.Enc_LevelsLabel, card.LevelsText),
+            new(Strings.Pkm_AbilityLabel, ability),
+            new(Strings.Pkm_Nature, natureText),
+            new(Strings.Pkm_HeldItem, itemText),
+        };
+        if (kind == EncounterPlaceKind.Trades && row.Requested > 0)
+            info.Add(new(Strings.Enc_RequestsLabel, SpeciesName(row.Requested, 0)));
+        if (kind == EncounterPlaceKind.Statics && raw is not null && (raw[6] & 2) != 0)
+            info.Add(new(Strings.Enc_ShinyLabel, Strings.Enc_ShinyLocked));
+        if (changed)
+            info.Add(new(Strings.Enc_InsteadLabel, SpeciesName(row.Species, row.Form)));
+
+        string note = string.Join(" ", new[]
+        {
+            string.Format(Strings.Enc_StatsNote, level),
+            perfect > 0 ? string.Format(Strings.Enc_PerfectIvs, perfect) : null,
+            kind == EncounterPlaceKind.Area ? Strings.Enc_WildNote : null,
+        }.Where(t => t is not null));
+        string subtitle = $"{card.LevelsText} · {(nature >= 0 && !changed ? natureText : "")}".TrimEnd(' ', '·');
+        return new MonSheet(card, subtitle, null, stats, moveLines, info, note);
+    }
+
+    private MoveLine MoveOf(int move)
+    {
+        var data = Data;
+        var m = move < data.Moves.Length ? data.Moves[move] : null;
+        int type = m?.Type ?? -1;
+        var names = editor.Names;
+        string typeName = type >= 0 && type < names.Types.Count ? names.Types[type] : "";
+        return ViewModels.MoveLine.Of(Named(names.Moves, move), m is null ? "" : string.Format(Strings.Enc_PP, m.PP), type, typeName, m?.Category ?? -1);
+    }
+
     private UprOptionViewModel? Option(string name) => editor.Randomizer.Options.Option(name);
 
     /// <summary>
@@ -215,7 +344,7 @@ public sealed partial class EncounterEditorViewModel : ObservableObject
 
     internal sealed record PlaceData(EncounterPlaceKind Kind, int Index, string Name, List<RowData> Rows, int Order = 0);
     internal sealed record RowData(int Index, int Species, int Form, string Detail, int Requested = 0, bool Sos = false,
-        int OriginalSpecies = 0, int OriginalForm = 0, int MinLevel = 0, int MaxLevel = 0);
+        int OriginalSpecies = 0, int OriginalForm = 0, int MinLevel = 0, int MaxLevel = 0, byte[]? Raw = null);
     private sealed record ReadResult(List<PlaceData> Places, bool FromRandomization);
 
     private static ReadResult Read(EditorSession session, IReadOnlyList<string> locations)
@@ -238,7 +367,7 @@ public sealed partial class EncounterEditorViewModel : ObservableObject
             RowData Row(WildEncounters7.StaticEntry e, Dictionary<int, WildEncounters7.StaticEntry> was, int requested = 0) =>
                 new(e.Index, e.Species, e.Form, string.Format(Strings.Enc_Level, e.Level), requested,
                     OriginalSpecies: was.TryGetValue(e.Index, out var o) ? o.Species : 0, OriginalForm: o?.Form ?? 0,
-                    MinLevel: e.Level, MaxLevel: e.Level);
+                    MinLevel: e.Level, MaxLevel: e.Level, Raw: e.Raw);
             bool Totem(WildEncounters7.StaticEntry e) =>
                 originalStatics.TryGetValue(e.Index, out var o) && BattleSafety.IsTotem(o.Species, o.Form);
             var gifts = WildEncounters7.Gifts(files);
@@ -394,7 +523,7 @@ public sealed partial class EncounterPlaceViewModel : ObservableObject
 }
 
 /// <summary>A Pokémon of a place: what the ROM has there and what it becomes.</summary>
-public sealed partial class EncounterRowViewModel : ObservableObject
+public sealed partial class EncounterRowViewModel : ObservableObject, IMonCard
 {
     private readonly EncounterEditorViewModel owner;
     private readonly EncounterPlaceViewModel place;
@@ -411,12 +540,45 @@ public sealed partial class EncounterRowViewModel : ObservableObject
 
     private bool Shown => owner.ShowPokemon;
 
-    public Bitmap? Icon => Shown ? owner.Icon(data.Species, data.Form) : null;
-    public string Name => Shown ? owner.SpeciesName(data.Species, data.Form) : Strings.Enc_Hidden;
+    // ------------------------------------------------------------------ as a card, like every Pokémon of the app
+
+    public Bitmap? Icon => Shown ? owner.Icon(Current.Species, Current.Form) : null;
+    public string Name => Shown ? owner.SpeciesName(Current.Species, Current.Form) : Strings.Enc_Hidden;
+    public string GenderText => "";
+    public string LevelText => LevelsText;
+    public bool IsShiny => false;
+    public bool IsEgg => false;
+    public bool IsEmpty => false;
+    public bool IsSelected => IsExpanded;
+    public bool HasProblem => false;
+    public string Tooltip => Name;
+
+    /// <summary>The item it is given with (gifts, fixed encounters, trades); a wild one's chances are in the details.</summary>
+    private int FixedItem => data.Raw is not { } raw ? 0 : place.Kind switch
+    {
+        EncounterPlaceKind.Trades => Math.Max(0, (int)BitConverter.ToInt16(raw, 0x14)),
+        EncounterPlaceKind.Statics => Math.Max(0, (int)BitConverter.ToInt16(raw, 0x4)),
+        _ => BitConverter.ToUInt16(raw, 0x8) is var i && i != 0xFFFF ? i : 0,
+    };
+
+    public bool HasItem => Shown && FixedItem > 0;
+    internal int FixedItemId => FixedItem;
+    public Bitmap? ItemIcon => HasItem ? PkhexImages.Item(FixedItem) : null;
+
+    private int[] TypeIds => owner.TypesOf(Current.Species, Current.Form);
+    public Avalonia.Media.IBrush TypeBackground => Shown ? TypeColors.Background(TypeIds[0], TypeIds[1]) : Services.Tokens.Panel2;
+    public Avalonia.Media.IBrush TypeForeground => Shown ? TypeColors.Foreground(TypeIds) : Services.Tokens.Text;
+    public IReadOnlyList<TypeChip> TypeChips => Shown ? [.. TypeIds.Distinct().Select(owner.TypeChipOf)] : [];
+
+    /// <summary>A click on the card opens or closes its details.</summary>
+    [RelayCommand]
+    private void Select() => IsExpanded = !IsExpanded;
+
     public string Detail => data.Detail
+        + (Shown && Choice > 0 ? " · " + string.Format(Strings.Enc_Replaces, owner.SpeciesName(data.Species, data.Form)) : "")
         + (place.Kind == EncounterPlaceKind.Trades && Shown && data.Requested > 0 ? " · " + string.Format(Strings.Enc_Requests, owner.SpeciesName(data.Requested, 0)) : "")
         // What it replaces, from the game before the randomization (user: "say which totem they replace").
-        + (Shown && data.OriginalSpecies > 0 && (data.OriginalSpecies, data.OriginalForm) != (data.Species, data.Form)
+        + (Shown && Choice == 0 && data.OriginalSpecies > 0 && (data.OriginalSpecies, data.OriginalForm) != (data.Species, data.Form)
             ? " · " + string.Format(Strings.Enc_Replaces, owner.SpeciesName(data.OriginalSpecies, data.OriginalForm)) : "");
 
     public bool Sos => data.Sos;
@@ -463,7 +625,7 @@ public sealed partial class EncounterRowViewModel : ObservableObject
         }
         owner.Editor.MarkDirty(string.Format(Strings.Enc_UndoSwap, place.Name));
         OnPropertyChanged(nameof(IsModified));
-        RefreshDetails();
+        Refresh();
         place.Changed();
     }
 
@@ -474,7 +636,16 @@ public sealed partial class EncounterRowViewModel : ObservableObject
     [ObservableProperty]
     public partial bool IsExpanded { get; set; }
 
-    partial void OnIsExpandedChanged(bool value) => RefreshDetails();
+    partial void OnIsExpandedChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsSelected));
+        RefreshDetails();
+    }
+
+    /// <summary>The Pokémon laid out as everywhere else in the app (the shared <c>MonSheet</c>), built when it is opened.</summary>
+    public MonSheet? Sheet => IsExpanded && Shown ? owner.SheetOf(this, place.Kind, Current.Species, Current.Form, data) : null;
+
+    public bool ShowsHiddenNote => IsExpanded && !Shown;
 
     public string LevelsText => data.MinLevel == data.MaxLevel
         ? string.Format(Strings.Enc_Level, data.MinLevel) : string.Format(Strings.Enc_Levels, data.MinLevel, data.MaxLevel);
@@ -491,6 +662,8 @@ public sealed partial class EncounterRowViewModel : ObservableObject
 
     private void RefreshDetails()
     {
+        OnPropertyChanged(nameof(Sheet));
+        OnPropertyChanged(nameof(ShowsHiddenNote));
         OnPropertyChanged(nameof(AbilitiesText));
         OnPropertyChanged(nameof(ItemsText));
         OnPropertyChanged(nameof(MovesText));
@@ -521,6 +694,7 @@ public sealed partial class EncounterRowViewModel : ObservableObject
         Choice = to is null ? 0 : EncounterEdits.Parse(to).Species;
         loading = false;
         OnPropertyChanged(nameof(IsModified));
+        Refresh();
     }
 
     internal void Refresh()
@@ -528,6 +702,12 @@ public sealed partial class EncounterRowViewModel : ObservableObject
         OnPropertyChanged(nameof(Icon));
         OnPropertyChanged(nameof(Name));
         OnPropertyChanged(nameof(Detail));
+        OnPropertyChanged(nameof(Tooltip));
+        OnPropertyChanged(nameof(TypeBackground));
+        OnPropertyChanged(nameof(TypeForeground));
+        OnPropertyChanged(nameof(TypeChips));
+        OnPropertyChanged(nameof(HasItem));
+        OnPropertyChanged(nameof(ItemIcon));
         RefreshDetails();
     }
 }

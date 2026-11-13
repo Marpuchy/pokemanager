@@ -5513,4 +5513,34 @@ Proyecto: {2}</value>
   <data name="Rnd_RerandomizeConfirm" xml:space="preserve">
     <value>Randomizar y crear ROM</value>
   </data>
+  <data name="Enc_Random" xml:space="preserve">
+    <value>Al azar</value>
+  </data>
+  <data name="Enc_RequestsLabel" xml:space="preserve">
+    <value>Pide</value>
+  </data>
+  <data name="Enc_ShinyLabel" xml:space="preserve">
+    <value>Variocolor</value>
+  </data>
+  <data name="Enc_ShinyLocked" xml:space="preserve">
+    <value>Nunca (bloqueado)</value>
+  </data>
+  <data name="Enc_InsteadLabel" xml:space="preserve">
+    <value>En lugar de</value>
+  </data>
+  <data name="Enc_StatsNote" xml:space="preserve">
+    <value>Valores al Nv. {0}; un IV con ? se sortea al azar y se cuenta como 31.</value>
+  </data>
+  <data name="Enc_PerfectIvs" xml:space="preserve">
+    <value>{0} de sus IV son siempre 31.</value>
+  </data>
+  <data name="Enc_WildNote" xml:space="preserve">
+    <value>Los salvajes tienen IV al azar y ningún EV.</value>
+  </data>
+  <data name="Enc_PP" xml:space="preserve">
+    <value>PP {0}</value>
+  </data>
+  <data name="Enc_HiddenDetails" xml:space="preserve">
+    <value>Marca «Mostrar Pokémon» para verlo.</value>
+  </data>
 </root>

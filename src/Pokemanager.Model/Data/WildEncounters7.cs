@@ -194,7 +194,8 @@ public static class WildEncounters7
     /// <summary>In-game trades: file 4, 0x34 bytes each, the given species at 0, form at 4, level at 5, the requested one at 0x2C.</summary>
     public const int TradeFile = 4, TradeSize = 0x34;
 
-    public sealed record StaticEntry(int Index, int Species, int Form, int Level, int Requested = 0);
+    /// <param name="Raw">The entry's bytes (gift 0x14, encounter 0x38, trade 0x34), for what else it fixes: item, IVs, nature, ability.</param>
+    public sealed record StaticEntry(int Index, int Species, int Form, int Level, int Requested = 0, byte[]? Raw = null);
 
     public static List<StaticEntry> Gifts(byte[][] files) => Entries(files, GiftFile, GiftSize, 2, 3);
     public static List<StaticEntry> Statics(byte[][] files) => Entries(files, StaticFile, StaticSize, 2, 3);
@@ -206,7 +207,8 @@ public static class WildEncounters7
             return [];
         byte[] data = files[file];
         return [.. Enumerable.Range(0, data.Length / size).Select(i => new StaticEntry(i, BitConverter.ToUInt16(data, i * size),
-            data[i * size + formAt], data[i * size + levelAt], requestedAt < 0 ? 0 : BitConverter.ToUInt16(data, i * size + requestedAt)))];
+            data[i * size + formAt], data[i * size + levelAt], requestedAt < 0 ? 0 : BitConverter.ToUInt16(data, i * size + requestedAt),
+            data.AsSpan(i * size, size).ToArray()))];
     }
 
     /// <summary>The project's gifts, fixed encounters and trades written into the static archive, in place. Returns how many changed.</summary>
