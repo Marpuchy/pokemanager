@@ -211,6 +211,23 @@ public static class WildEncounters7
             data.AsSpan(i * size, size).ToArray()))];
     }
 
+    /// <summary>Sets the species every trade asks for to 0 (experimental, see <c>GameSettings.AnyTradeExperimental</c>).</summary>
+    public static int ClearTradeRequests(byte[][] files)
+    {
+        if (TradeFile >= files.Length)
+            return 0;
+        byte[] data = files[TradeFile];
+        int changed = 0;
+        for (int at = 0; at + TradeSize <= data.Length; at += TradeSize)
+        {
+            if (BitConverter.ToUInt16(data, at + 0x2C) == 0)
+                continue;
+            BitConverter.TryWriteBytes(data.AsSpan(at + 0x2C, 2), (ushort)0);
+            changed++;
+        }
+        return changed;
+    }
+
     /// <summary>The project's gifts, fixed encounters and trades written into the static archive, in place. Returns how many changed.</summary>
     public static int ApplyStatics(byte[][] files, EncounterEdits edits) =>
         Write(files, GiftFile, GiftSize, 2, edits.Gifts) + Write(files, StaticFile, StaticSize, 2, edits.Statics)

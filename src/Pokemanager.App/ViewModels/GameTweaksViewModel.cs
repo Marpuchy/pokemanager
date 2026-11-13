@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Pokemanager.App.Resources;
 using Pokemanager.App.Services;
@@ -192,6 +192,43 @@ public sealed partial class GameTweaksViewModel : ObservableObject
         get => (decimal)session.Project.Tweaks.StarterLevelPercent;
         set => SetLevel(value, () => session.Project.Tweaks.StarterLevelPercent, v => session.Project.Tweaks.StarterLevelPercent = v);
     }
+
+    /// <summary>
+    /// Starters with two evolutions and a Mega Evolution in their line, the mod's megas included (2026-11-13, user).
+    /// Applied at build time over whatever the ROM gives; the rival and the friend follow.
+    /// </summary>
+    public bool MegaStarters
+    {
+        get => session.Project.Tweaks.MegaStarters;
+        set
+        {
+            if (MegaStarters == value)
+                return;
+            session.Project.Tweaks.MegaStarters = value;
+            OnPropertyChanged();
+            editor.MarkDirty(Strings.Starters_MegaUndo);
+        }
+    }
+
+    /// <summary>Trades that ask for species 0 (experimental, see <see cref="Model.Projects.GameSettings.AnyTradeExperimental"/>).</summary>
+    public bool AnyTrade
+    {
+        get => session.Project.Tweaks.AnyTradeExperimental;
+        set
+        {
+            if (AnyTrade == value)
+                return;
+            session.Project.Tweaks.AnyTradeExperimental = value;
+            OnPropertyChanged();
+            editor.MarkDirty(Strings.Trades_AnyUndo);
+        }
+    }
+
+    /// <summary>How many Pokémon of this ROM qualify, read once (it walks the evolution table).</summary>
+    public string MegaStartersText => megaStartersText ??= string.Format(Strings.Starters_MegaCount,
+        Pokemanager.Model.Data.MegaStarters.Candidates(session.Current).Count);
+
+    private string? megaStartersText;
 
     /// <summary>
     /// "Global levels": one value for the whole game. Writing it sets every kind at once — trainers and bosses, wild,
@@ -451,6 +488,8 @@ public sealed partial class GameTweaksViewModel : ObservableObject
     /// <summary>The project was replaced (undo, restore): show what it holds now.</summary>
     public void Refresh()
     {
+        OnPropertyChanged(nameof(MegaStarters));
+        OnPropertyChanged(nameof(AnyTrade));
         OnPropertyChanged(nameof(ShinyOdds));
         OnPropertyChanged(nameof(ShinyOddsText));
         OnPropertyChanged(nameof(TrainerLevelPercent));

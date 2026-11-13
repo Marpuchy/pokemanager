@@ -215,6 +215,8 @@ public sealed class ProjectHistory
           // Only when set, so the fingerprint of every version written before this option stays what it was.
           .Append(t.StarterLevelPercent != 0 ? "st" + Percent(t.StarterLevelPercent) + "|" : "")
           .Append(t.OriginalStarters ? "os|" : "")
+          .Append(t.MegaStarters ? "ms|" : "")
+          .Append(t.AnyTradeExperimental ? "at|" : "")
           .Append(t.ShinyOdds is { } odds ? "sh" + odds + "|" : "")
           .Append(t.Encounters is { IsEmpty: false } encounters ? "en" + encounters.Fingerprint() + "|" : "")
           .Append(project.Shops.FreeRareCandies).Append('|').Append(project.Shops.MegaStonesOnSale).Append('|');

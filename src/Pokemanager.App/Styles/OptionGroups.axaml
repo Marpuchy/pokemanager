@@ -245,56 +245,107 @@
         </StackPanel>
       </Border>
 
-      <!-- Levels: the level cap by milestones, with its plan -->
-      <Border Classes="card" IsVisible="{Binding IsLevels}">
-        <Border.Styles>
-          <Style Selector="Border.current">
-            <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
-          </Style>
-          <Style Selector="Border.current TextBlock">
-            <Setter Property="FontWeight" Value="SemiBold" />
-          </Style>
-        </Border.Styles>
-        <StackPanel Spacing="4" DataContext="{Binding Game.LevelCap}" x:DataType="vm:LevelCapViewModel">
-          <TextBlock Classes="card-title" Text="{x:Static r:Strings.LevelCap_Title}" />
-          <CheckBox IsChecked="{Binding Enabled}" IsEnabled="{Binding Supported}" ToolTip.Tip="{Binding EnabledTip}"
-                    Content="{x:Static r:Strings.LevelCap_Enable}" />
-          <CheckBox IsChecked="{Binding TrimOverCap}" IsVisible="{Binding Enabled}" ToolTip.Tip="{x:Static r:Strings.Tip_LevelCapTrim}"
-                    Content="{x:Static r:Strings.LevelCap_TrimEnable}" />
-          <TextBlock Text="{Binding CurrentText}" FontWeight="SemiBold" TextWrapping="Wrap" />
-          <ItemsControl ItemsSource="{Binding Steps}" IsVisible="{Binding Enabled}">
-            <ItemsControl.ItemTemplate>
-              <DataTemplate x:DataType="vm:LevelCapStepViewModel">
-                <Border Classes="info-row" Classes.current="{Binding IsCurrent}" Padding="4,1">
-                  <Grid ColumnDefinitions="24,*,90,Auto">
-                    <Image Source="{Binding Icon}" Width="20" Height="20" IsVisible="{Binding HasIcon}" />
-                    <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Name}" />
-                    <NumericUpDown Grid.Column="2" Value="{Binding Level}" Minimum="1" Maximum="100" Increment="1" FormatString="0"
-                                   ParsingNumberStyle="Integer" ToolTip.Tip="{Binding Tip}" />
-                    <TextBlock Grid.Column="3" Margin="8,0,0,0" MinWidth="60" VerticalAlignment="Center" Text="{Binding State}" />
-                  </Grid>
-                </Border>
-              </DataTemplate>
-            </ItemsControl.ItemTemplate>
-          </ItemsControl>
-        </StackPanel>
-      </Border>
 
-      <!-- Levels: one value for the whole game, then each kind apart -->
-      <Border Classes="card" IsVisible="{Binding IsLevels}">
-        <StackPanel Spacing="4">
-          <TextBlock Classes="card-title" Text="{x:Static r:Strings.Options_LevelsTitle}" />
-          <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Game_LevelsHint}" />
-          <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,6">
-            <TextBlock Classes="row-label" VerticalAlignment="Center" FontWeight="SemiBold" Text="{x:Static r:Strings.Options_LevelsGlobal}" />
-            <NumericUpDown Grid.Column="1" Width="130" Value="{Binding Game.AllLevelPercent}" Minimum="-90" Maximum="400"
-                           Increment="5" FormatString="0.##" ToolTip.Tip="{x:Static r:Strings.Tip_LevelsGlobal}" />
-          </Grid>
-          <TextBlock Classes="hint" TextWrapping="Wrap" IsVisible="{Binding Game.AllLevelsMixed}"
-                     Text="{x:Static r:Strings.Options_LevelsMixed}" />
-          <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Options_LevelsWhere}" />
-        </StackPanel>
-      </Border>
+
+      <!-- Levels page: levels and shiny on the left, the level cap on the right; with the cap's plan open, the left
+           column stretches to its height, closed, shiny takes the row underneath (2026-11-13, user) -->
+      <Grid IsVisible="{Binding IsLevels}" c:CardGrid.Fixed="True" ColumnDefinitions="*,12,*" RowDefinitions="Auto,12,Auto">
+        <DockPanel Grid.RowSpan="{Binding Game.LevelCap.CardRowSpan}">
+          <!-- Levels: one value for the whole game, then each kind apart -->
+          <Border Classes="card" DockPanel.Dock="Top">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Options_LevelsTitle}" />
+              <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Game_LevelsHint}" />
+              <Grid ColumnDefinitions="*,Auto" Margin="0,4,0,6">
+                <TextBlock Classes="row-label" VerticalAlignment="Center" FontWeight="SemiBold" Text="{x:Static r:Strings.Options_LevelsGlobal}" />
+                <NumericUpDown Grid.Column="1" Width="130" Value="{Binding Game.AllLevelPercent}" Minimum="-90" Maximum="400"
+                               Increment="5" FormatString="0.##" ToolTip.Tip="{x:Static r:Strings.Tip_LevelsGlobal}" />
+              </Grid>
+              <TextBlock Classes="hint" TextWrapping="Wrap" IsVisible="{Binding Game.AllLevelsMixed}"
+                         Text="{x:Static r:Strings.Options_LevelsMixed}" />
+              <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Options_LevelsWhere}" />
+            </StackPanel>
+          </Border>
+          <!-- The whole game: shiny -->
+          <Border Classes="card" Margin="0,12,0,0" VerticalAlignment="Stretch" IsVisible="{Binding Game.LevelCap.Enabled}">
+            <StackPanel Spacing="4">
+              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_ShinyTitle}" />
+              <Grid ColumnDefinitions="*,Auto" Margin="0,2" IsEnabled="{Binding Game.ShinySupported}" ToolTip.Tip="{Binding Game.ShinyTip}">
+                <TextBlock Classes="row-label" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,8,0" Text="{x:Static r:Strings.Game_ShinyOdds}" />
+                <NumericUpDown Grid.Column="1" Width="130" Value="{Binding Game.ShinyOdds}" Minimum="1" Maximum="4096"
+                               Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
+              </Grid>
+              <TextBlock Text="{Binding Game.ShinyOddsText}" FontWeight="SemiBold" TextWrapping="Wrap" />
+              <WrapPanel IsEnabled="{Binding Game.ShinySupported}">
+                <Button Margin="0,0,6,6" Content="{x:Static r:Strings.Game_ShinyPresetGame}" Command="{Binding Game.SetShinyOddsCommand}" CommandParameter="4096" />
+                <Button Margin="0,0,6,6" Content="1/1024" Command="{Binding Game.SetShinyOddsCommand}" CommandParameter="1024"
+                        IsEnabled="{Binding Game.ShinyRollsSupported}" />
+                <Button Margin="0,0,6,6" Content="1/256" Command="{Binding Game.SetShinyOddsCommand}" CommandParameter="256"
+                        IsEnabled="{Binding Game.ShinyRollsSupported}" />
+                <Button Margin="0,0,6,6" Content="1/64" Command="{Binding Game.SetShinyOddsCommand}" CommandParameter="64"
+                        IsEnabled="{Binding Game.ShinyRollsSupported}" />
+                <Button Margin="0,0,6,6" Content="{x:Static r:Strings.Game_ShinyPresetAll}" Command="{Binding Game.SetShinyOddsCommand}" CommandParameter="1" />
+              </WrapPanel>
+            </StackPanel>
+          </Border>
+        </DockPanel>
+        <!-- Levels: the level cap by milestones, with its plan -->
+        <Border Classes="card" Grid.Column="2" Grid.RowSpan="{Binding Game.LevelCap.CardRowSpan}">
+          <Border.Styles>
+            <Style Selector="Border.current">
+              <Setter Property="Background" Value="{DynamicResource AccentSoftBrush}" />
+            </Style>
+            <Style Selector="Border.current TextBlock">
+              <Setter Property="FontWeight" Value="SemiBold" />
+            </Style>
+          </Border.Styles>
+          <StackPanel Spacing="4" DataContext="{Binding Game.LevelCap}" x:DataType="vm:LevelCapViewModel">
+            <TextBlock Classes="card-title" Text="{x:Static r:Strings.LevelCap_Title}" />
+            <CheckBox IsChecked="{Binding Enabled}" IsEnabled="{Binding Supported}" ToolTip.Tip="{Binding EnabledTip}"
+                      Content="{x:Static r:Strings.LevelCap_Enable}" />
+            <CheckBox IsChecked="{Binding TrimOverCap}" IsVisible="{Binding Enabled}" ToolTip.Tip="{x:Static r:Strings.Tip_LevelCapTrim}"
+                      Content="{x:Static r:Strings.LevelCap_TrimEnable}" />
+            <TextBlock Text="{Binding CurrentText}" FontWeight="SemiBold" TextWrapping="Wrap" />
+            <ItemsControl ItemsSource="{Binding Steps}" IsVisible="{Binding Enabled}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:LevelCapStepViewModel">
+                  <Border Classes="info-row" Classes.current="{Binding IsCurrent}" Padding="4,1">
+                    <Grid ColumnDefinitions="24,*,110,Auto">
+                      <Image Source="{Binding Icon}" Width="20" Height="20" IsVisible="{Binding HasIcon}" />
+                      <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding Name}" />
+                      <NumericUpDown Grid.Column="2" Value="{Binding Level}" Minimum="1" Maximum="100" Increment="1" FormatString="0"
+                                     ParsingNumberStyle="Integer" ToolTip.Tip="{Binding Tip}" />
+                      <TextBlock Grid.Column="3" Margin="8,0,0,0" MinWidth="60" VerticalAlignment="Center" Text="{Binding State}" />
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+        <!-- The whole game: shiny -->
+        <Border Classes="card" Grid.Row="2" Grid.ColumnSpan="3" IsVisible="{Binding !Game.LevelCap.Enabled}">
+          <StackPanel Spacing="4">
+            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_ShinyTitle}" />
+            <Grid ColumnDefinitions="*,Auto" Margin="0,2" IsEnabled="{Binding Game.ShinySupported}" ToolTip.Tip="{Binding Game.ShinyTip}">
+              <TextBlock Classes="row-label" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,8,0" Text="{x:Static r:Strings.Game_ShinyOdds}" />
+              <NumericUpDown Grid.Column="1" Width="130" Value="{Binding Game.ShinyOdds}" Minimum="1" Maximum="4096"
+                             Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
+            </Grid>
+            <TextBlock Text="{Binding Game.ShinyOddsText}" FontWeight="SemiBold" TextWrapping="Wrap" />
+            <WrapPanel IsEnabled="{Binding Game.ShinySupported}">
+              <Button Margin="0,0,6,6" Content="{x:Static r:Strings.Game_ShinyPresetGame}" Command="{Binding Game.SetShinyOddsCommand}" CommandParameter="4096" />
+              <Button Margin="0,0,6,6" Content="1/1024" Command="{Binding Game.SetShinyOddsCommand}" CommandParameter="1024"
+                      IsEnabled="{Binding Game.ShinyRollsSupported}" />
+              <Button Margin="0,0,6,6" Content="1/256" Command="{Binding Game.SetShinyOddsCommand}" CommandParameter="256"
+                      IsEnabled="{Binding Game.ShinyRollsSupported}" />
+              <Button Margin="0,0,6,6" Content="1/64" Command="{Binding Game.SetShinyOddsCommand}" CommandParameter="64"
+                      IsEnabled="{Binding Game.ShinyRollsSupported}" />
+              <Button Margin="0,0,6,6" Content="{x:Static r:Strings.Game_ShinyPresetAll}" Command="{Binding Game.SetShinyOddsCommand}" CommandParameter="1" />
+            </WrapPanel>
+          </StackPanel>
+        </Border>
+      </Grid>
 
       <!-- The personal table of every Pokemon of the game, in one go -->
       <Border Classes="card" IsVisible="{Binding IsPokemon}">
@@ -338,28 +389,6 @@
         </StackPanel>
       </Border>
 
-      <!-- The whole game: shiny -->
-      <Border Classes="card" IsVisible="{Binding IsMisc}">
-        <StackPanel Spacing="4">
-          <TextBlock Classes="card-title" Text="{x:Static r:Strings.Game_ShinyTitle}" />
-          <Grid ColumnDefinitions="*,Auto" Margin="0,2" IsEnabled="{Binding Game.ShinySupported}" ToolTip.Tip="{Binding Game.ShinyTip}">
-            <TextBlock Classes="row-label" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,8,0" Text="{x:Static r:Strings.Game_ShinyOdds}" />
-            <NumericUpDown Grid.Column="1" Width="130" Value="{Binding Game.ShinyOdds}" Minimum="1" Maximum="4096"
-                           Increment="1" FormatString="0" ParsingNumberStyle="Integer" />
-          </Grid>
-          <TextBlock Text="{Binding Game.ShinyOddsText}" FontWeight="SemiBold" TextWrapping="Wrap" />
-          <WrapPanel IsEnabled="{Binding Game.ShinySupported}">
-            <Button Margin="0,0,6,6" Content="{x:Static r:Strings.Game_ShinyPresetGame}" Command="{Binding Game.SetShinyOddsCommand}" CommandParameter="4096" />
-            <Button Margin="0,0,6,6" Content="1/1024" Command="{Binding Game.SetShinyOddsCommand}" CommandParameter="1024"
-                    IsEnabled="{Binding Game.ShinyRollsSupported}" />
-            <Button Margin="0,0,6,6" Content="1/256" Command="{Binding Game.SetShinyOddsCommand}" CommandParameter="256"
-                    IsEnabled="{Binding Game.ShinyRollsSupported}" />
-            <Button Margin="0,0,6,6" Content="1/64" Command="{Binding Game.SetShinyOddsCommand}" CommandParameter="64"
-                    IsEnabled="{Binding Game.ShinyRollsSupported}" />
-            <Button Margin="0,0,6,6" Content="{x:Static r:Strings.Game_ShinyPresetAll}" Command="{Binding Game.SetShinyOddsCommand}" CommandParameter="1" />
-          </WrapPanel>
-        </StackPanel>
-      </Border>
 
     </c:CardGrid>
       </DataTemplate>

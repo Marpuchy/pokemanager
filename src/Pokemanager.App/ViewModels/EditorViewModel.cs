@@ -1505,7 +1505,7 @@ public partial class EditorViewModel : ObservableObject
         if (vm.BaseRomChanged)
         {
             // Everything read so far is the old base's: save and open the project again over the new one.
-            if (await SaveAsync() && main.OpenProject(ProjectPath) is { } error)
+            if (await SaveAsync() && await main.OpenProjectAsync(ProjectPath) is { } error)
                 SetStatus(error, error: true);
             return;
         }
@@ -1519,14 +1519,14 @@ public partial class EditorViewModel : ObservableObject
     public async Task ReopenOverNewBaseAsync()
     {
         MarkDirty();
-        if (await SaveAsync() && main.OpenProject(ProjectPath) is { } error)
+        if (await SaveAsync() && await main.OpenProjectAsync(ProjectPath) is { } error)
             SetStatus(error, error: true);
     }
 
     [RelayCommand]
     private async Task OpenOtherProject()
     {
-        if (await dialogs.PickOpenFileAsync(Strings.Welcome_OpenProjectTitle) is { } path && main.OpenProject(path) is { } error)
+        if (await dialogs.PickOpenFileAsync(Strings.Welcome_OpenProjectTitle) is { } path && await main.OpenProjectAsync(path) is { } error)
             SetStatus(error, error: true);
     }
 

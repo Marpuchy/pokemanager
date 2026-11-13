@@ -190,12 +190,14 @@ public partial class WelcomeViewModel : ObservableObject
         }
     }
 
+    private async Task OpenAsync(string path) => Error = await main.OpenProjectAsync(path);
+
     internal void Manage(RecentProjectItem item)
     {
         if (Preview is { } preview && string.Equals(preview.Loaded.Path, item.Path, StringComparison.OrdinalIgnoreCase))
             main.Manage(preview.Loaded);
         else
-            Error = main.OpenProject(item.Path);
+            _ = OpenAsync(item.Path);
     }
 
     [RelayCommand]
@@ -378,6 +380,6 @@ public partial class WelcomeViewModel : ObservableObject
     private async Task OpenExisting()
     {
         if (await dialogs.PickOpenFileAsync(Strings.Welcome_OpenProjectTitle) is { } path)
-            Error = main.OpenProject(path);
+            Error = await main.OpenProjectAsync(path);
     }
 }

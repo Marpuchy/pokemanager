@@ -66,6 +66,19 @@ public sealed class GameSettings
     public bool OriginalStarters { get; set; }
 
     /// <summary>
+    /// Three starters with two evolutions and a Mega Evolution in their line, from the ROM's own data (mods included),
+    /// drawn from the seed; the rival and the friend follow (<see cref="Data.MegaStarters"/>, 2026-11-13, user).
+    /// </summary>
+    public bool MegaStarters { get; set; }
+
+    /// <summary>
+    /// Experimental (2026-11-13, user: "trades that accept any Pokémon"): the species each in-game trade asks for
+    /// (entry +0x2C) is written as 0. Where the game checks it is not known (not in the executable nor in any CRO
+    /// module by a direct read), so whether 0 means "any" has to be seen in game.
+    /// </summary>
+    public bool AnyTradeExperimental { get; set; }
+
+    /// <summary>
     /// Editing a Pokémon's stats, types or experience group in the editor leaves its earlier stages alone. Off by default:
     /// they follow it (<see cref="Editing.PreevolutionSync"/>, 2026-11-10, user).
     /// </summary>
@@ -111,7 +124,7 @@ public sealed class GameSettings
     /// <summary>What the encounters tab changed: routes, gifts, fixed encounters and trades (Generation 7).</summary>
     public EncounterEdits Encounters { get; set; } = new();
 
-    public bool IsEmpty => !AlwaysShiny && LevelCap is null && !HasLevelChanges && !OriginalStarters && ShinyOdds is null
+    public bool IsEmpty => !AlwaysShiny && LevelCap is null && !HasLevelChanges && !OriginalStarters && !MegaStarters && !AnyTradeExperimental && ShinyOdds is null
                            && (Encounters?.IsEmpty ?? true);
 
     public GameSettings Clone() => new()
@@ -129,6 +142,8 @@ public sealed class GameSettings
         StaticLevelPercent = StaticLevelPercent,
         StarterLevelPercent = StarterLevelPercent,
         OriginalStarters = OriginalStarters,
+        MegaStarters = MegaStarters,
+        AnyTradeExperimental = AnyTradeExperimental,
         KeepPreevolutions = KeepPreevolutions,
         ShinyOdds = ShinyOdds,
         TrainerItems = (TrainerItems ?? new()).Clone(),

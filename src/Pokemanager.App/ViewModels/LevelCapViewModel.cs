@@ -87,7 +87,21 @@ public sealed partial class LevelCapViewModel : ObservableObject, IDisposable
     public partial bool ShowBadge { get; private set; }
 
     /// <summary>Recomputes the plan and the current step from the save the editor has, or the one on disk.</summary>
-    public void Refresh() => Apply(CurrentSave(), fromGame: false);
+    public void Refresh()
+    {
+        Apply(CurrentSave(), fromGame: false);
+        OnPropertyChanged(nameof(Enabled));
+        OnPropertyChanged(nameof(CardRowSpan));
+        OnPropertyChanged(nameof(NeighbourColumnSpan));
+    }
+
+    /// <summary>
+    /// Options → Reglas → Ajustes (2026-11-13, user): with the plan open, this card runs down the right and the levels
+    /// and shiny cards stack on the left at its height; closed, the shiny card takes the row under them as before.
+    /// </summary>
+    public int CardRowSpan => Enabled ? 3 : 1;
+
+    public int NeighbourColumnSpan => Enabled ? 1 : 3;
 
     /// <summary>A step's level was edited by the player.</summary>
     internal void SetOverride(int index, int? level)

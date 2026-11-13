@@ -79,10 +79,11 @@
   <!-- Box: sprites on the wallpaper, as PKHeX -->
   <Style Selector="Border.box-frame">
     <Setter Property="CornerRadius" Value="2" />
-    <Setter Property="BorderBrush" Value="#60000000" />
+    <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
     <Setter Property="BorderThickness" Value="1" />
     <Setter Property="ClipToBounds" Value="True" />
-    <Setter Property="Background" Value="{DynamicResource AccentTextBrush}" />
+    <!-- Neutral, not the game's colour (2026-11-13, user: the frame around the boxes in the game colour, take it out) -->
+    <Setter Property="Background" Value="{DynamicResource Panel2Brush}" />
   </Style>
   <Style Selector="Border.cell">
     <Setter Property="CornerRadius" Value="2" />

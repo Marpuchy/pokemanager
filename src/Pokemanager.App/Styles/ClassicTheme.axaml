@@ -340,8 +340,73 @@
   <Style Selector="TextBox[AcceptsReturn=False]">
     <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Disabled" />
   </Style>
+  <!-- Our own scroll bar (2026-11-13, user: Fluent's was too wide and its thumb got cut at both ends): a thin track,
+       a rounded thumb that never leaves it, no arrow buttons. -->
   <Style Selector="ScrollBar">
     <Setter Property="AllowAutoHide" Value="False" />
+  </Style>
+  <Style Selector="ScrollBar:vertical">
+    <Setter Property="Width" Value="10" />
+    <Setter Property="MinWidth" Value="10" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="Transparent" Padding="2,2">
+          <Track Name="PART_Track" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}"
+                 Value="{TemplateBinding Value, Mode=TwoWay}" ViewportSize="{TemplateBinding ViewportSize}"
+                 Orientation="{TemplateBinding Orientation}" IsDirectionReversed="True">
+            <Track.DecreaseButton>
+              <RepeatButton Name="PART_PageUpButton" Classes="scroll-page" Focusable="False" />
+            </Track.DecreaseButton>
+            <Track.IncreaseButton>
+              <RepeatButton Name="PART_PageDownButton" Classes="scroll-page" Focusable="False" />
+            </Track.IncreaseButton>
+            <Thumb Name="thumb" Classes="scroll" MinHeight="28" />
+          </Track>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="ScrollBar:horizontal">
+    <Setter Property="Height" Value="10" />
+    <Setter Property="MinHeight" Value="10" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="Transparent" Padding="2,2">
+          <Track Name="PART_Track" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}"
+                 Value="{TemplateBinding Value, Mode=TwoWay}" ViewportSize="{TemplateBinding ViewportSize}"
+                 Orientation="{TemplateBinding Orientation}">
+            <Track.DecreaseButton>
+              <RepeatButton Name="PART_PageUpButton" Classes="scroll-page" Focusable="False" />
+            </Track.DecreaseButton>
+            <Track.IncreaseButton>
+              <RepeatButton Name="PART_PageDownButton" Classes="scroll-page" Focusable="False" />
+            </Track.IncreaseButton>
+            <Thumb Name="thumb" Classes="scroll" MinWidth="28" />
+          </Track>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="RepeatButton.scroll-page">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="Transparent" />
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="Thumb.scroll">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{TemplateBinding Background}" CornerRadius="3" />
+      </ControlTemplate>
+    </Setter>
+    <Setter Property="Background" Value="{DynamicResource LineBrush}" />
+  </Style>
+  <Style Selector="Thumb.scroll:pointerover">
+    <Setter Property="Background" Value="{DynamicResource DisabledTextBrush}" />
+  </Style>
+  <Style Selector="Thumb.scroll:pressed">
+    <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
   </Style>
   <Style Selector="ButtonSpinner TextBox#PART_TextBox:focus /template/ Border#PART_BorderElement">
     <Setter Property="BorderThickness" Value="0" />
@@ -577,5 +642,47 @@
   </Style>
   <Style Selector="Separator">
     <Setter Property="Background" Value="{DynamicResource LineBrush}" />
+  </Style>
+  <!-- Loading placeholders: blocks the shape of what is coming, pulsing while it loads (2026-11-13, user) -->
+  <Style Selector="Border.skeleton">
+    <Setter Property="Background" Value="{DynamicResource Panel2Brush}" />
+    <Setter Property="CornerRadius" Value="3" />
+    <Style.Animations>
+      <Animation Duration="0:0:0.9" IterationCount="Infinite" PlaybackDirection="Alternate">
+        <KeyFrame Cue="0%">
+          <Setter Property="Opacity" Value="0.35" />
+        </KeyFrame>
+        <KeyFrame Cue="100%">
+          <Setter Property="Opacity" Value="0.85" />
+        </KeyFrame>
+      </Animation>
+    </Style.Animations>
+  </Style>
+  <!-- A fold-out as a bare arrow: down closed, up open -->
+  <Style Selector="ToggleButton.chevron">
+    <Setter Property="Width" Value="30" />
+    <Setter Property="Height" Value="30" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+  <Style Selector="ToggleButton.chevron /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="ToggleButton.chevron:checked /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="ToggleButton.chevron:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Background" Value="{DynamicResource Panel2Brush}" />
+  </Style>
+  <Style Selector="ToggleButton.chevron Path.chevron">
+    <Setter Property="Stroke" Value="{DynamicResource TextBrush}" />
+    <Setter Property="StrokeThickness" Value="2" />
+    <Setter Property="RenderTransform" Value="rotate(0deg)" />
+  </Style>
+  <Style Selector="ToggleButton.chevron:checked Path.chevron">
+    <Setter Property="RenderTransform" Value="rotate(180deg)" />
   </Style>
 </Styles>

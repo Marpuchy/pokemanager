@@ -5549,4 +5549,34 @@ Project: {2}</value>
   <data name="Enc_RestoreTip" xml:space="preserve">
     <value>The Pokémon the ROM has here.</value>
   </data>
+  <data name="Loading_Project" xml:space="preserve">
+    <value>Opening {0}…</value>
+  </data>
+  <data name="Starters_Mega" xml:space="preserve">
+    <value>Starters with two evolutions and a Mega Evolution</value>
+  </data>
+  <data name="Starters_MegaTip" xml:space="preserve">
+    <value>When the ROM is built, the three starters become Pokémon that evolve twice and whose line has a Mega Evolution, read from this ROM (a mod's megas count). Drawn from the seed, with different types when possible; no legendaries. The rival and Hau carry the new ones. A starter changed by hand in «All encounters» wins.</value>
+  </data>
+  <data name="Starters_MegaCount" xml:space="preserve">
+    <value>{0} Pokémon of this ROM qualify.</value>
+  </data>
+  <data name="Starters_MegaUndo" xml:space="preserve">
+    <value>Starters with a mega</value>
+  </data>
+  <data name="Trades_OursTitle" xml:space="preserve">
+    <value>When the ROM is built</value>
+  </data>
+  <data name="Trades_Any" xml:space="preserve">
+    <value>Trades accept any Pokémon (experimental)</value>
+  </data>
+  <data name="Trades_AnyTip" xml:space="preserve">
+    <value>Writes 0 as the Pokémon every NPC trade asks for. Where the game checks what you hand over has not been found, so whether 0 means «any» is unknown until it is tried in game.</value>
+  </data>
+  <data name="Trades_AnyWarning" xml:space="preserve">
+    <value>Not tested in game: try the first trade and tell me what happens. If the NPC refuses everything, untick it and build again.</value>
+  </data>
+  <data name="Trades_AnyUndo" xml:space="preserve">
+    <value>Trades accept any Pokémon</value>
+  </data>
 </root>

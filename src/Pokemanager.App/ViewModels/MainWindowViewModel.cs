@@ -110,23 +110,40 @@ public partial class MainWindowViewModel : ObservableObject
     /// <summary>The multiplayer room: it lives with the app, whichever page is shown.</summary>
     public RoomViewModel Room { get; }
 
-    /// <summary>Opens a saved project in the editor. Returns the error to show, or null when it opened.</summary>
-    public string? OpenProject(string path)
+    /// <summary>
+    /// Opens a saved project in the editor. Returns the error to show, or null when it opened. The loading page is
+    /// shown at once and the project is read off the UI thread (2026-11-13, user: "it takes long to load, at least a
+    /// skeleton"); on an error the page that was shown comes back.
+    /// </summary>
+    public async Task<string?> OpenProjectAsync(string path)
     {
+        var previous = CurrentPage;
+        CurrentPage = new LoadingPageViewModel(Path.GetFileNameWithoutExtension(path));
         try
         {
-            Manage(ProjectLoader.Load(path, Upr));
+            var loaded = await Task.Run(() => ProjectLoader.Load(path, Upr));
+            await BuildEditorAsync(loaded, null, false);
             return null;
         }
         catch (ProjectLoadException ex)
         {
+            CurrentPage = previous;
             return ex.Message;
         }
     }
 
     /// <summary>Opens an already loaded project in the editor, optionally on a Pokémon of the save.</summary>
-    public void Manage(LoadedProject loaded, Pokemanager.Save.SaveSlot? saveSlot = null, bool pokedex = false)
+    public async void Manage(LoadedProject loaded, Pokemanager.Save.SaveSlot? saveSlot = null, bool pokedex = false)
     {
+        CurrentPage = new LoadingPageViewModel(Path.GetFileNameWithoutExtension(loaded.Path));
+        await BuildEditorAsync(loaded, saveSlot, pokedex);
+    }
+
+    /// <summary>The editor is built on the UI thread, after the loading page had a frame to be drawn.</summary>
+    private async Task BuildEditorAsync(LoadedProject loaded, Pokemanager.Save.SaveSlot? saveSlot, bool pokedex)
+    {
+        await Task.Delay(40);
+        await Dispatcher.UIThread.InvokeAsync(() => { }, DispatcherPriority.Background);
         var editor = new EditorViewModel(this, dialogs, Upr, settings, loaded.Path, loaded.Dump, loaded.Session);
         if (saveSlot is { } slot)
             editor.ShowSavePokemon(slot);

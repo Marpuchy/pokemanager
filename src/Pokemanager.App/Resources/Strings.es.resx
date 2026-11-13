@@ -5549,4 +5549,34 @@ Proyecto: {2}</value>
   <data name="Enc_RestoreTip" xml:space="preserve">
     <value>El Pokémon que tiene la ROM aquí.</value>
   </data>
+  <data name="Loading_Project" xml:space="preserve">
+    <value>Abriendo {0}…</value>
+  </data>
+  <data name="Starters_Mega" xml:space="preserve">
+    <value>Iniciales con dos evoluciones y megaevolución</value>
+  </data>
+  <data name="Starters_MegaTip" xml:space="preserve">
+    <value>Al crear la ROM, los tres iniciales pasan a ser Pokémon que evolucionan dos veces y cuya línea tiene megaevolución, según esta ROM (cuentan las megas del mod). Se sortean con la semilla, de tipos distintos si se puede, sin legendarios. El rival y Tilo llevan los nuevos. Un inicial cambiado a mano en «Todos los encuentros» manda.</value>
+  </data>
+  <data name="Starters_MegaCount" xml:space="preserve">
+    <value>{0} Pokémon de esta ROM cumplen.</value>
+  </data>
+  <data name="Starters_MegaUndo" xml:space="preserve">
+    <value>Iniciales con mega</value>
+  </data>
+  <data name="Trades_OursTitle" xml:space="preserve">
+    <value>Al crear la ROM</value>
+  </data>
+  <data name="Trades_Any" xml:space="preserve">
+    <value>Los intercambios aceptan cualquier Pokémon (experimental)</value>
+  </data>
+  <data name="Trades_AnyTip" xml:space="preserve">
+    <value>Escribe 0 como el Pokémon que pide cada intercambio con NPC. No se ha encontrado dónde comprueba el juego lo que le das, así que no se sabe si 0 significa «cualquiera» hasta probarlo en el juego.</value>
+  </data>
+  <data name="Trades_AnyWarning" xml:space="preserve">
+    <value>Sin probar en el juego: prueba el primer intercambio y dime qué pasa. Si el NPC no acepta nada, desmárcalo y vuelve a crear la ROM.</value>
+  </data>
+  <data name="Trades_AnyUndo" xml:space="preserve">
+    <value>Intercambios con cualquier Pokémon</value>
+  </data>
 </root>

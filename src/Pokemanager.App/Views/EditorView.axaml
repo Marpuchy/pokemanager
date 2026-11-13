@@ -753,6 +753,11 @@
                           <NumericUpDown Grid.Column="1" Width="110" Value="{Binding GameTweaks.StarterLevelPercent}" Minimum="-90" Maximum="400"
                                          Increment="5" FormatString="0.##" ToolTip.Tip="{x:Static r:Strings.Tip_GameLevelsStarters}" />
                         </Grid>
+                        <CheckBox Margin="0,6,0,0" IsChecked="{Binding GameTweaks.MegaStarters}" IsEnabled="{Binding GameTweaks.WildAndStaticSupported}"
+                                  ToolTip.Tip="{x:Static r:Strings.Starters_MegaTip}">
+                          <TextBlock Text="{x:Static r:Strings.Starters_Mega}" TextWrapping="Wrap" />
+                        </CheckBox>
+                        <TextBlock Classes="hint" TextWrapping="Wrap" Text="{Binding GameTweaks.MegaStartersText}" />
                       </StackPanel>
                     </Border>
                   </c:CardGrid>
@@ -796,6 +801,17 @@
                         <TextBlock Margin="0,0,0,4" Text="{Binding Randomizer.Encounters.Options.LoadStatus}" TextWrapping="Wrap"
                                    IsVisible="{Binding !Randomizer.Encounters.Options.IsLoaded}" />
                         <ItemsControl ItemsSource="{Binding Randomizer.Encounters.Trades}" ItemTemplate="{StaticResource UprOption}" />
+                      </StackPanel>
+                    </Border>
+                    <Border Classes="card">
+                      <StackPanel Spacing="4">
+                        <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trades_OursTitle}" />
+                        <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Options_OursHint}" />
+                        <CheckBox IsChecked="{Binding GameTweaks.AnyTrade}" IsEnabled="{Binding GameTweaks.WildAndStaticSupported}"
+                                  ToolTip.Tip="{x:Static r:Strings.Trades_AnyTip}">
+                          <TextBlock Text="{x:Static r:Strings.Trades_Any}" TextWrapping="Wrap" />
+                        </CheckBox>
+                        <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Trades_AnyWarning}" />
                       </StackPanel>
                     </Border>
                   </c:CardGrid>
@@ -858,19 +874,24 @@
                                           <ComboBox Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Stretch" ItemsSource="{Binding Choices}"
                                                     SelectedIndex="{Binding Picked}" MaxDropDownHeight="400" IsVisible="{Binding IsShown}"
                                                     ToolTip.Tip="{x:Static r:Strings.Enc_ChoiceTip}" />
-                                          <Button Grid.Column="3" Margin="6,0,0,0" VerticalAlignment="Center" Content="{x:Static r:Strings.Enc_Reroll}"
-                                                  Command="{Binding RerollCommand}" ToolTip.Tip="{x:Static r:Strings.Enc_RerollTip}" />
-                                          <Button Grid.Column="4" Margin="6,0,0,0" VerticalAlignment="Center" Content="{x:Static r:Strings.Enc_Restore}"
+                                          <Button Grid.Column="3" Margin="6,0,0,0" VerticalAlignment="Center" Content="{x:Static r:Strings.Enc_Restore}"
                                                   Command="{Binding RestoreCommand}" IsVisible="{Binding IsModified}" ToolTip.Tip="{x:Static r:Strings.Enc_RestoreTip}" />
+                                          <!-- Details: just an arrow at the right of the row (2026-11-13, user) -->
+                                          <ToggleButton Grid.Column="4" Classes="chevron" Margin="6,0,0,0" VerticalAlignment="Center"
+                                                        IsChecked="{Binding IsExpanded}" ToolTip.Tip="{x:Static r:Strings.Enc_MoreTip}">
+                                            <Path Classes="chevron" Data="M 0,0 L 6,6 L 12,0" Width="12" Height="7" Stretch="Uniform" />
+                                          </ToggleButton>
                                         </Grid>
-                                        <Expander Header="{x:Static r:Strings.Enc_More}" IsExpanded="{Binding IsExpanded}" HorizontalAlignment="Stretch"
-                                                  ToolTip.Tip="{x:Static r:Strings.Enc_MoreTip}">
-                                          <StackPanel>
-                                            <TextBlock Classes="hint" Text="{x:Static r:Strings.Enc_HiddenDetails}" IsVisible="{Binding ShowsHiddenNote}" />
-                                            <ContentControl Content="{Binding Sheet}" ContentTemplate="{StaticResource MonSheet}"
-                                                            IsVisible="{Binding Sheet, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                                        <StackPanel Spacing="6" IsVisible="{Binding IsExpanded}">
+                                          <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <Button Content="{x:Static r:Strings.Enc_Reroll}" Command="{Binding RerollCommand}"
+                                                    ToolTip.Tip="{x:Static r:Strings.Enc_RerollTip}" />
+                                            <TextBlock Classes="hint" VerticalAlignment="Center" Text="{x:Static r:Strings.Enc_HiddenDetails}"
+                                                       IsVisible="{Binding ShowsHiddenNote}" />
                                           </StackPanel>
-                                        </Expander>
+                                          <ContentControl Content="{Binding Sheet}" ContentTemplate="{StaticResource MonSheet}"
+                                                          IsVisible="{Binding Sheet, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                                        </StackPanel>
                                       </StackPanel>
                                     </Border>
                                   </DataTemplate>

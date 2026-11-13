@@ -431,7 +431,31 @@
           <ContentControl Content="{Binding Room}" />
         </DockPanel>
         <Grid IsVisible="{Binding ShowPreviewArea}">
-          <TextBlock Classes="hint" Margin="8" Text="{x:Static r:Strings.Preview_Loading}" IsVisible="{Binding IsLoadingPreview}" />
+          <!-- The preview's shape while the project and its save are read -->
+          <StackPanel Spacing="10" IsVisible="{Binding IsLoadingPreview}" ToolTip.Tip="{x:Static r:Strings.Preview_Loading}">
+            <Grid ColumnDefinitions="*,Auto">
+              <StackPanel Spacing="6">
+                <Border Classes="skeleton" Width="260" Height="16" HorizontalAlignment="Left" />
+                <Border Classes="skeleton" Width="200" Height="10" HorizontalAlignment="Left" />
+                <Border Classes="skeleton" Width="160" Height="10" HorizontalAlignment="Left" />
+              </StackPanel>
+              <StackPanel Grid.Column="1" Spacing="6">
+                <Border Classes="skeleton" Width="300" Height="36" />
+                <Border Classes="skeleton" Width="300" Height="28" />
+              </StackPanel>
+            </Grid>
+            <Border Classes="skeleton" Height="150" />
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <Border Classes="skeleton" Width="186" Height="50" />
+              <Border Classes="skeleton" Width="186" Height="50" />
+              <Border Classes="skeleton" Width="186" Height="50" />
+            </StackPanel>
+            <Border Classes="skeleton" Height="90" />
+            <Grid ColumnDefinitions="*,10,*">
+              <Border Classes="skeleton" Height="220" />
+              <Border Grid.Column="2" Classes="skeleton" Height="220" />
+            </Grid>
+          </StackPanel>
           <TextBlock Classes="error" Margin="8" Text="{Binding PreviewError}"
                      IsVisible="{Binding PreviewError, Converter={x:Static ObjectConverters.IsNotNull}}" />
           <TextBlock Classes="hint" Margin="8" Text="{x:Static r:Strings.Preview_SelectProject}"
