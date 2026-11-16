@@ -5633,4 +5633,88 @@ Proyecto: {2}</value>
   <data name="Enc_LevelLabel" xml:space="preserve">
     <value>Nivel</value>
   </data>
+  <data name="Web_Open" xml:space="preserve">
+    <value>Abrir la Pokédex en el navegador</value>
+  </data>
+  <data name="Web_OpenTip" xml:space="preserve">
+    <value>Guarda esta Pokédex como página web (tipos, stats, habilidades, evoluciones y movimientos de tu ROM, y lo visto y capturado ahora) y la abre en tu navegador. Funciona con la app cerrada y sin internet; se vuelve a generar al pulsar aquí o al crear la ROM.</value>
+  </data>
+  <data name="Web_Title" xml:space="preserve">
+    <value>Pokédex · {0}</value>
+  </data>
+  <data name="Web_Written" xml:space="preserve">
+    <value>Página de la Pokédex guardada: {0}</value>
+  </data>
+  <data name="Web_Failed" xml:space="preserve">
+    <value>No se pudo guardar la página de la Pokédex: {0}</value>
+  </data>
+  <data name="Web_Search" xml:space="preserve">
+    <value>Buscar por nombre, número o tipo…</value>
+  </data>
+  <data name="Web_All" xml:space="preserve">
+    <value>Todos</value>
+  </data>
+  <data name="Web_Seen" xml:space="preserve">
+    <value>Vistos</value>
+  </data>
+  <data name="Web_Caught" xml:space="preserve">
+    <value>Capturados</value>
+  </data>
+  <data name="Web_Forms" xml:space="preserve">
+    <value>Formas</value>
+  </data>
+  <data name="Web_Abilities" xml:space="preserve">
+    <value>Habilidades</value>
+  </data>
+  <data name="Web_Moves" xml:space="preserve">
+    <value>Movimientos por nivel</value>
+  </data>
+  <data name="Web_ShowMoves" xml:space="preserve">
+    <value>Mostrar / ocultar movimientos</value>
+  </data>
+  <data name="Web_Level" xml:space="preserve">
+    <value>Nivel</value>
+  </data>
+  <data name="Web_Evolution" xml:space="preserve">
+    <value>Evolución</value>
+  </data>
+  <data name="Web_NoEvolution" xml:space="preserve">
+    <value>No evoluciona.</value>
+  </data>
+  <data name="Web_Matchups" xml:space="preserve">
+    <value>Debilidades y resistencias</value>
+  </data>
+  <data name="Web_Items" xml:space="preserve">
+    <value>Objetos</value>
+  </data>
+  <data name="Web_Data" xml:space="preserve">
+    <value>Datos</value>
+  </data>
+  <data name="Web_Height" xml:space="preserve">
+    <value>Altura</value>
+  </data>
+  <data name="Web_Weight" xml:space="preserve">
+    <value>Peso</value>
+  </data>
+  <data name="Web_Power" xml:space="preserve">
+    <value>Potencia</value>
+  </data>
+  <data name="Web_Accuracy" xml:space="preserve">
+    <value>Precisión</value>
+  </data>
+  <data name="Web_Status" xml:space="preserve">
+    <value>Estado</value>
+  </data>
+  <data name="Web_Physical" xml:space="preserve">
+    <value>Físico</value>
+  </data>
+  <data name="Web_Special" xml:space="preserve">
+    <value>Especial</value>
+  </data>
+  <data name="Web_Made" xml:space="preserve">
+    <value>Generada {0}</value>
+  </data>
+  <data name="Web_ShowAbilities" xml:space="preserve">
+    <value>Mostrar / ocultar habilidades</value>
+  </data>
 </root>

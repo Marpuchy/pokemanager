@@ -5633,4 +5633,88 @@ Project: {2}</value>
   <data name="Enc_LevelLabel" xml:space="preserve">
     <value>Level</value>
   </data>
+  <data name="Web_Open" xml:space="preserve">
+    <value>Open the Pokédex in the browser</value>
+  </data>
+  <data name="Web_OpenTip" xml:space="preserve">
+    <value>Writes this Pokédex as a web page (the ROM's types, stats, abilities, evolutions and moves, and what you have seen and caught now) and opens it in your browser. It works with the app closed and without internet; it is written again when you press this or build the ROM.</value>
+  </data>
+  <data name="Web_Title" xml:space="preserve">
+    <value>Pokédex · {0}</value>
+  </data>
+  <data name="Web_Written" xml:space="preserve">
+    <value>Pokédex page written: {0}</value>
+  </data>
+  <data name="Web_Failed" xml:space="preserve">
+    <value>Could not write the Pokédex page: {0}</value>
+  </data>
+  <data name="Web_Search" xml:space="preserve">
+    <value>Search by name, number or type…</value>
+  </data>
+  <data name="Web_All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Web_Seen" xml:space="preserve">
+    <value>Seen</value>
+  </data>
+  <data name="Web_Caught" xml:space="preserve">
+    <value>Caught</value>
+  </data>
+  <data name="Web_Forms" xml:space="preserve">
+    <value>Forms</value>
+  </data>
+  <data name="Web_Abilities" xml:space="preserve">
+    <value>Abilities</value>
+  </data>
+  <data name="Web_Moves" xml:space="preserve">
+    <value>Moves by level</value>
+  </data>
+  <data name="Web_ShowMoves" xml:space="preserve">
+    <value>Show / hide moves</value>
+  </data>
+  <data name="Web_Level" xml:space="preserve">
+    <value>Level</value>
+  </data>
+  <data name="Web_Evolution" xml:space="preserve">
+    <value>Evolution</value>
+  </data>
+  <data name="Web_NoEvolution" xml:space="preserve">
+    <value>It does not evolve.</value>
+  </data>
+  <data name="Web_Matchups" xml:space="preserve">
+    <value>Weaknesses and resistances</value>
+  </data>
+  <data name="Web_Items" xml:space="preserve">
+    <value>Held items</value>
+  </data>
+  <data name="Web_Data" xml:space="preserve">
+    <value>Data</value>
+  </data>
+  <data name="Web_Height" xml:space="preserve">
+    <value>Height</value>
+  </data>
+  <data name="Web_Weight" xml:space="preserve">
+    <value>Weight</value>
+  </data>
+  <data name="Web_Power" xml:space="preserve">
+    <value>Power</value>
+  </data>
+  <data name="Web_Accuracy" xml:space="preserve">
+    <value>Accuracy</value>
+  </data>
+  <data name="Web_Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Web_Physical" xml:space="preserve">
+    <value>Physical</value>
+  </data>
+  <data name="Web_Special" xml:space="preserve">
+    <value>Special</value>
+  </data>
+  <data name="Web_Made" xml:space="preserve">
+    <value>Made {0}</value>
+  </data>
+  <data name="Web_ShowAbilities" xml:space="preserve">
+    <value>Show / hide abilities</value>
+  </data>
 </root>

@@ -1087,6 +1087,28 @@ public partial class SaveDexViewModel : ObservableObject
     [ObservableProperty]
     public partial bool ShowMoves { get; set; }
 
+    /// <summary>
+    /// Writes the Pokédex as a web page and opens it in the browser, so it can be looked at with the application
+    /// closed (2026-11-16, user: the app uses too much while playing; chose a fixed file).
+    /// </summary>
+    [RelayCommand]
+    private void OpenInBrowser()
+    {
+        var editor = owner.Editor;
+        string path = PokedexWeb.PathFor(editor.ProjectPath);
+        try
+        {
+            PokedexWeb.Write(path, string.Format(Strings.Web_Title, System.IO.Path.GetFileNameWithoutExtension(editor.ProjectPath)),
+                doc.Rom, owner.GameNames, owner.Sprites, s => doc.GetSeen((ushort)s), s => doc.GetCaught((ushort)s), doc.DexMaxSpecies);
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
+            editor.SetStatus(string.Format(Strings.Web_Written, path));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or System.ComponentModel.Win32Exception or InvalidOperationException)
+        {
+            editor.SetStatus(string.Format(Strings.Web_Failed, ex.Message), error: true);
+        }
+    }
+
     public SaveDexViewModel(SaveEditorViewModel owner, SaveDocument doc, SaveNames names)
     {
         this.owner = owner;

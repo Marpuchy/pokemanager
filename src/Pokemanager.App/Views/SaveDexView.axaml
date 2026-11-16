@@ -107,6 +107,8 @@
             </Grid>
           </StackPanel>
         </Expander>
+        <Button HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Web_Open}" Command="{Binding OpenInBrowserCommand}"
+                ToolTip.Tip="{x:Static r:Strings.Web_OpenTip}" />
         <StackPanel Orientation="Horizontal" Spacing="6">
           <Button Content="{x:Static r:Strings.Dex_AllSeen}" Command="{Binding AllSeenCommand}" />
           <Button Content="{x:Static r:Strings.Dex_AllCaught}" Command="{Binding AllCaughtCommand}" />

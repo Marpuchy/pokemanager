@@ -956,6 +956,7 @@ public partial class EditorViewModel : ObservableObject
             var built = await RomBuilder.BuildAsync(packer, moddedBase, random, ModBuilder.BuildEdits(Session, random?.TitleDirectory),
                 output, r.Seed, upr.Cache.Root, progress);
             r.LastBuiltRom = built.RomPath;
+            RefreshPokedexPage();
             if (random is null && File.Exists(built.RomPath + ".log"))
                 File.Delete(built.RomPath + ".log"); // log of an earlier randomization that no longer applies
 
@@ -1553,6 +1554,23 @@ public partial class EditorViewModel : ObservableObject
             return;
         settings.TouchProject(ProjectPath);
         main.ShowWelcome();
+    }
+
+    /// <summary>The Pokédex page made from the Pokédex tab follows the ROM just built (only when there is one).</summary>
+    private void RefreshPokedexPage()
+    {
+        string path = Services.PokedexWeb.PathFor(ProjectPath);
+        if (!File.Exists(path))
+            return;
+        try
+        {
+            var doc = SaveEditor.Document;
+            Services.PokedexWeb.Write(path, string.Format(Strings.Web_Title, Path.GetFileNameWithoutExtension(ProjectPath)), Session.Current, Names, Sprites,
+                doc is null ? null : s => doc.GetSeen((ushort)s), doc is null ? null : s => doc.GetCaught((ushort)s), doc?.DexMaxSpecies ?? Session.Current.LastSpecies);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException)
+        {
+        }
     }
 
     public void SetStatus(string text, bool error = false)
