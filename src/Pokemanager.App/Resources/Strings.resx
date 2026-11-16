@@ -5666,34 +5666,10 @@ Project: {2}</value>
   <data name="Web_Abilities" xml:space="preserve">
     <value>Abilities</value>
   </data>
-  <data name="Web_Evolution" xml:space="preserve">
-    <value>Evolution</value>
-  </data>
-  <data name="Web_NoEvolution" xml:space="preserve">
-    <value>It does not evolve.</value>
-  </data>
-  <data name="Web_Matchups" xml:space="preserve">
-    <value>Weaknesses and resistances</value>
-  </data>
-  <data name="Web_Data" xml:space="preserve">
-    <value>Data</value>
-  </data>
-  <data name="Web_Height" xml:space="preserve">
-    <value>Height</value>
-  </data>
-  <data name="Web_Weight" xml:space="preserve">
-    <value>Weight</value>
-  </data>
   <data name="Web_Made" xml:space="preserve">
     <value>Made {0}</value>
   </data>
-  <data name="Web_ShowAbilities" xml:space="preserve">
-    <value>Show / hide abilities</value>
-  </data>
-  <data name="Web_MoveLevels" xml:space="preserve">
-    <value>Levels it learns a move at</value>
-  </data>
-  <data name="Web_Evo" xml:space="preserve">
-    <value>Evo</value>
+  <data name="Web_Count" xml:space="preserve">
+    <value>Seen {0} · caught {1} · {2} in the list</value>
   </data>
 </root>

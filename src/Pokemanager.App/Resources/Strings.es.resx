@@ -5666,34 +5666,10 @@ Proyecto: {2}</value>
   <data name="Web_Abilities" xml:space="preserve">
     <value>Habilidades</value>
   </data>
-  <data name="Web_Evolution" xml:space="preserve">
-    <value>Evolución</value>
-  </data>
-  <data name="Web_NoEvolution" xml:space="preserve">
-    <value>No evoluciona.</value>
-  </data>
-  <data name="Web_Matchups" xml:space="preserve">
-    <value>Debilidades y resistencias</value>
-  </data>
-  <data name="Web_Data" xml:space="preserve">
-    <value>Datos</value>
-  </data>
-  <data name="Web_Height" xml:space="preserve">
-    <value>Altura</value>
-  </data>
-  <data name="Web_Weight" xml:space="preserve">
-    <value>Peso</value>
-  </data>
   <data name="Web_Made" xml:space="preserve">
     <value>Generada {0}</value>
   </data>
-  <data name="Web_ShowAbilities" xml:space="preserve">
-    <value>Mostrar / ocultar habilidades</value>
-  </data>
-  <data name="Web_MoveLevels" xml:space="preserve">
-    <value>Niveles a los que aprende movimientos</value>
-  </data>
-  <data name="Web_Evo" xml:space="preserve">
-    <value>Evo</value>
+  <data name="Web_Count" xml:space="preserve">
+    <value>Vistos {0} · capturados {1} · {2} en la lista</value>
   </data>
 </root>
