@@ -107,7 +107,7 @@ function renderList(){
   $('count').textContent=T.count.replace('{0}',E.filter(e=>e.sn).length).replace('{1}',E.filter(e=>e.ca).length).replace('{2}',v.length);
   for(const e of v){const d=document.createElement('div');d.className='row'+(cur&&cur.k==e.k?' sel':'');
     d.innerHTML=`<div class="strip" style="background:${bg(e.t)}"></div>${e.i?`<img src="${e.i}" alt="">`:'<span></span>'}<span class="num">${num(e.s)}</span><span>${esc(e.n)}</span>${flags(e,false)}`;
-    d.onclick=()=>show(e);list.appendChild(d);}
+    d.onclick=()=>{show(e);if(innerWidth<=820)$('detail').scrollIntoView({behavior:'smooth'})};list.appendChild(d);}
 }
 // The app's LevelTimeline: one line across the card, a dot per level in proportion, labels alternating above and
 // below, a label moved one row out when it would touch the last one on its side.
@@ -163,7 +163,13 @@ function show(e){
 }
 function drawTimeline(){const box=$('tl');if(!box||!cur)return;box.innerHTML=timeline(cur.l,Math.max(200,box.clientWidth))}
 window.addEventListener('resize',drawTimeline);
-renderList();const first=visible()[0];if(first)show(first);
+// Served by the app to the phone: reload when the page changes (the game saved), keeping the Pokémon on screen.
+const KEEP='pokemanager-dex-current';
+let start=visible()[0];
+try{const k=sessionStorage.getItem(KEEP);if(k&&byKey.has(k))start=byKey.get(k)}catch(_){}
+renderList();if(start)show(start);
+if(location.protocol.startsWith('http')){let stamp=null;setInterval(async()=>{try{const r=await fetch('stamp',{cache:'no-store'});const t=await r.text();
+  if(stamp&&t!==stamp){try{sessionStorage.setItem(KEEP,cur?cur.k:'')}catch(_){}location.reload()}stamp=t}catch(_){}},8000)}
 </script>
 </body>
 </html>

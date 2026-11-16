@@ -5634,7 +5634,7 @@ Proyecto: {2}</value>
     <value>Nivel</value>
   </data>
   <data name="Web_Open" xml:space="preserve">
-    <value>Abrir la Pokédex en el navegador</value>
+    <value>Abrir en el navegador</value>
   </data>
   <data name="Web_OpenTip" xml:space="preserve">
     <value>Guarda esta Pokédex como página web (los datos base de cada Pokémon de tu ROM como en la pestaña Pokédex: tipos, stats, habilidades, evolución, niveles a los que aprende movimientos, y lo visto y capturado ahora) y la abre en tu navegador. Funciona con la app cerrada y sin internet; se vuelve a generar al pulsar aquí o al crear la ROM.</value>
@@ -5671,5 +5671,29 @@ Proyecto: {2}</value>
   </data>
   <data name="Web_Count" xml:space="preserve">
     <value>Vistos {0} · capturados {1} · {2} en la lista</value>
+  </data>
+  <data name="Phone_Share" xml:space="preserve">
+    <value>Ver en el móvil</value>
+  </data>
+  <data name="Phone_ShareTip" xml:space="preserve">
+    <value>Sirve esta Pokédex en la red de tu casa y muestra un enlace y un código QR: escanéalo con la cámara del móvil, conectado a la misma wifi. La página se actualiza sola cada vez que el juego guarda. La app tiene que seguir abierta (puede estar minimizada); Windows puede preguntar una vez si la deja pasar por el cortafuegos.</value>
+  </data>
+  <data name="Phone_Stop" xml:space="preserve">
+    <value>Dejar de compartir</value>
+  </data>
+  <data name="Phone_Title" xml:space="preserve">
+    <value>En el móvil</value>
+  </data>
+  <data name="Phone_Copy" xml:space="preserve">
+    <value>Copiar enlace</value>
+  </data>
+  <data name="Phone_Hint" xml:space="preserve">
+    <value>Escanéalo con la cámara con el móvil en la misma wifi. Se actualiza sola cuando el juego guarda; la app tiene que seguir abierta, aunque puede estar minimizada. Si no carga, permite la app en el cortafuegos de Windows para redes privadas.</value>
+  </data>
+  <data name="Phone_Sharing" xml:space="preserve">
+    <value>Pokédex en la red de casa: {0}</value>
+  </data>
+  <data name="Phone_Failed" xml:space="preserve">
+    <value>No se pudo compartir la Pokédex: {0}</value>
   </data>
 </root>

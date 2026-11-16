@@ -5634,7 +5634,7 @@ Project: {2}</value>
     <value>Level</value>
   </data>
   <data name="Web_Open" xml:space="preserve">
-    <value>Open the Pokédex in the browser</value>
+    <value>Open in the browser</value>
   </data>
   <data name="Web_OpenTip" xml:space="preserve">
     <value>Writes this Pokédex as a web page (each Pokémon's base data as in the Pokédex tab: types, stats, abilities, evolution, the levels it learns moves at, and what you have seen and caught now) and opens it in your browser. It works with the app closed and without internet; it is written again when you press this or build the ROM.</value>
@@ -5671,5 +5671,29 @@ Project: {2}</value>
   </data>
   <data name="Web_Count" xml:space="preserve">
     <value>Seen {0} · caught {1} · {2} in the list</value>
+  </data>
+  <data name="Phone_Share" xml:space="preserve">
+    <value>See it on the phone</value>
+  </data>
+  <data name="Phone_ShareTip" xml:space="preserve">
+    <value>Serves this Pokédex on your home network and shows a link and a QR code: scan it with the phone's camera, on the same Wi-Fi. The page updates itself each time the game saves. The app has to stay open (it can be minimised); Windows may ask once to let it through the firewall.</value>
+  </data>
+  <data name="Phone_Stop" xml:space="preserve">
+    <value>Stop sharing</value>
+  </data>
+  <data name="Phone_Title" xml:space="preserve">
+    <value>On the phone</value>
+  </data>
+  <data name="Phone_Copy" xml:space="preserve">
+    <value>Copy link</value>
+  </data>
+  <data name="Phone_Hint" xml:space="preserve">
+    <value>Scan it with the camera, with the phone on the same Wi-Fi. It updates itself when the game saves; the app has to stay open, it can be minimised. If it does not load, allow the app in the Windows firewall for private networks.</value>
+  </data>
+  <data name="Phone_Sharing" xml:space="preserve">
+    <value>Pokédex on the home network: {0}</value>
+  </data>
+  <data name="Phone_Failed" xml:space="preserve">
+    <value>Could not share the Pokédex: {0}</value>
   </data>
 </root>

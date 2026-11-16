@@ -1,3 +1,4 @@
+using Avalonia.Input.Platform;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -1107,6 +1108,74 @@ public partial class SaveDexViewModel : ObservableObject
         {
             editor.SetStatus(string.Format(Strings.Web_Failed, ex.Message), error: true);
         }
+    }
+
+    // ------------------------------------------------------------------ on the phone, over the home Wi-Fi (2026-11-16, user)
+
+    public bool IsSharing => PokedexShare.Current is { } share
+                             && string.Equals(share.ProjectPath, owner.Editor.ProjectPath, StringComparison.OrdinalIgnoreCase);
+
+    public bool IsNotSharing => !IsSharing;
+    public string ShareUrl => IsSharing ? PokedexShare.Current!.Url : "";
+
+    private string PageTitle => string.Format(Strings.Web_Title, System.IO.Path.GetFileNameWithoutExtension(owner.Editor.ProjectPath));
+
+    /// <summary>The page as it is now; seen and caught from the save on disk when the game wrote it, else this one.</summary>
+    private string BuildPage()
+    {
+        var editor = owner.Editor;
+        var source = doc;
+        if (editor.Randomizer.SavePath is { } path && File.Exists(path))
+        {
+            try
+            {
+                source = SaveDocument.Open(path, editor.Session.Current);
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SaveUpdateException)
+            {
+            }
+        }
+        return PokedexWeb.Build(PageTitle, editor.Session.Current, owner.GameNames, owner.Sprites,
+            s => source.GetSeen((ushort)s), s => source.GetCaught((ushort)s), source.DexMaxSpecies);
+    }
+
+    /// <summary>Serves the page on the home network and shows its link and QR code for the phone.</summary>
+    [RelayCommand]
+    private void ShareToPhone()
+    {
+        var editor = owner.Editor;
+        try
+        {
+            var share = PokedexShare.Start(editor.ProjectPath, BuildPage());
+            share.Watch(editor.Randomizer.SavePath, BuildPage);
+            editor.SetStatus(string.Format(Strings.Phone_Sharing, share.Url));
+        }
+        catch (Exception ex) when (ex is System.Net.Sockets.SocketException or IOException or UnauthorizedAccessException or InvalidOperationException)
+        {
+            editor.SetStatus(string.Format(Strings.Phone_Failed, ex.Message), error: true);
+        }
+        RefreshSharing();
+    }
+
+    [RelayCommand]
+    private void StopSharing()
+    {
+        PokedexShare.StopCurrent();
+        RefreshSharing();
+    }
+
+    [RelayCommand]
+    private async Task CopyShareUrl()
+    {
+        if (ShareUrl.Length > 0 && Avalonia.Application.Current?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime { MainWindow.Clipboard: { } clipboard })
+            await clipboard.SetTextAsync(ShareUrl);
+    }
+
+    private void RefreshSharing()
+    {
+        OnPropertyChanged(nameof(IsSharing));
+        OnPropertyChanged(nameof(IsNotSharing));
+        OnPropertyChanged(nameof(ShareUrl));
     }
 
     public SaveDexViewModel(SaveEditorViewModel owner, SaveDocument doc, SaveNames names)

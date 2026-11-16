@@ -25,6 +25,15 @@ public static class PokedexWeb
     public static void Write(string path, string title, GameData rom, GameNames names, PokemonSprites sprites,
         Func<int, bool>? seen, Func<int, bool>? caught, int dexMax)
     {
+        string page = Build(title, rom, names, sprites, seen, caught, dexMax);
+        Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path)!);
+        File.WriteAllText(path, page, new UTF8Encoding(false));
+    }
+
+    /// <summary>The page itself, for the file and for the phone (<see cref="PokedexShare"/>).</summary>
+    public static string Build(string title, GameData rom, GameNames names, PokemonSprites sprites,
+        Func<int, bool>? seen, Func<int, bool>? caught, int dexMax)
+    {
         var index = PersonalIndex.Of(rom);
         bool gen7 = rom.Title.Generation() == 7;
         string N(IReadOnlyList<string> list, int id) => id >= 0 && id < list.Count ? list[id] : $"#{id}";
@@ -153,16 +162,18 @@ public static class PokedexWeb
         string json = data.ToJsonString(new JsonSerializerOptions { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping })
             .Replace("</", "<\\/");
 
-        Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path)!);
-        string page = Template.Replace("/*DATA*/null", json).Replace("{{TITLE}}", System.Net.WebUtility.HtmlEncode(title))
+        return Template.Replace("/*DATA*/null", json).Replace("{{TITLE}}", System.Net.WebUtility.HtmlEncode(title))
             .Replace("{{LANG}}", Strings.Culture?.TwoLetterISOLanguageName ?? System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName);
-        File.WriteAllText(path, page, new UTF8Encoding(false));
     }
 
-    private static string Sprite(Bitmap? bitmap)
+    /// <summary>Each sprite encoded once: the page is built again whenever the game saves while it is shared.</summary>
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Bitmap, string> encoded = new();
+
+    private static string Sprite(Bitmap? bitmap) =>
+        bitmap is null ? "" : encoded.GetValue(bitmap, Encode);
+
+    private static string Encode(Bitmap bitmap)
     {
-        if (bitmap is null)
-            return "";
         using var stream = new MemoryStream();
         bitmap.Save(stream);
         return "data:image/png;base64," + Convert.ToBase64String(stream.ToArray());

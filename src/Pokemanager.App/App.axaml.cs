@@ -33,6 +33,7 @@ public partial class App : Application
             var main = new MainWindowViewModel(dialogs, settings);
             window.DataContext = main;
             window.Closing += (_, _) => main.Room.CloseForExit(); // tells the room and closes the router port
+            window.Closing += (_, _) => Services.PokedexShare.StopCurrent(); // the phone's Pokédex stops with the app
             desktop.MainWindow = window;
         }
 

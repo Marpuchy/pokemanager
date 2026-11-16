@@ -107,8 +107,26 @@
             </Grid>
           </StackPanel>
         </Expander>
-        <Button HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Web_Open}" Command="{Binding OpenInBrowserCommand}"
-                ToolTip.Tip="{x:Static r:Strings.Web_OpenTip}" />
+        <Grid ColumnDefinitions="*,6,*">
+          <Button HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Web_Open}" Command="{Binding OpenInBrowserCommand}"
+                  ToolTip.Tip="{x:Static r:Strings.Web_OpenTip}" />
+          <Button Grid.Column="2" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Phone_Share}" Command="{Binding ShareToPhoneCommand}"
+                  IsVisible="{Binding IsNotSharing}" ToolTip.Tip="{x:Static r:Strings.Phone_ShareTip}" />
+          <Button Grid.Column="2" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Phone_Stop}" Command="{Binding StopSharingCommand}"
+                  IsVisible="{Binding IsSharing}" />
+        </Grid>
+        <!-- The link for the phone: scan the code with the camera, on the same Wi-Fi -->
+        <Border Classes="card" IsVisible="{Binding IsSharing}">
+          <Grid ColumnDefinitions="Auto,*">
+            <c:QrView Width="150" Height="150" Text="{Binding ShareUrl}" />
+            <StackPanel Grid.Column="1" Margin="12,0,0,0" Spacing="6" VerticalAlignment="Center">
+              <TextBlock Classes="card-title" Text="{x:Static r:Strings.Phone_Title}" />
+              <SelectableTextBlock FontWeight="SemiBold" Text="{Binding ShareUrl}" TextWrapping="Wrap" />
+              <Button Content="{x:Static r:Strings.Phone_Copy}" Command="{Binding CopyShareUrlCommand}" />
+              <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Phone_Hint}" />
+            </StackPanel>
+          </Grid>
+        </Border>
         <StackPanel Orientation="Horizontal" Spacing="6">
           <Button Content="{x:Static r:Strings.Dex_AllSeen}" Command="{Binding AllSeenCommand}" />
           <Button Content="{x:Static r:Strings.Dex_AllCaught}" Command="{Binding AllCaughtCommand}" />
