@@ -5637,7 +5637,7 @@ Proyecto: {2}</value>
     <value>Abrir la Pokédex en el navegador</value>
   </data>
   <data name="Web_OpenTip" xml:space="preserve">
-    <value>Guarda esta Pokédex como página web (tipos, stats, habilidades, evoluciones y movimientos de tu ROM, y lo visto y capturado ahora) y la abre en tu navegador. Funciona con la app cerrada y sin internet; se vuelve a generar al pulsar aquí o al crear la ROM.</value>
+    <value>Guarda esta Pokédex como página web (los datos base de cada Pokémon de tu ROM como en la pestaña Pokédex: tipos, stats, habilidades, evolución, niveles a los que aprende movimientos, y lo visto y capturado ahora) y la abre en tu navegador. Funciona con la app cerrada y sin internet; se vuelve a generar al pulsar aquí o al crear la ROM.</value>
   </data>
   <data name="Web_Title" xml:space="preserve">
     <value>Pokédex · {0}</value>
@@ -5666,15 +5666,6 @@ Proyecto: {2}</value>
   <data name="Web_Abilities" xml:space="preserve">
     <value>Habilidades</value>
   </data>
-  <data name="Web_Moves" xml:space="preserve">
-    <value>Movimientos por nivel</value>
-  </data>
-  <data name="Web_ShowMoves" xml:space="preserve">
-    <value>Mostrar / ocultar movimientos</value>
-  </data>
-  <data name="Web_Level" xml:space="preserve">
-    <value>Nivel</value>
-  </data>
   <data name="Web_Evolution" xml:space="preserve">
     <value>Evolución</value>
   </data>
@@ -5683,9 +5674,6 @@ Proyecto: {2}</value>
   </data>
   <data name="Web_Matchups" xml:space="preserve">
     <value>Debilidades y resistencias</value>
-  </data>
-  <data name="Web_Items" xml:space="preserve">
-    <value>Objetos</value>
   </data>
   <data name="Web_Data" xml:space="preserve">
     <value>Datos</value>
@@ -5696,25 +5684,16 @@ Proyecto: {2}</value>
   <data name="Web_Weight" xml:space="preserve">
     <value>Peso</value>
   </data>
-  <data name="Web_Power" xml:space="preserve">
-    <value>Potencia</value>
-  </data>
-  <data name="Web_Accuracy" xml:space="preserve">
-    <value>Precisión</value>
-  </data>
-  <data name="Web_Status" xml:space="preserve">
-    <value>Estado</value>
-  </data>
-  <data name="Web_Physical" xml:space="preserve">
-    <value>Físico</value>
-  </data>
-  <data name="Web_Special" xml:space="preserve">
-    <value>Especial</value>
-  </data>
   <data name="Web_Made" xml:space="preserve">
     <value>Generada {0}</value>
   </data>
   <data name="Web_ShowAbilities" xml:space="preserve">
     <value>Mostrar / ocultar habilidades</value>
+  </data>
+  <data name="Web_MoveLevels" xml:space="preserve">
+    <value>Niveles a los que aprende movimientos</value>
+  </data>
+  <data name="Web_Evo" xml:space="preserve">
+    <value>Evo</value>
   </data>
 </root>

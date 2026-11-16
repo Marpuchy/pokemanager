@@ -54,6 +54,7 @@ button.link{background:none;border:1px solid var(--line);color:var(--text);borde
 .arrow{color:var(--muted);font-size:18px}
 table{width:100%;border-collapse:collapse}td,th{padding:3px 6px;text-align:left}th{color:var(--muted);font-weight:400;font-size:12px}
 tr+tr td{border-top:1px solid var(--line)}
+.levels{display:flex;flex-wrap:wrap;gap:6px}.lv{background:var(--panel2);border:1px solid var(--line);border-radius:3px;padding:2px 8px;font-weight:600}
 .entry{font-style:italic;color:#d8dbe0;margin:10px 2px 0}
 @media (max-width:760px){main{grid-template-columns:1fr;height:auto}#list{max-height:40vh;border-right:0;border-bottom:1px solid var(--line)}.grid{grid-template-columns:1fr}}
 </style>
@@ -69,11 +70,11 @@ tr+tr td{border-top:1px solid var(--line)}
 <main><div id="list"></div><div id="detail"></div></main>
 <script>
 const D=/*DATA*/null;
-const T=D.text,TY=D.types,MV=D.moves,E=D.entries;
+const T=D.text,TY=D.types,E=D.entries;
 const byKey=new Map(E.map(e=>[e.k,e]));
 const kids=new Map(),parent=new Map();
 for(const [a,b,h] of D.edges){if(!byKey.has(a)||!byKey.has(b))continue;if(!kids.has(a))kids.set(a,[]);if(!kids.get(a).some(x=>x[0]==b))kids.get(a).push([b,h]);if(!parent.has(b))parent.set(b,a);}
-let filter='all',showForms=false,showAb=false,showMv=false,cur=null;
+let filter='all',showForms=false,showAb=false,cur=null;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fold=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
@@ -107,8 +108,7 @@ function show(e){
   const stats=e.st.map((v,i)=>`<div class="stat"><span>${esc(T.statNames[i])}</span><b>${v}</b><div class="bar"><i style="width:${Math.min(v,200)/2}%;background:${barColor(v)}"></i></div></div>`).join('');
   const mu=e.mu.filter(g=>g[0]!=1).map(g=>`<div class="mu"><b>×${g[0]}</b><div class="chips">${g[1].map(chip).join('')}</div></div>`).join('');
   const ab=showAb?e.ab.map((a,i)=>`<span>${esc(T.abilityNames[i])}</span><span>${esc(a)}</span>`).join(''):'';
-  const items=e.it.filter(x=>x).length?e.it.map((x,i)=>x?`${esc(x)} (${[50,5,1][i]} %)`:'').filter(x=>x).join(' · '):'—';
-  const learn=showMv?`<table><tr><th>${esc(T.level)}</th><th></th><th></th><th>${esc(T.power)}</th><th>${esc(T.accuracy)}</th><th>PP</th></tr>`+e.l.map(([lv,m])=>{const mv=MV[m]||['#'+m,0,0,0,0,0];return `<tr><td>${lv==0?esc(T.onEvolution):lv}</td><td>${esc(mv[0])}</td><td>${chip(mv[1])} <small>${esc(T.categories[mv[2]]||'')}</small></td><td>${mv[3]||'—'}</td><td>${mv[4]||'—'}</td><td>${mv[5]}</td></tr>`}).join('')+'</table>':'';
+  const learn=e.l.length?`<div class="levels">${e.l.map(lv=>`<span class="lv">${lv==0?esc(T.evo):lv}</span>`).join('')}</div>`:'—';
   $('detail').innerHTML=`
   <div class="head" style="background:${bg(e.t)};color:${fg(e.t)}"><div class="pic">${e.i?`<img src="${e.i}" alt="">`:''}</div>
    <div><div>#${String(e.s).padStart(3,'0')} ${esc(e.cl)}</div><h2>${esc(e.n)}</h2><div class="chips">${e.t.map(chip).join('')}</div></div>
@@ -118,11 +118,11 @@ function show(e){
    <div class="card"><h3>${esc(T.stats)}</h3>${stats}</div>
    <div class="card"><h3>${esc(T.matchups)}</h3>${mu}</div>
    <div class="card"><h3>${esc(T.abilities)}</h3>${showAb?`<div class="info">${ab}</div>`:''}<button class="link" id="tab">${esc(T.showAbilities)}</button></div>
-   <div class="card"><h3>${esc(T.data)}</h3><div class="info"><span>${esc(T.items)}</span><span>${items}</span><span>${esc(T.height)}</span><span>${e.h} m</span><span>${esc(T.weight)}</span><span>${e.w} kg</span><span>${esc(T.catchRate)}</span><span>${e.cr}</span><span>${esc(T.eggGroups)}</span><span>${esc(e.eg)}</span><span>${esc(T.growth)}</span><span>${esc(e.gr)}</span></div></div>
+   <div class="card"><h3>${esc(T.data)}</h3><div class="info"><span>${esc(T.height)}</span><span>${e.h} m</span><span>${esc(T.weight)}</span><span>${e.w} kg</span><span>${esc(T.catchRate)}</span><span>${e.cr}</span><span>${esc(T.eggGroups)}</span><span>${esc(e.eg)}</span><span>${esc(T.gender)}</span><span>${esc(e.ge)}</span><span>${esc(T.growth)}</span><span>${esc(e.gr)}</span><span>${esc(T.hatch)}</span><span>${e.hc}</span></div></div>
   </div>
   <div class="card" style="margin-top:10px"><h3>${esc(T.evolution)}</h3>${evoHtml(e.k)}</div>
-  <div class="card" style="margin-top:10px"><h3>${esc(T.moves)}</h3>${learn}<button class="link" id="tmv">${esc(T.showMoves)}</button></div>`;
-  $('tab').onclick=()=>{showAb=!showAb;show(cur)};$('tmv').onclick=()=>{showMv=!showMv;show(cur)};
+  <div class="card" style="margin-top:10px"><h3>${esc(T.moves)}</h3>${learn}</div>`;
+  $('tab').onclick=()=>{showAb=!showAb;show(cur)};
   for(const m of document.querySelectorAll('.evo .mon'))m.onclick=()=>{const t=byKey.get(m.dataset.k);if(t){if(t.f&&!showForms){showForms=true;$('forms').checked=true}show(t)}};
   render();
 }

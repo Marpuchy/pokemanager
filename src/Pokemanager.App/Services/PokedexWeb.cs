@@ -35,12 +35,6 @@ public static class PokedexWeb
             return (JsonNode)new JsonObject { ["n"] = N(names.Types, t), ["c"] = $"#{c.R:X2}{c.G:X2}{c.B:X2}" };
         })]);
 
-        var moves = new JsonArray();
-        for (int m = 0; m < rom.Moves.Length; m++)
-        {
-            var mv = rom.Moves[m];
-            moves.Add(new JsonArray(N(names.Moves, m), mv.Type, mv.Category, mv.Power, mv.Accuracy, mv.PP));
-        }
 
         var entries = new JsonArray();
         var keyOfRow = new Dictionary<int, string>();
@@ -56,13 +50,11 @@ public static class PokedexWeb
             var p = rom.Personal[row];
             bool own = species < rom.VanillaSpeciesCount && form == 0;
             bool inDex = form == 0 && species <= dexMax;
+            // Only the levels it learns something at, as the app's Pokédex: which moves stays out (2026-11-16, user).
             var learn = new JsonArray();
             if (row < rom.Learnsets.Length)
-            {
-                var ls = rom.Learnsets[row];
-                for (int i = 0; i < ls.Moves.Length; i++)
-                    learn.Add(new JsonArray((int)ls.Levels[i], (int)ls.Moves[i]));
-            }
+                foreach (int level in rom.Learnsets[row].Levels.Select(l => (int)l).Distinct().Order())
+                    learn.Add(level);
             var matchups = new JsonArray([.. TypeMatchups.Groups(p.Types.Distinct())
                 .Select(g => (JsonNode)new JsonArray(g.Multiplier, new JsonArray([.. g.Types.Select(t => (JsonNode)t)])))]);
             entries.Add(new JsonObject
@@ -74,7 +66,6 @@ public static class PokedexWeb
                 ["t"] = new JsonArray([.. p.Types.Distinct().Select(t => (JsonNode)t)]),
                 ["st"] = new JsonArray(p.HP, p.ATK, p.DEF, p.SPA, p.SPD, p.SPE),
                 ["ab"] = new JsonArray(N(names.Abilities, p.Abilities[0]), N(names.Abilities, p.Abilities[1]), N(names.Abilities, p.Abilities[2])),
-                ["it"] = new JsonArray([.. p.Items.Select(i => (JsonNode)(i > 0 ? N(names.Items, i) : ""))]),
                 ["cl"] = own && species < names.Classifications.Count ? names.Classifications[species] : "",
                 ["en"] = own && species < names.PokedexEntries.Count ? names.PokedexEntries[species] : "",
                 ["h"] = p.Height / 100.0,
@@ -83,6 +74,14 @@ public static class PokedexWeb
                 ["eg"] = string.Join(" · ", new[] { p.EggGroups[0], p.EggGroups[1] }.Distinct()
                     .Select(g => g >= 0 && g < GameNames.EggGroups.Count ? GameNames.EggGroups[g] : "?")),
                 ["gr"] = p.EXPGrowth < GameNames.ExpGrowth.Count ? GameNames.ExpGrowth[p.EXPGrowth] : "?",
+                ["ge"] = p.Gender switch
+                {
+                    255 => Strings.Pkm_Genderless,
+                    254 => Strings.Dex_FemaleOnly,
+                    0 => Strings.Dex_MaleOnly,
+                    var g => string.Format(Strings.Dex_Ratio, 100 - (g * 100 / 254), g * 100 / 254),
+                },
+                ["hc"] = p.HatchCycles,
                 ["d"] = inDex,
                 ["sn"] = inDex && seen?.Invoke(species) == true,
                 ["ca"] = inDex && caught?.Invoke(species) == true,
@@ -128,14 +127,13 @@ public static class PokedexWeb
             ["abilities"] = Strings.Web_Abilities,
             ["abilityNames"] = new JsonArray(Strings.Field_Ability1, Strings.Field_Ability2, Strings.Field_AbilityHidden),
             ["showAbilities"] = Strings.Web_ShowAbilities,
-            ["moves"] = Strings.Web_Moves,
-            ["showMoves"] = Strings.Web_ShowMoves,
-            ["onEvolution"] = Strings.Dex_MoveOnEvolution,
-            ["level"] = Strings.Web_Level,
+            ["moves"] = Strings.Web_MoveLevels,
+            ["evo"] = Strings.Web_Evo,
+            ["gender"] = Strings.Dex_GenderRatio,
+            ["hatch"] = Strings.Field_HatchCycles,
             ["evolution"] = Strings.Web_Evolution,
             ["noEvolution"] = Strings.Web_NoEvolution,
             ["matchups"] = Strings.Web_Matchups,
-            ["items"] = Strings.Web_Items,
             ["data"] = Strings.Web_Data,
             ["height"] = Strings.Web_Height,
             ["weight"] = Strings.Web_Weight,
@@ -143,13 +141,9 @@ public static class PokedexWeb
             ["eggGroups"] = Strings.Dex_EggGroups,
             ["growth"] = Strings.Field_ExpGrowth,
             ["noEntry"] = Strings.Dex_NoEntry,
-            ["power"] = Strings.Web_Power,
-            ["accuracy"] = Strings.Web_Accuracy,
-            ["pp"] = "PP",
-            ["categories"] = new JsonArray(Strings.Web_Status, Strings.Web_Physical, Strings.Web_Special),
             ["made"] = string.Format(Strings.Web_Made, DateTime.Now.ToString("g")),
         };
-        var data = new JsonObject { ["text"] = text, ["types"] = types, ["moves"] = moves, ["entries"] = entries, ["edges"] = edges };
+        var data = new JsonObject { ["text"] = text, ["types"] = types, ["entries"] = entries, ["edges"] = edges };
         string json = data.ToJsonString(new JsonSerializerOptions { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping })
             .Replace("</", "<\\/");
 

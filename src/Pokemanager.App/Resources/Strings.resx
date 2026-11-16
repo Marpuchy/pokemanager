@@ -5637,7 +5637,7 @@ Project: {2}</value>
     <value>Open the Pokédex in the browser</value>
   </data>
   <data name="Web_OpenTip" xml:space="preserve">
-    <value>Writes this Pokédex as a web page (the ROM's types, stats, abilities, evolutions and moves, and what you have seen and caught now) and opens it in your browser. It works with the app closed and without internet; it is written again when you press this or build the ROM.</value>
+    <value>Writes this Pokédex as a web page (each Pokémon's base data as in the Pokédex tab: types, stats, abilities, evolution, the levels it learns moves at, and what you have seen and caught now) and opens it in your browser. It works with the app closed and without internet; it is written again when you press this or build the ROM.</value>
   </data>
   <data name="Web_Title" xml:space="preserve">
     <value>Pokédex · {0}</value>
@@ -5666,15 +5666,6 @@ Project: {2}</value>
   <data name="Web_Abilities" xml:space="preserve">
     <value>Abilities</value>
   </data>
-  <data name="Web_Moves" xml:space="preserve">
-    <value>Moves by level</value>
-  </data>
-  <data name="Web_ShowMoves" xml:space="preserve">
-    <value>Show / hide moves</value>
-  </data>
-  <data name="Web_Level" xml:space="preserve">
-    <value>Level</value>
-  </data>
   <data name="Web_Evolution" xml:space="preserve">
     <value>Evolution</value>
   </data>
@@ -5683,9 +5674,6 @@ Project: {2}</value>
   </data>
   <data name="Web_Matchups" xml:space="preserve">
     <value>Weaknesses and resistances</value>
-  </data>
-  <data name="Web_Items" xml:space="preserve">
-    <value>Held items</value>
   </data>
   <data name="Web_Data" xml:space="preserve">
     <value>Data</value>
@@ -5696,25 +5684,16 @@ Project: {2}</value>
   <data name="Web_Weight" xml:space="preserve">
     <value>Weight</value>
   </data>
-  <data name="Web_Power" xml:space="preserve">
-    <value>Power</value>
-  </data>
-  <data name="Web_Accuracy" xml:space="preserve">
-    <value>Accuracy</value>
-  </data>
-  <data name="Web_Status" xml:space="preserve">
-    <value>Status</value>
-  </data>
-  <data name="Web_Physical" xml:space="preserve">
-    <value>Physical</value>
-  </data>
-  <data name="Web_Special" xml:space="preserve">
-    <value>Special</value>
-  </data>
   <data name="Web_Made" xml:space="preserve">
     <value>Made {0}</value>
   </data>
   <data name="Web_ShowAbilities" xml:space="preserve">
     <value>Show / hide abilities</value>
+  </data>
+  <data name="Web_MoveLevels" xml:space="preserve">
+    <value>Levels it learns a move at</value>
+  </data>
+  <data name="Web_Evo" xml:space="preserve">
+    <value>Evo</value>
   </data>
 </root>
