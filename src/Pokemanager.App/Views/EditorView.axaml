@@ -258,6 +258,13 @@
                       <StackPanel Spacing="6">
                         <TextBlock Classes="card-title" Text="{x:Static r:Strings.Data_CardPreset}" />
                         <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Data_CardPresetHint}" />
+                        <TextBlock Text="{Binding Randomizer.PresetText}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                          <Button Content="{x:Static r:Strings.Data_ExportShort}" Command="{Binding Randomizer.ExportPresetCommand}"
+                                  ToolTip.Tip="{x:Static r:Strings.Tip_RandomizerExportPreset}" />
+                          <Button Content="{x:Static r:Strings.Data_ImportShortButton}" Command="{Binding Randomizer.ImportPresetCommand}"
+                                  ToolTip.Tip="{x:Static r:Strings.Tip_RandomizerImportPreset}" />
+                        </StackPanel>
                       </StackPanel>
                     </Border>
                   </c:CardGrid>

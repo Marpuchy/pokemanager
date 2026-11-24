@@ -3814,10 +3814,10 @@ Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. 
     <value>Variocolor, porcentajes de nivel, tope de nivel y lo que venden las tiendas. Al importar sustituyen a las de este proyecto.</value>
   </data>
   <data name="Data_CardPreset" xml:space="preserve">
-    <value>Preset del randomizer (.rnqs)</value>
+    <value>Ajustes completos (.rnqs)</value>
   </data>
   <data name="Data_CardPresetHint" xml:space="preserve">
-    <value>Las opciones del propio randomizer viajan en su preset: se importa y exporta en Aleatorizar, junto a la semilla.</value>
+    <value>Las opciones del randomizador y las de Pokemanager (niveles, tope, shiny, tiendas, dificultad, mods, Locke y ruletas) en un solo archivo. Un .rnqs de UPR ZX normal también se puede importar: solo trae las del randomizador.</value>
   </data>
   <data name="Data_SeeDataTab" xml:space="preserve">
     <value>Los archivos de Pokémon, movimientos, entrenadores y reglas y el preset del randomizer (.rnqs) están en Proyecto → Archivos.</value>

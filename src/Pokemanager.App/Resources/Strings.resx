@@ -3814,10 +3814,10 @@ If you only wanted to tweak some Pokémon, cancel and put back the seed. The cur
     <value>Shiny, level percentages, level cap and what the shops sell. Importing replaces the ones of this project.</value>
   </data>
   <data name="Data_CardPreset" xml:space="preserve">
-    <value>Randomizer preset (.rnqs)</value>
+    <value>Full settings (.rnqs)</value>
   </data>
   <data name="Data_CardPresetHint" xml:space="preserve">
-    <value>The randomizer's own options travel in their preset: import and export it in Randomize, next to the seed.</value>
+    <value>The randomizer's options and Pokemanager's (levels, cap, shiny, shops, difficulty, mods, Locke and roulettes) in one file. A plain UPR ZX .rnqs can be imported too: it only brings the randomizer's.</value>
   </data>
   <data name="Data_SeeDataTab" xml:space="preserve">
     <value>The Pokémon, move, trainer and rule files and the randomizer preset (.rnqs) are in Project → Files.</value>
