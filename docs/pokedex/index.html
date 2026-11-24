@@ -121,9 +121,9 @@ for(const [a,b,h] of D.edges){if(!byKey.has(a)||!byKey.has(b)||a==b)continue;if(
 // Pokémon evolves. No abilities, no seen/caught. Filters as the app's Pokédex: type pair, BST range, megas, legendaries,
 // forms.
 const es=(document.documentElement.lang||navigator.language||'').toLowerCase().startsWith('es');
-const F=Object.assign(es?{filters:'Filtros',filtersOn:'Filtros ({0} activos)',type:'Tipo',bst:'BST',megas:'Megas',legendaries:'Legendarios',hideForms:'Sin formas',clear:'Quitar filtros',anyType:'—',shown:'{0} Pokémon',
+const F=Object.assign(es?{filters:'Filtros',matchups:'Debilidades y resistencias',filtersOn:'Filtros ({0} activos)',type:'Tipo',bst:'BST',megas:'Megas',legendaries:'Legendarios',hideForms:'Sin formas',clear:'Quitar filtros',anyType:'—',shown:'{0} Pokémon',
   typeTip:'Un tipo: los que lo tienen. Dos: solo esa pareja, en cualquier orden.',triTip:'Clic para cambiar: en blanco todos, ✓ solo estos, ✕ ninguno.',formsTip:'Una fila por especie: oculta megas, formas regionales y demás.'}
-  :{filters:'Filters',filtersOn:'Filters ({0} on)',type:'Type',bst:'BST',megas:'Megas',legendaries:'Legendaries',hideForms:'No forms',clear:'Clear filters',anyType:'—',shown:'{0} Pokémon',
+  :{filters:'Filters',matchups:'Weaknesses and resistances',filtersOn:'Filters ({0} on)',type:'Type',bst:'BST',megas:'Megas',legendaries:'Legendaries',hideForms:'No forms',clear:'Clear filters',anyType:'—',shown:'{0} Pokémon',
   typeTip:'One type: those that have it. Two: only that pair, in any order.',triTip:'Click to change: blank all, ✓ only these, ✕ none.',formsTip:'One row per species: hides megas, regional forms and the rest.'},T.filterText||{});
 let cur=null,t1=-1,t2=-1,bmin=null,bmax=null,mega=0,leg=0,hideForms=false;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -135,6 +135,8 @@ function fg(types){const l=types.reduce((s,t)=>{const [r,g,b]=softC(TY[t].c);ret
 function bg(types){const a=soft(TY[types[0]].c),b=soft(TY[types[types.length-1]].c);return a==b?a:`linear-gradient(135deg,${a} 50%,${b} 50%)`}
 const chip=t=>`<span class="chip" style="background:${soft(TY[t].c)};color:${fg([t])}">${esc(TY[t].n)}</span>`;
 const statColor=v=>v<30?'#F34444':v<60?'#FF7F0F':v<90?'#FFDD57':v<120?'#A0E515':v<150?'#23CD5E':'#00C2B8';
+const muLabel=m=>({4:'×4',2:'×2',1:'×1',0.5:'×½',0.25:'×¼'})[m]||'×0';
+const muColor=m=>({4:'#A4161A',2:'#E5383B',1:'#8A96A3',0.5:'#2E9E5B',0.25:'#1B6E3E'})[m]||'#3A3F45';
 const num=s=>'#'+String(s).padStart(3,'0');
 const bst=e=>e.st.reduce((a,b)=>a+b,0);
 $('q').placeholder=T.search;$('formsL').textContent=F.hideForms;$('made').textContent=T.made||'';
@@ -195,13 +197,17 @@ function evoHtml(k){
 function show(e){
   cur=e;const tot=bst(e);
   const stats=e.st.map((v,i)=>`<div class="info-row stat"><span class="hint">${esc(T.statNames[i])}</span><b>${v}</b><div class="track"><i style="width:${Math.max(1,Math.min(v,200)/2)}%;background:${statColor(v)}"></i></div></div>`).join('');
+  const mu=(e.mu||[]).map(g=>`<div class="info-row mu"><span class="lab" style="background:${muColor(g[0])}">${muLabel(g[0])}</span><div class="chips">${g[1].map(chip).join('')}</div></div>`).join('');
   $('detail').innerHTML=`
   <div class="header" style="background:${bg(e.t)};color:${fg(e.t)}">
     <div class="pic">${e.i?`<img src="${e.i}" alt="">`:''}</div>
     <div><div>${num(e.s)}</div><div class="name">${esc(e.n)}</div><div class="chips">${e.t.map(chip).join('')}</div></div>
     <div class="total"><small>${esc(T.total||'Total')}</small><b>${tot}</b></div>
   </div>
-  <div class="card"><div class="card-title">${esc(T.stats)}</div>${stats}</div>
+  <div class="two">
+    <div class="card"><div class="card-title">${esc(T.stats)}</div>${stats}</div>
+    <div class="card"><div class="card-title">${esc(T.matchups||F.matchups)}</div>${mu}</div>
+  </div>
   <div class="card"><div class="card-title">${esc(T.evolution)}</div>${evoHtml(e.k)}</div>
   <div class="card" id="tlCard"><div class="card-title">${esc(T.moves)}</div><div id="tl"></div></div>`;
   drawTimeline();

@@ -12,7 +12,7 @@ namespace Pokemanager.App.Services;
 /// The Pokédex as one web page (2026-11-16, user: "the app uses too much while playing, and all I look at is the
 /// Pokédex: a link to a page with my Pokédex"). A single file with everything inside — the ROM's data (types, stats,
 /// evolutions with the mod's megas, the levels moves are learned at) and the sprites as data URIs — so it opens in any browser with the application closed and no internet.
-/// It is written again when the button is pressed or the ROM is built. Only base stats, types, move levels and
+/// It is written again when the button is pressed or the ROM is built. Only base stats, types and their matchups, move levels and
 /// evolutions, with the app's filters (2026-11-24, user: no abilities, nothing seen or caught).
 /// </summary>
 public static class PokedexWeb
@@ -86,6 +86,8 @@ public static class PokedexWeb
             if (row < rom.Learnsets.Length)
                 foreach (int level in rom.Learnsets[row].Levels.Select(l => (int)l).Distinct().Order())
                     learn.Add(level);
+            var matchups = new JsonArray([.. TypeMatchups.Groups(p.Types.Distinct())
+                .Select(g => (JsonNode)new JsonArray(g.Multiplier, new JsonArray([.. g.Types.Select(t => (JsonNode)t)])))]);
             entries.Add(new JsonObject
             {
                 ["k"] = key,
@@ -97,6 +99,7 @@ public static class PokedexWeb
                 ["lg"] = Legendaries.Contains(species),
                 ["mg"] = rom.MegaForms.Contains((species, form)),
                 ["i"] = Sprite(sprites.ForPersonalEntry(row)),
+                ["mu"] = matchups,
                 ["l"] = learn,
             });
         }
