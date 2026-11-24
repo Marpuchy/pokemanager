@@ -5711,4 +5711,7 @@ Project: {2}</value>
   <data name="Trainer_RerollUndo" xml:space="preserve">
     <value>Random team · {0}</value>
   </data>
+  <data name="Combo_Search" xml:space="preserve">
+    <value>Search…</value>
+  </data>
 </root>

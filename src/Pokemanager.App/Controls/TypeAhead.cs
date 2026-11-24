@@ -37,11 +37,15 @@ public static class TypeAhead
             box.TextInput -= OnTextInput;
             box.KeyDown -= OnKeyDown;
             box.DetachedFromVisualTree -= OnDetached;
+            box.TemplateApplied -= ComboSearch.OnTemplateApplied;
+            box.DropDownOpened -= ComboSearch.OnOpened;
             if (e.NewValue is true)
             {
                 box.TextInput += OnTextInput;
                 box.KeyDown += OnKeyDown;
                 box.DetachedFromVisualTree += OnDetached;
+                box.TemplateApplied += ComboSearch.OnTemplateApplied;
+                box.DropDownOpened += ComboSearch.OnOpened;
             }
         });
     }
@@ -54,6 +58,8 @@ public static class TypeAhead
 
     private static void OnTextInput(object? sender, TextInputEventArgs e)
     {
+        if (e.Source is TextBox)
+            return; // typed in the list's search field
         if (sender is ComboBox box && Jump(box, e.Text ?? ""))
             e.Handled = true;
     }
@@ -64,7 +70,7 @@ public static class TypeAhead
     /// </summary>
     private static void OnKeyDown(object? sender, KeyEventArgs e)
     {
-        if (sender is not ComboBox box || e.KeyModifiers is not (KeyModifiers.None or KeyModifiers.Shift))
+        if (sender is not ComboBox box || e.Source is TextBox || e.KeyModifiers is not (KeyModifiers.None or KeyModifiers.Shift))
             return;
         string typed = e.KeySymbol ?? Symbol(e.Key);
         if (typed.Length == 0 || char.IsControl(typed[0]))
@@ -139,15 +145,15 @@ public static class TypeAhead
         return word;
     }
 
-    private static readonly char[] Separators = [' ', '·', '-', '(', ')', '[', ']', ',', '.', '/'];
+    internal static readonly char[] Separators = [' ', '·', '-', '(', ')', '[', ']', ',', '.', '/'];
 
-    private static string Text(ComboBox box, int index) =>
+    internal static string Text(ComboBox box, int index) =>
         box.ItemsSource?.Cast<object?>().ElementAtOrDefault(index)?.ToString()
         ?? box.Items.ElementAtOrDefault(index)?.ToString()
         ?? "";
 
     /// <summary>Lower case and without accents, so "pokemon" finds "Pokémon" and "e" finds "Éxito".</summary>
-    private static string Simplify(string text)
+    internal static string Simplify(string text)
     {
         var builder = new StringBuilder(text.Length);
         foreach (char c in text.Normalize(NormalizationForm.FormD))
