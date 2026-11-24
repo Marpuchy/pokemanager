@@ -62,8 +62,13 @@ public static class BattleSafety
     /// <summary>Minior's core forms (7-13): the shell breaks in battle.</summary>
     private const int Minior = 774;
 
-    /// <summary>The held Z-crystals (the pieces a Pokémon holds; the bag keeps the beads, 31 above).</summary>
-    public static bool IsZCrystal(int item) => item is >= 776 and <= 806;
+    /// <summary>
+    /// The held Z-crystals (the pieces a Pokémon holds; the bag keeps the beads, 31 above): the type ones and the
+    /// exclusive ones of Sun/Moon (776-806), Pikashunium Z (836) and Ultra Sun/Ultra Moon's six (921-926, beads 927-932).
+    /// Before, the last two were not counted, so a team given one of them by the randomizer kept it and got another
+    /// crystal on top (2026-11-13, user: a kahuna's Slowking held one and the team had two).
+    /// </summary>
+    public static bool IsZCrystal(int item) => item is >= 776 and <= 806 or 836 or >= 921 and <= 926;
 
     /// <summary>A form a Pokémon only takes inside a battle, which nothing should start a battle in.</summary>
     public static bool IsBattleOnly(GameData data, int species, int form) =>
@@ -176,14 +181,27 @@ public static class BattleSafety
         return result;
     }
 
+    /// <summary>
+    /// One team brought inside the rules the build applies to every trainer (<see cref="FixTrainers"/>), for a team the
+    /// editor makes itself (a rerolled one), which the build then keeps as a hand edit.
+    /// </summary>
+    /// <param name="ruleLevel">The last Pokémon's level as the ROM will have it (the build scales levels), for the rule.</param>
+    public static int FixOne(GameData data, Trainer trainer, Projects.TrainerItemRule rule, int id, int? ruleLevel = null)
+    {
+        var stones = data.MegaStones.ToHashSet();
+        var ownStones = data.MegaStoneByForm.Where(p => p.Value != 0)
+            .GroupBy(p => p.Key.Species).ToDictionary(g => g.Key, g => g.Select(p => p.Value).ToHashSet());
+        return trainer.Count == 0 ? 0 : FixTeam(data, trainer, stones, ownStones, rule, id, ruleLevel: ruleLevel);
+    }
+
     private static int FixTeam(GameData data, Trainer trainer, HashSet<int> stones, Dictionary<int, HashSet<int>> ownStones,
-        Projects.TrainerItemRule rule, int id, bool byHand = false, int? starterLine = null)
+        Projects.TrainerItemRule rule, int id, bool byHand = false, int? starterLine = null, int? ruleLevel = null)
     {
         int touched = 0;
         List<TrainerMon> Team() => trainer.Team.ToList();
         // Who mega evolves and who carries a crystal: the rule of this kind of trainer at its last Pokémon's level
         // (2026-11-09, user: a random kid's Camerupt mega evolved; bosses always; megas from level 35).
-        int level = trainer.Team.Last().Level;
+        int level = ruleLevel ?? trainer.Team.Last().Level;
         bool mega = rule.MegaAt(level);
         bool zCrystal = rule.ZAt(level) && trainer.Count >= 2;
 
@@ -264,6 +282,11 @@ public static class BattleSafety
         if (zCrystal)
         {
             int crystal = z >= 0 ? team[z].Item : 0;
+            // A Pokémon's own crystal stays only on that Pokémon (it turns one of its moves into its Z-move); on anyone
+            // else it is useless, so a type crystal takes its place.
+            // The last Pokémon never keeps one, so its own crystal gives way to a type crystal on another.
+            if (crystal is not (0 or (>= 776 and <= 793)) && (z == last || OwnCrystal(data, team[z]) != crystal))
+                crystal = 0;
             bool typeCrystal = crystal is 0 or (>= 776 and <= 793);
             // Looking back from where it was first, then forward; never the last Pokémon.
             int start = Math.Min(z < 0 ? last - 1 : z, last - 1);
@@ -300,6 +323,14 @@ public static class BattleSafety
     /// The Z-crystal for the Pokémon's strongest damaging move of one of its own types, or of its strongest damaging
     /// move when none is; null when it has no damaging move.
     /// </summary>
+    /// <summary>The Pokémon's own Z-crystal (its personal data's), 0 when it has none.</summary>
+    private static int OwnCrystal(GameData data, TrainerMon mon)
+    {
+        int row = PersonalIndex.Of(data).Row(mon.Species, mon.Form);
+        return row >= 0 && row < data.Personal.Length && data.Personal[row] is pk3DS.Core.Structures.PersonalInfo.PersonalInfoSM sm
+            ? sm.SpecialZ_Item : 0;
+    }
+
     private static int? UsableCrystal(GameData data, TrainerMon mon)
     {
         int row = PersonalIndex.Of(data).Row(mon.Species, mon.Form);

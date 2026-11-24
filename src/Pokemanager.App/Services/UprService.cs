@@ -63,10 +63,40 @@ public sealed class UprService
     /// key it was written with: reading them from somewhere else left the item options out of the key on the way in,
     /// and the lookup then missed every time the user had turned one on.
     /// </summary>
-    public (bool AllItems, IReadOnlyList<int>? GoodItems) CacheOptions(Project project)
+    public (bool AllItems, IReadOnlyList<int>? GoodItems, IReadOnlyList<int>? Starters) CacheOptions(Project project)
     {
         var r = project.Randomization;
-        return (r.AllowAllItems, r.MegaStonesInPool ? MegaStones(project) : null);
+        return (r.AllowAllItems, r.MegaStonesInPool ? MegaStones(project) : null, Starters(project));
+    }
+
+    private readonly Dictionary<string, int[]?> starters = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// The starters the randomization is given when the project asks for mega starters (two evolutions and a mega in
+    /// the line, <see cref="MegaStarters"/>), drawn from the seed; null otherwise. Chosen before randomizing and handed
+    /// to the randomizer, so the randomization itself has them — the editor shows them and the rival carries them —
+    /// instead of the build changing the starters afterwards (2026-11-13, user). Read from the project's stack without
+    /// the randomization, like <see cref="MegaStones"/>, so both sides of the cache get the same three.
+    /// </summary>
+    public IReadOnlyList<int>? Starters(Project project)
+    {
+        if (!project.Tweaks.MegaStarters)
+            return null;
+        var layers = project.ReadLayers(null, Mods);
+        string key = string.Join('|', layers.Roots) + "#" + project.Randomization.Seed;
+        if (!starters.TryGetValue(key, out int[]? picked))
+        {
+            try
+            {
+                picked = MegaStarters.Pick(GameData.Load(layers, project.Game), project.Randomization.Seed);
+            }
+            catch (Exception e) when (e is IOException or InvalidDataException or ArgumentException)
+            {
+                picked = null;
+            }
+            starters[key] = picked;
+        }
+        return picked;
     }
 
     /// <summary>
@@ -127,7 +157,7 @@ public sealed class UprService
     public string OptionsStamp(Project project, byte[] effectivePreset)
     {
         var r = project.Randomization;
-        var (allItems, goodItems) = CacheOptions(project);
+        var (allItems, goodItems, picked) = CacheOptions(project);
         string rom = project.ResolveRomFile() is { } path && File.Exists(path)
             ? $"{Path.GetFullPath(path).ToUpperInvariant()}|{new FileInfo(path).Length}|{File.GetLastWriteTimeUtc(path).Ticks}"
             : "";
@@ -145,6 +175,8 @@ public sealed class UprService
         }
         string material = string.Join('|', rom, Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(effectivePreset)),
             r.Seed, allItems, string.Join('.', goodItems ?? []), mods);
+        if (picked is { Count: > 0 })
+            material += "|starters:" + string.Join('.', picked);
         return Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(material)))[..24];
     }
 
@@ -171,8 +203,8 @@ public sealed class UprService
                 return null; // a mod that cannot be read cannot have been randomized either
             }
         }
-        var (allItems, goodItems) = CacheOptions(project);
-        return Cache.TryGet(rom, effectivePreset, r.Seed, t.JarPath, allItems, goodItems) is { } found ? Repaired(project, found) : null;
+        var (allItems, goodItems, picked) = CacheOptions(project);
+        return Cache.TryGet(rom, effectivePreset, r.Seed, t.JarPath, allItems, goodItems, picked) is { } found ? Repaired(project, found) : null;
     }
 
     /// <summary>
@@ -200,9 +232,9 @@ public sealed class UprService
     public async Task<UprResult> RandomizeAsync(UprTools t, Project project, string romFile, byte[] preset,
         IProgress<string>? progress = null, CancellationToken cancellationToken = default)
     {
-        var (allItems, goodItems) = CacheOptions(project);
+        var (allItems, goodItems, picked) = CacheOptions(project);
         var result = await Cache.GetOrCreateAsync(new UprRunner(t), t, romFile, preset, project.Randomization.Seed, progress,
-            cancellationToken, allItems, goodItems, GameCounts(project));
+            cancellationToken, allItems, goodItems, GameCounts(project), picked);
         return Repaired(project, result);
     }
 

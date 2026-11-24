@@ -239,6 +239,48 @@ public sealed partial class TrainerDetailViewModel : ObservableObject
 
     public bool IsModified => session.IsModified(T, Id);
 
+    /// <summary>
+    /// The whole team drawn again by the randomizer's trainer options (2026-11-13, user: "al azar" as for the wild
+    /// Pokémon, also with the team hidden): <see cref="TrainerReroll"/> picks the Pokémon, then this kind of trainer's
+    /// mega and Z-crystal rule is applied at once (<see cref="BattleSafety.FixOne"/>), so what is stored is already what
+    /// the ROM gets. One undo step; nothing is named, so a hidden team stays hidden.
+    /// </summary>
+    [RelayCommand]
+    private void Reroll()
+    {
+        var data = session.Current;
+        if (IsUnreadable || Id >= data.Trainers.Length || data.Trainers[Id].Count == 0)
+            return;
+        var title = data.Title;
+        var stored = data.Trainers[Id];
+        var trainer = Trainer.Read(title, stored.WriteData().ToArray(), stored.WriteTeam().ToArray());
+        UprOptionViewModel? Option(string name) => editor.Randomizer.Options.Option(name);
+        var rules = new TrainerRerollRules(
+            SimilarStrength: Option("TrainersUsePokemonOfSimilarStrength")?.BoolValue ?? false,
+            NoLegendaries: Option("TrainersBlockLegendaries")?.BoolValue ?? true,
+            KeepTheme: Option("TrainersMod") is not { IsChoice: true } mod || mod.SerializedValue.Contains("THEMED"),
+            FullyEvolvedFrom: Option("TrainersForceFullyEvolved")?.BoolValue == true ? (int)(Option("TrainersForceFullyEvolvedLevel")?.IntValue ?? 30) : null,
+            NoEarlyWonderGuard: Option("TrainersBlockEarlyWonderGuard")?.BoolValue ?? false);
+        int builtLevel = editor.BuiltTrainer(Id)?.Team.LastOrDefault()?.Level ?? trainer.Team.Last().Level;
+        int lastSpecies = Math.Min(data.LastSpecies, names.Species.Count - 1);
+        if (TrainerReroll.Reroll(data, trainer, rules, Random.Shared, lastSpecies) == 0)
+            return;
+        BattleSafety.FixOne(data, trainer, session.Project.Tweaks.TrainerItems.For(TrainerRoles.DifficultyOf(title, Id)), Id, builtLevel);
+
+        using (editor.BeginBatch(string.Format(Strings.Trainer_RerollUndo, Title)))
+        {
+            foreach (var (field, value) in GameTables.TrainerValues(trainer))
+                if (session.GetInt(T, Id, field) != value)
+                    session.SetInt(T, Id, field, value);
+        }
+        foreach (var field in AiFlags.Cast<FieldViewModel>().Append(AiLevel).Concat(Record).Concat(Bag).Concat(Gen6Flags).Append(Count))
+            field.Refresh();
+        BuildTeam();
+        foreach (var member in Members)
+            member.RefreshAll();
+        OnPropertyChanged(string.Empty);
+    }
+
     [RelayCommand]
     private void Revert()
     {

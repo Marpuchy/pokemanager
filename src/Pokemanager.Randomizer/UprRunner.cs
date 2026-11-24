@@ -64,10 +64,11 @@ public sealed class UprRunner(UprTools tools)
     /// <summary>Randomizes and leaves the LayeredFS output in <paramref name="outputDirectory"/> (empty or missing).</summary>
     /// <param name="allItems">Let the item randomization use every item of the game (see the launcher's unlockItems).</param>
     /// <param name="goodItems">Item ids that stop counting as bad ones, so a preset that bans those can still place them.</param>
+    /// <param name="starters">Three species the randomization takes as its starters (custom starters, the rival carrying them).</param>
     public async Task<UprResult> RandomizeAsync(
         string presetFile, string romFile, long seed, string outputDirectory,
         IProgress<string>? progress = null, CancellationToken cancellationToken = default, bool allItems = false,
-        IReadOnlyList<int>? goodItems = null, UprGameCounts? counts = null)
+        IReadOnlyList<int>? goodItems = null, UprGameCounts? counts = null, IReadOnlyList<int>? starters = null)
     {
         if (Directory.Exists(outputDirectory) && Directory.EnumerateFileSystemEntries(outputDirectory).Any())
             throw new IOException(string.Format(Strings.Upr_OutputNotEmpty, outputDirectory));
@@ -78,7 +79,7 @@ public sealed class UprRunner(UprTools tools)
         string output = await RunAsync(
             [
                 "randomize", presetFile, romFile, outputDirectory, seed.ToString(), logPath, allItems ? "1" : "0",
-                string.Join(',', goodItems ?? []),
+                string.Join(',', goodItems ?? []), string.Join(',', starters ?? []),
             ],
             progress, cancellationToken, counts?.JavaProperties);
 

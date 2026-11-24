@@ -18,6 +18,9 @@ public interface ITable
 
 public static class GameTables
 {
+    /// <summary>Every field of a trainer and its team, named as the trainer table names them.</summary>
+    public static IEnumerable<(string Field, int Value)> TrainerValues(Trainer trainer) => TrainerTableImpl.Values(trainer);
+
     public const string Personal = "personal";
     public const string Moves = "move";
     public const string Learnsets = "learnset";
@@ -231,6 +234,17 @@ public static class GameTables
         private static readonly string[] Stats = ["Hp", "Atk", "Def", "Spa", "Spd", "Spe"];
 
         public string Name => Trainers;
+
+        /// <summary>Every field of a trainer as the table reads it: the record, then each Pokémon of its team.</summary>
+        internal static IEnumerable<(string Field, int Value)> Values(Trainer t)
+        {
+            foreach (string field in RecordFields)
+                yield return (field, ReadRecord(t, field));
+            for (int slot = 0; slot < t.Count; slot++)
+                if (t.Member(slot) is { } mon)
+                    foreach (string field in MemberFields)
+                        yield return ($"p{slot + 1}.{field}", ReadMember(mon, field));
+        }
 
         public IReadOnlyList<string> Fields { get; } =
         [

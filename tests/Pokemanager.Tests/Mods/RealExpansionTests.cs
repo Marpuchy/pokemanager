@@ -273,6 +273,37 @@ public sealed class RealExpansionTests
         Assert.Single(fixedTeam, m => data.MegaStones.Contains(m.Item));
     }
 
+    /// <summary>
+    /// A whole team drawn again (the trainers' "Al azar"): same size and levels, other Pokémon with moves, and the
+    /// boss rule applied at once — one crystal, never on the last, the last one a mega from the rule's level.
+    /// </summary>
+    [Fact]
+    public void TrainerReroll_KeepsTheTeamsShapeAndTheBossRule()
+    {
+        Assert.SkipWhen(Paths() is null, "POKEMANAGER_USUM_DUMP / POKEMANAGER_MOD_LIBRARY are not set.");
+        var (_, session) = Open(withMod: true);
+        var data = session.Current;
+        var stored = data.Trainers[23]; // Hala
+        var hala = Trainer.Read(data.Title, stored.WriteData().ToArray(), stored.WriteTeam().ToArray());
+        var before = hala.Team.Select(m => (m.Species, m.Level)).ToList();
+        var rules = new TrainerRerollRules(SimilarStrength: true, NoLegendaries: true, KeepTheme: true, FullyEvolvedFrom: null, NoEarlyWonderGuard: true);
+
+        Assert.Equal(before.Count, TrainerReroll.Reroll(data, hala, rules, new Random(7), data.LastSpecies));
+        var items = new TrainerBattleItems();
+        items.Boss.MegaFromLevel = 1;
+        BattleSafety.FixOne(data, hala, items.Boss, 23);
+
+        var team = hala.Team.ToList();
+        Assert.Equal(before.Count, team.Count);
+        Assert.Equal(before.Select(b => b.Level).Order(), team.Select(m => m.Level).Order());
+        Assert.Equal(team.Count, team.Select(m => m.Species).Distinct().Count());
+        Assert.All(team, m => Assert.False(Legendaries.Contains(m.Species)));
+        Assert.All(team, m => Assert.True(m.GetMove(0) > 0));
+        Assert.Equal(1, team.Count(m => BattleSafety.IsZCrystal(m.Item)));
+        Assert.False(BattleSafety.IsZCrystal(team[^1].Item));
+        Assert.Contains(team[^1].Item, data.MegaStones);
+    }
+
     [Fact]
     public void BattleSafety_MegaLastAndAsItself_ZCrystalNeverLast()
     {
@@ -299,6 +330,9 @@ public sealed class RealExpansionTests
         // And a Totem Lurantis in the middle, as UPR ZX put it in the user's Ultra Moon.
         team[1].Species = 754;
         team[1].Form = 1;
+        // Holding Kommonium Z, which is not its own and was not counted as a crystal: the team ended with two
+        // (2026-11-13, user: a kahuna's Slowking held one).
+        team[1].Item = 926;
         records[23] = hala.WriteData().ToArray();
         teams[23] = hala.WriteTeam().ToArray();
 

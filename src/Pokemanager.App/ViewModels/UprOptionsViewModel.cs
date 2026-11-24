@@ -67,6 +67,8 @@ public partial class UprOptionsViewModel : ObservableObject
         {
             var info = UprOptionCatalog.Describe(option.Name);
             var vm = new UprOptionViewModel(this, option, info);
+            if (option.Name == "StartersMod" && game?.Invoke() is { WildAndStaticSupported: true } starterTweaks)
+                vm.AddMegaStarters(starterTweaks);
             byName[option.Name] = vm;
             // A hidden option keeps its value in the preset (and is written back) but has no control of its own.
             if (!UprOptionCatalog.IsHidden(option.Name, generation))
@@ -342,11 +344,32 @@ public partial class UprOptionViewModel : ObservableObject
     public bool IsBool { get; }
     public bool IsInt { get; }
     public bool IsChoice { get; }
-    public IReadOnlyList<string> Choices { get; } = [];
-    public IReadOnlyList<string> ChoiceLabels { get; } = [];
+    public IReadOnlyList<string> Choices { get; private set; } = [];
+    public IReadOnlyList<string> ChoiceLabels { get; private set; } = [];
 
     /// <summary>The choices with what each does, for the list's entries (built once: an ItemsSource next to a two-way SelectedIndex).</summary>
-    public IReadOnlyList<UprChoiceItem> ChoiceItems { get; } = [];
+    public IReadOnlyList<UprChoiceItem> ChoiceItems { get; private set; } = [];
+
+    /// <summary>
+    /// The extra entry of the starters' list that is ours, not the randomizer's: starters with two evolutions and a mega
+    /// (<see cref="GameTweaksViewModel.MegaStarters"/>). Kept in the project's settings; the preset gets the randomizer's
+    /// "two evolutions" and the randomization is handed the three this application draws from the seed. -1 when absent.
+    /// </summary>
+    private int megaIndex = -1;
+    private GameTweaksViewModel? megaTweaks;
+
+    internal void AddMegaStarters(GameTweaksViewModel tweaks)
+    {
+        megaTweaks = tweaks;
+        megaIndex = Choices.Count;
+        ChoiceLabels = [.. ChoiceLabels, Strings.Starters_Mega];
+        ChoiceItems = [.. ChoiceItems, new UprChoiceItem(Strings.Starters_Mega, Strings.Starters_MegaTip + "\n" + tweaks.MegaStartersText)];
+        tweaks.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(GameTweaksViewModel.MegaStarters))
+                OnPropertyChanged(nameof(ChoiceIndex));
+        };
+    }
     public string? Hint { get; }
 
     /// <summary>What the option does, on hover: UPR ZX's own text for a misc tweak, ours for everything else.</summary>
@@ -416,9 +439,25 @@ public partial class UprOptionViewModel : ObservableObject
 
     public int ChoiceIndex
     {
-        get => choiceIndex;
+        get => megaTweaks is { MegaStarters: true } ? megaIndex : choiceIndex;
         set
         {
+            if (megaTweaks is { } tweaks && megaIndex >= 0)
+            {
+                bool mega = value == megaIndex;
+                if (mega)
+                {
+                    // The randomizer's nearest: what the preset says when the project's own choice is not there.
+                    int two = Choices.ToList().IndexOf("RANDOM_WITH_TWO_EVOLUTIONS");
+                    value = two >= 0 ? two : choiceIndex;
+                }
+                if (tweaks.MegaStarters != mega)
+                {
+                    tweaks.MegaStarters = mega;
+                    if (choiceIndex == value)
+                        OnPropertyChanged();
+                }
+            }
             if (value < 0 || value >= Choices.Count)
                 return;
             if (SetProperty(ref choiceIndex, value))

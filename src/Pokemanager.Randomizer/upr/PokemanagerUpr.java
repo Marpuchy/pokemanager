@@ -4,10 +4,12 @@
 //   java -Xmx4096M -cp PokeRandoZX.jar PokemanagerUpr.java <command> ...
 //
 // Commands:
-//   randomize <settings.rnqs> <rom> <output> <seed> <log> [all-items] [good-items]
+//   randomize <settings.rnqs> <rom> <output> <seed> <log> [all-items] [good-items] [starters]
 //       Like CliRandomizer, but with a fixed seed (Randomizer.randomize(file, log, seed)).
 //       all-items = 1 lets the item randomization use every item of the game (see unlockItems).
 //       good-items = item ids separated by commas that stop counting as bad ones (see allowItems).
+//       starters = three species separated by commas: the starters, chosen by the application (its mega starters),
+//       given to the randomizer as custom starters with the rival carrying them, so the randomization has them.
 //       LayeredFS output: <output>/<TitleID>/{romfs/..., code.bin}.
 //   pack <rom> <titleFolder> <output.cxi> <seed>
 //       Base ROM + the files in <titleFolder> (romfs/... and code.bin) -> .cxi via ctr.NCCH.saveAsNCCH.
@@ -54,9 +56,10 @@ public class PokemanagerUpr {
             if (args.length == 0) usage();
             switch (args[0]) {
                 case "randomize" -> {
-                    if (args.length < 6 || args.length > 8) usage();
+                    if (args.length < 6 || args.length > 9) usage();
                     randomize(args[1], args[2], args[3], Long.parseLong(args[4]), args[5],
-                            args.length >= 7 && "1".equals(args[6]), args.length == 8 ? args[7] : "");
+                            args.length >= 7 && "1".equals(args[6]), args.length >= 8 ? args[7] : "",
+                            args.length == 9 ? args[8] : "");
                 }
                 case "pack" -> { need(args, 5); pack(args[1], args[2], args[3], Long.parseLong(args[4])); }
                 case "describe-settings" -> {
@@ -75,7 +78,7 @@ public class PokemanagerUpr {
     // ---------------------------------------------------------------- randomize
 
     private static void randomize(String settingsPath, String romPath, String output, long seed, String logPath,
-                                  boolean allItems, String goodItems) throws Exception {
+                                  boolean allItems, String goodItems, String starters) throws Exception {
         Settings settings = readSettings(settingsPath);
         settings.setCustomNames(FileFunctions.getCustomNames());
         RomHandler handler = loadRom(romPath);
@@ -86,6 +89,17 @@ public class PokemanagerUpr {
         }
         if (settings.isUpdatedFromOldVersion()) {
             System.out.println("WARNING:OLD_PRESET");
+        }
+        if (!starters.isBlank()) {
+            // Custom starters are 1 + the index in the game's list of Pokémon (index = species number); 1 is "random".
+            String[] parts = starters.split(",");
+            int[] custom = new int[3];
+            for (int i = 0; i < 3; i++) custom[i] = Integer.parseInt(parts[i].trim()) + 1;
+            var setMod = Settings.class.getDeclaredMethod("setStartersMod", Settings.StartersMod.class);
+            setMod.setAccessible(true);
+            setMod.invoke(settings, Settings.StartersMod.CUSTOM);
+            settings.setCustomStarters(custom);
+            settings.setRivalCarriesStarterThroughout(true);
         }
 
         if (allItems) unlockItems(handler);

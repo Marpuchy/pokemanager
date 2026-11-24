@@ -5553,10 +5553,10 @@ Proyecto: {2}</value>
     <value>Abriendo {0}…</value>
   </data>
   <data name="Starters_Mega" xml:space="preserve">
-    <value>Iniciales con dos evoluciones y megaevolución</value>
+    <value>Aleatorios con dos evoluciones y megaevolución</value>
   </data>
   <data name="Starters_MegaTip" xml:space="preserve">
-    <value>Al crear la ROM, los tres iniciales pasan a ser Pokémon que evolucionan dos veces y cuya línea tiene megaevolución, según esta ROM (cuentan las megas del mod). Se sortean con la semilla, de tipos distintos si se puede, sin legendarios. El rival y Tilo llevan los nuevos. Un inicial cambiado a mano en «Todos los encuentros» manda.</value>
+    <value>Tres Pokémon que evolucionan dos veces y cuya línea tiene megaevolución, según esta ROM (cuentan las megas del mod), sorteados con la semilla antes de randomizar: la randomización ya los trae, así que se ven en los encuentros antes de crear la ROM, y el rival y Tilo los llevan. Tipos distintos si se puede, sin legendarios.</value>
   </data>
   <data name="Starters_MegaCount" xml:space="preserve">
     <value>{0} Pokémon de esta ROM cumplen.</value>
@@ -5701,5 +5701,14 @@ Proyecto: {2}</value>
   </data>
   <data name="Move_ZHint" xml:space="preserve">
     <value>Cada Pokémon con su cristal: llevándolo equipado, este movimiento suyo se convierte en este movimiento Z. El Pokémon tiene que conocerlo. Es un dato del propio Pokémon; también se edita en el editor avanzado de Pokémon.</value>
+  </data>
+  <data name="Trainer_Reroll" xml:space="preserve">
+    <value>Al azar</value>
+  </data>
+  <data name="Trainer_RerollTip" xml:space="preserve">
+    <value>Cambia todo el equipo por otros Pokémon de esta ROM con los criterios de la randomización (fuerza parecida, sin legendarios, tipo del equipo, totalmente evolucionados desde su nivel…), con los movimientos que saben a su nivel y la mega y el cristal Z que le tocan a este tipo de entrenador. Funciona con el equipo oculto, sin desvelarlo.</value>
+  </data>
+  <data name="Trainer_RerollUndo" xml:space="preserve">
+    <value>Equipo al azar · {0}</value>
   </data>
 </root>

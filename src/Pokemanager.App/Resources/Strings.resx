@@ -5553,10 +5553,10 @@ Project: {2}</value>
     <value>Opening {0}…</value>
   </data>
   <data name="Starters_Mega" xml:space="preserve">
-    <value>Starters with two evolutions and a Mega Evolution</value>
+    <value>Random with two evolutions and a Mega Evolution</value>
   </data>
   <data name="Starters_MegaTip" xml:space="preserve">
-    <value>When the ROM is built, the three starters become Pokémon that evolve twice and whose line has a Mega Evolution, read from this ROM (a mod's megas count). Drawn from the seed, with different types when possible; no legendaries. The rival and Hau carry the new ones. A starter changed by hand in «All encounters» wins.</value>
+    <value>Three Pokémon that evolve twice and whose line has a Mega Evolution, read from this ROM (a mod's megas count), drawn from the seed before randomizing: the randomization already has them, so the encounters show them before the ROM is built, and the rival and Hau carry them. Different types when possible; no legendaries.</value>
   </data>
   <data name="Starters_MegaCount" xml:space="preserve">
     <value>{0} Pokémon of this ROM qualify.</value>
@@ -5701,5 +5701,14 @@ Project: {2}</value>
   </data>
   <data name="Move_ZHint" xml:space="preserve">
     <value>Each Pokémon with its crystal: with the crystal held, this move of theirs becomes this Z-move. The Pokémon has to know it. It is the Pokémon's own data, also editable in Advanced: Pokémon.</value>
+  </data>
+  <data name="Trainer_Reroll" xml:space="preserve">
+    <value>Random</value>
+  </data>
+  <data name="Trainer_RerollTip" xml:space="preserve">
+    <value>Replaces the whole team with other Pokémon of this ROM by the randomization's rules (similar strength, no legendaries, the team's type, fully evolved from their level…), with the moves they know at their level and the Mega Stone and Z-crystal this kind of trainer gets. Works with the team hidden, without showing it.</value>
+  </data>
+  <data name="Trainer_RerollUndo" xml:space="preserve">
+    <value>Random team · {0}</value>
   </data>
 </root>

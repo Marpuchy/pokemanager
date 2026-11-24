@@ -413,24 +413,6 @@ public static class ModBuilder
                 outputs["romfs/" + layout.Statics] = GARC.PackGARC(files, statics.Version, statics.ContentPadding).Data;
         }
 
-        // Starters with two evolutions and a mega in their line; the rival and the friend carry the new ones.
-        if (game.MegaStarters && layout.Statics.Length > 0)
-        {
-            var statics = BuiltOrRead(session, outputs, layout.Statics);
-            byte[][] files = statics.Files;
-            if (GameStarters.Read(statics) is { } before
-                && MegaStarters.Pick(session.Current, session.Project.Randomization.Seed) is { } picked
-                && GameStarters.SetStarters(files, picked) > 0)
-            {
-                outputs["romfs/" + layout.Statics] = GARC.PackGARC(files, statics.Version, statics.ContentPadding).Data;
-                var data = BuiltOrRead(session, outputs, layout.TrainerData);
-                var team = BuiltOrRead(session, outputs, layout.TrainerPokemon);
-                byte[][] dataFiles = data.Files, teamFiles = team.Files;
-                if (MegaStarters.FollowInTeams(session.Current, title, before, picked, dataFiles, teamFiles) > 0)
-                    outputs["romfs/" + layout.TrainerPokemon] = GARC.PackGARC(teamFiles, team.Version, team.ContentPadding).Data;
-            }
-        }
-
         if (game.TrainerLevelPercent != 0)
         {
             var data = BuiltOrRead(session, outputs, layout.TrainerData);

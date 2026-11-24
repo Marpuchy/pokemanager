@@ -774,11 +774,6 @@
                           <NumericUpDown Grid.Column="1" Width="110" Value="{Binding GameTweaks.StarterLevelPercent}" Minimum="-90" Maximum="400"
                                          Increment="5" FormatString="0.##" ToolTip.Tip="{x:Static r:Strings.Tip_GameLevelsStarters}" />
                         </Grid>
-                        <CheckBox Margin="0,6,0,0" IsChecked="{Binding GameTweaks.MegaStarters}" IsEnabled="{Binding GameTweaks.WildAndStaticSupported}"
-                                  ToolTip.Tip="{x:Static r:Strings.Starters_MegaTip}">
-                          <TextBlock Text="{x:Static r:Strings.Starters_Mega}" TextWrapping="Wrap" />
-                        </CheckBox>
-                        <TextBlock Classes="hint" TextWrapping="Wrap" Text="{Binding GameTweaks.MegaStartersText}" />
                       </StackPanel>
                     </Border>
                   </c:CardGrid>
@@ -1127,6 +1122,8 @@
                                           <TextBlock Classes="badge-value" Text="{Binding Count.Value}" />
                                         </StackPanel>
                                       </Border>
+                                      <Button Content="{x:Static r:Strings.Trainer_Reroll}" Command="{Binding RerollCommand}"
+                                              IsVisible="{Binding !IsUnreadable}" ToolTip.Tip="{x:Static r:Strings.Trainer_RerollTip}" />
                                       <Button Content="{x:Static r:Strings.Detail_Revert}" Command="{Binding RevertCommand}" IsEnabled="{Binding IsModified}" />
                                     </StackPanel>
                                   </Grid>
