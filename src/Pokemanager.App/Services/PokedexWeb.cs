@@ -34,6 +34,35 @@ public static class PokedexWeb
     public static string Build(string title, GameData rom, GameNames names, PokemonSprites sprites,
         Func<int, bool>? seen, Func<int, bool>? caught, int dexMax)
     {
+        string json = Data(title, rom, names, sprites, seen, caught, dexMax).ToJsonString(JsonOptions).Replace("</", "<\\/");
+        return Template.Replace("/*DATA*/null", json).Replace("{{TITLE}}", System.Net.WebUtility.HtmlEncode(title))
+            .Replace("{{LANG}}", Strings.Culture?.TwoLetterISOLanguageName ?? System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName);
+    }
+
+    /// <summary>
+    /// The Pokédex as a file (.pkdex, 2026-11-24, user: "a web you give the file to and it shows it as in the app,
+    /// from the phone or anywhere"): the page's data with a marker, opened by the same page published with the project
+    /// (<c>docs/pokedex/index.html</c>) when it has no data of its own.
+    /// </summary>
+    public static void WriteFile(string path, string title, GameData rom, GameNames names, PokemonSprites sprites,
+        Func<int, bool>? seen, Func<int, bool>? caught, int dexMax)
+    {
+        var file = new JsonObject
+        {
+            ["pokemanager"] = "pokedex",
+            ["format"] = 1,
+            ["title"] = title,
+            ["game"] = rom.Title.ToString(),
+            ["data"] = Data(title, rom, names, sprites, seen, caught, dexMax),
+        };
+        File.WriteAllText(path, file.ToJsonString(JsonOptions), new UTF8Encoding(false));
+    }
+
+    private static readonly JsonSerializerOptions JsonOptions = new() { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
+
+    private static JsonObject Data(string title, GameData rom, GameNames names, PokemonSprites sprites,
+        Func<int, bool>? seen, Func<int, bool>? caught, int dexMax)
+    {
         var index = PersonalIndex.Of(rom);
         bool gen7 = rom.Title.Generation() == 7;
         string N(IReadOnlyList<string> list, int id) => id >= 0 && id < list.Count ? list[id] : $"#{id}";
@@ -158,13 +187,11 @@ public static class PokedexWeb
             ["made"] = string.Format(Strings.Web_Made, DateTime.Now.ToString("g")),
         };
         string Hex(Avalonia.Media.IBrush brush) => brush is Avalonia.Media.ISolidColorBrush b ? $"#{b.Color.R:X2}{b.Color.G:X2}{b.Color.B:X2}" : "";
-        var data = new JsonObject { ["accent"] = Hex(Tokens.Accent), ["accentText"] = Hex(Tokens.AccentText), ["text"] = text, ["types"] = types, ["entries"] = entries, ["edges"] = edges };
-        string json = data.ToJsonString(new JsonSerializerOptions { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping })
-            .Replace("</", "<\\/");
-
-        return Template.Replace("/*DATA*/null", json).Replace("{{TITLE}}", System.Net.WebUtility.HtmlEncode(title))
-            .Replace("{{LANG}}", Strings.Culture?.TwoLetterISOLanguageName ?? System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName);
+        return new JsonObject { ["accent"] = Hex(Tokens.Accent), ["accentText"] = Hex(Tokens.AccentText), ["text"] = text, ["types"] = types, ["entries"] = entries, ["edges"] = edges };
     }
+
+    /// <summary>The page with no data of its own: the viewer that opens a .pkdex (published as <c>docs/pokedex/index.html</c>).</summary>
+    public static string Viewer => Template.Replace("{{TITLE}}", "Pokédex · Pokemanager").Replace("{{LANG}}", "es");
 
     /// <summary>Each sprite encoded once: the page is built again whenever the game saves while it is shared.</summary>
     private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Bitmap, string> encoded = new();

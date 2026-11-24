@@ -5861,4 +5861,16 @@ Project: {2}</value>
   <data name="Rules_EvolutionCapUndo" xml:space="preserve">
     <value>Spread evolutions</value>
   </data>
+  <data name="Web_Export" xml:space="preserve">
+    <value>Export Pokédex (.pkdex)…</value>
+  </data>
+  <data name="Web_ExportTitle" xml:space="preserve">
+    <value>Save the Pokédex</value>
+  </data>
+  <data name="Web_ExportTip" xml:space="preserve">
+    <value>A file with this ROM's Pokédex (names, types, stats, evolutions, levels, pictures) that opens on Pokemanager's web page from any browser or phone, as here.</value>
+  </data>
+  <data name="Web_Exported" xml:space="preserve">
+    <value>Pokédex exported: {0}</value>
+  </data>
 </root>

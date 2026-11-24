@@ -1110,6 +1110,29 @@ public partial class SaveDexViewModel : ObservableObject
         }
     }
 
+    /// <summary>
+    /// The Pokédex as a file (.pkdex) for the viewer published with the project (docs/pokedex), which shows it as here
+    /// from any browser or phone (2026-11-24, user).
+    /// </summary>
+    [RelayCommand]
+    private async Task ExportFile()
+    {
+        var editor = owner.Editor;
+        string name = System.IO.Path.GetFileNameWithoutExtension(editor.ProjectPath);
+        if (await editor.Dialogs.PickSaveFileAsync(Strings.Web_ExportTitle, name + ".pkdex", "pkdex") is not { } path)
+            return;
+        try
+        {
+            PokedexWeb.WriteFile(path, string.Format(Strings.Web_Title, name), doc.Rom, owner.GameNames, owner.Sprites,
+                s => doc.GetSeen((ushort)s), s => doc.GetCaught((ushort)s), doc.DexMaxSpecies);
+            editor.SetStatus(string.Format(Strings.Web_Exported, path));
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException)
+        {
+            editor.SetStatus(string.Format(Strings.Web_Failed, ex.Message), error: true);
+        }
+    }
+
     // ------------------------------------------------------------------ on the phone, over the home Wi-Fi (2026-11-16, user)
 
     public bool IsSharing => PokedexShare.Current is { } share

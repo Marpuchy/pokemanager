@@ -58,10 +58,20 @@ label.tg{display:flex;gap:6px;align-items:center;cursor:pointer}
 .arrow{color:var(--muted);font-size:20px;padding:0 4px}
 svg text{font:600 11px "Segoe UI",system-ui,sans-serif}
 @media (max-width:820px){main{grid-template-columns:1fr;height:auto}#list{max-height:45vh}.two{grid-template-columns:1fr}}
+[hidden]{display:none!important}
 </style>
 </head>
 <body>
-<main>
+<div id="loader" hidden>
+  <div class="card" style="max-width:520px;margin:12vh auto;padding:28px;text-align:center">
+    <div class="card-title" id="ldTitle" style="font-size:20px"></div>
+    <p class="hint" id="ldHint"></p>
+    <label class="btn" style="display:inline-block;margin-top:10px;cursor:pointer"><span id="ldPick"></span>
+      <input type="file" id="ldFile" accept=".pkdex,.json,application/json" hidden></label>
+    <p class="hint" id="ldError" style="color:#E5383B"></p>
+  </div>
+</div>
+<main id="app">
   <aside>
     <input type="search" id="q">
     <div class="bar" id="seg"></div>
@@ -74,7 +84,11 @@ svg text{font:600 11px "Segoe UI",system-ui,sans-serif}
   <section id="detail"></section>
 </main>
 <script>
-const D=/*DATA*/null;
+const D0=/*DATA*/null;
+// The same page serves the app's file, the phone, and the viewer published with the project (docs/pokedex): with no
+// data inside, it asks for a Pokédex file (.pkdex, exported from the app) or takes one from ?src=<address>.
+function start(D){
+$('loader').hidden=true;$('app').hidden=false;
 const T=D.text,TY=D.types,E=D.entries;
 document.documentElement.style.setProperty('--accent',D.accent||'#f39c3c');
 document.documentElement.style.setProperty('--accentText',D.accentText||'#f5b05a');
@@ -82,7 +96,6 @@ const byKey=new Map(E.map(e=>[e.k,e]));
 const kids=new Map(),parent=new Map();
 for(const [a,b,h] of D.edges){if(!byKey.has(a)||!byKey.has(b)||a==b)continue;if(!kids.has(a))kids.set(a,[]);if(!kids.get(a).some(x=>x[0]==b))kids.get(a).push([b,h]);if(!parent.has(b))parent.set(b,a);}
 let filter='all',showForms=false,showAb=false,cur=null;
-const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fold=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const rgb=h=>{const n=parseInt(h.slice(1),16);return[n>>16,n>>8&255,n&255]};
@@ -168,8 +181,26 @@ const KEEP='pokemanager-dex-current';
 let start=visible()[0];
 try{const k=sessionStorage.getItem(KEEP);if(k&&byKey.has(k))start=byKey.get(k)}catch(_){}
 renderList();if(start)show(start);
-if(location.protocol.startsWith('http')){let stamp=null;setInterval(async()=>{try{const r=await fetch('stamp',{cache:'no-store'});const t=await r.text();
+if(D0&&location.protocol.startsWith('http')){let stamp=null;setInterval(async()=>{try{const r=await fetch('stamp',{cache:'no-store'});const t=await r.text();
   if(stamp&&t!==stamp){try{sessionStorage.setItem(KEEP,cur?cur.k:'')}catch(_){}location.reload()}stamp=t}catch(_){}},8000)}
+}
+function $(id){return document.getElementById(id)}
+function unpack(j){if(j&&j.pokemanager==='pokedex'&&j.data)return j.data;if(j&&j.entries&&j.types)return j;throw new Error('format')}
+function loader(){
+  const es=(navigator.language||'').toLowerCase().startsWith('es');
+  const L=es?{t:'Pokédex de Pokemanager',h:'Abre el archivo de Pokédex (.pkdex) que exporta Pokemanager desde Partida → Pokédex. Se ve igual que en la app y no sale del navegador.',p:'Elegir archivo…',e:'No es un archivo de Pokédex de Pokemanager.',f:'No se ha podido descargar el archivo.'}
+    :{t:'Pokemanager Pokédex',h:'Open the Pokédex file (.pkdex) Pokemanager exports from Save → Pokédex. It looks as in the app and never leaves the browser.',p:'Choose file…',e:'This is not a Pokemanager Pokédex file.',f:'The file could not be downloaded.'};
+  $('app').hidden=true;$('loader').hidden=false;
+  $('ldTitle').textContent=L.t;$('ldHint').textContent=L.h;$('ldPick').textContent=L.p;
+  const open=text=>{try{const d=unpack(JSON.parse(text));try{localStorage.setItem('pokemanager-dex-file',text)}catch(_){}start(d)}catch(_){$('ldError').textContent=L.e}};
+  $('ldFile').onchange=e=>{const f=e.target.files[0];if(f)f.text().then(open)};
+  document.addEventListener('dragover',e=>e.preventDefault());
+  document.addEventListener('drop',e=>{e.preventDefault();const f=e.dataTransfer.files[0];if(f)f.text().then(open)});
+  const src=new URLSearchParams(location.search).get('src');
+  if(src){fetch(src).then(r=>{if(!r.ok)throw 0;return r.text()}).then(open).catch(()=>$('ldError').textContent=L.f);return}
+  try{const last=localStorage.getItem('pokemanager-dex-file');if(last)open(last)}catch(_){}
+}
+if(D0)start(D0);else loader();
 </script>
 </body>
 </html>

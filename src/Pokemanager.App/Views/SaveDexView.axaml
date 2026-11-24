@@ -115,6 +115,8 @@
           <Button Grid.Column="2" HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Phone_Stop}" Command="{Binding StopSharingCommand}"
                   IsVisible="{Binding IsSharing}" />
         </Grid>
+        <Button HorizontalAlignment="Stretch" Content="{x:Static r:Strings.Web_Export}" Command="{Binding ExportFileCommand}"
+                ToolTip.Tip="{x:Static r:Strings.Web_ExportTip}" />
         <!-- The link for the phone: scan the code with the camera, on the same Wi-Fi -->
         <Border Classes="card" IsVisible="{Binding IsSharing}">
           <Grid ColumnDefinitions="Auto,*">
