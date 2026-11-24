@@ -836,7 +836,7 @@ Los valores iguales a la base de este proyecto no se guardan como cambios. Antes
     <value>¿Cambiar la randomización de una partida empezada?</value>
   </data>
   <data name="Guard_Message" xml:space="preserve">
-    <value>La semilla o las opciones no son las de la ROM con la que juegas. Crearla ahora genera otro juego: tus Pokémon conservan la especie, pero cambian sus stats base, habilidades y movimientos que aprenden, y también los Pokémon salvajes y los entrenadores.
+    <value>La semilla, las opciones del randomizer o los archivos de un mod no son los de la ROM con la que juegas, así que se randomizará de nuevo aunque la semilla sea la misma, y puede salir otro juego: tus Pokémon conservan la especie, pero cambian sus stats base, habilidades y movimientos que aprenden, los Pokémon salvajes, los entrenadores y los objetos del suelo (los que ya cogiste pueden volver a salir).
 
 Si solo querías retocar algunos Pokémon, cancela y vuelve a poner la semilla. En cualquier caso la versión actual queda en el Historial para poder volver.</value>
   </data>

@@ -836,7 +836,7 @@ Values equal to this project's base are not stored as changes. The current state
     <value>Change the randomization of a game in progress?</value>
   </data>
   <data name="Guard_Message" xml:space="preserve">
-    <value>The seed or the options differ from the ROM you are playing. Building now creates a different game: the Pokémon you already have keep their species, but their base stats, abilities and learnsets change, and so do wild Pokémon and trainers.
+    <value>The seed, the randomizer's options or a mod's files differ from the ROM you are playing, so it will be randomized again even with the same seed, and it may come out a different game: the Pokémon you already have keep their species, but their base stats, abilities and learnsets change, and so do wild Pokémon, trainers and ground items (ones you already picked up may turn up again).
 
 If you only wanted to tweak some Pokémon, cancel and put back the seed. The current version stays in History either way, so you can go back.</value>
   </data>

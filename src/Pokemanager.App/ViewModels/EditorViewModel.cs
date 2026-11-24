@@ -1071,6 +1071,12 @@ public partial class EditorViewModel : ObservableObject
         {
             changed = r.Enabled && r.InstalledSeed is not null && r.InstalledSeed != r.Seed;
         }
+        // Same seed and preset is not enough (2026-11-24, user: a TM picked up twice after a rebuild): a new option of
+        // the randomization (mega starters, item options) or a mod's updated files make another randomization of the
+        // same seed, with the wild Pokémon, trainers and ground items moved — the items already picked up come back.
+        // Asked whenever the build would not reuse the randomization the installed ROM was made from.
+        if (!changed && r.Enabled && r.InstalledRandomization is { } installed)
+            changed = upr.TryGetCached(Session.Project, r.Preset) is not { } found || found.CacheKey != installed;
         if (!changed)
             return true;
 
