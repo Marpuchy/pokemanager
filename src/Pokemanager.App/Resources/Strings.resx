@@ -5828,4 +5828,37 @@ Project: {2}</value>
   <data name="Room_PrizeWeightTip" xml:space="preserve">
     <value>How often this prize comes up against the others: with weights 1 and 3, the second comes up three times as often.</value>
   </data>
+  <data name="Rules_Title" xml:space="preserve">
+    <value>Rules when randomizing</value>
+  </data>
+  <data name="Rules_Hint" xml:space="preserve">
+    <value>This application's own; they act while randomizing, so changing them randomizes again (same seed).</value>
+  </data>
+  <data name="Rules_Progression" xml:space="preserve">
+    <value>Evolution stage by level (up to 19 mostly first stages, 20 to 34 sometimes one stage less, from 55 fully evolved)</value>
+  </data>
+  <data name="Rules_ProgressionTip" xml:space="preserve">
+    <value>Wild, trainers, totems, gifts and statics, at the level they will have in the ROM (the level % count). Up to level 19 a Pokémon that is not a first stage becomes its first stage 9 times in 10; 20 to 34 a fully evolved one goes back a stage half the time; from 55 everything is fully evolved. Legendaries are left alone.</value>
+  </data>
+  <data name="Rules_Legendaries" xml:space="preserve">
+    <value>Legendaries in trainer teams from level</value>
+  </data>
+  <data name="Rules_LegendariesTip" xml:space="preserve">
+    <value>From that level a trainer may carry a legendary in the slot before the last: bosses and important ones one of 600 or more (35 %), the rest one under 600 or a mythical (20 %). One per team at most.</value>
+  </data>
+  <data name="Rules_EvolutionCap" xml:space="preserve">
+    <value>Level evolutions spread up to level</value>
+  </data>
+  <data name="Rules_EvolutionCapTip" xml:space="preserve">
+    <value>Up to level 36 as the game has them; above, spread between 36 and this level by the original level (Hydreigon goes from 64 to this level). So "easier evolutions" does not pull last stages to 40.</value>
+  </data>
+  <data name="Rules_ProgressionUndo" xml:space="preserve">
+    <value>Evolution stage by level</value>
+  </data>
+  <data name="Rules_LegendariesUndo" xml:space="preserve">
+    <value>Legendaries in trainer teams</value>
+  </data>
+  <data name="Rules_EvolutionCapUndo" xml:space="preserve">
+    <value>Spread evolutions</value>
+  </data>
 </root>

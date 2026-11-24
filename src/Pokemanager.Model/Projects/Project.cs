@@ -28,6 +28,22 @@ public sealed class RandomizationSettings
     /// </summary>
     public bool MegaStonesInPool { get; set; }
 
+    /// <summary>
+    /// Evolution stage by level, decided while randomizing (2026-11-24, user): up to level 19 mostly first stages, from
+    /// 20 to 34 fully evolved ones go back a stage half the time, from 55 everything fully evolved. Wild Pokémon,
+    /// trainers, totems, gifts and statics, at the level the built ROM gives them (the level percentages count).
+    /// </summary>
+    public bool EvolutionProgression { get; set; }
+
+    /// <summary>From this level on a trainer may carry one legendary (bosses and important ones 600+, the rest under 600); 0 = never.</summary>
+    public int TrainerLegendariesFrom { get; set; }
+
+    /// <summary>Level evolutions spread up to this level from the game's own (the last stage by it at the latest); 0 = as the randomizer leaves them.</summary>
+    public int EvolutionLevelCap { get; set; }
+
+    /// <summary>Whether any of the three rules above is on (they change the randomization, so they are part of its key).</summary>
+    public bool HasRandomizerRules => EvolutionProgression || TrainerLegendariesFrom > 0 || EvolutionLevelCap > 0;
+
     public bool Enabled { get; set; }
 
     /// <summary>Display name of the preset (usually the name of the source .rnqs).</summary>
@@ -73,6 +89,9 @@ public sealed class RandomizationSettings
     {
         AllowAllItems = other.AllowAllItems;
         MegaStonesInPool = other.MegaStonesInPool;
+        EvolutionProgression = other.EvolutionProgression;
+        TrainerLegendariesFrom = other.TrainerLegendariesFrom;
+        EvolutionLevelCap = other.EvolutionLevelCap;
         Enabled = other.Enabled;
         PresetName = other.PresetName;
         Preset = other.Preset;

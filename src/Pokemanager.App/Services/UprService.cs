@@ -63,10 +63,24 @@ public sealed class UprService
     /// key it was written with: reading them from somewhere else left the item options out of the key on the way in,
     /// and the lookup then missed every time the user had turned one on.
     /// </summary>
-    public (bool AllItems, IReadOnlyList<int>? GoodItems, IReadOnlyList<int>? Starters) CacheOptions(Project project)
+    public (bool AllItems, IReadOnlyList<int>? GoodItems, IReadOnlyList<int>? Starters, UprRules? Rules) CacheOptions(Project project)
     {
         var r = project.Randomization;
-        return (r.AllowAllItems, r.MegaStonesInPool ? MegaStones(project) : null, Starters(project));
+        return (r.AllowAllItems, r.MegaStonesInPool ? MegaStones(project) : null, Starters(project), Rules(project));
+    }
+
+    /// <summary>The application's randomizer rules, or null when none is on (then the key is what it always was).</summary>
+    public static UprRules? Rules(Project project)
+    {
+        var r = project.Randomization;
+        if (!r.HasRandomizerRules)
+            return null;
+        var t = project.Tweaks;
+        int trainers = (int)Math.Round(t.TrainerLevelPercent);
+        int wild = (int)Math.Round(t.WildLevelPercent);
+        int statics = (int)Math.Round(t.StaticLevelPercent);
+        return new UprRules(r.EvolutionProgression, r.TrainerLegendariesFrom, r.EvolutionLevelCap,
+            r.EvolutionProgression || r.TrainerLegendariesFrom > 0 ? trainers : 0, r.EvolutionProgression ? wild : 0, r.EvolutionProgression ? statics : 0);
     }
 
     private readonly Dictionary<string, int[]?> starters = new(StringComparer.Ordinal);
@@ -157,7 +171,7 @@ public sealed class UprService
     public string OptionsStamp(Project project, byte[] effectivePreset)
     {
         var r = project.Randomization;
-        var (allItems, goodItems, picked) = CacheOptions(project);
+        var (allItems, goodItems, picked, rules) = CacheOptions(project);
         string rom = project.ResolveRomFile() is { } path && File.Exists(path)
             ? $"{Path.GetFullPath(path).ToUpperInvariant()}|{new FileInfo(path).Length}|{File.GetLastWriteTimeUtc(path).Ticks}"
             : "";
@@ -177,6 +191,8 @@ public sealed class UprService
             r.Seed, allItems, string.Join('.', goodItems ?? []), mods);
         if (picked is { Count: > 0 })
             material += "|starters:" + string.Join('.', picked);
+        if (rules is not null)
+            material += "|" + rules.Key;
         return Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(material)))[..24];
     }
 
@@ -203,8 +219,8 @@ public sealed class UprService
                 return null; // a mod that cannot be read cannot have been randomized either
             }
         }
-        var (allItems, goodItems, picked) = CacheOptions(project);
-        return Cache.TryGet(rom, effectivePreset, r.Seed, t.JarPath, allItems, goodItems, picked) is { } found ? Repaired(project, found) : null;
+        var (allItems, goodItems, picked, rules) = CacheOptions(project);
+        return Cache.TryGet(rom, effectivePreset, r.Seed, t.JarPath, allItems, goodItems, picked, rules) is { } found ? Repaired(project, found) : null;
     }
 
     /// <summary>
@@ -232,9 +248,9 @@ public sealed class UprService
     public async Task<UprResult> RandomizeAsync(UprTools t, Project project, string romFile, byte[] preset,
         IProgress<string>? progress = null, CancellationToken cancellationToken = default)
     {
-        var (allItems, goodItems, picked) = CacheOptions(project);
+        var (allItems, goodItems, picked, rules) = CacheOptions(project);
         var result = await Cache.GetOrCreateAsync(new UprRunner(t), t, romFile, preset, project.Randomization.Seed, progress,
-            cancellationToken, allItems, goodItems, GameCounts(project), picked);
+            cancellationToken, allItems, goodItems, GameCounts(project), picked, rules);
         return Repaired(project, result);
     }
 

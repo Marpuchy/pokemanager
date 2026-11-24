@@ -347,6 +347,31 @@
         </Border>
       </Grid>
 
+      <!-- Randomizer rules of this application, applied while randomizing (2026-11-24, user) -->
+      <Border Classes="card" IsVisible="{Binding IsPokemon}">
+        <StackPanel Spacing="4">
+          <TextBlock Classes="card-title" Text="{x:Static r:Strings.Rules_Title}" />
+          <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Rules_Hint}" />
+          <CheckBox Margin="0,3" IsChecked="{Binding Game.EvolutionProgression}" ToolTip.Tip="{x:Static r:Strings.Rules_ProgressionTip}">
+            <TextBlock Text="{x:Static r:Strings.Rules_Progression}" TextWrapping="Wrap" />
+          </CheckBox>
+          <Grid ColumnDefinitions="*,Auto" Margin="0,2">
+            <CheckBox IsChecked="{Binding Game.TrainerLegendaries}" ToolTip.Tip="{x:Static r:Strings.Rules_LegendariesTip}">
+              <TextBlock Text="{x:Static r:Strings.Rules_Legendaries}" TextWrapping="Wrap" />
+            </CheckBox>
+            <NumericUpDown Grid.Column="1" Width="110" Value="{Binding Game.TrainerLegendariesFrom}" Minimum="1" Maximum="100" Increment="1"
+                           FormatString="0" ParsingNumberStyle="Integer" IsEnabled="{Binding Game.TrainerLegendaries}" />
+          </Grid>
+          <Grid ColumnDefinitions="*,Auto" Margin="0,2">
+            <CheckBox IsChecked="{Binding Game.EvolutionCap}" ToolTip.Tip="{x:Static r:Strings.Rules_EvolutionCapTip}">
+              <TextBlock Text="{x:Static r:Strings.Rules_EvolutionCap}" TextWrapping="Wrap" />
+            </CheckBox>
+            <NumericUpDown Grid.Column="1" Width="110" Value="{Binding Game.EvolutionLevelCap}" Minimum="37" Maximum="100" Increment="1"
+                           FormatString="0" ParsingNumberStyle="Integer" IsEnabled="{Binding Game.EvolutionCap}" />
+          </Grid>
+        </StackPanel>
+      </Border>
+
       <!-- The personal table of every Pokemon of the game, in one go -->
       <Border Classes="card" IsVisible="{Binding IsPokemon}">
         <StackPanel Spacing="4">

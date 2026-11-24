@@ -210,6 +210,48 @@ public sealed partial class GameTweaksViewModel : ObservableObject
         }
     }
 
+    // ------------------------------------------------------------------ randomizer rules of ours (2026-11-24, user)
+
+    private RandomizationSettings Rnd => session.Project.Randomization;
+
+    private void SetRule(Action change, string label)
+    {
+        change();
+        OnPropertyChanged(string.Empty);
+        editor.MarkDirty(label);
+    }
+
+    /// <summary>Evolution stage by level, decided while randomizing (<see cref="RandomizationSettings.EvolutionProgression"/>).</summary>
+    public bool EvolutionProgression
+    {
+        get => Rnd.EvolutionProgression;
+        set { if (value != Rnd.EvolutionProgression) SetRule(() => Rnd.EvolutionProgression = value, Strings.Rules_ProgressionUndo); }
+    }
+
+    public bool TrainerLegendaries
+    {
+        get => Rnd.TrainerLegendariesFrom > 0;
+        set { if (value != TrainerLegendaries) SetRule(() => Rnd.TrainerLegendariesFrom = value ? 42 : 0, Strings.Rules_LegendariesUndo); }
+    }
+
+    public decimal? TrainerLegendariesFrom
+    {
+        get => Rnd.TrainerLegendariesFrom > 0 ? Rnd.TrainerLegendariesFrom : 42;
+        set { if (value is { } v && TrainerLegendaries && (int)v != Rnd.TrainerLegendariesFrom) SetRule(() => Rnd.TrainerLegendariesFrom = Math.Clamp((int)v, 1, 100), Strings.Rules_LegendariesUndo); }
+    }
+
+    public bool EvolutionCap
+    {
+        get => Rnd.EvolutionLevelCap > 0;
+        set { if (value != EvolutionCap) SetRule(() => Rnd.EvolutionLevelCap = value ? 55 : 0, Strings.Rules_EvolutionCapUndo); }
+    }
+
+    public decimal? EvolutionLevelCap
+    {
+        get => Rnd.EvolutionLevelCap > 0 ? Rnd.EvolutionLevelCap : 55;
+        set { if (value is { } v && EvolutionCap && (int)v != Rnd.EvolutionLevelCap) SetRule(() => Rnd.EvolutionLevelCap = Math.Clamp((int)v, 37, 100), Strings.Rules_EvolutionCapUndo); }
+    }
+
     /// <summary>Trades that ask for species 0 (experimental, see <see cref="Model.Projects.GameSettings.AnyTradeExperimental"/>).</summary>
     public bool AnyTrade
     {

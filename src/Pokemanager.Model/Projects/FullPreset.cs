@@ -43,6 +43,19 @@ public sealed class FullPreset
 
     public bool MegaStonesInPool { get; init; }
 
+    /// <summary>The randomizer rules that are ours (<see cref="RandomizationSettings.EvolutionProgression"/> and the next two).</summary>
+    public bool EvolutionProgression { get; init; }
+
+    public int TrainerLegendariesFrom { get; init; }
+
+    public int EvolutionLevelCap { get; init; }
+
+    /// <summary>
+    /// The Locke rules: lives and the two roulettes (2026-11-24, user: "everything in the .rnqs"). Not what was won or
+    /// lost in the run (spins, lives lost). Null in files made before.
+    /// </summary>
+    public LockeSettings? Locke { get; init; }
+
     /// <summary>
     /// The ROM mods that are on, by id. Emulator plugins are not here: they are installed on this computer, not part of
     /// how the run is set up.
@@ -55,6 +68,18 @@ public sealed class FullPreset
         Shops = project.Shops.Clone(),
         AllowAllItems = project.Randomization.AllowAllItems,
         MegaStonesInPool = project.Randomization.MegaStonesInPool,
+        EvolutionProgression = project.Randomization.EvolutionProgression,
+        TrainerLegendariesFrom = project.Randomization.TrainerLegendariesFrom,
+        EvolutionLevelCap = project.Randomization.EvolutionLevelCap,
+        Locke = new LockeSettings
+        {
+            MaxLives = project.Locke.MaxLives,
+            Prizes = [.. project.Locke.Prizes],
+            MinorPrizes = [.. project.Locke.MinorPrizes],
+            RouletteFirst = project.Locke.RouletteFirst,
+            RouletteLast = project.Locke.RouletteLast,
+            RouletteEvery = project.Locke.RouletteEvery,
+        },
         Mods = [.. project.Mods.EnabledRomMods],
     };
 
@@ -107,7 +132,11 @@ public sealed class FullPreset
     /// reopens the game data, which is the caller's to do). What describes the ROM on disk (the installed level cap)
     /// stays the project's: the file is how to play, not what was built.
     /// </summary>
-    public void ApplyTo(Project project)
+    /// <param name="itemCount">
+    /// How many items the project's game has: a roulette prize of an item another game has and this one does not is left
+    /// out (a file from Ultra Sun into Pokémon X, 2026-11-24, user: "compatible with other games, without errors").
+    /// </param>
+    public void ApplyTo(Project project, int itemCount = int.MaxValue)
     {
         int? installedCap = project.Tweaks.InstalledLevelCap;
         project.Tweaks = Tweaks.Clone();
@@ -115,6 +144,23 @@ public sealed class FullPreset
         project.Shops = Shops.Clone();
         project.Randomization.AllowAllItems = AllowAllItems;
         project.Randomization.MegaStonesInPool = MegaStonesInPool;
+        project.Randomization.EvolutionProgression = EvolutionProgression;
+        project.Randomization.TrainerLegendariesFrom = Math.Clamp(TrainerLegendariesFrom, 0, 100);
+        project.Randomization.EvolutionLevelCap = Math.Clamp(EvolutionLevelCap, 0, 100);
+        if (Locke is { } locke)
+        {
+            bool Fits(LockePrize p) => p.Kind != LockePrizeKind.Item || (p.ItemId > 0 && p.ItemId < itemCount);
+            var own = project.Locke;
+            own.MaxLives = Math.Clamp(locke.MaxLives, 1, 999);
+            if (locke.Prizes.Where(Fits).ToList() is { Count: > 0 } major)
+                own.Prizes = major;
+            if (locke.MinorPrizes.Where(Fits).ToList() is { Count: > 0 } minor)
+                own.MinorPrizes = minor;
+            // The game's own number of milestones decides how far the roulette can go (8 badges, 13 in Generation 7).
+            own.RouletteFirst = Math.Max(1, locke.RouletteFirst);
+            own.RouletteLast = Math.Max(own.RouletteFirst, locke.RouletteLast);
+            own.RouletteEvery = Math.Max(1, locke.RouletteEvery);
+        }
     }
 
     /// <summary>

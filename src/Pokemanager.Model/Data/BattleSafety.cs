@@ -102,9 +102,7 @@ public static class BattleSafety
         Projects.TrainerBattleItems? rules = null, Func<int, bool>? handEdited = null)
     {
         rules ??= new Projects.TrainerBattleItems();
-        var stones = data.MegaStones.ToHashSet();
-        var ownStones = data.MegaStoneByForm.Where(p => p.Value != 0)
-            .GroupBy(p => p.Key.Species).ToDictionary(g => g.Key, g => g.Select(p => p.Value).ToHashSet());
+        var (stones, ownStones) = Stones(data);
         int changed = 0;
         var starters = StarterFamilies(data, title, dataFiles, teamFiles);
         for (int id = 0; id < Math.Min(dataFiles.Length, teamFiles.Length); id++)
@@ -181,6 +179,30 @@ public static class BattleSafety
         return result;
     }
 
+    /// <summary>Kyogre and Groudon: their orb makes them revert to their primal form in battle, as a stone mega evolves.</summary>
+    private static readonly (int Species, int Orb)[] Primals = [(382, 535), (383, 534)];
+
+    /// <summary>
+    /// The items that make a Pokémon change in battle and whose they are: the Mega Stones of the game's mega table, and the
+    /// primal orbs (2026-11-24, user: a legendary's other form can be a team's "mega", Primal Kyogre with its orb).
+    /// </summary>
+    private static (HashSet<int> Stones, Dictionary<int, HashSet<int>> Own) Stones(GameData data)
+    {
+        var stones = data.MegaStones.ToHashSet();
+        var own = data.MegaStoneByForm.Where(p => p.Value != 0)
+            .GroupBy(p => p.Key.Species).ToDictionary(g => g.Key, g => g.Select(p => p.Value).ToHashSet());
+        foreach (var (species, orb) in Primals)
+        {
+            if (orb >= data.Items.Length || data.Title.Family() == Dump.GameFamily.XY)
+                continue; // X and Y have no primal reversion
+            stones.Add(orb);
+            if (!own.TryGetValue(species, out var set))
+                own[species] = set = [];
+            set.Add(orb);
+        }
+        return (stones, own);
+    }
+
     /// <summary>
     /// One team brought inside the rules the build applies to every trainer (<see cref="FixTrainers"/>), for a team the
     /// editor makes itself (a rerolled one), which the build then keeps as a hand edit.
@@ -188,9 +210,7 @@ public static class BattleSafety
     /// <param name="ruleLevel">The last Pokémon's level as the ROM will have it (the build scales levels), for the rule.</param>
     public static int FixOne(GameData data, Trainer trainer, Projects.TrainerItemRule rule, int id, int? ruleLevel = null)
     {
-        var stones = data.MegaStones.ToHashSet();
-        var ownStones = data.MegaStoneByForm.Where(p => p.Value != 0)
-            .GroupBy(p => p.Key.Species).ToDictionary(g => g.Key, g => g.Select(p => p.Value).ToHashSet());
+        var (stones, ownStones) = Stones(data);
         return trainer.Count == 0 ? 0 : FixTeam(data, trainer, stones, ownStones, rule, id, ruleLevel: ruleLevel);
     }
 
@@ -240,7 +260,8 @@ public static class BattleSafety
         }
         if (mega && megaSlot < 0)
         {
-            megaSlot = team.FindLastIndex(m => ownStones.ContainsKey(m.Species) && !Legendaries.Contains(m.Species));
+            // A legendary that has its own (a primal orb) can be the team's one; the rest of the legendaries are not made megas.
+            megaSlot = team.FindLastIndex(m => ownStones.ContainsKey(m.Species) && (!Legendaries.Contains(m.Species) || Primals.Any(p => p.Species == m.Species)));
             if (megaSlot >= 0)
                 team[megaSlot].Item = ownStones[team[megaSlot].Species].Min();
             else if (MegaReplacement(data, team, ownStones, id) is { } species)

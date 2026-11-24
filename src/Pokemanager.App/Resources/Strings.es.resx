@@ -5828,4 +5828,37 @@ Proyecto: {2}</value>
   <data name="Room_PrizeWeightTip" xml:space="preserve">
     <value>Cuánto sale este premio comparado con los demás: con pesos 1 y 3, el segundo sale tres veces más.</value>
   </data>
+  <data name="Rules_Title" xml:space="preserve">
+    <value>Reglas al randomizar</value>
+  </data>
+  <data name="Rules_Hint" xml:space="preserve">
+    <value>Son de esta aplicación y se aplican mientras se randomiza, así que cambiarlas vuelve a randomizar (misma semilla).</value>
+  </data>
+  <data name="Rules_Progression" xml:space="preserve">
+    <value>Evoluciones según el nivel (hasta 19 casi solo primeras fases, de 20 a 34 a veces una fase menos, desde 55 todo evolucionado)</value>
+  </data>
+  <data name="Rules_ProgressionTip" xml:space="preserve">
+    <value>Salvajes, entrenadores, dominantes, regalos y estáticos, al nivel que tendrán en la ROM (cuentan los % de nivel). Hasta nivel 19, un Pokémon que no es primera fase pasa a su primera fase 9 de cada 10 veces; de 20 a 34, uno totalmente evolucionado baja una fase la mitad de las veces; desde 55, todo totalmente evolucionado. Los legendarios no se tocan.</value>
+  </data>
+  <data name="Rules_Legendaries" xml:space="preserve">
+    <value>Legendarios en entrenadores desde el nivel</value>
+  </data>
+  <data name="Rules_LegendariesTip" xml:space="preserve">
+    <value>Desde ese nivel, un entrenador puede llevar un legendario en el puesto antes del último: jefes e importantes uno de 600 o más (35 %), el resto uno de menos de 600 o un singular (20 %). Uno por equipo como mucho.</value>
+  </data>
+  <data name="Rules_EvolutionCap" xml:space="preserve">
+    <value>Evoluciones por nivel repartidas hasta el nivel</value>
+  </data>
+  <data name="Rules_EvolutionCapTip" xml:space="preserve">
+    <value>Hasta el nivel 36 como el juego; por encima se reparten entre 36 y este nivel según el nivel original (Hydreigon pasa de 64 a este nivel). Así «evoluciones más fáciles» no adelanta las últimas fases a 40.</value>
+  </data>
+  <data name="Rules_ProgressionUndo" xml:space="preserve">
+    <value>Evoluciones según el nivel</value>
+  </data>
+  <data name="Rules_LegendariesUndo" xml:space="preserve">
+    <value>Legendarios en entrenadores</value>
+  </data>
+  <data name="Rules_EvolutionCapUndo" xml:space="preserve">
+    <value>Evoluciones repartidas</value>
+  </data>
 </root>

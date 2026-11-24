@@ -39,6 +39,28 @@ public sealed record UprGameCounts(int Species, int Forms, int Moves)
     ];
 }
 
+/// <summary>
+/// The application's own randomizer rules (2026-11-24, user), applied by the patched <c>Gen7RomHandler</c> while it writes
+/// the randomization: evolution stage by level, trainer legendaries from a level, evolution levels up to a cap. The
+/// level percentages are the application's build-time ones, so the rule sees the level the built ROM will have.
+/// </summary>
+public sealed record UprRules(bool Progression, int LegendariesFrom, int EvolutionCap, int TrainerPercent, int WildPercent, int StaticPercent)
+{
+    internal IEnumerable<string> JavaProperties(long seed) =>
+    [
+        $"-Dpokemanager.seed={seed}",
+        $"-Dpokemanager.progression={(Progression ? "true" : "false")}",
+        $"-Dpokemanager.trainerLegendariesFrom={LegendariesFrom}",
+        $"-Dpokemanager.evolutionCap={EvolutionCap}",
+        $"-Dpokemanager.trainerLevelPercent={TrainerPercent}",
+        $"-Dpokemanager.wildLevelPercent={WildPercent}",
+        $"-Dpokemanager.staticLevelPercent={StaticPercent}",
+    ];
+
+    /// <summary>For the cache key: the same seed with other rules is another randomization.</summary>
+    public string Key => $"rules:{(Progression ? 1 : 0)}.{LegendariesFrom}.{EvolutionCap}.{TrainerPercent}.{WildPercent}.{StaticPercent}";
+}
+
 /// <summary>Runs the commands of <c>upr/PokemanagerUpr.java</c> on UPR ZX.</summary>
 public sealed class UprRunner(UprTools tools)
 {
@@ -68,7 +90,7 @@ public sealed class UprRunner(UprTools tools)
     public async Task<UprResult> RandomizeAsync(
         string presetFile, string romFile, long seed, string outputDirectory,
         IProgress<string>? progress = null, CancellationToken cancellationToken = default, bool allItems = false,
-        IReadOnlyList<int>? goodItems = null, UprGameCounts? counts = null, IReadOnlyList<int>? starters = null)
+        IReadOnlyList<int>? goodItems = null, UprGameCounts? counts = null, IReadOnlyList<int>? starters = null, UprRules? rules = null)
     {
         if (Directory.Exists(outputDirectory) && Directory.EnumerateFileSystemEntries(outputDirectory).Any())
             throw new IOException(string.Format(Strings.Upr_OutputNotEmpty, outputDirectory));
@@ -81,7 +103,7 @@ public sealed class UprRunner(UprTools tools)
                 "randomize", presetFile, romFile, outputDirectory, seed.ToString(), logPath, allItems ? "1" : "0",
                 string.Join(',', goodItems ?? []), string.Join(',', starters ?? []),
             ],
-            progress, cancellationToken, counts?.JavaProperties);
+            progress, cancellationToken, [.. counts?.JavaProperties ?? Counts?.JavaProperties ?? [], .. rules?.JavaProperties(seed) ?? []]);
 
         string? titleDir = Directory.GetDirectories(outputDirectory).FirstOrDefault(d => Path.GetFileName(d).Length == 16);
         if (titleDir is null || !File.Exists(logPath))

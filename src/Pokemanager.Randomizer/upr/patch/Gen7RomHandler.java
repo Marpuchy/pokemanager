@@ -418,6 +418,7 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
         }
         populateEvolutions();
         populateMegaEvolutions();
+        pmRecordEvolutionLevels();
     }
 
     private void loadBasicPokeStats(Pokemon pkmn, byte[] stats, Map<Integer,FormeInfo> altFormes) {
@@ -927,6 +928,142 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
         }
     }
 
+    // ------------------------------------------------------------------ Pokemanager (2026-11-24, user)
+    // Three rules the application asks for with system properties, applied while the randomization is written (so the
+    // randomization itself has them, also when it is made again), and decided by a Random of their own seeded from the
+    // run's seed and the slot: the randomizer's own random numbers are not touched, so everything else the seed makes
+    // stays the same. Every rule is idempotent, because UPR ZX writes trainers several times (held items, levels...).
+    //  - pokemanager.progression: by level (the level the built ROM will have, after the application's level %),
+    //    up to 19 a Pokemon that is not a first stage becomes its first stage 9 times in 10, from 20 to 34 a fully
+    //    evolved one goes back one stage half the time, from 55 everything is fully evolved. Wild, trainers, totems
+    //    and their allies, gifts and static encounters. Legendaries are left alone.
+    //  - pokemanager.trainerLegendariesFrom (a level): from it on a trainer may carry one legendary in the slot before
+    //    the last: bosses and important trainers one of 600 or more, the rest one under 600 (mythicals included).
+    //  - pokemanager.evolutionCap (a level): level evolutions spread up to it — up to 36 as the game has them, above
+    //    that pressed into 36..cap — from the game's own levels, so "easier evolutions" does not pull a last stage to 40.
+    private static final boolean pmProgression = Boolean.getBoolean("pokemanager.progression");
+    private static final int pmLegendariesFrom = Integer.getInteger("pokemanager.trainerLegendariesFrom", 0);
+    private static final int pmEvolutionCap = Integer.getInteger("pokemanager.evolutionCap", 0);
+    private static final long pmSeed = Long.getLong("pokemanager.seed", 0L);
+    private static final int pmTrainerPercent = Integer.getInteger("pokemanager.trainerLevelPercent", 0);
+    private static final int pmWildPercent = Integer.getInteger("pokemanager.wildLevelPercent", 0);
+    private static final int pmStaticPercent = Integer.getInteger("pokemanager.staticLevelPercent", 0);
+    private final Map<Long, Integer> pmVanillaEvolutionLevels = new HashMap<>();
+    private List<Pokemon> pmLegendaries;
+
+    private static int pmLevel(int level, int percent) {
+        if (percent == 0) return level;
+        return Math.max(1, Math.min(100, (int) Math.round(level * (100 + percent) / 100.0)));
+    }
+
+    private static Random pmRandom(long key) {
+        return new Random(pmSeed * 0x9E3779B97F4A7C15L ^ (key * 0xC2B2AE3D27D4EB4FL));
+    }
+
+    private static Pokemon pmOwn(Pokemon p) {
+        return p.baseForme != null ? p.baseForme : p;
+    }
+
+    private static Pokemon pmFirstStage(Pokemon p) {
+        Pokemon b = pmOwn(p);
+        int guard = 0;
+        while (!b.evolutionsTo.isEmpty() && guard++ < 5) b = pmOwn(b.evolutionsTo.get(0).from);
+        return b;
+    }
+
+    /** The Pokemon the progression puts at that (built) level; the same object when it stays. */
+    private Pokemon pmProgress(Pokemon p, int level, long key) {
+        if (!pmProgression || p == null) return p;
+        Pokemon own = pmOwn(p);
+        if (own.isLegendary()) return p;
+        Random r = pmRandom(key);
+        double roll = r.nextDouble();
+        if (level <= 19) {
+            return !own.evolutionsTo.isEmpty() && roll < 0.9 ? pmFirstStage(own) : p;
+        }
+        if (level <= 34) {
+            return own.evolutionsFrom.isEmpty() && !own.evolutionsTo.isEmpty() && roll < 0.5 ? pmOwn(own.evolutionsTo.get(0).from) : p;
+        }
+        if (level >= 55 && !own.evolutionsFrom.isEmpty()) {
+            Pokemon b = own;
+            int guard = 0;
+            while (!b.evolutionsFrom.isEmpty() && guard++ < 5) b = pmOwn(b.evolutionsFrom.get(r.nextInt(b.evolutionsFrom.size())).to);
+            return b;
+        }
+        return p;
+    }
+
+    private static int pmBst(Pokemon p) {
+        return p.hp + p.attack + p.defense + p.spatk + p.spdef + p.speed;
+    }
+
+    private void pmTrainers(List<Trainer> trainers) {
+        if (!pmProgression && pmLegendariesFrom <= 0) return;
+        if (pmLegendariesFrom > 0 && pmLegendaries == null) {
+            pmLegendaries = new ArrayList<>();
+            for (int i = 1; i <= Gen7Constants.getPokemonCount(romEntry.romType); i++)
+                if (pokes[i] != null && pokes[i].isLegendary() && pmBst(pokes[i]) > 0) pmLegendaries.add(pokes[i]);
+        }
+        for (Trainer tr : trainers) {
+            int slot = 0, top = 0;
+            for (TrainerPokemon tp : tr.pokemon) {
+                int level = pmLevel(tp.level, pmTrainerPercent);
+                top = Math.max(top, level);
+                Pokemon to = pmProgress(tp.pokemon, level, (2L << 40) + tr.index * 8L + slot);
+                if (to != tp.pokemon) {
+                    tp.pokemon = to;
+                    tp.forme = 0;
+                    tp.formeSuffix = "";
+                    tp.resetMoves = true;
+                }
+                slot++;
+            }
+            if (pmLegendariesFrom <= 0 || top < pmLegendariesFrom || tr.pokemon.size() < 2) continue;
+            boolean strong = tr.isBoss() || tr.isImportant();
+            Random r = pmRandom((5L << 40) + tr.index);
+            if (r.nextDouble() >= (strong ? 0.35 : 0.2)) continue;
+            boolean already = false;
+            for (TrainerPokemon tp : tr.pokemon) already |= pmOwn(tp.pokemon).isLegendary();
+            if (already) continue;
+            List<Pokemon> pool = new ArrayList<>();
+            for (Pokemon l : pmLegendaries) if (strong ? pmBst(l) >= 600 : pmBst(l) <= 600) pool.add(l);
+            if (pool.isEmpty()) continue;
+            TrainerPokemon tp = tr.pokemon.get(tr.pokemon.size() - 2);
+            tp.pokemon = pool.get(r.nextInt(pool.size()));
+            tp.forme = 0;
+            tp.formeSuffix = "";
+            tp.resetMoves = true;
+        }
+    }
+
+    private void pmStatic(StaticEncounter se, long key) {
+        if (se == null || se.pkmn == null || se.pkmn.formeNumber > 0) return;
+        Pokemon to = pmProgress(se.pkmn, pmLevel(se.level, pmStaticPercent), key);
+        if (to != se.pkmn) {
+            se.pkmn = to;
+            se.forme = 0;
+            se.resetMoves = true;
+        }
+    }
+
+    private void pmRecordEvolutionLevels() {
+        if (!pmVanillaEvolutionLevels.isEmpty()) return;
+        for (Pokemon pk : pokes) {
+            if (pk == null) continue;
+            for (Evolution evo : pk.evolutionsFrom)
+                if (evo.type.usesLevel()) pmVanillaEvolutionLevels.put(((long) evo.from.number << 20) | evo.to.number, evo.extraInfo);
+        }
+    }
+
+    /** The level an evolution happens at with the cap: as the game has it up to 36, pressed into 36..cap above. */
+    private int pmEvolutionLevel(Evolution evo) {
+        Integer vanilla = pmVanillaEvolutionLevels.get(((long) evo.from.number << 20) | evo.to.number);
+        int level = vanilla != null ? vanilla : evo.extraInfo;
+        if (level <= 36) return evo.extraInfo;
+        int highest = 64; // the latest level evolution of the games (Hydreigon)
+        return Math.min(pmEvolutionCap, 36 + (int) Math.round((level - 36) * (pmEvolutionCap - 36) / (double) (highest - 36)));
+    }
+
     private void writeEvolutions() {
         try {
             GARCArchive evoGARC = readGARC(romEntry.getFile("PokemonEvolutions"),true);
@@ -943,7 +1080,8 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
                     writeWord(evoEntry, evosWritten * 8 + 2, evo.type.usesLevel() ? 0 : evo.extraInfo);
                     writeWord(evoEntry, evosWritten * 8 + 4, toPK.getBaseNumber());
                     evoEntry[evosWritten * 8 + 6] = (byte)evo.forme;
-                    evoEntry[evosWritten * 8 + 7] = evo.type.usesLevel() ? (byte)evo.extraInfo : (byte)evo.level;
+                    int levelInfo = evo.type.usesLevel() && pmEvolutionCap > 0 ? pmEvolutionLevel(evo) : evo.extraInfo;
+                    evoEntry[evosWritten * 8 + 7] = evo.type.usesLevel() ? (byte)levelInfo : (byte)evo.level;
                     evosWritten++;
                     if (evosWritten == 8) {
                         break;
@@ -1517,6 +1655,22 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
         if (collapseAreas && uncollapsedEncounters != null) {
             encountersList = uncollapsedEncounters;
         }
+        if (pmProgression) {
+            // One decision per area and species (the name of the table's area and the species), so a route keeps one
+            // Pokemon for each of the game's, as "one to one in each area" asks.
+            for (EncounterSet set : encountersList) {
+                String area = set.displayName == null ? "" : set.displayName.replaceAll(", Table.*$", "");
+                for (Encounter enc : set.encounters) {
+                    if (enc.pokemon == null) continue;
+                    int level = pmLevel(Math.max(enc.level, enc.maxLevel), pmWildPercent);
+                    Pokemon to = pmProgress(enc.pokemon, level, (1L << 40) + (area.hashCode() & 0xFFFFFFFFL) * 4096L + pmOwn(enc.pokemon).number);
+                    if (to != enc.pokemon) {
+                        enc.pokemon = to;
+                        enc.formeNumber = 0;
+                    }
+                }
+            }
+        }
         Iterator<EncounterSet> encounters = encountersList.iterator();
         for (AreaData areaData : areaDataList) {
             if (!areaData.hasTables) {
@@ -1816,6 +1970,7 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
 
     @Override
     public void setTrainers(List<Trainer> trainerData, boolean doubleBattleMode) {
+        pmTrainers(trainerData);
         Iterator<Trainer> allTrainers = trainerData.iterator();
         try {
             GARCArchive trainers = this.readGARC(romEntry.getFile("TrainerData"),true);
@@ -2195,6 +2350,15 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
             GARCArchive staticGarc = readGARC(romEntry.getFile("StaticPokemon"), true);
             List<Integer> totemIndices =
                     Arrays.stream(romEntry.arrayEntries.get("TotemPokemonIndices")).boxed().collect(Collectors.toList());
+            if (pmProgression) {
+                int t = 0;
+                for (TotemPokemon totem : totemPokemon) {
+                    pmStatic(totem, (3L << 40) + t * 16L);
+                    int a = 1;
+                    for (StaticEncounter ally : totem.allies.values()) pmStatic(ally, (3L << 40) + t * 16L + a++);
+                    t++;
+                }
+            }
             Iterator<TotemPokemon> totemIter = totemPokemon.iterator();
 
             // Static encounters
@@ -2398,6 +2562,10 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
     public boolean setStaticPokemon(List<StaticEncounter> staticPokemon) {
         try {
             unlinkStaticEncounters(staticPokemon);
+            if (pmProgression) {
+                int k = 0;
+                for (StaticEncounter se : staticPokemon) pmStatic(se, (4L << 40) + k++);
+            }
             GARCArchive staticGarc = readGARC(romEntry.getFile("StaticPokemon"), true);
             List<Integer> skipIndices =
                     Arrays.stream(romEntry.arrayEntries.get("TotemPokemonIndices")).boxed().collect(Collectors.toList());

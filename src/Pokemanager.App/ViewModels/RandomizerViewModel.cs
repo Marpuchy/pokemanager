@@ -503,7 +503,7 @@ public partial class RandomizerViewModel : ObservableObject
             var level = extras.Tweaks.Difficulty ?? DifficultyLevel.Normal;
             if (level != (Project.Tweaks.Difficulty ?? DifficultyLevel.Normal))
                 DifficultyProfiles.Apply(editor.Session, level);
-            extras.ApplyTo(Project);
+            extras.ApplyTo(Project, editor.Session.Current.Items.Length);
         }
 
         Difficulty.Refresh();            // the preset's profile is the one selected now
