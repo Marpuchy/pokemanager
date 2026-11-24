@@ -130,6 +130,37 @@ public sealed class RoomSessionTests : IDisposable
         Assert.False(host.Players.Single(p => p.Id == "brock").Online);
     }
 
+    /// <summary>
+    /// The battle roulette's prizes and the rules PDF reach everyone, a player who joins later too; a spin for a battle
+    /// the player did not win is ignored (2026-11-24, user).
+    /// </summary>
+    [Fact]
+    public async Task PrizesAndRulesPdf_ReachEveryone_AndASpinNeedsAWonBattle()
+    {
+        await using var host = await RoomSession.HostAsync("Liga", "host", new PlayerProfile("Ash"), new RoomRules(), Local, cancel: TestContext.Current.CancellationToken);
+        await using var misty = await RoomSession.JoinAsync(host.InviteText!, "misty", new PlayerProfile("Misty"), Local, TestContext.Current.CancellationToken);
+        await Until(() => misty.Status == RoomStatus.Online, "Misty online");
+
+        byte[] pdf = [.. "%PDF-1.4 normas"u8, .. new byte[200_000]];
+        host.SetPrizes([new RoomPrize("item", Item: 50, Amount: 3), new RoomPrize("money", Amount: 5000, Weight: 2), new RoomPrize("text", Text: "Elige un Pokémon")]);
+        host.SetRulesDocument(new RoomRulesDocument("normas.pdf", pdf));
+        await Until(() => misty.Prizes.Count == 3 && misty.RulesDocument is not null, "Misty gets the prizes and the PDF");
+        Assert.Equal(pdf, misty.RulesDocument!.Pdf);
+        Assert.Equal("normas.pdf", misty.RulesDocument.FileName);
+        Assert.Equal(new RoomPrize("money", Amount: 5000, Weight: 2), misty.Prizes[1]);
+
+        await using var brock = await RoomSession.JoinAsync(host.InviteText!, "brock", new PlayerProfile("Brock"), Local, TestContext.Current.CancellationToken);
+        await Until(() => brock.Prizes.Count == 3 && brock.RulesDocument?.Pdf.Length == pdf.Length, "Brock, who came later, gets them too");
+
+        misty.ReportPrize("no-such-battle", new RoomPrize("money", Amount: 999999));
+        await Task.Delay(500, TestContext.Current.CancellationToken);
+        Assert.Empty(host.PrizesWon);
+        Assert.Empty(brock.PrizesWon);
+
+        host.SetRulesDocument(null);
+        await Until(() => misty.RulesDocument is null && brock.RulesDocument is null, "the PDF taken away");
+    }
+
     [Fact]
     public async Task Join_WithoutAReachableHost_AsksForTheAnswerCode()
     {

@@ -96,6 +96,9 @@ public sealed partial class RoomSession
     {
         switch (message)
         {
+            case PrizeSpun spun:
+                HostPrizeSpun(from, spun);
+                break;
             case BattleChallenge challenge:
                 StartProposal(from, challenge);
                 break;
@@ -218,6 +221,8 @@ public sealed partial class RoomSession
         DisposeSimulator(battle);
         Publish(battle, battle.State with { Phase = phase, Winner = winner, Problems = problems });
         hosted.Remove(battle.State.BattleId);
+        if (phase == BattlePhase.Finished && winner is not null)
+            battleWinners[battle.State.BattleId] = winner; // for the roulette (RoomSession.Extras)
     }
 
     private static void DisposeSimulator(HostedBattle battle)

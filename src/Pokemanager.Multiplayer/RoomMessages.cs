@@ -25,6 +25,10 @@ namespace Pokemanager.Multiplayer;
 [JsonDerivedType(typeof(BattleRequest), "battle-request")]
 [JsonDerivedType(typeof(EmulatorRoomOpened), "emulator-room")]
 [JsonDerivedType(typeof(EmulatorRoomClosed), "emulator-room-closed")]
+[JsonDerivedType(typeof(PrizesSet), "prizes")]
+[JsonDerivedType(typeof(PrizeSpun), "prize-spun")]
+[JsonDerivedType(typeof(PrizeWon), "prize-won")]
+[JsonDerivedType(typeof(RulesDocumentSet), "rules-pdf")]
 public abstract record RoomMessage;
 
 /// <summary>Guest → host, right after connecting.</summary>
@@ -98,13 +102,27 @@ public sealed record EmulatorRoomOpened(EmulatorRoomInfo Room) : RoomMessage;
 /// <summary>Host → players: the emulator room was closed.</summary>
 public sealed record EmulatorRoomClosed : RoomMessage;
 
+// ------------------------------------------------------------------ battle roulette and rules PDF (protocol 5)
+
+/// <summary>Host → players: the prizes of the battle roulette.</summary>
+public sealed record PrizesSet(List<RoomPrize> Prizes) : RoomMessage;
+
+/// <summary>Winner → host: what the roulette gave after that battle.</summary>
+public sealed record PrizeSpun(string BattleId, RoomPrize Prize) : RoomMessage;
+
+/// <summary>Host → everyone: a player won a prize.</summary>
+public sealed record PrizeWon(string BattleId, string PlayerId, RoomPrize Prize) : RoomMessage;
+
+/// <summary>Host → players: the rules PDF of the room; both null when the host took it away.</summary>
+public sealed record RulesDocumentSet(string? FileName, byte[]? Pdf) : RoomMessage;
+
 /// <summary>
 /// Turns messages into bytes and back: JSON, Brotli, then AES-GCM with a key derived from the room secret, so only
 /// someone with the invite code can read or forge them.
 /// </summary>
 public sealed class MessageCodec(byte[] secret)
 {
-    public const int Protocol = 4;
+    public const int Protocol = 5;
 
     private readonly byte[] key = HKDF.DeriveKey(HashAlgorithmName.SHA256, secret, 32, "pokemanager-room"u8.ToArray(), "encryption"u8.ToArray());
 

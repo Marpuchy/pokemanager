@@ -94,33 +94,9 @@ public static class LockeRewards
         string label = Describe(prize, itemNames);
         try
         {
-            if (prize.Kind is LockePrizeKind.Item or LockePrizeKind.Money)
-            {
-                if (EmulatorUserFolders.RunningEmulators(settings.EffectiveEmulatorName) is { Count: > 0 } running)
-                    return (false, string.Format(Strings.Status_CloseEmulator, string.Join(", ", running)));
-                if (settings.EffectiveEmulatorDirectory is not { } dir
-                    || EmulatorUserFolders.SaveFile(dir, loaded.Dump.Title.TitleId()) is not { } savePath || !File.Exists(savePath))
-                    return (false, Strings.Rnd_NoEmulator);
-
-                var doc = SaveDocument.Open(savePath, loaded.Session.Current);
-                if (prize.Kind == LockePrizeKind.Item)
-                {
-                    if (doc.GiveItem(prize.ItemId, prize.Amount) == 0)
-                        return (false, string.Format(Strings.Locke_BagFull, label));
-                }
-                else
-                {
-                    doc.Money = (uint)Math.Min((long)doc.Money + prize.Amount, SaveDocument.MaxMoney);
-                }
-
-                var history = new ProjectHistory(loaded.Path);
-                history.Record(project, VersionKind.BeforeSaveEdit, note: string.Format(Strings.Locke_HistoryNote, label),
-                    romPath: project.Randomization.LastBuiltRom, savePath: savePath);
-                history.Prune();
-                string backups = Path.Combine(AppSettings.BackupRoot, settings.EffectiveEmulatorName);
-                doc.Write(backups);
-                SaveUpdater.PruneBackups(backups, keep: 10);
-            }
+            if (prize.Kind is LockePrizeKind.Item or LockePrizeKind.Money
+                && GiveToSave(loaded, settings, prize, itemNames, string.Format(Strings.Locke_HistoryNote, label)) is { Ok: false } failed)
+                return failed;
 
             project.Locke.MarkClaimed(badge);
             project.Save(loaded.Path);
@@ -130,6 +106,54 @@ public static class LockeRewards
                 LockePrizeKind.Life => Strings.Locke_ClaimedLife,
                 _ => Strings.Locke_ClaimedNothing,
             });
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SaveUpdateException)
+        {
+            return (false, string.Format(Strings.Save_WriteFailed, ex.Message));
+        }
+    }
+
+    /// <summary>
+    /// Puts an item or money prize into the project's save, with the save editor's safety: the emulator closed, a
+    /// BeforeSaveEdit version in the history, a backup, and the write verified. Used by the badge roulette and the room's
+    /// battle roulette.
+    /// </summary>
+    public static (bool Ok, string Message) GiveToSave(LoadedProject loaded, AppSettings settings, LockePrize prize,
+        IReadOnlyList<string> itemNames, string historyNote)
+    {
+        var project = loaded.Project;
+        string label = Describe(prize, itemNames);
+        try
+        {
+            if (EmulatorUserFolders.RunningEmulators(settings.EffectiveEmulatorName) is { Count: > 0 } running)
+                return (false, string.Format(Strings.Status_CloseEmulator, string.Join(", ", running)));
+            if (settings.EffectiveEmulatorDirectory is not { } dir
+                || EmulatorUserFolders.SaveFile(dir, loaded.Dump.Title.TitleId()) is not { } savePath || !File.Exists(savePath))
+                return (false, Strings.Rnd_NoEmulator);
+
+            var doc = SaveDocument.Open(savePath, loaded.Session.Current);
+            if (prize.Kind == LockePrizeKind.Item)
+            {
+                if (doc.GiveItem(prize.ItemId, prize.Amount) == 0)
+                    return (false, string.Format(Strings.Locke_BagFull, label));
+            }
+            else if (prize.Kind == LockePrizeKind.Money)
+            {
+                doc.Money = (uint)Math.Min((long)doc.Money + prize.Amount, SaveDocument.MaxMoney);
+            }
+            else
+            {
+                return (true, "");
+            }
+
+            var history = new ProjectHistory(loaded.Path);
+            history.Record(project, VersionKind.BeforeSaveEdit, note: historyNote,
+                romPath: project.Randomization.LastBuiltRom, savePath: savePath);
+            history.Prune();
+            string backups = Path.Combine(AppSettings.BackupRoot, settings.EffectiveEmulatorName);
+            doc.Write(backups);
+            SaveUpdater.PruneBackups(backups, keep: 10);
+            return (true, string.Format(Strings.Locke_ClaimedSave, label));
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SaveUpdateException)
         {

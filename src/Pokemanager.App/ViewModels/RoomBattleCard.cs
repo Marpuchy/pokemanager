@@ -46,6 +46,9 @@ public sealed partial class RoomBattleCard : ObservableObject
     public bool IAmNotReady => IsProposed && !IAmReady;
     public string CancelText => IsRunning ? Strings.Battle_Forfeit : Strings.Battle_Cancel;
 
+    /// <summary>Won, and the room's roulette is there and not spun for this battle yet.</summary>
+    public bool CanSpin => owner.CanSpinFor(Battle);
+
     /// <summary>The room sent a new state of this battle.</summary>
     public void Update(RoomBattle battle)
     {
@@ -94,7 +97,7 @@ public sealed partial class RoomBattleCard : ObservableObject
         foreach (string property in new[]
                  {
                      nameof(HasProblems), nameof(IsProposed), nameof(IsRunning), nameof(IsOver), nameof(CanOpen), nameof(IAmReady),
-                     nameof(IAmNotReady), nameof(CancelText),
+                     nameof(IAmNotReady), nameof(CancelText), nameof(CanSpin),
                  })
             OnPropertyChanged(property);
     }
@@ -149,4 +152,7 @@ public sealed partial class RoomBattleCard : ObservableObject
 
     [RelayCommand]
     private void Dismiss() => owner.DismissBattle(Id);
+
+    [RelayCommand]
+    private Task Spin() => owner.SpinPrizeAsync(Id);
 }

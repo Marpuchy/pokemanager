@@ -155,6 +155,15 @@ public sealed class RoomBattleTests : IDisposable
         await Until(() => host.Battles.Single(b => b.Id == id).Phase == BattlePhase.Finished, "forfeit on leaving", 30);
         Assert.Equal("host", host.Battles.Single(b => b.Id == id).Winner);
 
+        // The winner spins the roulette once for that battle: the prize is recorded, a second spin is not.
+        host.ReportPrize(id, new RoomPrize("item", Item: 50, Amount: 2));
+        await Until(() => host.PrizesWon.Count == 1, "the prize recorded");
+        Assert.True(host.WasSpun(id));
+        host.ReportPrize(id, new RoomPrize("money", Amount: 999999));
+        await Task.Delay(300, cancel);
+        Assert.Equal(new RoomPrize("item", Item: 50, Amount: 2), host.PrizesWon.Single().Prize);
+        Assert.Equal("host", host.PrizesWon.Single().PlayerId);
+
         // A room without the simulator refuses battles with a reason.
         await using var plain = await RoomSession.HostAsync("Plain", "h2", new PlayerProfile("Plain"), new RoomRules(), Local(), cancel: cancel);
         await using var guest = await RoomSession.JoinAsync(plain.InviteText!, "g2", new PlayerProfile("G"), Local(), cancel);

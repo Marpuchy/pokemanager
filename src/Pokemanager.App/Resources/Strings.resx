@@ -5720,4 +5720,112 @@ Project: {2}</value>
   <data name="Trades_AnyRandom" xml:space="preserve">
     <value>Randomize the given one · accept any Pokémon</value>
   </data>
+  <data name="Room_SavedTitle" xml:space="preserve">
+    <value>Your rooms</value>
+  </data>
+  <data name="Room_SavedHint" xml:space="preserve">
+    <value>Rooms you created or joined. Yours open again with the same invite code.</value>
+  </data>
+  <data name="Room_SavedSubtitle" xml:space="preserve">
+    <value>{0} · {1} · project {2}</value>
+  </data>
+  <data name="Room_SavedHost" xml:space="preserve">
+    <value>Host</value>
+  </data>
+  <data name="Room_SavedGuest" xml:space="preserve">
+    <value>Guest</value>
+  </data>
+  <data name="Room_SavedOpen" xml:space="preserve">
+    <value>Open</value>
+  </data>
+  <data name="Room_SavedEnter" xml:space="preserve">
+    <value>Enter</value>
+  </data>
+  <data name="Room_SavedRemove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Room_SavedRemoveTitle" xml:space="preserve">
+    <value>Remove the room from the list?</value>
+  </data>
+  <data name="Room_SavedRemoveMessage" xml:space="preserve">
+    <value>"{0}" leaves Your rooms. If you were the host, its invite code stops working once you create a new room.</value>
+  </data>
+  <data name="Room_RouletteTitleCard" xml:space="preserve">
+    <value>Battle roulette</value>
+  </data>
+  <data name="Room_RouletteHintCard" xml:space="preserve">
+    <value>Whoever wins a battle in the room spins the roulette once; an item or money goes straight into their save (with the emulator closed).</value>
+  </data>
+  <data name="Room_PrizesNone" xml:space="preserve">
+    <value>No prizes: the host has not set any yet.</value>
+  </data>
+  <data name="Room_PrizesSaved" xml:space="preserve">
+    <value>Roulette saved and sent to the room ({0} prizes).</value>
+  </data>
+  <data name="Room_AddPrize" xml:space="preserve">
+    <value>Add prize</value>
+  </data>
+  <data name="Room_ApplyPrizes" xml:space="preserve">
+    <value>Save and send</value>
+  </data>
+  <data name="Room_PrizeWeight" xml:space="preserve">
+    <value>Weight</value>
+  </data>
+  <data name="Room_PrizesWonTitle" xml:space="preserve">
+    <value>Prizes won</value>
+  </data>
+  <data name="Room_PrizeWonLine" xml:space="preserve">
+    <value>{0} · {1} won {2}</value>
+  </data>
+  <data name="Room_Spin" xml:space="preserve">
+    <value>Spin the roulette</value>
+  </data>
+  <data name="Room_RouletteTitle" xml:space="preserve">
+    <value>Battle against {0}</value>
+  </data>
+  <data name="Room_RouletteHint" xml:space="preserve">
+    <value>One spin per battle won; the whole room sees what you get.</value>
+  </data>
+  <data name="Room_PrizeHistoryNote" xml:space="preserve">
+    <value>Battle roulette: {0} (against {1})</value>
+  </data>
+  <data name="Room_RulesPdfTitle" xml:space="preserve">
+    <value>Rules PDF</value>
+  </data>
+  <data name="Room_RulesPdfNone" xml:space="preserve">
+    <value>No rules PDF.</value>
+  </data>
+  <data name="Room_RulesPdfName" xml:space="preserve">
+    <value>{0} ({1} KB)</value>
+  </data>
+  <data name="Room_RulesPdfPick" xml:space="preserve">
+    <value>PDF with the rules</value>
+  </data>
+  <data name="Room_RulesPdfChoose" xml:space="preserve">
+    <value>Choose PDF…</value>
+  </data>
+  <data name="Room_RulesPdfRemove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Room_RulesPdfOpen" xml:space="preserve">
+    <value>Open rules</value>
+  </data>
+  <data name="Room_RulesPdfTooLarge" xml:space="preserve">
+    <value>The PDF is too large (at most {0} MB).</value>
+  </data>
+  <data name="Room_RulesPdfSent" xml:space="preserve">
+    <value>Rules sent to the room: {0}.</value>
+  </data>
+  <data name="Room_PrizeKind" xml:space="preserve">
+    <value>Kind</value>
+  </data>
+  <data name="Room_PrizeWhat" xml:space="preserve">
+    <value>Prize</value>
+  </data>
+  <data name="Room_PrizeAmount" xml:space="preserve">
+    <value>Amount</value>
+  </data>
+  <data name="Room_PrizeWeightTip" xml:space="preserve">
+    <value>How often this prize comes up against the others: with weights 1 and 3, the second comes up three times as often.</value>
+  </data>
 </root>

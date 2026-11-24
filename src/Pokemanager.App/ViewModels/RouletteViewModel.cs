@@ -89,7 +89,13 @@ public sealed partial class RouletteViewModel : ObservableObject
     private bool CanSpin() => State == RouletteState.Ready && Segments.Any(s => s.Weight > 0);
 
     /// <summary>The spin can be forgotten and rolled again once it is over (the Locke tab's "Allow again", here).</summary>
-    private bool CanSpinAgain() => State is RouletteState.Won or RouletteState.Claimed;
+    private bool CanSpinAgain() => AllowSpinAgain && State is RouletteState.Won or RouletteState.Claimed;
+
+    /// <summary>False for the room's battle roulette: one spin per battle won, already told to the room.</summary>
+    public bool AllowSpinAgain { get; init; } = true;
+
+    /// <summary>The line under the title.</summary>
+    public string Hint { get; init; } = Strings.Locke_RouletteHint;
 
     /// <summary>
     /// Rolls this milestone again: the recorded spin is forgotten and the wheel goes back to ready. A prize already put

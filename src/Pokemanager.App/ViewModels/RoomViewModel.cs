@@ -115,6 +115,7 @@ public sealed partial class RoomViewModel : ObservableObject, IBoxBrowser
         this.main = main;
         RoomName = Memory.RoomName ?? Strings.Room_DefaultName;
         Avatar = new AvatarViewModel(Profile());
+        LoadSavedRooms();
     }
 
     // ------------------------------------------------------------------ profile
@@ -366,6 +367,7 @@ public sealed partial class RoomViewModel : ObservableObject, IBoxBrowser
             Memory.Invite = host ? null : code!.Trim();
             Memory.ProjectPath = project.Path;
             Settings.Save();
+            OnRoomOpened(host, roomName, code, project);
 
             if (save is not null)
                 Share(save);
@@ -454,6 +456,9 @@ public sealed partial class RoomViewModel : ObservableObject, IBoxBrowser
         watcher = null;
         StopEmulatorServer();
         BattleCards.Clear();
+        currentSaved = null;
+        PrizeRows.Clear();
+        PrizesWonLines.Clear();
         if (session is { } s)
         {
             session = null;
@@ -501,6 +506,7 @@ public sealed partial class RoomViewModel : ObservableObject, IBoxBrowser
             ShowPlayer(force: true);
             RefreshBattles(s);
             RefreshEmulatorRoom(s);
+            RefreshExtras(s);
             foreach (string property in new[]
                      {
                          nameof(Title), nameof(StatusText), nameof(StatusBrush), nameof(InviteText), nameof(AnswerText), nameof(ShowAnswer),

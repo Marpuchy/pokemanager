@@ -32,10 +32,27 @@
 
         <TextBlock Text="{Binding SelectedProjectText}" FontWeight="SemiBold" Margin="4,0" TextWrapping="Wrap" />
 
-        <Border Classes="card" IsVisible="{Binding CanResume}">
+        <!-- Rooms created or joined before (2026-11-24, user) -->
+        <Border Classes="card" IsVisible="{Binding HasSavedRooms}">
           <StackPanel Spacing="6">
-            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Room_ResumeTitle}" />
-            <Button Classes="accent" Content="{Binding ResumeText}" Command="{Binding ResumeCommand}" />
+            <TextBlock Classes="card-title" Text="{x:Static r:Strings.Room_SavedTitle}" />
+            <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_SavedHint}" TextWrapping="Wrap" />
+            <ItemsControl ItemsSource="{Binding SavedRooms}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:SavedRoomRow">
+                  <Border Classes="info-row" Padding="0,4">
+                    <Grid ColumnDefinitions="*,Auto,Auto">
+                      <StackPanel VerticalAlignment="Center" Spacing="1">
+                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Classes="hint" Text="{Binding Subtitle}" TextTrimming="CharacterEllipsis" />
+                      </StackPanel>
+                      <Button Grid.Column="1" Classes="accent" Margin="8,0,0,0" Content="{Binding EnterText}" Command="{Binding EnterCommand}" />
+                      <Button Grid.Column="2" Margin="6,0,0,0" Content="{x:Static r:Strings.Room_SavedRemove}" Command="{Binding RemoveCommand}" />
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
           </StackPanel>
         </Border>
 
@@ -168,6 +185,7 @@
                               <TextBlock Classes="hint" Text="{Binding ReadyText}" IsVisible="{Binding IsProposed}" />
                             </StackPanel>
                             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Top">
+                              <Button Classes="accent" Content="{x:Static r:Strings.Room_Spin}" Command="{Binding SpinCommand}" IsVisible="{Binding CanSpin}" />
                               <Button Classes="accent" Content="{x:Static r:Strings.Battle_Open}" Command="{Binding OpenCommand}" IsVisible="{Binding CanOpen}" />
                               <Button Content="{Binding CancelText}" Command="{Binding CancelCommand}" IsVisible="{Binding !IsOver}" />
                               <Button Content="{x:Static r:Strings.Battle_Dismiss}" Command="{Binding DismissCommand}" IsVisible="{Binding IsOver}" />
@@ -217,6 +235,67 @@
                   </ItemsControl.ItemTemplate>
                 </ItemsControl>
               </StackPanel>
+            </Border>
+
+            <!-- Battle roulette: the host sets the prizes, whoever wins a battle spins once -->
+            <Border Classes="card">
+              <StackPanel Spacing="6">
+                <TextBlock Classes="card-title" Text="{x:Static r:Strings.Room_RouletteTitleCard}" />
+                <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_RouletteHintCard}" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding PrizesText}" TextWrapping="Wrap" IsVisible="{Binding IsGuest}" />
+                <StackPanel Spacing="4" IsVisible="{Binding IsHost}">
+                  <Grid ColumnDefinitions="130,*,130,120,34">
+                    <TextBlock Classes="hint" Text="{x:Static r:Strings.Room_PrizeKind}" />
+                    <TextBlock Grid.Column="1" Classes="hint" Text="{x:Static r:Strings.Room_PrizeWhat}" />
+                    <TextBlock Grid.Column="2" Classes="hint" Text="{x:Static r:Strings.Room_PrizeAmount}" />
+                    <TextBlock Grid.Column="3" Classes="hint" Text="{x:Static r:Strings.Room_PrizeWeight}" ToolTip.Tip="{x:Static r:Strings.Room_PrizeWeightTip}" />
+                  </Grid>
+                  <ItemsControl ItemsSource="{Binding PrizeRows}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vm:RoomPrizeRow">
+                        <Grid ColumnDefinitions="130,*,130,120,34" Margin="0,2">
+                          <ComboBox ItemsSource="{x:Static vm:RoomPrizeRow.Kinds}" SelectedIndex="{Binding KindIndex}" HorizontalAlignment="Stretch" Margin="0,0,4,0" />
+                          <ComboBox Grid.Column="1" ItemsSource="{Binding Items}" SelectedIndex="{Binding ItemIndex}" IsVisible="{Binding IsItem}" HorizontalAlignment="Stretch" Margin="0,0,4,0" />
+                          <TextBox Grid.Column="1" Text="{Binding Text}" IsVisible="{Binding IsText}" Margin="0,0,4,0" />
+                          <NumericUpDown Grid.Column="2" Value="{Binding Amount}" Minimum="1" Maximum="999999" FormatString="0" IsVisible="{Binding HasAmount}" Margin="0,0,4,0" />
+                          <NumericUpDown Grid.Column="3" Value="{Binding Weight}" Minimum="0" Maximum="100" FormatString="0" ToolTip.Tip="{x:Static r:Strings.Room_PrizeWeight}" Margin="0,0,4,0" />
+                          <Button Grid.Column="4" Content="✕" Command="{Binding RemoveCommand}" />
+                        </Grid>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <Button Content="{x:Static r:Strings.Room_AddPrize}" Command="{Binding AddPrizeCommand}" />
+                    <Button Classes="accent" Content="{x:Static r:Strings.Room_ApplyPrizes}" Command="{Binding ApplyPrizesCommand}" />
+                  </StackPanel>
+                </StackPanel>
+                <StackPanel Spacing="2" IsVisible="{Binding HasPrizesWon}">
+                  <TextBlock FontWeight="SemiBold" Text="{x:Static r:Strings.Room_PrizesWonTitle}" Margin="0,4,0,0" />
+                  <ItemsControl ItemsSource="{Binding PrizesWonLines}" />
+                </StackPanel>
+              </StackPanel>
+            </Border>
+
+            <!-- Rules: a PDF the host chooses, sent to everyone -->
+            <Border Classes="card">
+              <Grid ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="2" VerticalAlignment="Center">
+                  <TextBlock Classes="card-title" Text="{x:Static r:Strings.Room_RulesPdfTitle}" />
+                  <TextBlock Classes="hint" Text="{Binding RulesPdfText}" TextWrapping="Wrap" />
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                  <Button Classes="accent" Content="{x:Static r:Strings.Room_RulesPdfOpen}" Command="{Binding OpenRulesPdfCommand}" IsVisible="{Binding HasRulesPdf}" />
+                  <Button Content="{x:Static r:Strings.Room_RulesPdfChoose}" Command="{Binding ChooseRulesPdfCommand}" IsVisible="{Binding IsHost}" />
+                  <Button Content="{x:Static r:Strings.Room_RulesPdfRemove}" Command="{Binding RemoveRulesPdfCommand}">
+                    <Button.IsVisible>
+                      <MultiBinding Converter="{x:Static BoolConverters.And}">
+                        <Binding Path="IsHost" />
+                        <Binding Path="HasRulesPdf" />
+                      </MultiBinding>
+                    </Button.IsVisible>
+                  </Button>
+                </StackPanel>
+              </Grid>
             </Border>
 
             <!-- In-game link through the emulator's room server -->

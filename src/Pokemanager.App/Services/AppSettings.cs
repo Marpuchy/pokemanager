@@ -39,6 +39,41 @@ public sealed class RoomMemory
 
     /// <summary>Project whose save was shared.</summary>
     public string? ProjectPath { get; set; }
+
+    /// <summary>Every room created or joined on this computer, to open or enter again (2026-11-24, user).</summary>
+    public List<SavedRoom> Saved { get; set; } = [];
+}
+
+/// <summary>A room created or joined before: what it takes to open it again with the same invite code, or enter it.</summary>
+public sealed class SavedRoom
+{
+    public string Id { get; set; } = Guid.NewGuid().ToString("N");
+    public string Name { get; set; } = "";
+    public bool IsHost { get; set; }
+
+    /// <summary>Host: the room secret (base64) and port, which keep the invite code.</summary>
+    public string? Secret { get; set; }
+    public int Port { get; set; }
+
+    /// <summary>Guest: the invite code used.</summary>
+    public string? Invite { get; set; }
+
+    /// <summary>Project whose save was shared in it.</summary>
+    public string? ProjectPath { get; set; }
+
+    public DateTime Created { get; set; } = DateTime.Now;
+    public DateTime LastUsed { get; set; } = DateTime.Now;
+
+    /// <summary>Host: the battle roulette's prizes.</summary>
+    public List<Pokemanager.Multiplayer.RoomPrize> Prizes { get; set; } = [];
+
+    /// <summary>Host: the rules PDF (a copy kept in the data folder) and the name it is shown with.</summary>
+    public string? RulesPdf { get; set; }
+    public string? RulesPdfName { get; set; }
+
+    /// <summary>Whether it is the same room as the one described (host: same secret; guest: same code).</summary>
+    public bool Matches(bool host, string? secret, string? invite) =>
+        IsHost == host && (host ? Secret == secret : string.Equals(Invite?.Trim(), invite?.Trim(), StringComparison.OrdinalIgnoreCase));
 }
 
 /// <summary>Pokemanager settings on this machine (not per project).</summary>

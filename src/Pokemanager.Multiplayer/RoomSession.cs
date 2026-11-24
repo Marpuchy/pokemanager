@@ -441,6 +441,7 @@ public sealed partial class RoomSession : IAsyncDisposable
                 foreach (var other in others.Where(p => p.Online && p.Snapshot is not null))
                     Send(peer, new SnapshotShared(other.Id, other.Snapshot!.FilteredBy(Rules)));
                 SendEmulatorRoom(peer);
+                SendExtras(peer);
                 Broadcast(new PlayerJoined(hello.PlayerId, hello.Profile.Sanitized()), except: peer);
                 break;
             case SnapshotShared shared when peerPlayers.TryGetValue(peer.Id, out string? id):
@@ -512,6 +513,8 @@ public sealed partial class RoomSession : IAsyncDisposable
                 break;
             case EmulatorRoomClosed:
                 GuestEmulatorRoomClosed();
+                break;
+            case var extra when GuestReceiveExtras(extra):
                 break;
             default:
                 ReceiveBattleMessage(message);
