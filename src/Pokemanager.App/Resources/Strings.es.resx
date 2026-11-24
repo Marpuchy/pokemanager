@@ -5696,4 +5696,10 @@ Proyecto: {2}</value>
   <data name="Phone_Failed" xml:space="preserve">
     <value>No se pudo compartir la Pokédex: {0}</value>
   </data>
+  <data name="Move_ZTitle" xml:space="preserve">
+    <value>Movimiento Z exclusivo: qué movimiento lo activa</value>
+  </data>
+  <data name="Move_ZHint" xml:space="preserve">
+    <value>Cada Pokémon con su cristal: llevándolo equipado, este movimiento suyo se convierte en este movimiento Z. El Pokémon tiene que conocerlo. Es un dato del propio Pokémon; también se edita en el editor avanzado de Pokémon.</value>
+  </data>
 </root>

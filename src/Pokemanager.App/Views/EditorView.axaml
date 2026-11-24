@@ -669,6 +669,14 @@
                                     <ItemsControl ItemsSource="{Binding Details}" />
                                   </StackPanel>
                                 </Border>
+                                <!-- An exclusive Z-move: the move each Pokémon needs for its crystal to turn into this one -->
+                                <Border Classes="card" IsVisible="{Binding IsExclusiveZMove}">
+                                  <StackPanel Spacing="4">
+                                    <TextBlock Classes="card-title" Text="{x:Static r:Strings.Move_ZTitle}" />
+                                    <ItemsControl ItemsSource="{Binding ZUsers}" />
+                                    <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Move_ZHint}" />
+                                  </StackPanel>
+                                </Border>
                                 <!-- Description: English base; an edited one goes to every language of the game -->
                                 <Border Classes="card">
                                   <StackPanel Spacing="4">

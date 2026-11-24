@@ -5696,4 +5696,10 @@ Project: {2}</value>
   <data name="Phone_Failed" xml:space="preserve">
     <value>Could not share the Pokédex: {0}</value>
   </data>
+  <data name="Move_ZTitle" xml:space="preserve">
+    <value>Exclusive Z-move: the move that activates it</value>
+  </data>
+  <data name="Move_ZHint" xml:space="preserve">
+    <value>Each Pokémon with its crystal: with the crystal held, this move of theirs becomes this Z-move. The Pokémon has to know it. It is the Pokémon's own data, also editable in Advanced: Pokémon.</value>
+  </data>
 </root>

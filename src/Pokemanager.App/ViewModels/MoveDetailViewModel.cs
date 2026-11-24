@@ -21,6 +21,10 @@ public partial class MoveDetailViewModel : ObservableObject
     public IReadOnlyList<FieldViewModel> Main { get; }
     public IReadOnlyList<IntFieldViewModel> Details { get; }
 
+    /// <summary>The Pokémon that turn a move of theirs into this exclusive Z-move, with the move it needs (editable).</summary>
+    public IReadOnlyList<ChoiceFieldViewModel> ZUsers { get; }
+    public bool IsExclusiveZMove => ZUsers.Count > 0;
+
     public MoveDetailViewModel(EditorSession session, GameNames names, int id)
     {
         this.session = session;
@@ -49,6 +53,20 @@ public partial class MoveDetailViewModel : ObservableObject
             Int("recoil", Strings.Move_Recoil, -128, 127),
             Int("inflictPercent", Strings.Move_EffectChance),
         ];
+        // An exclusive Z-move: which move of each Pokémon that has it turns into it with its crystal (2026-11-24, user:
+        // "Snorlax's Snorlium Z activated by Body Slam"). The data is in the Pokémon's personal entry (Generation 7),
+        // so each Pokémon is a row of its own; the crystal names it.
+        var personal = session.Current.Personal;
+        ZUsers = [.. Enumerable.Range(1, personal.Length - 1)
+            .Where(row => personal[row] is pk3DS.Core.Structures.PersonalInfo.PersonalInfoSM z && z.SpecialZ_ZMove == id)
+            .Select(row =>
+            {
+                int crystal = session.GetInt(GameTables.Personal, row, GameTables.ZCrystal);
+                string who = row < names.PersonalEntries.Count ? names.PersonalEntries[row] : $"#{row}";
+                string label = crystal > 0 && crystal < names.Items.Count ? $"{who} · {names.Items[crystal]}" : who;
+                return new ChoiceFieldViewModel(session, GameTables.Personal, row, GameTables.ZBaseMove, label, names.Moves);
+            })];
+
         // The colored header follows the values as they are edited.
         foreach (var field in Main)
             field.PropertyChanged += (_, _) => NotifyHeader();
