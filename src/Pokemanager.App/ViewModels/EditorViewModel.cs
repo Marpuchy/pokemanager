@@ -1571,8 +1571,7 @@ public partial class EditorViewModel : ObservableObject
         try
         {
             var doc = SaveEditor.Document;
-            Services.PokedexWeb.Write(path, string.Format(Strings.Web_Title, Path.GetFileNameWithoutExtension(ProjectPath)), Session.Current, Names, Sprites,
-                doc is null ? null : s => doc.GetSeen((ushort)s), doc is null ? null : s => doc.GetCaught((ushort)s), doc?.DexMaxSpecies ?? Session.Current.LastSpecies);
+            Services.PokedexWeb.Write(path, string.Format(Strings.Web_Title, Path.GetFileNameWithoutExtension(ProjectPath)), Session.Current, Names, Sprites);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException)
         {

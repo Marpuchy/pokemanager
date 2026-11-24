@@ -1100,7 +1100,7 @@ public partial class SaveDexViewModel : ObservableObject
         try
         {
             PokedexWeb.Write(path, string.Format(Strings.Web_Title, System.IO.Path.GetFileNameWithoutExtension(editor.ProjectPath)),
-                doc.Rom, owner.GameNames, owner.Sprites, s => doc.GetSeen((ushort)s), s => doc.GetCaught((ushort)s), doc.DexMaxSpecies);
+                doc.Rom, owner.GameNames, owner.Sprites);
             System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(path) { UseShellExecute = true });
             editor.SetStatus(string.Format(Strings.Web_Written, path));
         }
@@ -1123,8 +1123,7 @@ public partial class SaveDexViewModel : ObservableObject
             return;
         try
         {
-            PokedexWeb.WriteFile(path, string.Format(Strings.Web_Title, name), doc.Rom, owner.GameNames, owner.Sprites,
-                s => doc.GetSeen((ushort)s), s => doc.GetCaught((ushort)s), doc.DexMaxSpecies);
+            PokedexWeb.WriteFile(path, string.Format(Strings.Web_Title, name), doc.Rom, owner.GameNames, owner.Sprites);
             editor.SetStatus(string.Format(Strings.Web_Exported, path));
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException)
@@ -1158,8 +1157,7 @@ public partial class SaveDexViewModel : ObservableObject
             {
             }
         }
-        return PokedexWeb.Build(PageTitle, editor.Session.Current, owner.GameNames, owner.Sprites,
-            s => source.GetSeen((ushort)s), s => source.GetCaught((ushort)s), source.DexMaxSpecies);
+        return PokedexWeb.Build(PageTitle, editor.Session.Current, owner.GameNames, owner.Sprites);
     }
 
     /// <summary>Serves the page on the home network and shows its link and QR code for the phone.</summary>

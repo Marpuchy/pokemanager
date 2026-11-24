@@ -11,9 +11,9 @@ namespace Pokemanager.App.Services;
 /// <summary>
 /// The Pokédex as one web page (2026-11-16, user: "the app uses too much while playing, and all I look at is the
 /// Pokédex: a link to a page with my Pokédex"). A single file with everything inside — the ROM's data (types, stats,
-/// abilities, held items, evolutions with the mod's megas, moves by level), the sprites as data URIs and what the save
-/// has seen and caught at that moment — so it opens in any browser with the application closed and no internet.
-/// It is written again when the button is pressed or the ROM is built.
+/// evolutions with the mod's megas, the levels moves are learned at) and the sprites as data URIs — so it opens in any browser with the application closed and no internet.
+/// It is written again when the button is pressed or the ROM is built. Only base stats, types, move levels and
+/// evolutions, with the app's filters (2026-11-24, user: no abilities, nothing seen or caught).
 /// </summary>
 public static class PokedexWeb
 {
@@ -21,20 +21,17 @@ public static class PokedexWeb
     public static string PathFor(string projectPath) =>
         System.IO.Path.Combine(AppSettings.DocumentsRoot, "Pokedex", System.IO.Path.GetFileNameWithoutExtension(projectPath) + ".html");
 
-    /// <param name="seen">Whether the save has seen a species (null: no save, nothing marked).</param>
-    public static void Write(string path, string title, GameData rom, GameNames names, PokemonSprites sprites,
-        Func<int, bool>? seen, Func<int, bool>? caught, int dexMax)
+    public static void Write(string path, string title, GameData rom, GameNames names, PokemonSprites sprites)
     {
-        string page = Build(title, rom, names, sprites, seen, caught, dexMax);
+        string page = Build(title, rom, names, sprites);
         Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path)!);
         File.WriteAllText(path, page, new UTF8Encoding(false));
     }
 
     /// <summary>The page itself, for the file and for the phone (<see cref="PokedexShare"/>).</summary>
-    public static string Build(string title, GameData rom, GameNames names, PokemonSprites sprites,
-        Func<int, bool>? seen, Func<int, bool>? caught, int dexMax)
+    public static string Build(string title, GameData rom, GameNames names, PokemonSprites sprites)
     {
-        string json = Data(title, rom, names, sprites, seen, caught, dexMax).ToJsonString(JsonOptions).Replace("</", "<\\/");
+        string json = Data(title, rom, names, sprites).ToJsonString(JsonOptions).Replace("</", "<\\/");
         return Template.Replace("/*DATA*/null", json).Replace("{{TITLE}}", System.Net.WebUtility.HtmlEncode(title))
             .Replace("{{LANG}}", Strings.Culture?.TwoLetterISOLanguageName ?? System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName);
     }
@@ -44,8 +41,7 @@ public static class PokedexWeb
     /// from the phone or anywhere"): the page's data with a marker, opened by the same page published with the project
     /// (<c>docs/pokedex/index.html</c>) when it has no data of its own.
     /// </summary>
-    public static void WriteFile(string path, string title, GameData rom, GameNames names, PokemonSprites sprites,
-        Func<int, bool>? seen, Func<int, bool>? caught, int dexMax)
+    public static void WriteFile(string path, string title, GameData rom, GameNames names, PokemonSprites sprites)
     {
         var file = new JsonObject
         {
@@ -53,15 +49,14 @@ public static class PokedexWeb
             ["format"] = 1,
             ["title"] = title,
             ["game"] = rom.Title.ToString(),
-            ["data"] = Data(title, rom, names, sprites, seen, caught, dexMax),
+            ["data"] = Data(title, rom, names, sprites),
         };
         File.WriteAllText(path, file.ToJsonString(JsonOptions), new UTF8Encoding(false));
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new() { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
 
-    private static JsonObject Data(string title, GameData rom, GameNames names, PokemonSprites sprites,
-        Func<int, bool>? seen, Func<int, bool>? caught, int dexMax)
+    private static JsonObject Data(string title, GameData rom, GameNames names, PokemonSprites sprites)
     {
         var index = PersonalIndex.Of(rom);
         bool gen7 = rom.Title.Generation() == 7;
@@ -86,15 +81,11 @@ public static class PokedexWeb
         {
             var (species, form) = index.Pokemon(row)!.Value;
             var p = rom.Personal[row];
-            bool own = species < rom.VanillaSpeciesCount && form == 0;
-            bool inDex = form == 0 && species <= dexMax;
             // Only the levels it learns something at, as the app's Pokédex: which moves stays out (2026-11-16, user).
             var learn = new JsonArray();
             if (row < rom.Learnsets.Length)
                 foreach (int level in rom.Learnsets[row].Levels.Select(l => (int)l).Distinct().Order())
                     learn.Add(level);
-            var matchups = new JsonArray([.. TypeMatchups.Groups(p.Types.Distinct())
-                .Select(g => (JsonNode)new JsonArray(g.Multiplier, new JsonArray([.. g.Types.Select(t => (JsonNode)t)])))]);
             entries.Add(new JsonObject
             {
                 ["k"] = key,
@@ -103,30 +94,9 @@ public static class PokedexWeb
                 ["n"] = row < names.PersonalEntries.Count ? names.PersonalEntries[row] : N(names.Species, species),
                 ["t"] = new JsonArray([.. p.Types.Distinct().Select(t => (JsonNode)t)]),
                 ["st"] = new JsonArray(p.HP, p.ATK, p.DEF, p.SPA, p.SPD, p.SPE),
-                ["ab"] = new JsonArray(N(names.Abilities, p.Abilities[0]), N(names.Abilities, p.Abilities[1]), N(names.Abilities, p.Abilities[2])),
-                ["cl"] = own && species < names.Classifications.Count ? names.Classifications[species] : "",
-                ["en"] = own && species < names.PokedexEntries.Count ? names.PokedexEntries[species] : "",
-                ["h"] = string.Format(Strings.Dex_Height, p.Height / 100.0),
-                ["w"] = string.Format(Strings.Dex_Weight, p.Weight / 10.0),
-                ["cr"] = p.CatchRate,
-                ["eg"] = string.Join(" · ", new[] { p.EggGroups[0], p.EggGroups[1] }.Distinct()
-                    .Select(g => g >= 0 && g < GameNames.EggGroups.Count ? GameNames.EggGroups[g] : "?")),
-                ["gr"] = p.EXPGrowth < GameNames.ExpGrowth.Count ? GameNames.ExpGrowth[p.EXPGrowth] : "?",
-                ["ge"] = p.Gender switch
-                {
-                    255 => Strings.Pkm_Genderless,
-                    254 => Strings.Dex_FemaleOnly,
-                    0 => Strings.Dex_MaleOnly,
-                    var g => string.Format(Strings.Dex_Ratio, 100 - (g * 100 / 254), g * 100 / 254),
-                },
-                ["hc"] = p.HatchCycles,
-                ["d"] = inDex,
-                ["sn"] = inDex && seen?.Invoke(species) == true,
-                ["ca"] = inDex && caught?.Invoke(species) == true,
                 ["lg"] = Legendaries.Contains(species),
                 ["mg"] = rom.MegaForms.Contains((species, form)),
                 ["i"] = Sprite(sprites.ForPersonalEntry(row)),
-                ["mu"] = matchups,
                 ["l"] = learn,
             });
         }
