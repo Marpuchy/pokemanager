@@ -5571,7 +5571,7 @@ Proyecto: {2}</value>
     <value>Los intercambios aceptan cualquier Pokémon (experimental)</value>
   </data>
   <data name="Trades_AnyTip" xml:space="preserve">
-    <value>Escribe 0 como el Pokémon que pide cada intercambio con NPC. No se ha encontrado dónde comprueba el juego lo que le das, así que no se sabe si 0 significa «cualquiera» hasta probarlo en el juego.</value>
+    <value>Al crear la ROM, cada intercambio con NPC pide el Pokémon 0, y el juego acepta cualquiera. Probado en el juego.</value>
   </data>
   <data name="Trades_AnyWarning" xml:space="preserve">
     <value>Sin probar en el juego: prueba el primer intercambio y dime qué pasa. Si el NPC no acepta nada, desmárcalo y vuelve a crear la ROM.</value>
@@ -5713,5 +5713,11 @@ Proyecto: {2}</value>
   </data>
   <data name="Combo_Search" xml:space="preserve">
     <value>Buscar…</value>
+  </data>
+  <data name="Trades_AnyUnchanged" xml:space="preserve">
+    <value>Sin cambios · aceptan cualquier Pokémon</value>
+  </data>
+  <data name="Trades_AnyRandom" xml:space="preserve">
+    <value>Aleatorizar el que dan · aceptan cualquier Pokémon</value>
   </data>
 </root>

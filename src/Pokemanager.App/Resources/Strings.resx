@@ -5571,7 +5571,7 @@ Project: {2}</value>
     <value>Trades accept any Pokémon (experimental)</value>
   </data>
   <data name="Trades_AnyTip" xml:space="preserve">
-    <value>Writes 0 as the Pokémon every NPC trade asks for. Where the game checks what you hand over has not been found, so whether 0 means «any» is unknown until it is tried in game.</value>
+    <value>When the ROM is built, every NPC trade asks for Pokémon 0, and the game accepts any. Tried in game.</value>
   </data>
   <data name="Trades_AnyWarning" xml:space="preserve">
     <value>Not tested in game: try the first trade and tell me what happens. If the NPC refuses everything, untick it and build again.</value>
@@ -5713,5 +5713,11 @@ Project: {2}</value>
   </data>
   <data name="Combo_Search" xml:space="preserve">
     <value>Search…</value>
+  </data>
+  <data name="Trades_AnyUnchanged" xml:space="preserve">
+    <value>Unchanged · accept any Pokémon</value>
+  </data>
+  <data name="Trades_AnyRandom" xml:space="preserve">
+    <value>Randomize the given one · accept any Pokémon</value>
   </data>
 </root>

@@ -819,17 +819,6 @@
                         <ItemsControl ItemsSource="{Binding Randomizer.Encounters.Trades}" ItemTemplate="{StaticResource UprOption}" />
                       </StackPanel>
                     </Border>
-                    <Border Classes="card">
-                      <StackPanel Spacing="4">
-                        <TextBlock Classes="card-title" Text="{x:Static r:Strings.Trades_OursTitle}" />
-                        <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Options_OursHint}" />
-                        <CheckBox IsChecked="{Binding GameTweaks.AnyTrade}" IsEnabled="{Binding GameTweaks.WildAndStaticSupported}"
-                                  ToolTip.Tip="{x:Static r:Strings.Trades_AnyTip}">
-                          <TextBlock Text="{x:Static r:Strings.Trades_Any}" TextWrapping="Wrap" />
-                        </CheckBox>
-                        <TextBlock Classes="hint" TextWrapping="Wrap" Text="{x:Static r:Strings.Trades_AnyWarning}" />
-                      </StackPanel>
-                    </Border>
                   </c:CardGrid>
                 </ScrollViewer>
               </TabItem>

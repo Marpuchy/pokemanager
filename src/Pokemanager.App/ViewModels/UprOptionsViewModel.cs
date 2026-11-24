@@ -69,6 +69,8 @@ public partial class UprOptionsViewModel : ObservableObject
             var vm = new UprOptionViewModel(this, option, info);
             if (option.Name == "StartersMod" && game?.Invoke() is { WildAndStaticSupported: true } starterTweaks)
                 vm.AddMegaStarters(starterTweaks);
+            if (option.Name == "InGameTradesMod" && game?.Invoke() is { WildAndStaticSupported: true } tradeTweaks)
+                vm.AddAnyTrade(tradeTweaks);
             byName[option.Name] = vm;
             // A hidden option keeps its value in the preset (and is written back) but has no control of its own.
             if (!UprOptionCatalog.IsHidden(option.Name, generation))
@@ -351,25 +353,46 @@ public partial class UprOptionViewModel : ObservableObject
     public IReadOnlyList<UprChoiceItem> ChoiceItems { get; private set; } = [];
 
     /// <summary>
-    /// The extra entry of the starters' list that is ours, not the randomizer's: starters with two evolutions and a mega
-    /// (<see cref="GameTweaksViewModel.MegaStarters"/>). Kept in the project's settings; the preset gets the randomizer's
-    /// "two evolutions" and the randomization is handed the three this application draws from the seed. -1 when absent.
+    /// Entries of a list that are ours, not the randomizer's (2026-11-13, user: they belong in the list, not in a check
+    /// box apart): each stands for one of the randomizer's own choices (<c>Base</c>, what the preset gets) plus one
+    /// project setting switched on (<c>flag</c>), e.g. the starters' "two evolutions and a mega" or the trades that
+    /// accept any Pokémon. Picking another entry switches the setting off.
     /// </summary>
-    private int megaIndex = -1;
-    private GameTweaksViewModel? megaTweaks;
+    private readonly List<(int Index, string Base)> extras = [];
+    private Func<bool>? extraOn;
+    private Action<bool>? setExtra;
 
-    internal void AddMegaStarters(GameTweaksViewModel tweaks)
+    private void AddExtras(Func<bool> isOn, Action<bool> set, System.ComponentModel.INotifyPropertyChanged source, string property,
+        params (string Base, string Label, string? Tip)[] entries)
     {
-        megaTweaks = tweaks;
-        megaIndex = Choices.Count;
-        ChoiceLabels = [.. ChoiceLabels, Strings.Starters_Mega];
-        ChoiceItems = [.. ChoiceItems, new UprChoiceItem(Strings.Starters_Mega, Strings.Starters_MegaTip + "\n" + tweaks.MegaStartersText)];
-        tweaks.PropertyChanged += (_, e) =>
+        extraOn = isOn;
+        setExtra = set;
+        foreach (var (baseValue, label, tip) in entries)
         {
-            if (e.PropertyName == nameof(GameTweaksViewModel.MegaStarters))
+            if (!Choices.Contains(baseValue))
+                continue;
+            extras.Add((ChoiceLabels.Count, baseValue));
+            ChoiceLabels = [.. ChoiceLabels, label];
+            ChoiceItems = [.. ChoiceItems, new UprChoiceItem(label, tip)];
+        }
+        source.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == property)
                 OnPropertyChanged(nameof(ChoiceIndex));
         };
     }
+
+    /// <summary>Starters with two evolutions and a mega (<see cref="GameTweaksViewModel.MegaStarters"/>).</summary>
+    internal void AddMegaStarters(GameTweaksViewModel tweaks) =>
+        AddExtras(() => tweaks.MegaStarters, v => tweaks.MegaStarters = v, tweaks, nameof(GameTweaksViewModel.MegaStarters),
+            ("RANDOM_WITH_TWO_EVOLUTIONS", Strings.Starters_Mega, Strings.Starters_MegaTip + "\n" + tweaks.MegaStartersText));
+
+    /// <summary>Trades that accept any Pokémon (<see cref="GameTweaksViewModel.AnyTrade"/>), with what they give as is or random.</summary>
+    internal void AddAnyTrade(GameTweaksViewModel tweaks) =>
+        AddExtras(() => tweaks.AnyTrade, v => tweaks.AnyTrade = v, tweaks, nameof(GameTweaksViewModel.AnyTrade),
+            ("UNCHANGED", Strings.Trades_AnyUnchanged, Strings.Trades_AnyTip),
+            ("RANDOMIZE_GIVEN", Strings.Trades_AnyRandom, Strings.Trades_AnyTip));
+
     public string? Hint { get; }
 
     /// <summary>What the option does, on hover: UPR ZX's own text for a misc tweak, ours for everything else.</summary>
@@ -439,21 +462,25 @@ public partial class UprOptionViewModel : ObservableObject
 
     public int ChoiceIndex
     {
-        get => megaTweaks is { MegaStarters: true } ? megaIndex : choiceIndex;
+        get
+        {
+            if (extraOn?.Invoke() == true && extras.Count > 0)
+            {
+                string current = Choices[choiceIndex];
+                return extras.FirstOrDefault(x => x.Base == current, extras[0]).Index;
+            }
+            return choiceIndex;
+        }
         set
         {
-            if (megaTweaks is { } tweaks && megaIndex >= 0)
+            if (setExtra is { } set && extras.Count > 0)
             {
-                bool mega = value == megaIndex;
-                if (mega)
+                bool extra = extras.Any(x => x.Index == value);
+                if (extra)
+                    value = Choices.ToList().IndexOf(extras.First(x => x.Index == value).Base);
+                if (extraOn!() != extra)
                 {
-                    // The randomizer's nearest: what the preset says when the project's own choice is not there.
-                    int two = Choices.ToList().IndexOf("RANDOM_WITH_TWO_EVOLUTIONS");
-                    value = two >= 0 ? two : choiceIndex;
-                }
-                if (tweaks.MegaStarters != mega)
-                {
-                    tweaks.MegaStarters = mega;
+                    set(extra);
                     if (choiceIndex == value)
                         OnPropertyChanged();
                 }
@@ -462,6 +489,8 @@ public partial class UprOptionViewModel : ObservableObject
                 return;
             if (SetProperty(ref choiceIndex, value))
                 owner.OnChanged();
+            else if (extras.Count > 0)
+                OnPropertyChanged(); // the same choice of the randomizer, but another entry of the list
         }
     }
 

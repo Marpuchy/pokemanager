@@ -299,6 +299,7 @@ public sealed class RealExpansionTests
         Assert.Equal(team.Count, team.Select(m => m.Species).Distinct().Count());
         Assert.All(team, m => Assert.False(Legendaries.Contains(m.Species)));
         Assert.All(team, m => Assert.True(m.GetMove(0) > 0));
+        Assert.All(team, m => Assert.True(m.Item > 0)); // every one holds something, not only the crystal
         Assert.Equal(1, team.Count(m => BattleSafety.IsZCrystal(m.Item)));
         Assert.False(BattleSafety.IsZCrystal(team[^1].Item));
         Assert.Contains(team[^1].Item, data.MegaStones);
