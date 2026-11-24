@@ -3295,7 +3295,6 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
 
     @Override
     public void setFieldTMs(List<Integer> fieldTMs) {
-        fieldTMs = onlyFieldTMs(fieldTMs);
         List<Integer> fieldItems = this.getFieldItems();
         int fiLength = fieldItems.size();
         Iterator<Integer> iterTMs = fieldTMs.iterator();
@@ -3316,26 +3315,6 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
         }
 
         this.setFieldItems(fieldItems);
-    }
-
-    /**
-     * Pokemanager: the TMs found on the ground come only from the ones the game itself leaves on the ground. UPR ZX
-     * draws them from all of the game's TMs, so a ground item could be a TM an NPC, a captain or a kahuna also gives:
-     * the player picks up a TM they already have and can never get the one that was on the ground (2026-11-24, user,
-     * on a ROM randomized with field items RANDOM). A TM of the list that the game does not leave on the ground is
-     * replaced by one it does that the list does not hold yet, in the game's order, without touching the randomizer's
-     * random numbers, so everything else the seed makes stays the same.
-     */
-    private List<Integer> onlyFieldTMs(List<Integer> fieldTMs) {
-        List<Integer> own = this.getCurrentFieldTMs();
-        List<Integer> unused = new ArrayList<>(own);
-        unused.removeAll(fieldTMs);
-        Iterator<Integer> spare = unused.iterator();
-        List<Integer> result = new ArrayList<>(fieldTMs.size());
-        for (int tm : fieldTMs) {
-            result.add(own.contains(tm) || !spare.hasNext() ? tm : spare.next());
-        }
-        return result;
     }
 
     @Override
