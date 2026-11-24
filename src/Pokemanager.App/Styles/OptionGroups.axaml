@@ -355,6 +355,24 @@
           <CheckBox Margin="0,3" IsChecked="{Binding Game.EvolutionProgression}" ToolTip.Tip="{x:Static r:Strings.Rules_ProgressionTip}">
             <TextBlock Text="{x:Static r:Strings.Rules_Progression}" TextWrapping="Wrap" />
           </CheckBox>
+          <!-- Its levels and chances (2026-11-24, user: editable, not only a check box) -->
+          <Grid ColumnDefinitions="*,Auto,Auto,Auto" RowDefinitions="Auto,Auto,Auto" Margin="22,0,0,4" IsEnabled="{Binding Game.EvolutionProgression}">
+            <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,8,0" Text="{x:Static r:Strings.Rules_FirstUntil}" ToolTip.Tip="{x:Static r:Strings.Rules_FirstUntilTip}" />
+            <NumericUpDown Grid.Column="1" Width="96" Margin="0,2" Value="{Binding Game.ProgressionFirstUntil}" Minimum="0" Maximum="100" Increment="1"
+                           FormatString="0" ParsingNumberStyle="Integer" ToolTip.Tip="{x:Static r:Strings.Rules_LevelTip}" />
+            <NumericUpDown Grid.Column="2" Width="96" Margin="6,2,0,2" Value="{Binding Game.ProgressionFirstPercent}" Minimum="0" Maximum="100" Increment="5"
+                           FormatString="0" ParsingNumberStyle="Integer" ToolTip.Tip="{x:Static r:Strings.Rules_ChanceTip}" />
+            <TextBlock Grid.Column="3" Margin="4,0,0,0" VerticalAlignment="Center" Text="%" />
+            <TextBlock Grid.Row="1" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,8,0" Text="{x:Static r:Strings.Rules_DropUntil}" ToolTip.Tip="{x:Static r:Strings.Rules_DropUntilTip}" />
+            <NumericUpDown Grid.Row="1" Grid.Column="1" Width="96" Margin="0,2" Value="{Binding Game.ProgressionDropUntil}" Minimum="0" Maximum="100" Increment="1"
+                           FormatString="0" ParsingNumberStyle="Integer" ToolTip.Tip="{x:Static r:Strings.Rules_LevelTip}" />
+            <NumericUpDown Grid.Row="1" Grid.Column="2" Width="96" Margin="6,2,0,2" Value="{Binding Game.ProgressionDropPercent}" Minimum="0" Maximum="100" Increment="5"
+                           FormatString="0" ParsingNumberStyle="Integer" ToolTip.Tip="{x:Static r:Strings.Rules_ChanceTip}" />
+            <TextBlock Grid.Row="1" Grid.Column="3" Margin="4,0,0,0" VerticalAlignment="Center" Text="%" />
+            <TextBlock Grid.Row="2" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,8,0" Text="{x:Static r:Strings.Rules_FinalFrom}" ToolTip.Tip="{x:Static r:Strings.Rules_FinalFromTip}" />
+            <NumericUpDown Grid.Row="2" Grid.Column="1" Width="96" Margin="0,2" Value="{Binding Game.ProgressionFinalFrom}" Minimum="1" Maximum="101" Increment="1"
+                           FormatString="0" ParsingNumberStyle="Integer" ToolTip.Tip="{x:Static r:Strings.Rules_LevelTip}" />
+          </Grid>
           <Grid ColumnDefinitions="*,Auto" Margin="0,2">
             <CheckBox IsChecked="{Binding Game.TrainerLegendaries}" ToolTip.Tip="{x:Static r:Strings.Rules_LegendariesTip}">
               <TextBlock Text="{x:Static r:Strings.Rules_Legendaries}" TextWrapping="Wrap" />

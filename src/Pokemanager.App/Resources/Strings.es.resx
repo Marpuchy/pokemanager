@@ -5835,10 +5835,10 @@ Proyecto: {2}</value>
     <value>Son de esta aplicación y se aplican mientras se randomiza, así que cambiarlas vuelve a randomizar (misma semilla).</value>
   </data>
   <data name="Rules_Progression" xml:space="preserve">
-    <value>Evoluciones según el nivel (hasta 19 casi solo primeras fases, de 20 a 34 a veces una fase menos, desde 55 todo evolucionado)</value>
+    <value>Evoluciones según el nivel</value>
   </data>
   <data name="Rules_ProgressionTip" xml:space="preserve">
-    <value>Salvajes, entrenadores, dominantes, regalos y estáticos, al nivel que tendrán en la ROM (cuentan los % de nivel). Hasta nivel 19, un Pokémon que no es primera fase pasa a su primera fase 9 de cada 10 veces; de 20 a 34, uno totalmente evolucionado baja una fase la mitad de las veces; desde 55, todo totalmente evolucionado. Los legendarios no se tocan.</value>
+    <value>Salvajes, entrenadores, dominantes, regalos y estáticos, al nivel que tendrán en la ROM (cuentan los % de nivel), con los niveles y probabilidades de debajo. Los legendarios no se tocan.</value>
   </data>
   <data name="Rules_Legendaries" xml:space="preserve">
     <value>Legendarios en entrenadores desde el nivel</value>
@@ -5872,5 +5872,38 @@ Proyecto: {2}</value>
   </data>
   <data name="Web_Exported" xml:space="preserve">
     <value>Pokédex exportada: {0}</value>
+  </data>
+  <data name="Rules_FirstUntil" xml:space="preserve">
+    <value>Primeras fases hasta el nivel</value>
+  </data>
+  <data name="Rules_FirstUntilTip" xml:space="preserve">
+    <value>Hasta este nivel, un Pokémon que no es primera fase pasa a su primera fase con la probabilidad de al lado.</value>
+  </data>
+  <data name="Rules_DropUntil" xml:space="preserve">
+    <value>Una fase menos hasta el nivel</value>
+  </data>
+  <data name="Rules_DropUntilTip" xml:space="preserve">
+    <value>Desde el nivel anterior hasta este, uno totalmente evolucionado baja una fase con la probabilidad de al lado.</value>
+  </data>
+  <data name="Rules_FinalFrom" xml:space="preserve">
+    <value>Todo totalmente evolucionado desde el nivel</value>
+  </data>
+  <data name="Rules_FinalFromTip" xml:space="preserve">
+    <value>Desde este nivel todo sale en su última fase (101: nunca se fuerza). Entre el nivel de «una fase menos» y este, se deja como lo haya puesto el randomizador.</value>
+  </data>
+  <data name="Rules_LevelTip" xml:space="preserve">
+    <value>Nivel que tendrá en la ROM (cuentan los % de nivel).</value>
+  </data>
+  <data name="Rules_ChanceTip" xml:space="preserve">
+    <value>Probabilidad de que pase, por cada Pokémon.</value>
+  </data>
+  <data name="Trainer_TagLegendary" xml:space="preserve">
+    <value>Legendario</value>
+  </data>
+  <data name="Trainer_TagMega" xml:space="preserve">
+    <value>Mega</value>
+  </data>
+  <data name="Trainer_TagMegaTip" xml:space="preserve">
+    <value>Lleva su propia megapiedra (u orbe, Kyogre y Groudon): es la mega del equipo y megaevoluciona en el combate.</value>
   </data>
 </root>

@@ -44,8 +44,11 @@ public sealed record UprGameCounts(int Species, int Forms, int Moves)
 /// the randomization: evolution stage by level, trainer legendaries from a level, evolution levels up to a cap. The
 /// level percentages are the application's build-time ones, so the rule sees the level the built ROM will have.
 /// </summary>
-public sealed record UprRules(bool Progression, int LegendariesFrom, int EvolutionCap, int TrainerPercent, int WildPercent, int StaticPercent)
+public sealed record UprRules(bool Progression, int LegendariesFrom, int EvolutionCap, int TrainerPercent, int WildPercent, int StaticPercent,
+    int FirstUntil = 19, int FirstPercent = 90, int DropUntil = 34, int DropPercent = 50, int FinalFrom = 55)
 {
+    private bool DefaultLevels => (FirstUntil, FirstPercent, DropUntil, DropPercent, FinalFrom) == (19, 90, 34, 50, 55);
+
     internal IEnumerable<string> JavaProperties(long seed) =>
     [
         $"-Dpokemanager.seed={seed}",
@@ -55,10 +58,19 @@ public sealed record UprRules(bool Progression, int LegendariesFrom, int Evoluti
         $"-Dpokemanager.trainerLevelPercent={TrainerPercent}",
         $"-Dpokemanager.wildLevelPercent={WildPercent}",
         $"-Dpokemanager.staticLevelPercent={StaticPercent}",
+        $"-Dpokemanager.firstUntil={FirstUntil}",
+        $"-Dpokemanager.firstPercent={FirstPercent}",
+        $"-Dpokemanager.dropUntil={DropUntil}",
+        $"-Dpokemanager.dropPercent={DropPercent}",
+        $"-Dpokemanager.finalFrom={FinalFrom}",
     ];
 
-    /// <summary>For the cache key: the same seed with other rules is another randomization.</summary>
-    public string Key => $"rules:{(Progression ? 1 : 0)}.{LegendariesFrom}.{EvolutionCap}.{TrainerPercent}.{WildPercent}.{StaticPercent}";
+    /// <summary>
+    /// For the cache key: the same seed with other rules is another randomization. The progression's levels only count
+    /// when they are not the defaults, so the key of a randomization made before they could be edited stays the same.
+    /// </summary>
+    public string Key => $"rules:{(Progression ? 1 : 0)}.{LegendariesFrom}.{EvolutionCap}.{TrainerPercent}.{WildPercent}.{StaticPercent}"
+        + (Progression && !DefaultLevels ? $".p{FirstUntil}-{FirstPercent}-{DropUntil}-{DropPercent}-{FinalFrom}" : "");
 }
 
 /// <summary>Runs the commands of <c>upr/PokemanagerUpr.java</c> on UPR ZX.</summary>

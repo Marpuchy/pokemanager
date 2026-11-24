@@ -308,7 +308,15 @@ public sealed class TrainerMemberViewModel : ObservableObject, IMonCard
     public bool IsEgg => false;
     public bool IsEmpty => false;
     public bool HasProblem => false;
-    public string Tooltip => $"{SpeciesName} · {LevelText}";
+    public string Tooltip => string.Join(" · ", new[] { SpeciesName, LevelText, IsLegendary ? Strings.Trainer_TagLegendary : "", IsMega ? Strings.Trainer_TagMega : "" }.Where(t => t != ""));
+
+    /// <summary>
+    /// Whether it holds its own Mega Stone (or Kyogre's / Groudon's orb), so it is the team's mega in battle, and whether
+    /// it is a legendary (2026-11-24, user: "how do I see that the trainers' legendaries can be megas").
+    /// </summary>
+    public bool IsMega => BattleSafety.IsOwnStone(session.Current, ShownSpecies, ShownItem);
+
+    public bool IsLegendary => Legendaries.Contains(ShownSpecies);
     public bool IsSelected => IsPicked?.Invoke(this) == true;
 
     private int ShownItem => BuiltMember?.Item ?? session.GetInt(T, trainer, prefix + "item");
@@ -480,7 +488,7 @@ public sealed class TrainerMemberViewModel : ObservableObject, IMonCard
 
     private void Refresh()
     {
-        foreach (string property in new[] { nameof(SpeciesName), nameof(LevelText), nameof(Icon), nameof(TypeBackground), nameof(TypeForeground), nameof(AbilityHint) })
+        foreach (string property in new[] { nameof(SpeciesName), nameof(LevelText), nameof(Icon), nameof(TypeBackground), nameof(TypeForeground), nameof(AbilityHint), nameof(IsMega), nameof(IsLegendary) })
             OnPropertyChanged(property);
         RefreshBuilt();
         Changed?.Invoke();
@@ -511,7 +519,7 @@ public sealed class TrainerMemberViewModel : ObservableObject, IMonCard
                 field.Refresh();
             foreach (string property in new[] { nameof(Header), nameof(SpeciesName), nameof(LevelText), nameof(Icon),
                          nameof(TypeBackground), nameof(TypeForeground), nameof(AbilityHint), nameof(ItemIcon), nameof(HasItem),
-                         nameof(TypeChips), nameof(Tooltip) })
+                         nameof(TypeChips), nameof(Tooltip), nameof(IsMega), nameof(IsLegendary) })
                 OnPropertyChanged(property);
         }
         finally

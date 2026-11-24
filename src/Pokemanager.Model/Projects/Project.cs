@@ -29,11 +29,15 @@ public sealed class RandomizationSettings
     public bool MegaStonesInPool { get; set; }
 
     /// <summary>
-    /// Evolution stage by level, decided while randomizing (2026-11-24, user): up to level 19 mostly first stages, from
-    /// 20 to 34 fully evolved ones go back a stage half the time, from 55 everything fully evolved. Wild Pokémon,
+    /// Evolution stage by level, decided while randomizing (2026-11-24, user), with <see cref="Progression"/>'s levels:
+    /// by default up to level 19 mostly first stages, from 20 to 34 fully evolved ones go back a stage half the time,
+    /// from 55 everything fully evolved. Wild Pokémon,
     /// trainers, totems, gifts and statics, at the level the built ROM gives them (the level percentages count).
     /// </summary>
     public bool EvolutionProgression { get; set; }
+
+    /// <summary>The levels and chances of <see cref="EvolutionProgression"/> (2026-11-24, user: editable, not only on/off).</summary>
+    public ProgressionLevels Progression { get; set; } = ProgressionLevels.Default;
 
     /// <summary>From this level on a trainer may carry one legendary (bosses and important ones 600+, the rest under 600); 0 = never.</summary>
     public int TrainerLegendariesFrom { get; set; }
@@ -90,6 +94,7 @@ public sealed class RandomizationSettings
         AllowAllItems = other.AllowAllItems;
         MegaStonesInPool = other.MegaStonesInPool;
         EvolutionProgression = other.EvolutionProgression;
+        Progression = other.Progression;
         TrainerLegendariesFrom = other.TrainerLegendariesFrom;
         EvolutionLevelCap = other.EvolutionLevelCap;
         Enabled = other.Enabled;

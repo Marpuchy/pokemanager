@@ -934,14 +934,21 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
     // run's seed and the slot: the randomizer's own random numbers are not touched, so everything else the seed makes
     // stays the same. Every rule is idempotent, because UPR ZX writes trainers several times (held items, levels...).
     //  - pokemanager.progression: by level (the level the built ROM will have, after the application's level %),
-    //    up to 19 a Pokemon that is not a first stage becomes its first stage 9 times in 10, from 20 to 34 a fully
-    //    evolved one goes back one stage half the time, from 55 everything is fully evolved. Wild, trainers, totems
+    //    up to firstUntil (19) a Pokemon that is not a first stage becomes its first stage firstPercent (90) % of the
+    //    time, up to dropUntil (34) a fully evolved one goes back one stage dropPercent (50) % of the time, from
+    //    finalFrom (55) everything is fully evolved. Wild, trainers, totems
     //    and their allies, gifts and static encounters. Legendaries are left alone.
     //  - pokemanager.trainerLegendariesFrom (a level): from it on a trainer may carry one legendary in the slot before
     //    the last: bosses and important trainers one of 600 or more, the rest one under 600 (mythicals included).
     //  - pokemanager.evolutionCap (a level): level evolutions spread up to it — up to 36 as the game has them, above
     //    that pressed into 36..cap — from the game's own levels, so "easier evolutions" does not pull a last stage to 40.
     private static final boolean pmProgression = Boolean.getBoolean("pokemanager.progression");
+    // The progression's levels and chances (2026-11-24, user: editable, not just on/off); the defaults are the first rule.
+    private static final int pmFirstUntil = Integer.getInteger("pokemanager.firstUntil", 19);
+    private static final int pmFirstPercent = Integer.getInteger("pokemanager.firstPercent", 90);
+    private static final int pmDropUntil = Integer.getInteger("pokemanager.dropUntil", 34);
+    private static final int pmDropPercent = Integer.getInteger("pokemanager.dropPercent", 50);
+    private static final int pmFinalFrom = Integer.getInteger("pokemanager.finalFrom", 55);
     private static final int pmLegendariesFrom = Integer.getInteger("pokemanager.trainerLegendariesFrom", 0);
     private static final int pmEvolutionCap = Integer.getInteger("pokemanager.evolutionCap", 0);
     private static final long pmSeed = Long.getLong("pokemanager.seed", 0L);
@@ -978,13 +985,13 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
         if (own.isLegendary()) return p;
         Random r = pmRandom(key);
         double roll = r.nextDouble();
-        if (level <= 19) {
-            return !own.evolutionsTo.isEmpty() && roll < 0.9 ? pmFirstStage(own) : p;
+        if (level <= pmFirstUntil) {
+            return !own.evolutionsTo.isEmpty() && roll < pmFirstPercent / 100.0 ? pmFirstStage(own) : p;
         }
-        if (level <= 34) {
-            return own.evolutionsFrom.isEmpty() && !own.evolutionsTo.isEmpty() && roll < 0.5 ? pmOwn(own.evolutionsTo.get(0).from) : p;
+        if (level <= pmDropUntil) {
+            return own.evolutionsFrom.isEmpty() && !own.evolutionsTo.isEmpty() && roll < pmDropPercent / 100.0 ? pmOwn(own.evolutionsTo.get(0).from) : p;
         }
-        if (level >= 55 && !own.evolutionsFrom.isEmpty()) {
+        if (level >= pmFinalFrom && !own.evolutionsFrom.isEmpty()) {
             Pokemon b = own;
             int guard = 0;
             while (!b.evolutionsFrom.isEmpty() && guard++ < 5) b = pmOwn(b.evolutionsFrom.get(r.nextInt(b.evolutionsFrom.size())).to);

@@ -182,6 +182,10 @@ public static class BattleSafety
     /// <summary>Kyogre and Groudon: their orb makes them revert to their primal form in battle, as a stone mega evolves.</summary>
     private static readonly (int Species, int Orb)[] Primals = [(382, 535), (383, 534)];
 
+    /// <summary>Whether <paramref name="item"/> is what makes <paramref name="species"/> mega evolve (or revert to its primal form).</summary>
+    public static bool IsOwnStone(GameData data, int species, int item) =>
+        item > 0 && Stones(data).Own.TryGetValue(species, out var own) && own.Contains(item);
+
     /// <summary>
     /// The items that make a Pokémon change in battle and whose they are: the Mega Stones of the game's mega table, and the
     /// primal orbs (2026-11-24, user: a legendary's other form can be a team's "mega", Primal Kyogre with its orb).
@@ -260,8 +264,9 @@ public static class BattleSafety
         }
         if (mega && megaSlot < 0)
         {
-            // A legendary that has its own (a primal orb) can be the team's one; the rest of the legendaries are not made megas.
-            megaSlot = team.FindLastIndex(m => ownStones.ContainsKey(m.Species) && (!Legendaries.Contains(m.Species) || Primals.Any(p => p.Species == m.Species)));
+            // Anyone of the team with a stone or orb of its own, legendaries included (2026-11-24, user: "every legendary
+            // that has a mega": Mewtwo, Latios, Diancie… with their stone, Kyogre and Groudon with their orb).
+            megaSlot = team.FindLastIndex(m => ownStones.ContainsKey(m.Species));
             if (megaSlot >= 0)
                 team[megaSlot].Item = ownStones[team[megaSlot].Species].Min();
             else if (MegaReplacement(data, team, ownStones, id) is { } species)

@@ -1174,6 +1174,14 @@
                                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                                   <TextBlock Text="{Binding SpeciesName}" FontWeight="Bold" Foreground="{Binding TypeForeground}" TextTrimming="CharacterEllipsis" />
                                                   <TextBlock Text="{Binding Header}" Foreground="{Binding TypeForeground}" Opacity="0.85" FontSize="11" />
+                                                  <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,2,0,0">
+                                                    <Border Classes="badge" Background="#7B4FB5" IsVisible="{Binding IsLegendary}">
+                                                      <TextBlock Text="{x:Static r:Strings.Trainer_TagLegendary}" Foreground="White" FontSize="11" FontWeight="SemiBold" />
+                                                    </Border>
+                                                    <Border Classes="badge" Background="#D9480F" IsVisible="{Binding IsMega}" ToolTip.Tip="{x:Static r:Strings.Trainer_TagMegaTip}">
+                                                      <TextBlock Text="{x:Static r:Strings.Trainer_TagMega}" Foreground="White" FontSize="11" FontWeight="SemiBold" />
+                                                    </Border>
+                                                  </StackPanel>
                                                 </StackPanel>
                                                 <TextBlock Grid.Column="2" Text="{Binding LevelText}" Foreground="{Binding TypeForeground}" FontWeight="SemiBold" VerticalAlignment="Center" />
                                               </Grid>

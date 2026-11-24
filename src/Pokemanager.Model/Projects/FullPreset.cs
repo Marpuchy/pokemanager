@@ -46,6 +46,9 @@ public sealed class FullPreset
     /// <summary>The randomizer rules that are ours (<see cref="RandomizationSettings.EvolutionProgression"/> and the next two).</summary>
     public bool EvolutionProgression { get; init; }
 
+    /// <summary>Its levels and chances; null in files made before they could be edited (the defaults).</summary>
+    public ProgressionLevels? Progression { get; init; }
+
     public int TrainerLegendariesFrom { get; init; }
 
     public int EvolutionLevelCap { get; init; }
@@ -69,6 +72,7 @@ public sealed class FullPreset
         AllowAllItems = project.Randomization.AllowAllItems,
         MegaStonesInPool = project.Randomization.MegaStonesInPool,
         EvolutionProgression = project.Randomization.EvolutionProgression,
+        Progression = project.Randomization.Progression,
         TrainerLegendariesFrom = project.Randomization.TrainerLegendariesFrom,
         EvolutionLevelCap = project.Randomization.EvolutionLevelCap,
         Locke = new LockeSettings
@@ -145,6 +149,7 @@ public sealed class FullPreset
         project.Randomization.AllowAllItems = AllowAllItems;
         project.Randomization.MegaStonesInPool = MegaStonesInPool;
         project.Randomization.EvolutionProgression = EvolutionProgression;
+        project.Randomization.Progression = (Progression ?? ProgressionLevels.Default).Valid();
         project.Randomization.TrainerLegendariesFrom = Math.Clamp(TrainerLegendariesFrom, 0, 100);
         project.Randomization.EvolutionLevelCap = Math.Clamp(EvolutionLevelCap, 0, 100);
         if (Locke is { } locke)

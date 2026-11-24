@@ -79,8 +79,10 @@ public sealed class UprService
         int trainers = (int)Math.Round(t.TrainerLevelPercent);
         int wild = (int)Math.Round(t.WildLevelPercent);
         int statics = (int)Math.Round(t.StaticLevelPercent);
+        var l = r.Progression.Valid();
         return new UprRules(r.EvolutionProgression, r.TrainerLegendariesFrom, r.EvolutionLevelCap,
-            r.EvolutionProgression || r.TrainerLegendariesFrom > 0 ? trainers : 0, r.EvolutionProgression ? wild : 0, r.EvolutionProgression ? statics : 0);
+            r.EvolutionProgression || r.TrainerLegendariesFrom > 0 ? trainers : 0, r.EvolutionProgression ? wild : 0, r.EvolutionProgression ? statics : 0,
+            l.FirstUntil, l.FirstPercent, l.DropUntil, l.DropPercent, l.FinalFrom);
     }
 
     private readonly Dictionary<string, int[]?> starters = new(StringComparer.Ordinal);

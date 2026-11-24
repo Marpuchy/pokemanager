@@ -228,6 +228,46 @@ public sealed partial class GameTweaksViewModel : ObservableObject
         set { if (value != Rnd.EvolutionProgression) SetRule(() => Rnd.EvolutionProgression = value, Strings.Rules_ProgressionUndo); }
     }
 
+    // The progression's levels and chances (2026-11-24, user: "the levels should be editable, not a check box").
+    private void SetProgression(Func<ProgressionLevels, ProgressionLevels> change)
+    {
+        var next = change(Rnd.Progression).Valid();
+        if (next != Rnd.Progression)
+            SetRule(() => Rnd.Progression = next, Strings.Rules_ProgressionUndo);
+        else
+            OnPropertyChanged(string.Empty); // a value out of range goes back to what is kept
+    }
+
+    public decimal? ProgressionFirstUntil
+    {
+        get => Rnd.Progression.FirstUntil;
+        set { if (value is { } v) SetProgression(p => p with { FirstUntil = (int)v }); }
+    }
+
+    public decimal? ProgressionFirstPercent
+    {
+        get => Rnd.Progression.FirstPercent;
+        set { if (value is { } v) SetProgression(p => p with { FirstPercent = (int)v }); }
+    }
+
+    public decimal? ProgressionDropUntil
+    {
+        get => Rnd.Progression.DropUntil;
+        set { if (value is { } v) SetProgression(p => p with { DropUntil = (int)v }); }
+    }
+
+    public decimal? ProgressionDropPercent
+    {
+        get => Rnd.Progression.DropPercent;
+        set { if (value is { } v) SetProgression(p => p with { DropPercent = (int)v }); }
+    }
+
+    public decimal? ProgressionFinalFrom
+    {
+        get => Rnd.Progression.FinalFrom;
+        set { if (value is { } v) SetProgression(p => p with { FinalFrom = (int)v }); }
+    }
+
     public bool TrainerLegendaries
     {
         get => Rnd.TrainerLegendariesFrom > 0;

@@ -298,6 +298,30 @@ public sealed class RealExpansionTests
         Assert.Equal(535, fixedTeam[^1].Item);
     }
 
+    /// <summary>Any legendary with a mega of its own can be the team's mega: Mewtwo goes last with its Mewtwonite (2026-11-24, user).</summary>
+    [Fact]
+    public void BattleSafety_ALegendaryWithAMega_IsTheTeamsMegaWithItsStone()
+    {
+        Assert.SkipWhen(Paths() is null, "POKEMANAGER_USUM_DUMP / POKEMANAGER_MOD_LIBRARY are not set.");
+        var (_, session) = Open(withMod: true);
+        var data = session.Current;
+        var stored = data.Trainers[23];
+        var hala = Trainer.Read(data.Title, stored.WriteData().ToArray(), stored.WriteTeam().ToArray());
+        foreach (var m in hala.Team)
+        {
+            m.Species = 19;
+            m.Form = 0;
+            m.Item = 0;
+        }
+        hala.Team.First().Species = 150; // Mewtwo, first
+        var items = new TrainerBattleItems();
+        items.Boss.MegaFromLevel = 1;
+        BattleSafety.FixOne(data, hala, items.Boss, 23);
+        var fixedTeam = hala.Team.ToList();
+        Assert.Equal(150, fixedTeam[^1].Species);
+        Assert.True(BattleSafety.IsOwnStone(data, 150, fixedTeam[^1].Item), $"item {fixedTeam[^1].Item}");
+    }
+
     /// <summary>
     /// A whole team drawn again (the trainers' "Al azar"): same size and levels, other Pokémon with moves, and the
     /// boss rule applied at once — one crystal, never on the last, the last one a mega from the rule's level.

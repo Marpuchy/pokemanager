@@ -5835,10 +5835,10 @@ Project: {2}</value>
     <value>This application's own; they act while randomizing, so changing them randomizes again (same seed).</value>
   </data>
   <data name="Rules_Progression" xml:space="preserve">
-    <value>Evolution stage by level (up to 19 mostly first stages, 20 to 34 sometimes one stage less, from 55 fully evolved)</value>
+    <value>Evolution stage by level</value>
   </data>
   <data name="Rules_ProgressionTip" xml:space="preserve">
-    <value>Wild, trainers, totems, gifts and statics, at the level they will have in the ROM (the level % count). Up to level 19 a Pokémon that is not a first stage becomes its first stage 9 times in 10; 20 to 34 a fully evolved one goes back a stage half the time; from 55 everything is fully evolved. Legendaries are left alone.</value>
+    <value>Wild Pokémon, trainers, totems, gifts and statics, at the level they will have in the ROM (the level percentages count), with the levels and chances below. Legendaries are left alone.</value>
   </data>
   <data name="Rules_Legendaries" xml:space="preserve">
     <value>Legendaries in trainer teams from level</value>
@@ -5872,5 +5872,38 @@ Project: {2}</value>
   </data>
   <data name="Web_Exported" xml:space="preserve">
     <value>Pokédex exported: {0}</value>
+  </data>
+  <data name="Rules_FirstUntil" xml:space="preserve">
+    <value>First stages up to level</value>
+  </data>
+  <data name="Rules_FirstUntilTip" xml:space="preserve">
+    <value>Up to this level, a Pokémon that is not a first stage becomes its first stage with the chance next to it.</value>
+  </data>
+  <data name="Rules_DropUntil" xml:space="preserve">
+    <value>One stage less up to level</value>
+  </data>
+  <data name="Rules_DropUntilTip" xml:space="preserve">
+    <value>From the level above up to this one, a fully evolved Pokémon goes back one stage with the chance next to it.</value>
+  </data>
+  <data name="Rules_FinalFrom" xml:space="preserve">
+    <value>Everything fully evolved from level</value>
+  </data>
+  <data name="Rules_FinalFromTip" xml:space="preserve">
+    <value>From this level everything is in its last stage (101: never forced). Between the "one stage less" level and this one, it stays as the randomizer left it.</value>
+  </data>
+  <data name="Rules_LevelTip" xml:space="preserve">
+    <value>The level it will have in the ROM (the level percentages count).</value>
+  </data>
+  <data name="Rules_ChanceTip" xml:space="preserve">
+    <value>How likely it is, for each Pokémon.</value>
+  </data>
+  <data name="Trainer_TagLegendary" xml:space="preserve">
+    <value>Legendary</value>
+  </data>
+  <data name="Trainer_TagMega" xml:space="preserve">
+    <value>Mega</value>
+  </data>
+  <data name="Trainer_TagMegaTip" xml:space="preserve">
+    <value>Holds its own Mega Stone (or orb, Kyogre and Groudon): it is the team's mega and mega evolves in battle.</value>
   </data>
 </root>
