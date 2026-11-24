@@ -19,7 +19,7 @@ public class ModCatalogTests
         var mod = Expansion();
 
         Assert.Equal("usum-expansion", mod.Id);
-        Assert.Equal("1.42 (0b50f84)", mod.Version);
+        Assert.Equal("1.42 (b4780ba)", mod.Version);
         Assert.Equal("https://github.com/TheSomewhatUnknownGuy/PokemonUSUMExpansion", mod.SourceUrl);
         // It brings files to the ROM, which is what makes it a layer, a cache key and a reason to build.
         Assert.Equal(ModKind.RomFiles, mod.Kind);
@@ -146,10 +146,10 @@ public class ModCatalogTests
         var executables = mod.Downloads.Where(d => d.ServedPath == "exefs/code.bin").ToList();
         Assert.Equal(2, executables.Count);
         // The newest executable and Battle.cro are fetched from the repository itself, pinned to a commit.
-        Assert.All(executables, e => Assert.Contains("/0b50f8436b743301f727018f5fd6612ee4c39781/", e.Source.Url));
+        Assert.All(executables, e => Assert.Contains("/b4780bae7757feaf637f869478e427fc810df308/", e.Source.Url));
         var battle = mod.Downloads.Where(d => d.ServedPath == "romfs/Battle.cro").ToList();
         Assert.Equal(2, battle.Count);
-        Assert.All(battle, b => Assert.Equal("0E1D0BCC5E7D18E9AC3A0DA94D5775A18377229C27C0C0EABEFCD4449E729223", b.Sha256));
+        Assert.All(battle, b => Assert.Equal("A922EB66D56F57FF1DD133B8BF230B8613F7B3099D836EB363C566C7A63EAF23", b.Sha256));
         Assert.All(executables, e => Assert.Equal(5_914_624L, e.Bytes!.Value));
         Assert.All(executables, e => Assert.Equal(64, e.Sha256!.Length));
         // The executable comes after the zip that also holds one, so the point release wins.
