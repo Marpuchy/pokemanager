@@ -960,51 +960,40 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
     private List<Pokemon> pmLegendaries;
 
     /**
-     * The items a species-expansion mod added (2026-11-25, user: "as soon as the mod is in, its items too, like the
-     * TMs"). UPR ZX's item lists stop at the game's own last item (959 in Ultra Sun/Ultra Moon), so the mod's evolution
-     * items (Peat Block, the armours, apples, teapots…) and most of its Mega Stones could never be placed anywhere. The
-     * application passes them (pokemanager.evolutionItems / pokemanager.megaStones, only for an expanded game): the
-     * lists grow to every item the game names, an evolution item UPR does not allow becomes allowed and not bad (like
-     * the game's own evolution items), and every Mega Stone allowed — still a "bad item", as UPR has the game's own, so
-     * only the Mega Stones option takes them out of that bag.
+     * The items a species-expansion mod added (2026-11-25, user: "as soon as the mod is in, its items too"). UPR ZX's
+     * item lists stop at the game's own last item (959 in Ultra Sun/Ultra Moon), so the mod's evolution items (Peat
+     * Block, the armours, apples, teapots…) and most of its Mega Stones could never be placed anywhere.
+     *
+     * <p>Growing UPR's lists was the first try, and it changed the whole run: wild held items are drawn before the
+     * abilities from those same lists, so a longer list moved every later random number and the same seed gave other
+     * abilities (user: "only the items were to change; leave the Pokemon as they were"). So UPR's lists and random
+     * numbers are left alone, and the mod's items are put in <b>afterwards</b>, in the field items, shops and Pickup
+     * UPR has just written: each slot, by a Random of its own keyed by the seed and the slot, becomes one of them with
+     * the share they would have had in the pool. The application passes them (pokemanager.evolutionItems — only those
+     * UPR does not know — and pokemanager.megaStones when the Mega Stones option is on, only for an expanded game).</p>
      */
+    private List<Integer> pmExtraItems;
+    private double pmExtraShare;
+
     private void pmModItems() {
-        String evo = System.getProperty("pokemanager.evolutionItems", "");
-        String megas = System.getProperty("pokemanager.megaStones", "");
-        if (evo.isBlank() && megas.isBlank()) return;
-        try {
-            int size = itemNames.size();
-            boolean[] allowed = pmGrow(allowedItems, size), nonBad = pmGrow(nonBadItems, size);
-            for (String part : evo.split(",")) {
+        pmExtraItems = new ArrayList<>();
+        int known = 0;
+        for (int i = 1; i < itemNames.size(); i++) if (nonBadItems.isAllowed(i)) known++;
+        for (String key : new String[] { "pokemanager.evolutionItems", "pokemanager.megaStones" }) {
+            for (String part : System.getProperty(key, "").split(",")) {
                 if (part.isBlank()) continue;
                 int i = Integer.parseInt(part.trim());
-                if (i <= 0 || i >= size || allowed[i]) continue;
-                allowed[i] = true;
-                nonBad[i] = true;
+                if (i > 0 && i < itemNames.size() && !allowedItems.isAllowed(i) && !pmExtraItems.contains(i)) pmExtraItems.add(i);
             }
-            for (String part : megas.split(",")) {
-                if (part.isBlank()) continue;
-                int i = Integer.parseInt(part.trim());
-                if (i > 0 && i < size) allowed[i] = true;
-            }
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(e);
         }
+        pmExtraShare = pmExtraItems.isEmpty() ? 0 : pmExtraItems.size() / (double) (known + pmExtraItems.size());
     }
 
-    /** The item flags of an ItemList, grown to the game's item count (new ids not allowed, not TMs). */
-    private static boolean[] pmGrow(ItemList list, int size) throws ReflectiveOperationException {
-        java.lang.reflect.Field items = ItemList.class.getDeclaredField("items");
-        java.lang.reflect.Field tms = ItemList.class.getDeclaredField("tms");
-        items.setAccessible(true);
-        tms.setAccessible(true);
-        boolean[] flags = (boolean[]) items.get(list);
-        if (flags.length < size) {
-            flags = Arrays.copyOf(flags, size);
-            items.set(list, flags);
-            tms.set(list, Arrays.copyOf((boolean[]) tms.get(list), size));
-        }
-        return flags;
+    /** The item for one slot: UPR's, or now and then one of the mod's (see {@link #pmModItems}). */
+    private int pmExtra(int item, long slot) {
+        if (pmExtraItems == null || pmExtraItems.isEmpty() || item <= 0 || !nonBadItems.isAllowed(item)) return item;
+        Random r = pmRandom((9L << 40) + slot);
+        return r.nextDouble() < pmExtraShare ? pmExtraItems.get(r.nextInt(pmExtraItems.size())) : item;
     }
 
     private static int pmLevel(int level, int percent) {
@@ -3578,7 +3567,7 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
         for (int i = 0; i < fiLength; i++) {
             int oldItem = fieldItems.get(i);
             if (!(allowedItems.isTM(oldItem)) && allowedItems.isAllowed(oldItem)) {
-                int newItem = iterNewItems.next();
+                int newItem = pmExtra(iterNewItems.next(), i);
                 fieldItems.set(i, newItem);
             }
         }
@@ -3921,8 +3910,13 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
                 if (!badShop) {
                     List<Integer> shopContents = shopItems.get(i).items;
                     Iterator<Integer> iterItems = shopContents.iterator();
+                    List<Integer> written = new ArrayList<>();
                     for (int j = 0; j < shopItemSizes[i]; j++) {
                         Integer item = iterItems.next();
+                        // The mod's items (see pmModItems), never the same one twice in a shop.
+                        int extra = pmExtra(item, (2L << 20) + i * 256L + j);
+                        if (extra != item && !written.contains(extra) && !shopContents.contains(extra)) item = extra;
+                        written.add(item);
                         FileFunctions.write2ByteInt(shopsCRO, offset, item);
                         offset += 2;
                     }
@@ -3979,7 +3973,7 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
             byte[] pickupData = pickupGarc.getFile(0);
             for (int i = 0; i < pickupItems.size(); i++) {
                 int offset = 4 + (i * 0xC);
-                int item = pickupItems.get(i).item;
+                int item = pmExtra(pickupItems.get(i).item, (1L << 20) + i);
                 FileFunctions.write2ByteInt(pickupData, offset, item);
             }
             this.writeGARC(romEntry.getFile("PickupData"), pickupGarc);
