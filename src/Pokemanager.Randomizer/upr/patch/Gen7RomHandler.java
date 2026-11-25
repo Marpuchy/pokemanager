@@ -3517,8 +3517,20 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
         return fieldTMs.stream().distinct().collect(Collectors.toList());
     }
 
+    /**
+     * Pokemanager (2026-11-25, user): the TMs stay where the game has them. What a TM teaches is still randomized (that
+     * is the TM move list, written elsewhere); moving the discs around the map changed nothing that matters and, when a
+     * run was randomized again, left the player with a TM they already had (the TM79 found twice). The randomizer has
+     * already drawn its list by the time it gets here, so its random numbers, and everything else the seed makes, are
+     * the same as before.
+     */
     @Override
     public void setFieldTMs(List<Integer> fieldTMs) {
+    }
+
+    /** UPR ZX's own version, kept for reference: it put the drawn TMs in the slots that held TMs. */
+    @SuppressWarnings("unused")
+    private void uprSetFieldTMs(List<Integer> fieldTMs) {
         List<Integer> fieldItems = this.getFieldItems();
         int fiLength = fieldItems.size();
         Iterator<Integer> iterTMs = fieldTMs.iterator();
