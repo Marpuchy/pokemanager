@@ -323,6 +323,7 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
 
         allowedItems = Gen7Constants.getAllowedItems(romEntry.romType).copy();
         nonBadItems = Gen7Constants.nonBadItems.copy();
+        pmModItems();
 
         if (romEntry.romType == Gen7Constants.Type_SM) {
             isSM = true;
@@ -957,6 +958,54 @@ public class Gen7RomHandler extends Abstract3DSRomHandler {
     private static final int pmStaticPercent = Integer.getInteger("pokemanager.staticLevelPercent", 0);
     private final Map<Long, Integer> pmVanillaEvolutionLevels = new HashMap<>();
     private List<Pokemon> pmLegendaries;
+
+    /**
+     * The items a species-expansion mod added (2026-11-25, user: "as soon as the mod is in, its items too, like the
+     * TMs"). UPR ZX's item lists stop at the game's own last item (959 in Ultra Sun/Ultra Moon), so the mod's evolution
+     * items (Peat Block, the armours, apples, teapots…) and most of its Mega Stones could never be placed anywhere. The
+     * application passes them (pokemanager.evolutionItems / pokemanager.megaStones, only for an expanded game): the
+     * lists grow to every item the game names, an evolution item UPR does not allow becomes allowed and not bad (like
+     * the game's own evolution items), and every Mega Stone allowed — still a "bad item", as UPR has the game's own, so
+     * only the Mega Stones option takes them out of that bag.
+     */
+    private void pmModItems() {
+        String evo = System.getProperty("pokemanager.evolutionItems", "");
+        String megas = System.getProperty("pokemanager.megaStones", "");
+        if (evo.isBlank() && megas.isBlank()) return;
+        try {
+            int size = itemNames.size();
+            boolean[] allowed = pmGrow(allowedItems, size), nonBad = pmGrow(nonBadItems, size);
+            for (String part : evo.split(",")) {
+                if (part.isBlank()) continue;
+                int i = Integer.parseInt(part.trim());
+                if (i <= 0 || i >= size || allowed[i]) continue;
+                allowed[i] = true;
+                nonBad[i] = true;
+            }
+            for (String part : megas.split(",")) {
+                if (part.isBlank()) continue;
+                int i = Integer.parseInt(part.trim());
+                if (i > 0 && i < size) allowed[i] = true;
+            }
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /** The item flags of an ItemList, grown to the game's item count (new ids not allowed, not TMs). */
+    private static boolean[] pmGrow(ItemList list, int size) throws ReflectiveOperationException {
+        java.lang.reflect.Field items = ItemList.class.getDeclaredField("items");
+        java.lang.reflect.Field tms = ItemList.class.getDeclaredField("tms");
+        items.setAccessible(true);
+        tms.setAccessible(true);
+        boolean[] flags = (boolean[]) items.get(list);
+        if (flags.length < size) {
+            flags = Arrays.copyOf(flags, size);
+            items.set(list, flags);
+            tms.set(list, Arrays.copyOf((boolean[]) tms.get(list), size));
+        }
+        return flags;
+    }
 
     private static int pmLevel(int level, int percent) {
         if (percent == 0) return level;

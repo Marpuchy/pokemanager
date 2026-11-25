@@ -268,7 +268,12 @@ public sealed class UprService
         var data = GameData.Load(project.ReadLayers(null, Mods), project.Game);
         if (!data.IsExpanded)
             return null;
-        return new UprGameCounts(data.LastSpecies, data.Personal.Length - data.SpeciesCount, data.Moves.Length - 1);
+        // The mod's items go into the randomizer's pool by default (2026-11-25, user): the ones its evolutions use and its Mega Stones.
+        var evolutionItems = data.Evolutions.SelectMany(e => e.InUse())
+            .Where(x => EvolutionSlots.ArgumentOf(x.Evolution.Method) == EvolutionArgument.Item && x.Evolution.Argument > 0 && x.Evolution.Argument < data.Items.Length)
+            .Select(x => x.Evolution.Argument).Distinct().Order().ToList();
+        return new UprGameCounts(data.LastSpecies, data.Personal.Length - data.SpeciesCount, data.Moves.Length - 1,
+            evolutionItems, data.MegaStones.Where(s => s > 0).Distinct().Order().ToList());
     }
 
     /// <summary>

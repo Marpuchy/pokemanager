@@ -29,13 +29,17 @@ public sealed class UprException(string message, string output) : Exception(mess
 /// How many species, extra forms and moves a ROM really has, for a ROM a mod expanded beyond what UPR ZX knows of the
 /// game (it has the counts as constants). Passed to the patched classes in <c>tools/upr/patch</c>.
 /// </summary>
-public sealed record UprGameCounts(int Species, int Forms, int Moves)
+/// <param name="EvolutionItems">The items the game's evolutions use, so the mod's own (Peat Block…) can be placed too.</param>
+/// <param name="MegaStones">The game's Mega Stones, the mod's included.</param>
+public sealed record UprGameCounts(int Species, int Forms, int Moves, IReadOnlyList<int>? EvolutionItems = null, IReadOnlyList<int>? MegaStones = null)
 {
     internal IEnumerable<string> JavaProperties =>
     [
         $"-Dpokemanager.pokemonCount={Species}",
         $"-Dpokemanager.formeCount={Forms}",
         $"-Dpokemanager.moveCount={Moves}",
+        $"-Dpokemanager.evolutionItems={string.Join(',', EvolutionItems ?? [])}",
+        $"-Dpokemanager.megaStones={string.Join(',', MegaStones ?? [])}",
     ];
 }
 
