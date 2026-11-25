@@ -247,6 +247,27 @@ public sealed class SaveDocumentTests : IDisposable
         Assert.Throws<SaveUpdateException>(() => SaveDocument.ReplaceFile(doc.SavePath, junk, Path.Combine(dir, "backups")));
     }
 
+    /// <summary>
+    /// An item the game keeps at 0 (used up, sold, handed to a Pokémon) stays at 0 when its pocket is set again: the
+    /// editor showed it as 1 and wrote it back as 1, which gave back the user's Steelixite (2026-11-25).
+    /// </summary>
+    [Fact]
+    public void SetPouch_KeepsUsedUpEntriesAtZero()
+    {
+        var doc = Open();
+        var pouch = doc.Pouches.First(p => p.Type == InventoryType.Medicine);
+        var ids = doc.PouchItems(pouch);
+        pouch.Items[0].Index = ids[0];
+        pouch.Items[0].Count = 3;
+        pouch.Items[1].Index = ids[1];
+        pouch.Items[1].Count = 0;
+
+        doc.SetPouch(pouch, [(ids[0], 2)]);
+
+        Assert.Equal((ids[0], 2), ((ushort)pouch.Items[0].Index, pouch.Items[0].Count));
+        Assert.Equal((ids[1], 0), ((ushort)pouch.Items[1].Index, pouch.Items[1].Count));
+    }
+
     [Fact]
     public void Write_TrainerBagDex_BackupAndReread()
     {

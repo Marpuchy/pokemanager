@@ -824,11 +824,13 @@ public partial class SaveBagViewModel : ObservableObject
         Pockets = doc.Pouches.Select(p => new PocketViewModel(p, Pickable(doc, p, names), names)).ToList();
         foreach (var pocket in Pockets)
         {
-            foreach (var item in pocket.Pouch.Items.Where(i => i.Index != 0))
+            // Used-up entries (count 0, kept by Generation 7 games) are not shown: shown as 1 they were written back as 1
+            // with the next change of the pocket, which gave back every item used, sold or handed to a Pokémon.
+            foreach (var item in pocket.Pouch.Items.Where(i => i.Index != 0 && i.Count > 0))
             {
                 int index = IndexOf(pocket, item.Index);
                 if (index >= 0)
-                    pocket.Items.Add(new BagItemViewModel(this, pocket, index, Math.Max(1, item.Count)));
+                    pocket.Items.Add(new BagItemViewModel(this, pocket, index, item.Count));
             }
         }
         SelectedPocket = Pockets.FirstOrDefault();

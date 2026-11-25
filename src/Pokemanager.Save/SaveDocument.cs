@@ -873,16 +873,23 @@ public sealed class SaveDocument
         return pouchItems[pouch.Type] = list;
     }
 
-    /// <summary>Replaces the contents of a pouch with (item, count) pairs, in order.</summary>
+    /// <summary>
+    /// Replaces the contents of a pouch with (item, count) pairs, in order. Entries the game keeps with a count of 0
+    /// (Generation 7 leaves used-up items in the bag that way) and that the list does not name stay, after the rest,
+    /// still at 0 (2026-11-25, user: held items "duplicated" — the editor had shown them as 1 and wrote them back as 1).
+    /// </summary>
     public void SetPouch(InventoryPouch pouch, IEnumerable<(int Item, int Count)> items)
     {
-        var list = items.Where(i => i.Item != 0 && i.Count > 0).Take(pouch.Items.Length).ToList();
+        var given = items.Where(i => i.Item != 0 && i.Count > 0).ToList();
+        var usedUp = pouch.Items.Where(i => i.Index != 0 && i.Count == 0 && given.All(g => g.Item != i.Index))
+            .Select(i => (Item: i.Index, Count: 0)).ToList();
+        var list = given.Concat(usedUp).Take(pouch.Items.Length).ToList();
         for (int i = 0; i < pouch.Items.Length; i++)
         {
             if (i < list.Count)
             {
                 pouch.Items[i].Index = list[i].Item;
-                pouch.Items[i].Count = Math.Min(list[i].Count, pouch.MaxCount);
+                pouch.Items[i].Count = Math.Clamp(list[i].Count, 0, pouch.MaxCount);
             }
             else
             {
